@@ -11,5 +11,5 @@ messaging:
     to_telegram: |-
       %player%:
       %message%
-    to_minecraft: '%player%: %message%'
+    to_minecraft: '#27A1E0%player%: #FFFFFF%message%'
     to_discord: '%player%: %message%'

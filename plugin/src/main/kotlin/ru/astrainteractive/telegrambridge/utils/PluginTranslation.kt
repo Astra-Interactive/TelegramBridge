@@ -35,7 +35,7 @@ class PluginTranslation : BaseTranslation() {
         .replace("%player%", playerName)
         .replace("%message%", message)
 
-    private val minecraftMessageFormat = translationValue("messaging.message.to_minecraft", "%player%: %message%")
+    private val minecraftMessageFormat = translationValue("messaging.message.to_minecraft", "#27A1E0%player%: #FFFFFF%message%")
     fun minecraftMessageFormat(playerName: String, message: String) = minecraftMessageFormat
         .replace("%player%", playerName)
         .replace("%message%", message)

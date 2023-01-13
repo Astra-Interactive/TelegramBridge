@@ -22,20 +22,30 @@ class BridgeBot(configModule: IDependency<PluginConfiguration>) : TelegramLongPo
 
     override fun getBotUsername(): String = "Empire Bridge Bot"
 
+    fun Update.name(): String? {
+        message.senderChat?.let {
+            return it.userName ?: "${it.firstName ?: "Анонимус"} ${it.lastName ?: ""}"
+        }
+        message.from?.let {
+            return it.userName ?: "${it.firstName ?: "Анонимус"} ${it.lastName ?: ""}"
+        }
+        return null
+    }
+
     override fun onUpdateReceived(update: Update) {
         update ?: return
         if (config.channelID != update?.message?.chatId?.toString()) return
         if (config.topicID != update?.message?.replyToMessage?.messageId?.toString()) return
-        val sender = update.message.senderChat?:return
-        val author = sender.userName?:"${sender.firstName?:"Анонимус"} ${sender.lastName?:""}"
+        val author = update?.name() ?: return
+        val text = update.message.text ?: return
         PluginScope.launch(Dispatchers.IO) {
             onCommand(update)
-            val formattedDiscord = translation.discordMessageFormat(author, update.message.text)
-            val discordMessage = Message.Text(formattedDiscord,Message.MessageFrom.TELEGRAM)
+            val formattedDiscord = translation.discordMessageFormat(author, text)
+            val discordMessage = Message.Text(formattedDiscord, Message.MessageFrom.TELEGRAM)
             messageController.sendToDiscord(discordMessage)
 
-            val formattedMinecraft = translation.minecraftMessageFormat(author, update.message.text)
-            val minecraftMessage = Message.Text(formattedDiscord,Message.MessageFrom.TELEGRAM)
+            val formattedMinecraft = translation.minecraftMessageFormat(author, text)
+            val minecraftMessage = Message.Text(formattedMinecraft, Message.MessageFrom.TELEGRAM)
             messageController.sendToMinecraft(minecraftMessage)
         }
     }
