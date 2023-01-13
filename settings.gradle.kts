@@ -1,9 +1,6 @@
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-        maven("https://maven.fabricmc.net/") { name = "Fabric" }
-        maven("https://files.minecraftforge.net/maven")
-        maven("https://dist.creeper.host/Sponge/maven")
         maven("https://plugins.gradle.org/m2/")
         maven("https://jitpack.io")
         gradlePluginPortal()
@@ -42,13 +39,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AstraTemplate"
+rootProject.name = "TelegramBridge"
 
-// Shared
-include("domain")
 // Spigot
 include("plugin")
-// Fabric
-include("fabric")
-// Forge
-include("forge")
+//include("tg-api")

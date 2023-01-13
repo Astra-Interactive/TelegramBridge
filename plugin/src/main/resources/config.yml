@@ -1,14 +1,13 @@
-config1: "string config"
-confi2: 0
-config3: false
-section:
-  value1: "value"
-  value2: 0
-list:
-  - "config"
-  - "config"
-another_list:
-  - value1: "value"
-    value2: 0
-  - value1: "value2"
-    value2: 0
+telegram:
+  token: "PASS HERE YOUR BOT TOKEN"
+  # Send /chatid with bot enabled to receive chatID
+  chat_id: 0
+  # Send /topicmessage with bot enabled to receive topicID
+  topic_id: 0
+chat:
+  # Display join messages
+  join: true
+  # Display leave messages
+  leave: true
+  # Display death messages
+  death: true

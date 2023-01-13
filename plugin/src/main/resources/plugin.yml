@@ -1,5 +1,5 @@
-main: ru.astrainteractive.astratemplate.AstraTemplate
-prefix: AstraTemplate
+main: ru.astrainteractive.telegrambridge.TelegramBridge
+prefix: TelegramBridge
 description: '${description}'
 version: '${version}'
 name: '${name}'
@@ -11,19 +11,8 @@ softdepend: [ ]
 depend: [ ]
 loadbefore: [ ]
 commands:
-  add:
-  rickandmorty:
-  atempreload:
+  tbreload:
     description: Reload plugin
-    permission: astra_template.reload
+    permission: tbridge.reload
     permission-message: You do not have permission!
     usage: /<command>
-  adamage:
-    description: Damage player
-    permission: astra_template.damage
-    permission-message: You do not have permission!
-    usage: /<command> <player> amount
-  atempgui:
-    description: Shows template gui
-    usage: /<command>
-  translation:

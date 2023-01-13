@@ -27,6 +27,4 @@ dependencies {
     compileOnly(libs.spigotApi)
     compileOnly(libs.spigot)
     compileOnly(libs.discordsrv)
-
-    implementation("org.telegram:telegrambots:6.4.0")
 }
