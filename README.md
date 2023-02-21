@@ -1,6 +1,7 @@
 [![kotlin_version](https://img.shields.io/badge/kotlin-1.7.0-blueviolet?style=flat-square)](https://github.com/Astra-Interactive/AstraLibs)
 [![minecraft_version](https://img.shields.io/badge/minecraft-1.19-green?style=flat-square)](https://github.com/Astra-Interactive/AstraLibs)
 [![platforms](https://img.shields.io/badge/platform-spigot-blue?style=flat-square)](https://github.com/Astra-Interactive/AstraLibs)
+# DEPRECATED AS CHAT IN TELEGRAM IS NOT READABLE AT ALL
 # TelegramBridge
 This plugin template will send messages from game/discord to telegram topics group and from telegram to minecraft/discord
 
