@@ -38,6 +38,7 @@ val destination = File("/home/makeevrserg/Desktop/server/data/plugins")
 setupSpigotProcessor()
 
 val shadowJar = tasks.named<ShadowJar>("shadowJar")
+
 shadowJar.configure {
     if (!destination.exists()) destination.mkdirs()
 
