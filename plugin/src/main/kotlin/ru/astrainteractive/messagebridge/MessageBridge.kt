@@ -1,7 +1,7 @@
 package ru.astrainteractive.messagebridge
 
 import org.bukkit.plugin.java.JavaPlugin
-import ru.astrainteractive.messagebridge.modules.RootModuleImpl
+import ru.astrainteractive.messagebridge.di.RootModuleImpl
 
 class MessageBridge : JavaPlugin() {
     private val rootModule = RootModuleImpl(this)

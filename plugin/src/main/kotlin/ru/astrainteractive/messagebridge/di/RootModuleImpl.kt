@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.modules
+package ru.astrainteractive.messagebridge.di
 
 import CommandManager
 import kotlinx.coroutines.cancel
@@ -42,7 +42,7 @@ class RootModuleImpl(
     )
 
     val translationKrate = ConfigKrateFactory.create(
-        fileNameWithoutExtension = "config",
+        fileNameWithoutExtension = "translations",
         stringFormat = yamlStringFormat,
         dataFolder = plugin.dataFolder,
         factory = ::PluginTranslation

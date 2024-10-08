@@ -24,4 +24,7 @@ class CommandManager(
         sender.sendMessage(translation.reloadComplete.let(kyori::toComponent))
         true
     }
+    init {
+        reloadCommand
+    }
 }
