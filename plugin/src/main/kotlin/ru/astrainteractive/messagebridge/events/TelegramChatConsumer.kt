@@ -1,10 +1,12 @@
-package ru.astrainteractive.messagebridge.bot
+package ru.astrainteractive.messagebridge.events
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -86,11 +88,23 @@ class TelegramChatConsumer(
 
     private suspend fun onCommand(update: Update) {
         val text = update.message.text ?: return
+        val chatId = update.message.chatId.toString()
+        val originalMessageId = update.message?.replyToMessage?.messageId
         when (text) {
             "/minfo" -> {
-                val chatId = update.message.chatId.toString()
-                val originalMessageId = update.message?.replyToMessage?.messageId
                 val message = "chatID is $chatId; originalMessageId: $originalMessageId"
+                val sendMessage = SendMessage(chatId, message).apply {
+                    replyToMessageId = originalMessageId
+                }
+                telegramClientOrNull()?.execute(sendMessage)
+            }
+
+            "/vanilla" -> {
+                val players = Bukkit.getOnlinePlayers().map(Player::name)
+                val message = players.joinToString(
+                    ", ",
+                    prefix = "Сейчас онлайн ${players.size} игроков\n"
+                )
                 val sendMessage = SendMessage(chatId, message).apply {
                     replyToMessageId = originalMessageId
                 }
