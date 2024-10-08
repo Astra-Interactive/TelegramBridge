@@ -25,10 +25,10 @@ minecraft-protocollib = "5.1.0" # https://github.com/dmulloy2/ProtocolLib
 minecraft-vault = "1.7.1" # https://github.com/MilkBowl/VaultAPI
 minecraft-astralibs = "3.15.0" # https://github.com/Astra-Interactive/AstraLibs
 minecraft-bstats = "3.1.0" # https://github.com/Bastian/bStats
-minecraft-mockbukkit = "3.129.1" #https://github.com/MockBukkit/MockBukkit
+minecraft-mockbukkit = "3.131.0" #https://github.com/MockBukkit/MockBukkit
 minecraft-luckperms = "5.4" # https://github.com/LuckPerms/LuckPerms
 minecraft-essentialsx = "2.20.1" # https://github.com/EssentialsX/Essentials
-minecraft-towny = "0.100.4.3" # https://github.com/TownyAdvanced/Towny
+minecraft-towny = "0.100.4.4" # https://github.com/TownyAdvanced/Towny
 
 # Shadow
 gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
@@ -43,7 +43,7 @@ exposed = "0.55.0" # https://github.com/JetBrains/Exposed
 discordsrv = "1.28.1" # https://github.com/DiscordSRV/DiscordSRV
 
 # Mockito
-mockito = "5.14.0" # https://github.com/mockito/mockito
+mockito = "5.14.1" # https://github.com/mockito/mockito
 cache4k = "0.13.0" # https://github.com/ReactiveCircus/cache4k
 
 
