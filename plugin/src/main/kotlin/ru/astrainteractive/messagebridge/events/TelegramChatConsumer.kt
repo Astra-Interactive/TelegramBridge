@@ -96,7 +96,7 @@ class TelegramChatConsumer(
                 info { "#consume detect message with max chars limit" }
                 return@launch
             }
-            if (!onCommand(update)) return@launch
+            if (onCommand(update)) return@launch
             val minecraftMessage = Message.Text(
                 author = author,
                 text = text,
