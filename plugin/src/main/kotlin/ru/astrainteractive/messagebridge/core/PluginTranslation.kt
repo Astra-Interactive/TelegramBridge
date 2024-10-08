@@ -8,13 +8,13 @@ import ru.astrainteractive.astralibs.string.StringDescExt.replace
 @Serializable
 data class PluginTranslation(
     @SerialName("general.prefix")
-    val prefix: StringDesc.Raw = StringDesc.Raw("#18dbd1[EmpireItems]"),
+    val prefix: StringDesc.Raw = StringDesc.Raw("&#18dbd1[EmpireItems]"),
     @SerialName("general.reload")
-    val reload: StringDesc.Raw = StringDesc.Raw("#dbbb18Перезагрузка плагина"),
+    val reload: StringDesc.Raw = StringDesc.Raw("&#dbbb18Перезагрузка плагина"),
     @SerialName("general.reload_complete")
-    val reloadComplete: StringDesc.Raw = StringDesc.Raw("#42f596Перезагрузка успешно завершена"),
+    val reloadComplete: StringDesc.Raw = StringDesc.Raw("&#42f596Перезагрузка успешно завершена"),
     @SerialName("general.no_permission")
-    val noPermission: StringDesc.Raw = StringDesc.Raw("#db2c18У вас нет прав!"),
+    val noPermission: StringDesc.Raw = StringDesc.Raw("&#db2c18У вас нет прав!"),
     @SerialName("messaging.player_join")
     private val playerJoinMessage: StringDesc.Raw = StringDesc.Raw("Игрок %player% присоединился"),
     @SerialName("messaging.player_leave")
@@ -24,7 +24,7 @@ data class PluginTranslation(
     @SerialName("messaging.message.to_telegram")
     private val telegramMessageFormat: StringDesc.Raw = StringDesc.Raw("%player%:\n%message%"),
     @SerialName("messaging.message.to_minecraft")
-    private val minecraftMessageFormat: StringDesc.Raw = StringDesc.Raw("#27A1E0%player%: #FFFFFF%message%"),
+    private val minecraftMessageFormat: StringDesc.Raw = StringDesc.Raw("[TG] &#27A1E0%player%: &#FFFFFF%message%"),
 ) {
     fun minecraftMessageFormat(playerName: String, message: String) = minecraftMessageFormat
         .replace("%player%", playerName)
@@ -34,9 +34,9 @@ data class PluginTranslation(
         .replace("%player%", playerName)
         .replace("%message%", message)
 
-    fun playerDiedMessage(name: String, cause: String) = playerDiedMessage
+    fun playerDiedMessage(name: String, cause: String?) = playerDiedMessage
         .replace("%player%", name)
-        .replace("%cause%", cause)
+        .replace("%cause%", cause ?: "Просто так")
 
     fun playerLeaveMessage(name: String) = playerLeaveMessage
         .replace("%player%", name)

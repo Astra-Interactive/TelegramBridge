@@ -8,9 +8,20 @@ sealed interface Message {
     val from: MessageFrom
 
     data class Text(
-        val textInternal: String,
+        val author: String,
+        val text: String,
         override val from: MessageFrom
-    ) : Message {
-        val formattedText: String = "[$from] $textInternal"
+    ) : Message
+
+    data class PlayerJoined(val name: String) : Message {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
+
+    data class PlayerLeave(val name: String) : Message {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
+
+    data class PlayerDeath(val name: String, val cause: String? = null) : Message {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
     }
 }

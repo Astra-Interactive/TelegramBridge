@@ -35,7 +35,8 @@ class BukkitEvent(
         if (!config.displayJoinMessage) return
         scope.launch(dispatchers.IO) {
             val message = Message.Text(
-                textInternal = translation.playerJoinMessage(it.player.name).raw,
+                author = it.player.name,
+                text = translation.playerJoinMessage(it.player.name).raw,
                 from = Message.MessageFrom.MINECRAFT
             )
             telegramMessageController.send(message)
@@ -46,10 +47,7 @@ class BukkitEvent(
     fun playerLeaveEvent(it: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         scope.launch(dispatchers.IO) {
-            val message = Message.Text(
-                textInternal = translation.playerLeaveMessage(it.player.name).raw,
-                from = Message.MessageFrom.MINECRAFT
-            )
+            val message = Message.PlayerLeave(name = it.player.name)
             telegramMessageController.send(message)
         }
     }
@@ -59,7 +57,8 @@ class BukkitEvent(
         scope.launch(dispatchers.IO) {
             val textComponent = it.message() as TextComponent
             val message = Message.Text(
-                textInternal = translation.telegramMessageFormat(it.player.name, textComponent.content()).raw,
+                author = it.player.name,
+                text = textComponent.content(),
                 from = Message.MessageFrom.MINECRAFT
             )
             telegramMessageController.send(message)
@@ -70,10 +69,10 @@ class BukkitEvent(
     fun deathEvent(it: PlayerDeathEvent) {
         if (!config.displayDeathMessage) return
         scope.launch(dispatchers.IO) {
-            val textComponent = (it.deathMessage() as? TextComponent?)?.content() ?: it.deathMessage
-            val message = Message.Text(
-                textInternal = translation.playerDiedMessage(it.player.name, textComponent ?: "Непанятна че").raw,
-                from = Message.MessageFrom.MINECRAFT
+            val deathCause = (it.deathMessage() as? TextComponent?)?.content() ?: it.deathMessage
+            val message = Message.PlayerDeath(
+                name = it.player.name,
+                cause = deathCause
             )
             telegramMessageController.send(message)
         }

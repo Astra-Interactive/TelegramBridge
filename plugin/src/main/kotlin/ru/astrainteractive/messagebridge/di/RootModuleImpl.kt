@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.runBlocking
 import org.bukkit.event.HandlerList
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
+import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.async.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
@@ -16,7 +18,7 @@ import ru.astrainteractive.astralibs.serialization.YamlStringFormat
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.MessageBridge
-import ru.astrainteractive.messagebridge.bot.TelegramBot
+import ru.astrainteractive.messagebridge.bot.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.di.factory.ConfigKrateFactory
@@ -53,31 +55,52 @@ class RootModuleImpl(
         loader = { null }
     )
 
-    val minecraftMessageController = MinecraftMessageController()
+    val minecraftMessageController = MinecraftMessageController(
+        kyoriKrate = kyoriKrate,
+        translationKrate = translationKrate
+    )
 
-    val bridgeBotFlow = configKrate.cachedStateFlow
-        .mapCached<PluginConfiguration, TelegramBot>(
+    val telegramClientFlow = configKrate.cachedStateFlow
+        .mapCached<PluginConfiguration, OkHttpTelegramClient>(
             scope = scope,
             transform = { config, prev ->
+                info { "#telegramClientFlow creating telegram client" }
+                val clinet = OkHttpTelegramClient(config.token)
+                info { "#telegramClientFlow telegram client created!" }
+                clinet
+            }
+        )
+
+    val consumer = TelegramChatConsumer(
+        configKrate = configKrate,
+        minecraftMessageController = minecraftMessageController,
+        telegramClientFlow = telegramClientFlow,
+        scope = scope,
+        dispatchers = dispatchers
+    )
+
+    val bridgeBotFlow = configKrate.cachedStateFlow
+        .mapCached<PluginConfiguration, TelegramBotsLongPollingApplication>(
+            scope = scope,
+            transform = { config, prev ->
+
                 info { "#bridgeBotFlow closing previous bot" }
-                prev?.clearWebhook()
-                prev?.onClosing()
+                prev?.unregisterBot(config.token)
+                prev?.stop()
+                prev?.close()
                 info { "#bridgeBotFlow loading bot" }
-                val bot = TelegramBot(
-                    configKrate = configKrate,
-                    translationKrate = translationKrate,
-                    minecraftMessageController = minecraftMessageController,
-                    scope = scope,
-                    dispatchers = dispatchers
-                )
+
+                val longPollingApplication = TelegramBotsLongPollingApplication()
+                longPollingApplication.registerBot(config.token, consumer)
                 info { "#bot loaded!" }
-                bot
+                longPollingApplication
             }
         )
 
     val telegramMessageController = TelegramMessageController(
         configKrate = configKrate,
-        tgBotFlow = bridgeBotFlow
+        telegramClientFlow = telegramClientFlow,
+        translationKrate = translationKrate
     )
 
     private val bukkitEvent = BukkitEvent(
@@ -88,11 +111,13 @@ class RootModuleImpl(
         dispatchers = dispatchers
     )
 
-    private val commandManager = CommandManager(
-        translationKrate = translationKrate,
-        kyoriKrate = kyoriKrate,
-        plugin = plugin
-    )
+    private val commandManager by lazy {
+        CommandManager(
+            translationKrate = translationKrate,
+            kyoriKrate = kyoriKrate,
+            plugin = plugin
+        )
+    }
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
@@ -110,8 +135,9 @@ class RootModuleImpl(
             runBlocking(dispatchers.IO) {
                 runCatching {
                     bridgeBotFlow.timeout(TIMEOUT).first().let { bot ->
-                        bot.clearWebhook()
-                        bot.onClosing()
+                        bot.unregisterBot(configKrate.cachedStateFlow.value.token)
+                        bot.stop()
+                        bot.close()
                     }
                 }.onFailure { error { "#onDisable could not close TGBot: ${it.message} ${it.cause?.message}" } }
             }

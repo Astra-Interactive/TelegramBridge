@@ -1,4 +1,6 @@
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
+import ru.astrainteractive.astralibs.logging.JUtiltLogger
+import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.permission.BukkitPermissibleExt.toPermissible
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.MessageBridge
@@ -10,21 +12,31 @@ class CommandManager(
     translationKrate: Krate<PluginTranslation>,
     kyoriKrate: Krate<KyoriComponentSerializer>,
     private val plugin: MessageBridge
-) {
+) : Logger by JUtiltLogger("CommandManager") {
     val translation by translationKrate
     val kyori by kyoriKrate
 
-    val reloadCommand = plugin.getCommand("mbreload")?.setExecutor { sender, command, label, args ->
+    private fun reload() = plugin.getCommand("mbreload")?.setExecutor { sender, command, label, args ->
+        info { "#reload command" }
         if (!sender.toPermissible().hasPermission(PluginPermission.Reload)) {
-            sender.sendMessage(translation.noPermission.let(kyori::toComponent))
+            kyori
+                .toComponent(translation.noPermission)
+                .run(sender::sendMessage)
+            info { "#reload no permission" }
             return@setExecutor true
         }
-        sender.sendMessage(translation.reload.let(kyori::toComponent))
+        kyori
+            .toComponent(translation.reload)
+            .run(sender::sendMessage)
         plugin.onReload()
-        sender.sendMessage(translation.reloadComplete.let(kyori::toComponent))
+        kyori
+            .toComponent(translation.reloadComplete)
+            .run(sender::sendMessage)
         true
     }
+
     init {
-        reloadCommand
+        info { "#init" }
+        reload()
     }
 }

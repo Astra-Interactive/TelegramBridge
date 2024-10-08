@@ -23,7 +23,9 @@ dependencies {
     compileOnly(libs.driver.h2)
     compileOnly(libs.driver.jdbc)
     compileOnly(libs.driver.mysql)
-    implementation("org.telegram:telegrambots:7.10.0")
+    implementation("org.telegram:telegrambots-longpolling:7.10.0")
+    implementation("org.telegram:telegrambots-extensions:7.10.0")
+    implementation("org.telegram:telegrambots-client:7.10.0")
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.discordsrv)
