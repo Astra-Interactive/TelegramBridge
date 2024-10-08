@@ -18,11 +18,11 @@ import ru.astrainteractive.astralibs.serialization.YamlStringFormat
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.MessageBridge
-import ru.astrainteractive.messagebridge.bot.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.di.factory.ConfigKrateFactory
 import ru.astrainteractive.messagebridge.events.BukkitEvent
+import ru.astrainteractive.messagebridge.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.TelegramMessageController
 import kotlin.time.Duration.Companion.seconds

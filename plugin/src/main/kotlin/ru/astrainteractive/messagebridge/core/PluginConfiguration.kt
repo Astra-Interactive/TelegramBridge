@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class PluginConfiguration(
+data class PluginConfiguration(
     @SerialName("token")
     val token: String = "",
     @SerialName("chat_id")
@@ -13,5 +13,7 @@ class PluginConfiguration(
     val topicID: String = "",
     val displayJoinMessage: Boolean = true,
     val displayLeaveMessage: Boolean = true,
-    val displayDeathMessage: Boolean = true
+    val displayDeathMessage: Boolean = true,
+    @SerialName("max_telegram_message_length")
+    val maxTelegramMessageLength: Int = 90,
 )

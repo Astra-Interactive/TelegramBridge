@@ -1,10 +1,13 @@
-package ru.astrainteractive.messagebridge.bot
+package ru.astrainteractive.messagebridge.events
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -18,6 +21,7 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.model.Message
 import ru.astrainteractive.messagebridge.utils.getValue
+import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramChatConsumer(
@@ -48,13 +52,25 @@ class TelegramChatConsumer(
 
     override fun consume(update: Update) {
         update ?: return
-        scope.launch(dispatchers.IO) { onCommand(update) }
         if (config.chatID != update?.message?.chatId?.toString()) {
             info { "#consume configChatId!=message ${config.chatID}!=${update?.message?.chatId?.toString()}" }
             return
         }
         val replyMessageId = update.message?.replyToMessage?.messageId?.toString()
         val messageThreadId = update.message?.messageThreadId?.toString()
+
+        val date = update.message?.date?.toLong() ?: run {
+            info { "#consume the date of message is null" }
+            return
+        }
+
+        val triggerTime = kotlinx.datetime.Instant.fromEpochSeconds(date)
+        val now = Clock.System.now()
+        val diff = now.minus(triggerTime)
+        if (diff > 10.seconds) {
+            info { "#consume message is too old: $triggerTime vs $now ->  $diff" }
+            return
+        }
 
         if (config.topicID != (messageThreadId ?: replyMessageId)) {
             return
@@ -64,7 +80,7 @@ class TelegramChatConsumer(
                 update.message.chatId.toString(),
                 update.message.messageId
             )
-            val author = update?.name() ?: run {
+            val author = update.name() ?: run {
                 info { "#consume author name is null" }
                 telegramClientOrNull()?.execute(deleteMessage)
                 return@launch
@@ -75,6 +91,12 @@ class TelegramChatConsumer(
                 info { "#consume text is null" }
                 return@launch
             }
+            if (text.length > config.maxTelegramMessageLength) {
+                telegramClientOrNull()?.execute(deleteMessage)
+                info { "#consume detect message with max chars limit" }
+                return@launch
+            }
+            if (onCommand(update)) return@launch
             val minecraftMessage = Message.Text(
                 author = author,
                 text = text,
@@ -84,18 +106,33 @@ class TelegramChatConsumer(
         }
     }
 
-    private suspend fun onCommand(update: Update) {
-        val text = update.message.text ?: return
+    private suspend fun onCommand(update: Update): Boolean {
+        val text = update.message.text ?: return false
+        val chatId = update.message.chatId.toString()
+        val originalMessageId = update.message?.replyToMessage?.messageId
         when (text) {
             "/minfo" -> {
-                val chatId = update.message.chatId.toString()
-                val originalMessageId = update.message?.replyToMessage?.messageId
                 val message = "chatID is $chatId; originalMessageId: $originalMessageId"
                 val sendMessage = SendMessage(chatId, message).apply {
                     replyToMessageId = originalMessageId
                 }
                 telegramClientOrNull()?.execute(sendMessage)
+                return true
+            }
+
+            "/vanilla" -> {
+                val players = Bukkit.getOnlinePlayers().map(Player::getDisplayName)
+                val message = players.joinToString(
+                    ", ",
+                    prefix = "Сейчас онлайн ${players.size} игроков\n"
+                )
+                val sendMessage = SendMessage(chatId, message).apply {
+                    replyToMessageId = originalMessageId
+                }
+                telegramClientOrNull()?.execute(sendMessage)
+                return true
             }
         }
+        return false
     }
 }
