@@ -26,6 +26,7 @@ dependencies {
     implementation("org.telegram:telegrambots-longpolling:7.10.0")
     implementation("org.telegram:telegrambots-extensions:7.10.0")
     implementation("org.telegram:telegrambots-client:7.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.discordsrv)

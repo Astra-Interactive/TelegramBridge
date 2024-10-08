@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
@@ -20,6 +21,7 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.model.Message
 import ru.astrainteractive.messagebridge.utils.getValue
+import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramChatConsumer(
@@ -56,6 +58,19 @@ class TelegramChatConsumer(
         }
         val replyMessageId = update.message?.replyToMessage?.messageId?.toString()
         val messageThreadId = update.message?.messageThreadId?.toString()
+
+        val date = update.message?.date?.toLong() ?: run {
+            info { "#consume the date of message is null" }
+            return
+        }
+
+        val triggerTime = kotlinx.datetime.Instant.fromEpochSeconds(date)
+        val now = Clock.System.now()
+        val diff = now.minus(triggerTime)
+        if (diff > 10.seconds) {
+            info { "#consume message is too old: $triggerTime vs $now ->  $diff" }
+            return
+        }
 
         if (config.topicID != (messageThreadId ?: replyMessageId)) {
             return
