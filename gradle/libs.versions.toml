@@ -1,99 +1,146 @@
 [versions]
-# Plugin/Mod core
-plugin = "0.0.1"
-name = "TelegramBridge"
-group = "com.astrainteractive.telegrambridge"
-description = "Telegram bridge plugin for Minecraft"
-destinationDirectoryPath = "D:\\Minecraft Servers\\TEST_SERVER\\plugins"
-destinationDirectoryFabricPath = "C:\\Users\\makee\\Desktop\\server\\mods"
-destinationDirectoryForgePath = "C:\\Users\\makee\\Desktop\\Forge\\mods"
-# Core
-kotlin = "1.7.0"
-coroutines = "1.6.3"
-json = "1.3.3"
-kaml = "0.46.0"
-exposed = "0.38.1"
-jdbc = "3.36.0.3"
-astraLibs = "2.1.1"
-mysqlDriver = "8.0.20"
-xerialSqliteJdbcVersion = "3.34.0"
-# Build
-shadow = "7.1.2"
-# Spigot
-velocity = "3.1.1"
-spigot = "1.19-R0.1-SNAPSHOT"
-# Spigot dependencies
-placeholderAPI = "2.11.2"
-protocolLib = "4.8.0"
-worldGuard = "7.0.7"
-vault = "1.7"
-coreProtect = "21.2"
-modelEngine = "R3.0.0"
-essentials = "2.19.5-SNAPSHOT"
-discordSRV = "1.25.0"
-luckPerms = "5.4"
-bstats = "3.0.0"
-# Testing
-junit = "4.12"
-mockito = "4.0.0"
-roboelectric = "4.9"
-mockk = "1.13.2"
-orgTesting = "7.1.0"
+# Kotlin
+kotlin-version = "2.0.0" # https://github.com/JetBrains/kotlin
+kotlin-benchmark = "0.4.12" # https://github.com/Kotlin/kotlinx-benchmark
+kotlin-coroutines = "1.9.0" # https://github.com/Kotlin/kotlinx.coroutines
+kotlin-json = "1.7.3" # https://github.com/Kotlin/kotlinx.serialization
+kotlin-kaml = "0.61.0" # https://github.com/charleskorn/kaml
+
+# Drivers
+driver-jdbc = "3.46.1.3" # https://github.com/xerial/sqlite-jdbc
+driver-mysql = "8.0.33" # https://github.com/mysql/mysql-connector-j
+driver-h2 = "2.3.232" # https://github.com/h2database/h2database
+
+# klibs
+klibs-gradleplugin = "1.3.4" # https://github.com/makeevrserg/gradle-plugin
+klibs-mikro = "1.8.8" # https://github.com/makeevrserg/klibs.mikro
+klibs-kdi = "1.4.8" # https://github.com/makeevrserg/klibs.kdi
+klibs-kstorage = "3.1.3" # https://github.com/makeevrserg/klibs.kstorage
+
 # Minecraft
-minecraftVersion = "1.19.2"
-# Fabric
-fabricLoom = "1.0-SNAPSHOT"
-fabric-kotlin = "1.8.1+kotlin.1.7.0"
-fabric-loader = "0.14.9"
-fabric-api = "0.60.0+1.19.2"
-# Forge
-netMinecraftForge = "5.1.+"
-forge-version = "1.19-41.0.35"
+minecraft-velocity = "4.0.0-SNAPSHOT" # https://github.com/PaperMC/Velocity
+minecraft-spigot = "1.21-R0.1-SNAPSHOT" # https://github.com/PaperMC/Paper
+minecraft-papi = "2.11.6" # https://github.com/PlaceholderAPI/PlaceholderAPI
+minecraft-protocollib = "5.1.0" # https://github.com/dmulloy2/ProtocolLib
+minecraft-vault = "1.7.1" # https://github.com/MilkBowl/VaultAPI
+minecraft-astralibs = "3.15.0" # https://github.com/Astra-Interactive/AstraLibs
+minecraft-bstats = "3.1.0" # https://github.com/Bastian/bStats
+minecraft-mockbukkit = "3.129.1" #https://github.com/MockBukkit/MockBukkit
+minecraft-luckperms = "5.4" # https://github.com/LuckPerms/LuckPerms
+minecraft-essentialsx = "2.20.1" # https://github.com/EssentialsX/Essentials
+minecraft-towny = "0.100.4.3" # https://github.com/TownyAdvanced/Towny
+
+# Shadow
+gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
+
+# BuildConfig
+gradle-buildconfig = "5.5.0" # https://github.com/gmazzo/gradle-buildconfig-plugin
+
+# Exposed
+exposed = "0.55.0" # https://github.com/JetBrains/Exposed
+
+# DisordSrv
+discordsrv = "1.28.1" # https://github.com/DiscordSRV/DiscordSRV
+
+# Mockito
+mockito = "5.14.0" # https://github.com/mockito/mockito
+cache4k = "0.13.0" # https://github.com/ReactiveCircus/cache4k
+
+
 [libraries]
-# Core
-kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-coroutines-coreJvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "coroutines" }
-xerialSqliteJdbcLib = { module = "org.xerial:sqlite-jdbc", version.ref = "xerialSqliteJdbcVersion" }
-kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
-kotlin-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "json" }
-kotlin-serializationKaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
-astralibs-ktxCore = { module = "ru.astrainteractive.astralibs:ktx-core", version.ref = "astraLibs" }
-astralibs-spigotCore = { module = "ru.astrainteractive.astralibs:spigot-core", version.ref = "astraLibs" }
-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "jdbc" }
+# Kotlin
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
+kotlin-coroutines-coreJvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlin-coroutines" }
+kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin-version" }
+kotlin-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlin-json" }
+kotlin-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-json" }
+kotlin-serializationKaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kotlin-kaml" }
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-version" }
+kotlin-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlin-benchmark" }
+
+# Shadow
+gradle-shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version.ref = "gradle-shadow" }
+
+# Drivers
+driver-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "driver-jdbc" }
+driver-mysql = { module = "mysql:mysql-connector-java", version.ref = "driver-mysql" }
+driver-h2 = { module = "com.h2database:h2", version.ref = "driver-h2" }
+
+# Testing
+tests-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+
+# Exposed
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
-mysql-connector-java = { module = "mysql:mysql-connector-java", version.ref = "mysqlDriver" }
-# Testing
-orgTesting = { module = "org.testng:testng", version.ref = "orgTesting" }
-# Spigot core
-essentialsx = { module = "net.essentialsx:EssentialsX", version.ref = "essentials" }
-paperApi = { module = "io.papermc.paper:paper-api", version.ref = "spigot" }
-spigotApi = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
-spigot = { module = "org.spigotmc:spigot", version.ref = "spigot" }
-velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
-# Spigot dependencies
-protocollib = { module = "com.comphenix.protocol:ProtocolLib", version.ref = "protocolLib" }
-placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderAPI" }
-worldguard-bukkit = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldGuard" }
-discordsrv = { module = "com.discordsrv:discordsrv", version.ref = "discordSRV" }
-vaultapi = { module = "com.github.MilkBowl:VaultAPI", version.ref = "vault" }
-coreprotect = { module = "net.coreprotect:coreprotect", version.ref = "coreProtect" }
-modelengine = { module = "com.ticxo.modelengine:api", version.ref = "modelEngine" }
-bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
-# Build
-shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version.ref = "shadow" }
-# Fabric
-fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
-fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
-fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
-mojangMinecraft = { module = "com.mojang:minecraft", version.ref = "minecraftVersion" }
+
+
+# Minecraft
+minecraft-paper-api = { module = "io.papermc.paper:paper-api", version.ref = "minecraft-spigot" }
+minecraft-spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "minecraft-spigot" }
+minecraft-spigot-core = { module = "org.spigotmc:spigot", version.ref = "minecraft-spigot" }
+minecraft-velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "minecraft-velocity" }
+minecraft-protocollib = { module = "com.comphenix.protocol:ProtocolLib", version.ref = "minecraft-protocollib" }
+minecraft-papi = { module = "me.clip:placeholderapi", version.ref = "minecraft-papi" }
+minecraft-vaultapi = { module = "com.github.MilkBowl:VaultAPI", version.ref = "minecraft-vault" }
+minecraft-bstats = { module = "org.bstats:bstats-bukkit", version.ref = "minecraft-bstats" }
+minecraft-mockbukkit = { module = "com.github.MockBukkit:MockBukkit", version.ref = "minecraft-mockbukkit" }
+
+minecraft-discordsrv = { module = "com.discordsrv:discordsrv", version.ref = "discordsrv" }
+
+minecraft-luckperms = { module = "net.luckperms:api", version.ref = "minecraft-luckperms" }
+minecraft-essentialsx = { module = "net.essentialsx:EssentialsX", version.ref = "minecraft-essentialsx" }
+minecraft-towny = { module = "com.palmergames.bukkit.towny:towny", version.ref = "minecraft-towny" }
+
+# klibs
+klibs-mikro-core = { module = "ru.astrainteractive.klibs:mikro-core", version.ref = "klibs-mikro" }
+klibs-kdi = { module = "ru.astrainteractive.klibs:kdi", version.ref = "klibs-kdi" }
+klibs-kstorage = { module = "ru.astrainteractive.klibs:kstorage", version.ref = "klibs-kstorage" }
+
+# AstraLibs
+minecraft-astralibs-orm = { module = "ru.astrainteractive.astralibs:orm", version.ref = "minecraft-astralibs" }
+minecraft-astralibs-exposed = { module = "ru.astrainteractive.astralibs:exposed", version.ref = "minecraft-astralibs" }
+minecraft-astralibs-core = { module = "ru.astrainteractive.astralibs:core", version.ref = "minecraft-astralibs" }
+minecraft-astralibs-menu-bukkit = { module = "ru.astrainteractive.astralibs:menu-bukkit", version.ref = "minecraft-astralibs" }
+minecraft-astralibs-core-bukkit = { module = "ru.astrainteractive.astralibs:core-bukkit", version.ref = "minecraft-astralibs" }
+minecraft-astralibs-command = { module = "ru.astrainteractive.astralibs:command", version.ref = "minecraft-astralibs" }
+minecraft-astralibs-command-bukkit = { module = "ru.astrainteractive.astralibs:command-bukkit", version.ref = "minecraft-astralibs" }
+
+cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
+
+[bundles]
+exposed = ["exposed-java-time", "exposed-jdbc", "exposed-dao", "exposed-core"]
+minecraft-bukkit = ["minecraft-paper-api", "minecraft-spigot-api", "minecraft-spigot-core", "minecraft-vaultapi", "minecraft-papi"]
+testing-kotlin = ["kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-coroutines-test", "driver-jdbc", "driver-mysql", "driver-h2", "kotlin-serialization", "kotlin-serializationJson"]
+kotlin = ["kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-serialization", "kotlin-serializationJson", "kotlin-serializationKaml", "kotlin-gradle"]
+
+
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-gradle = { id = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
-fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
-netMinecraftForge = { id = "net.minecraftforge.gradle", version.ref = "netMinecraftForge" }
+
+# Kotlin
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
+kotlin-gradle = { id = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-version" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version" }
+kotlin-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlin-benchmark" }
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin-version" }
+
+# Gradle
+gradle-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "gradle-shadow" }
+gradle-buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
+
+# klibs - core
+klibs-gradle-detekt = { id = "ru.astrainteractive.gradleplugin.detekt", version.ref = "klibs-gradleplugin" }
+klibs-gradle-detekt-compose = { id = "ru.astrainteractive.gradleplugin.detekt.compose", version.ref = "klibs-gradleplugin" }
+klibs-gradle-dokka-root = { id = "ru.astrainteractive.gradleplugin.dokka.root", version.ref = "klibs-gradleplugin" }
+klibs-gradle-dokka-module = { id = "ru.astrainteractive.gradleplugin.dokka.module", version.ref = "klibs-gradleplugin" }
+klibs-gradle-java-core = { id = "ru.astrainteractive.gradleplugin.java.core", version.ref = "klibs-gradleplugin" }
+klibs-gradle-stub-javadoc = { id = "ru.astrainteractive.gradleplugin.stub.javadoc", version.ref = "klibs-gradleplugin" }
+klibs-gradle-publication = { id = "ru.astrainteractive.gradleplugin.publication", version.ref = "klibs-gradleplugin" }
+klibs-gradle-rootinfo = { id = "ru.astrainteractive.gradleplugin.root.info", version.ref = "klibs-gradleplugin" }
+
+# klibs - minecraft
+klibs-gradle-minecraft-empty = { id = "ru.astrainteractive.gradleplugin.minecraft.empty", version.ref = "klibs-gradleplugin" }
+klibs-gradle-minecraft-multiplatform = { id = "ru.astrainteractive.gradleplugin.minecraft.multiplatform", version.ref = "klibs-gradleplugin" }
