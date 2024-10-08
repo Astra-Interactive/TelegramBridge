@@ -50,7 +50,6 @@ class TelegramChatConsumer(
 
     override fun consume(update: Update) {
         update ?: return
-        scope.launch(dispatchers.IO) { onCommand(update) }
         if (config.chatID != update?.message?.chatId?.toString()) {
             info { "#consume configChatId!=message ${config.chatID}!=${update?.message?.chatId?.toString()}" }
             return
@@ -66,7 +65,7 @@ class TelegramChatConsumer(
                 update.message.chatId.toString(),
                 update.message.messageId
             )
-            val author = update?.name() ?: run {
+            val author = update.name() ?: run {
                 info { "#consume author name is null" }
                 telegramClientOrNull()?.execute(deleteMessage)
                 return@launch
@@ -77,6 +76,12 @@ class TelegramChatConsumer(
                 info { "#consume text is null" }
                 return@launch
             }
+            if (text.length > config.maxTelegramMessageLength) {
+                telegramClientOrNull()?.execute(deleteMessage)
+                info { "#consume detect message with max chars limit" }
+                return@launch
+            }
+            if (!onCommand(update)) return@launch
             val minecraftMessage = Message.Text(
                 author = author,
                 text = text,
@@ -86,8 +91,8 @@ class TelegramChatConsumer(
         }
     }
 
-    private suspend fun onCommand(update: Update) {
-        val text = update.message.text ?: return
+    private suspend fun onCommand(update: Update): Boolean {
+        val text = update.message.text ?: return false
         val chatId = update.message.chatId.toString()
         val originalMessageId = update.message?.replyToMessage?.messageId
         when (text) {
@@ -97,10 +102,11 @@ class TelegramChatConsumer(
                     replyToMessageId = originalMessageId
                 }
                 telegramClientOrNull()?.execute(sendMessage)
+                return true
             }
 
             "/vanilla" -> {
-                val players = Bukkit.getOnlinePlayers().map(Player::name)
+                val players = Bukkit.getOnlinePlayers().map(Player::getDisplayName)
                 val message = players.joinToString(
                     ", ",
                     prefix = "Сейчас онлайн ${players.size} игроков\n"
@@ -109,7 +115,9 @@ class TelegramChatConsumer(
                     replyToMessageId = originalMessageId
                 }
                 telegramClientOrNull()?.execute(sendMessage)
+                return true
             }
         }
+        return false
     }
 }
