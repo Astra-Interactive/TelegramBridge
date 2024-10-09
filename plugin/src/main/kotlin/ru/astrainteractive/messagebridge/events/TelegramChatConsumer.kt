@@ -21,7 +21,6 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.model.Message
 import ru.astrainteractive.messagebridge.utils.getValue
-import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramChatConsumer(
@@ -32,6 +31,18 @@ class TelegramChatConsumer(
     private val dispatchers: KotlinDispatchers
 ) : LongPollingSingleThreadUpdateConsumer, Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val config by configKrate
+
+    private fun String.toFixedName(): String {
+        val name = this
+            .trim()
+            .replace("\n", "")
+            .replace("\t", "")
+        return if (name.length > 16) {
+            name.substring(0, 16)
+        } else {
+            name
+        }
+    }
 
     private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
         return kotlin.runCatching {
@@ -80,7 +91,7 @@ class TelegramChatConsumer(
                 update.message.chatId.toString(),
                 update.message.messageId
             )
-            val author = update.name() ?: run {
+            val author = update.name()?.toFixedName() ?: run {
                 info { "#consume author name is null" }
                 telegramClientOrNull()?.execute(deleteMessage)
                 return@launch
