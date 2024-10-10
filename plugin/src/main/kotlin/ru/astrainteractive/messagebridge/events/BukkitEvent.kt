@@ -9,12 +9,12 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
+import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.messaging.MessageController
-import ru.astrainteractive.messagebridge.messaging.model.Message
+import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
 import ru.astrainteractive.messagebridge.utils.getValue
 
 /**
@@ -22,24 +22,23 @@ import ru.astrainteractive.messagebridge.utils.getValue
  */
 class BukkitEvent(
     configKrate: Krate<PluginConfiguration>,
-    translationKrate: Krate<PluginTranslation>,
     private val telegramMessageController: MessageController,
+    private val clientBridgeApi: BridgeApi,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : EventListener {
     private val config by configKrate
-    private val translation by translationKrate
 
     @EventHandler
     fun playerJoin(it: PlayerJoinEvent) {
         if (!config.displayJoinMessage) return
         scope.launch(dispatchers.IO) {
-            val message = Message.Text(
-                author = it.player.name,
-                text = translation.playerJoinMessage(it.player.name).raw,
-                from = Message.MessageFrom.MINECRAFT
+            val messageEvent = MessageEvent.PlayerJoined(
+                name = it.player.name,
+                uuid = it.player.uniqueId.toString(),
             )
-            telegramMessageController.send(message)
+            telegramMessageController.send(messageEvent)
+            clientBridgeApi.broadcastEvent(messageEvent)
         }
     }
 
@@ -47,8 +46,12 @@ class BukkitEvent(
     fun playerLeaveEvent(it: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         scope.launch(dispatchers.IO) {
-            val message = Message.PlayerLeave(name = it.player.name)
-            telegramMessageController.send(message)
+            val messageEvent = MessageEvent.PlayerLeave(
+                name = it.player.name,
+                uuid = it.player.uniqueId.toString()
+            )
+            telegramMessageController.send(messageEvent)
+            clientBridgeApi.broadcastEvent(messageEvent)
         }
     }
 
@@ -56,12 +59,13 @@ class BukkitEvent(
     fun messageEvent(it: AsyncChatEvent) {
         scope.launch(dispatchers.IO) {
             val textComponent = it.message() as TextComponent
-            val message = Message.Text(
+            val messageEvent = MessageEvent.Text.Minecraft(
                 author = it.player.name,
                 text = textComponent.content(),
-                from = Message.MessageFrom.MINECRAFT
+                uuid = it.player.uniqueId.toString()
             )
-            telegramMessageController.send(message)
+            telegramMessageController.send(messageEvent)
+            clientBridgeApi.broadcastEvent(messageEvent)
         }
     }
 
@@ -70,11 +74,13 @@ class BukkitEvent(
         if (!config.displayDeathMessage) return
         scope.launch(dispatchers.IO) {
             val deathCause = (it.deathMessage() as? TextComponent?)?.content() ?: it.deathMessage
-            val message = Message.PlayerDeath(
+            val messageEvent = MessageEvent.PlayerDeath(
                 name = it.player.name,
-                cause = deathCause
+                cause = deathCause,
+                uuid = it.player.uniqueId.toString()
             )
-            telegramMessageController.send(message)
+            telegramMessageController.send(messageEvent)
+            clientBridgeApi.broadcastEvent(messageEvent)
         }
     }
 }

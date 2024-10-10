@@ -43,3 +43,5 @@ rootProject.name = "MessageBridge"
 
 // Spigot
 include("plugin")
+include("modules:bridge")
+include("modules:messenger:api")

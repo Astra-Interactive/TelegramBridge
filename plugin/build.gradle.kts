@@ -1,3 +1,5 @@
+import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
@@ -31,6 +33,8 @@ dependencies {
     compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.discordsrv)
     compileOnly(libs.minecraft.essentialsx)
+    implementation(projects.modules.bridge)
+    implementation(projects.modules.messenger.api)
 }
 
 minecraftProcessResource {
@@ -42,6 +46,7 @@ setupShadow {
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
+    requireProjectInfo
     requireShadowJarTask {
         minimize {
             exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.version.get()}"))

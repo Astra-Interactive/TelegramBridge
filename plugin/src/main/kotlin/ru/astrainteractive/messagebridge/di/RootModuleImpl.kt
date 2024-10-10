@@ -16,11 +16,13 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.serialization.YamlStringFormat
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
+import ru.astrainteractive.discordbot.module.bridge.di.BridgeModule
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.di.factory.ConfigKrateFactory
+import ru.astrainteractive.messagebridge.events.BridgeEvent
 import ru.astrainteractive.messagebridge.events.BukkitEvent
 import ru.astrainteractive.messagebridge.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
@@ -30,6 +32,8 @@ import kotlin.time.Duration.Companion.seconds
 class RootModuleImpl(
     private val plugin: MessageBridge
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+    val bridgeModule = BridgeModule.Default()
+
     val yamlStringFormat = YamlStringFormat()
 
     val dispatchers = DefaultBukkitDispatchers(plugin)
@@ -76,7 +80,8 @@ class RootModuleImpl(
         minecraftMessageController = minecraftMessageController,
         telegramClientFlow = telegramClientFlow,
         scope = scope,
-        dispatchers = dispatchers
+        dispatchers = dispatchers,
+        clientBridgeApi = bridgeModule.clientBridgeApi
     )
 
     val bridgeBotFlow = configKrate.cachedStateFlow
@@ -105,10 +110,16 @@ class RootModuleImpl(
 
     private val bukkitEvent = BukkitEvent(
         configKrate = configKrate,
-        translationKrate = translationKrate,
         telegramMessageController = telegramMessageController,
         scope = scope,
-        dispatchers = dispatchers
+        dispatchers = dispatchers,
+        clientBridgeApi = bridgeModule.clientBridgeApi
+    )
+
+    private val bridgeEvent = BridgeEvent(
+        clientBridgeApi = bridgeModule.clientBridgeApi,
+        minecraftMessageController = minecraftMessageController,
+        telegramMessageController = telegramMessageController
     )
 
     private val commandManager by lazy {
@@ -123,6 +134,7 @@ class RootModuleImpl(
         onEnable = {
             commandManager
             bukkitEvent.onEnable(plugin)
+            bridgeModule.lifecycle.onEnable()
         },
         onReload = {
             configKrate.loadAndGet()
@@ -130,6 +142,8 @@ class RootModuleImpl(
         },
         onDisable = {
             bukkitEvent.onDisable()
+            bridgeEvent.cancel()
+            bridgeModule.lifecycle.onDisable()
             HandlerList.unregisterAll(plugin)
             scope.cancel()
             runBlocking(dispatchers.IO) {
