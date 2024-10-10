@@ -10,7 +10,7 @@ import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.model.Message
+import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
 import ru.astrainteractive.messagebridge.utils.getValue
 import kotlin.time.Duration.Companion.seconds
 
@@ -28,31 +28,33 @@ class TelegramMessageController(
             .getOrNull()
     }
 
-    override suspend fun send(message: Message) {
-        val text = when (message) {
-            is Message.Text -> {
+    override suspend fun send(messageEvent: MessageEvent) {
+        if (messageEvent.from == MessageEvent.MessageFrom.TELEGRAM) return
+        val text = when (messageEvent) {
+            is MessageEvent.Text -> {
                 translation.telegramMessageFormat(
-                    playerName = message.author,
-                    message = message.text
+                    playerName = messageEvent.author,
+                    message = messageEvent.text,
+                    from = messageEvent.from.short
                 )
             }
 
-            is Message.PlayerDeath -> {
+            is MessageEvent.PlayerDeath -> {
                 translation.playerDiedMessage(
-                    name = message.name,
-                    cause = message.cause
+                    name = messageEvent.name,
+                    cause = messageEvent.cause
                 )
             }
 
-            is Message.PlayerJoined -> {
+            is MessageEvent.PlayerJoined -> {
                 translation.playerJoinMessage(
-                    name = message.name,
+                    name = messageEvent.name,
                 )
             }
 
-            is Message.PlayerLeave -> {
+            is MessageEvent.PlayerLeave -> {
                 translation.playerLeaveMessage(
-                    name = message.name,
+                    name = messageEvent.name,
                 )
             }
         }.raw

@@ -6,7 +6,7 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.model.Message
+import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
 import ru.astrainteractive.messagebridge.utils.getValue
 
 class MinecraftMessageController(
@@ -16,18 +16,20 @@ class MinecraftMessageController(
     private val kyori by kyoriKrate
     private val translation by translationKrate
 
-    override suspend fun send(message: Message) {
-        val component = when (message) {
-            is Message.Text -> {
+    override suspend fun send(messageEvent: MessageEvent) {
+        if (messageEvent.from == MessageEvent.MessageFrom.MINECRAFT) return
+        val component = when (messageEvent) {
+            is MessageEvent.Text -> {
                 translation.minecraftMessageFormat(
-                    playerName = message.author,
-                    message = message.text
+                    playerName = messageEvent.author,
+                    message = messageEvent.text,
+                    from = messageEvent.from.short
                 )
             }
 
-            is Message.PlayerLeave,
-            is Message.PlayerJoined,
-            is Message.PlayerDeath -> null
+            is MessageEvent.PlayerLeave,
+            is MessageEvent.PlayerJoined,
+            is MessageEvent.PlayerDeath -> null
         }?.let(kyori::toComponent) ?: return
         Bukkit.broadcast(component)
     }

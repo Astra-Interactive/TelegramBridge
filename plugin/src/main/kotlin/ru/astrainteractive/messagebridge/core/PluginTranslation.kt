@@ -22,17 +22,27 @@ data class PluginTranslation(
     @SerialName("messaging.player_died")
     private val playerDiedMessage: StringDesc.Raw = StringDesc.Raw("Игрок %player% сдох от %cause%"),
     @SerialName("messaging.message.to_telegram")
-    private val telegramMessageFormat: StringDesc.Raw = StringDesc.Raw("%player%:\n%message%"),
+    private val telegramMessageFormat: StringDesc.Raw = StringDesc.Raw("[%from%] %player%:\n%message%"),
     @SerialName("messaging.message.to_minecraft")
-    private val minecraftMessageFormat: StringDesc.Raw = StringDesc.Raw("[TG] &#27A1E0%player%: &#FFFFFF%message%"),
+    private val minecraftMessageFormat: StringDesc.Raw = StringDesc.Raw("[%from%] &#27A1E0%player%: &#FFFFFF%message%"),
 ) {
-    fun minecraftMessageFormat(playerName: String, message: String) = minecraftMessageFormat
+    fun minecraftMessageFormat(
+        playerName: String,
+        message: String,
+        from: String
+    ) = minecraftMessageFormat
         .replace("%player%", playerName)
         .replace("%message%", message)
+        .replace("%from%", from)
 
-    fun telegramMessageFormat(playerName: String, message: String) = telegramMessageFormat
+    fun telegramMessageFormat(
+        playerName: String,
+        message: String,
+        from: String
+    ) = telegramMessageFormat
         .replace("%player%", playerName)
         .replace("%message%", message)
+        .replace("%from%", from)
 
     fun playerDiedMessage(name: String, cause: String?) = playerDiedMessage
         .replace("%player%", name)
