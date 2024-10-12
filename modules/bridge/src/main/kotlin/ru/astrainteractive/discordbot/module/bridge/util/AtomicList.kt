@@ -1,4 +1,4 @@
-package ru.astrainteractive.discordbot.module.bridge.model
+package ru.astrainteractive.discordbot.module.bridge.util
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
