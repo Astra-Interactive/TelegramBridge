@@ -10,8 +10,8 @@ import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
-import ru.astrainteractive.messagebridge.utils.getValue
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramMessageController(

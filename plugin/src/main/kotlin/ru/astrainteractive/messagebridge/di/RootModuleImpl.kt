@@ -4,14 +4,14 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.di.BridgeModule
-import ru.astrainteractive.messagebridge.MessageBridge
+import ru.astrainteractive.messagebridge.MessageBridgePlugin
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.events.di.EventModule
 import ru.astrainteractive.messagebridge.messaging.di.MessagingModule
 
 class RootModuleImpl(
-    plugin: MessageBridge
+    plugin: MessageBridgePlugin
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val coreModule = CoreModule(plugin)
 

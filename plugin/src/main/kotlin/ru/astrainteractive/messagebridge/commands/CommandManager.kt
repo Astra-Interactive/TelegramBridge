@@ -3,11 +3,10 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.permission.BukkitPermissibleExt.toPermissible
 import ru.astrainteractive.klibs.kstorage.api.Krate
-import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.core.LifecyclePlugin
 import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.utils.getValue
+import ru.astrainteractive.messagebridge.core.util.getValue
 
 class CommandManager(
     translationKrate: Krate<PluginTranslation>,

@@ -13,8 +13,8 @@ import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
-import ru.astrainteractive.messagebridge.utils.getValue
 
 /**
  * This is a most convenient way to use bukkit events in kotlin

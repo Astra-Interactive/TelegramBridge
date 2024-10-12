@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.utils
+package ru.astrainteractive.messagebridge.core.util
 
 import ru.astrainteractive.klibs.kstorage.api.cache.CacheOwner
 import kotlin.reflect.KProperty

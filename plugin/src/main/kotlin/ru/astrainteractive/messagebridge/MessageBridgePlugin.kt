@@ -1,10 +1,9 @@
 package ru.astrainteractive.messagebridge
 
-import org.bukkit.plugin.java.JavaPlugin
 import ru.astrainteractive.messagebridge.core.LifecyclePlugin
 import ru.astrainteractive.messagebridge.di.RootModuleImpl
 
-class MessageBridge : LifecyclePlugin() {
+class MessageBridgePlugin : LifecyclePlugin() {
     private val rootModule = RootModuleImpl(this)
 
     override fun onEnable() {
