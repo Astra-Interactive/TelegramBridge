@@ -1,4 +1,4 @@
-package ru.astrainteractive.discordbot.module.bridge.model
+package ru.astrainteractive.discordbot.module.bridge.serializer
 
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.encodeToString

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("MessageEvent")
-sealed interface MessageEvent {
+sealed interface ServerEvent {
     @Serializable
     enum class MessageFrom(val short: String) {
         MINECRAFT("MC"), TELEGRAM("TG"), DISCORD("DS")
@@ -15,18 +15,18 @@ sealed interface MessageEvent {
     val from: MessageFrom
 
     @Serializable
-    data object ServerClosed : MessageEvent {
+    data object ServerClosed : ServerEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
     }
 
     @Serializable
-    data object ServerOpen : MessageEvent {
+    data object ServerOpen : ServerEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
     }
 
     @Serializable
     @SerialName("TextMessageEvent")
-    sealed interface Text : MessageEvent {
+    sealed interface Text : ServerEvent {
         val author: String
         val text: String
 
@@ -64,7 +64,7 @@ sealed interface MessageEvent {
     data class PlayerJoined(
         val name: String,
         val uuid: String
-    ) : MessageEvent {
+    ) : ServerEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
     }
 
@@ -73,7 +73,7 @@ sealed interface MessageEvent {
     data class PlayerLeave(
         val name: String,
         val uuid: String
-    ) : MessageEvent {
+    ) : ServerEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
     }
 
@@ -83,7 +83,7 @@ sealed interface MessageEvent {
         val name: String,
         val uuid: String,
         val cause: String? = null
-    ) : MessageEvent {
+    ) : ServerEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
     }
 }

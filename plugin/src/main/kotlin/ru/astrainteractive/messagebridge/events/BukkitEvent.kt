@@ -14,7 +14,7 @@ import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
-import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 /**
  * This is a most convenient way to use bukkit events in kotlin
@@ -31,11 +31,11 @@ class BukkitEvent(
     fun playerJoin(it: PlayerJoinEvent) {
         if (!config.displayJoinMessage) return
         scope.launch(dispatchers.IO) {
-            val messageEvent = MessageEvent.PlayerJoined(
+            val serverEvent = ServerEvent.PlayerJoined(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
             )
-            pluginBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(serverEvent)
         }
     }
 
@@ -43,11 +43,11 @@ class BukkitEvent(
     fun playerLeaveEvent(it: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         scope.launch(dispatchers.IO) {
-            val messageEvent = MessageEvent.PlayerLeave(
+            val serverEvent = ServerEvent.PlayerLeave(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(serverEvent)
         }
     }
 
@@ -55,12 +55,12 @@ class BukkitEvent(
     fun messageEvent(it: AsyncChatEvent) {
         scope.launch(dispatchers.IO) {
             val textComponent = it.message() as TextComponent
-            val messageEvent = MessageEvent.Text.Minecraft(
+            val serverEvent = ServerEvent.Text.Minecraft(
                 author = it.player.name,
                 text = textComponent.content(),
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(serverEvent)
         }
     }
 
@@ -69,12 +69,12 @@ class BukkitEvent(
         if (!config.displayDeathMessage) return
         scope.launch(dispatchers.IO) {
             val deathCause = (it.deathMessage() as? TextComponent?)?.content() ?: it.deathMessage
-            val messageEvent = MessageEvent.PlayerDeath(
+            val serverEvent = ServerEvent.PlayerDeath(
                 name = it.player.name,
                 cause = deathCause,
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(serverEvent)
         }
     }
 }

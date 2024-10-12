@@ -11,7 +11,7 @@ import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
-import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramMessageController(
@@ -28,41 +28,41 @@ class TelegramMessageController(
             .getOrNull()
     }
 
-    override suspend fun send(messageEvent: MessageEvent) {
-        if (messageEvent.from == MessageEvent.MessageFrom.TELEGRAM) return
-        val text = when (messageEvent) {
-            is MessageEvent.Text -> {
+    override suspend fun send(serverEvent: ServerEvent) {
+        if (serverEvent.from == ServerEvent.MessageFrom.TELEGRAM) return
+        val text = when (serverEvent) {
+            is ServerEvent.Text -> {
                 translation.telegramMessageFormat(
-                    playerName = messageEvent.author,
-                    message = messageEvent.text,
-                    from = messageEvent.from.short
+                    playerName = serverEvent.author,
+                    message = serverEvent.text,
+                    from = serverEvent.from.short
                 )
             }
 
-            is MessageEvent.PlayerDeath -> {
+            is ServerEvent.PlayerDeath -> {
                 translation.playerDiedMessage(
-                    name = messageEvent.name,
-                    cause = messageEvent.cause
+                    name = serverEvent.name,
+                    cause = serverEvent.cause
                 )
             }
 
-            is MessageEvent.PlayerJoined -> {
+            is ServerEvent.PlayerJoined -> {
                 translation.playerJoinMessage(
-                    name = messageEvent.name,
+                    name = serverEvent.name,
                 )
             }
 
-            is MessageEvent.PlayerLeave -> {
+            is ServerEvent.PlayerLeave -> {
                 translation.playerLeaveMessage(
-                    name = messageEvent.name,
+                    name = serverEvent.name,
                 )
             }
 
-            MessageEvent.ServerClosed -> {
+            ServerEvent.ServerClosed -> {
                 translation.serverClosedMessage
             }
 
-            MessageEvent.ServerOpen -> {
+            ServerEvent.ServerOpen -> {
                 translation.serverOpenMessage
             }
         }.raw

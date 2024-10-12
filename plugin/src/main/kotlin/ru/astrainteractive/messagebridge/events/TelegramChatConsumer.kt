@@ -20,7 +20,7 @@ import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
-import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramChatConsumer(
@@ -108,11 +108,11 @@ class TelegramChatConsumer(
                 return@launch
             }
             if (onCommand(update)) return@launch
-            val messageEvent = MessageEvent.Text.Telegram(
+            val serverEvent = ServerEvent.Text.Telegram(
                 author = author,
                 text = text,
             )
-            pluginBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(serverEvent)
         }
     }
 

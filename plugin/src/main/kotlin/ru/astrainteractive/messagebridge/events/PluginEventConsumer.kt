@@ -8,7 +8,7 @@ import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
-import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 class PluginEventConsumer(
     private val pluginBridgeApi: PluginBridgeApi,
@@ -17,14 +17,14 @@ class PluginEventConsumer(
     private val clientBridgeApi: BridgeApi,
 ) : CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO) {
 
-    private suspend fun onEvent(event: MessageEvent) {
-        if (event.from != MessageEvent.MessageFrom.DISCORD) {
+    private suspend fun onEvent(event: ServerEvent) {
+        if (event.from != ServerEvent.MessageFrom.DISCORD) {
             clientBridgeApi.broadcastEvent(event)
         }
-        if (event.from != MessageEvent.MessageFrom.TELEGRAM) {
+        if (event.from != ServerEvent.MessageFrom.TELEGRAM) {
             telegramMessageController.send(event)
         }
-        if (event.from != MessageEvent.MessageFrom.MINECRAFT) {
+        if (event.from != ServerEvent.MessageFrom.MINECRAFT) {
             minecraftMessageController.send(event)
         }
     }

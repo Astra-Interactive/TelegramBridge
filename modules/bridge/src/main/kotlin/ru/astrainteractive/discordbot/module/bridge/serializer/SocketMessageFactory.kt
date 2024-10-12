@@ -1,11 +1,11 @@
 package ru.astrainteractive.discordbot.module.bridge.serializer
 
-import ru.astrainteractive.discordbot.module.bridge.model.MessageEventMessage
-import ru.astrainteractive.discordbot.module.bridge.model.PingMessage
-import ru.astrainteractive.discordbot.module.bridge.model.PongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketPingMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
-import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
+import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 internal object SocketMessageFactory {
     fun <T> create(
@@ -14,11 +14,11 @@ internal object SocketMessageFactory {
         getId: () -> Long
     ): SocketMessage {
         return when (route) {
-            SocketRoute.PING -> PingMessage(id = getId.invoke())
-            SocketRoute.PONG -> PongMessage(id = getId.invoke())
-            SocketRoute.MESSAGE -> MessageEventMessage(
+            SocketRoute.PING -> SocketPingMessage(id = getId.invoke())
+            SocketRoute.PONG -> SocketPongMessage(id = getId.invoke())
+            SocketRoute.MESSAGE -> SocketServerEventMessage(
                 id = getId.invoke(),
-                event = data as MessageEvent
+                event = data as ServerEvent
             )
         }
     }

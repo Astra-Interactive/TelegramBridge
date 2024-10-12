@@ -5,18 +5,18 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import ru.astrainteractive.discordbot.module.bridge.WebSocketClient
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
-import ru.astrainteractive.discordbot.module.bridge.model.MessageEventMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
-import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
+import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 internal class ClientBridgeApi(private val client: WebSocketClient) : BridgeApi {
-    override suspend fun broadcastEvent(event: MessageEvent) {
+    override suspend fun broadcastEvent(event: ServerEvent) {
         client.send(SocketRoute.MESSAGE, event)
     }
 
-    override fun eventFlow(): Flow<MessageEvent> {
+    override fun eventFlow(): Flow<ServerEvent> {
         return client.messageFlow
-            .filterIsInstance<MessageEventMessage>()
+            .filterIsInstance<SocketServerEventMessage>()
             .map { it.event }
     }
 }

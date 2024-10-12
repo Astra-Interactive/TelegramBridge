@@ -12,9 +12,9 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
-import ru.astrainteractive.discordbot.module.bridge.model.broadcast
 import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageFactory
 import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageSerializer
+import ru.astrainteractive.discordbot.module.bridge.serializer.broadcast
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 

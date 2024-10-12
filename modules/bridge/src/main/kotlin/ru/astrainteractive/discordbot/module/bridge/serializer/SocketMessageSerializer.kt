@@ -1,13 +1,11 @@
 package ru.astrainteractive.discordbot.module.bridge.serializer
 
-import kotlinx.serialization.decodeFromString
-import ru.astrainteractive.discordbot.module.bridge.model.MessageEventMessage
-import ru.astrainteractive.discordbot.module.bridge.model.PingMessage
-import ru.astrainteractive.discordbot.module.bridge.model.PongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
-import ru.astrainteractive.discordbot.module.bridge.model.SocketMessageFormat
+import ru.astrainteractive.discordbot.module.bridge.model.SocketPingMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRouteMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
 
 internal object SocketMessageSerializer {
     fun fromString(string: String): SocketMessage {
@@ -17,17 +15,17 @@ internal object SocketMessageSerializer {
         )
         return when (routeMessage.route) {
             SocketRoute.PING -> SocketMessageFormat.decodeFromString(
-                deserializer = PingMessage.serializer(),
+                deserializer = SocketPingMessage.serializer(),
                 string = string
             )
 
             SocketRoute.PONG -> SocketMessageFormat.decodeFromString(
-                deserializer = PongMessage.serializer(),
+                deserializer = SocketPongMessage.serializer(),
                 string = string
             )
 
             SocketRoute.MESSAGE -> SocketMessageFormat.decodeFromString(
-                deserializer = MessageEventMessage.serializer(),
+                deserializer = SocketServerEventMessage.serializer(),
                 string = string
             )
         }
