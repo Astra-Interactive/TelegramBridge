@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.di
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.discordbot.module.bridge.di.BridgeModule
+import ru.astrainteractive.discordbot.module.bridge.di.ClientBridgeModule
 import ru.astrainteractive.messagebridge.MessageBridgePlugin
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -15,11 +15,11 @@ class RootModuleImpl(
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val coreModule = CoreModule(plugin)
 
-    val bridgeModule = BridgeModule.Default()
+    val clientBridgeModule = ClientBridgeModule.Default()
 
     val telegramModule = TelegramModule(
         coreModule = coreModule,
-        bridgeModule = bridgeModule
+        clientBridgeModule = clientBridgeModule
     )
 
     val messagingModule = MessagingModule(
@@ -30,7 +30,7 @@ class RootModuleImpl(
     val eventModule = EventModule(
         coreModule = coreModule,
         messagingModule = messagingModule,
-        bridgeModule = bridgeModule
+        clientBridgeModule = clientBridgeModule
     )
 
     val commandModule by lazy {
@@ -40,7 +40,7 @@ class RootModuleImpl(
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
-            bridgeModule.lifecycle,
+            clientBridgeModule.lifecycle,
             eventModule.lifecycle,
             telegramModule.lifecycle,
             commandModule.lifecycle

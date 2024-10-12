@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.events.di
 import kotlinx.coroutines.cancel
 import org.bukkit.event.HandlerList
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.discordbot.module.bridge.di.BridgeModule
+import ru.astrainteractive.discordbot.module.bridge.di.ClientBridgeModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.events.BridgeEvent
 import ru.astrainteractive.messagebridge.events.BukkitEvent
@@ -13,24 +13,24 @@ import ru.astrainteractive.messagebridge.messaging.di.MessagingModule
 class EventModule(
     coreModule: CoreModule,
     messagingModule: MessagingModule,
-    bridgeModule: BridgeModule
+    clientBridgeModule: ClientBridgeModule
 ) {
     private val bukkitEvent = BukkitEvent(
         configKrate = coreModule.configKrate,
         scope = coreModule.scope,
         dispatchers = coreModule.dispatchers,
-        pluginBridgeApi = bridgeModule.pluginBridgeApi
+        pluginBridgeApi = clientBridgeModule.pluginBridgeApi
     )
     private val pluginEventConsumer = PluginEventConsumer(
-        pluginBridgeApi = bridgeModule.pluginBridgeApi,
+        pluginBridgeApi = clientBridgeModule.pluginBridgeApi,
         telegramMessageController = messagingModule.telegramMessageController,
         minecraftMessageController = messagingModule.minecraftMessageController,
-        clientBridgeApi = bridgeModule.clientBridgeApi
+        clientBridgeApi = clientBridgeModule.clientBridgeApi
     )
 
     private val bridgeEvent = BridgeEvent(
-        clientBridgeApi = bridgeModule.clientBridgeApi,
-        pluginBridgeApi = bridgeModule.pluginBridgeApi
+        clientBridgeApi = clientBridgeModule.clientBridgeApi,
+        pluginBridgeApi = clientBridgeModule.pluginBridgeApi
     )
 
     val lifecycle = Lifecycle.Lambda(

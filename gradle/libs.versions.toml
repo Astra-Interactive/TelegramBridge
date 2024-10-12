@@ -62,7 +62,9 @@ discordsrv = "1.28.1" # https://github.com/DiscordSRV/DiscordSRV
 # Mockito
 mockito = "5.14.0" # https://github.com/mockito/mockito
 cache4k = "0.13.0" # https://github.com/ReactiveCircus/cache4k
-turbine = "1.1.0" #https://github.com/cashapp/turbine
+turbine = "1.1.0" # https://github.com/cashapp/turbine
+
+jda = "5.1.2" # https://github.com/discord-jda/JDA
 
 [libraries]
 # Kotlin
@@ -110,6 +112,7 @@ minecraft-discordsrv = { module = "com.discordsrv:discordsrv", version.ref = "di
 minecraft-luckperms = { module = "net.luckperms:api", version.ref = "minecraft-luckperms" }
 minecraft-essentialsx = { module = "net.essentialsx:EssentialsX", version.ref = "minecraft-essentialsx" }
 minecraft-towny = { module = "com.palmergames.bukkit.towny:towny", version.ref = "minecraft-towny" }
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 
 # klibs
 klibs-mikro-core = { module = "ru.astrainteractive.klibs:mikro-core", version.ref = "klibs-mikro" }

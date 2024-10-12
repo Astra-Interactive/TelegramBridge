@@ -9,7 +9,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
-import ru.astrainteractive.discordbot.module.bridge.di.BridgeModule
+import ru.astrainteractive.discordbot.module.bridge.di.ClientBridgeModule
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.events.TelegramChatConsumer
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class TelegramModule(
     coreModule: CoreModule,
-    bridgeModule: BridgeModule
+    clientBridgeModule: ClientBridgeModule
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
     val telegramClientFlow = coreModule.configKrate.cachedStateFlow
         .mapCached<PluginConfiguration, OkHttpTelegramClient>(
@@ -35,7 +35,7 @@ class TelegramModule(
         telegramClientFlow = telegramClientFlow,
         scope = coreModule.scope,
         dispatchers = coreModule.dispatchers,
-        pluginBridgeApi = bridgeModule.pluginBridgeApi
+        pluginBridgeApi = clientBridgeModule.pluginBridgeApi
     )
 
     val bridgeBotFlow = coreModule.configKrate.cachedStateFlow
