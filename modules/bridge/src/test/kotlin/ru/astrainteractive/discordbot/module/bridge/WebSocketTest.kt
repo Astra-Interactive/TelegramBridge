@@ -20,6 +20,8 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
+import ru.astrainteractive.discordbot.module.bridge.model.SocketOnlineListMessage
+import ru.astrainteractive.discordbot.module.bridge.model.data.OnlineListMessageData
 
 class WebSocketTest {
     private class TestContext(
@@ -103,10 +105,15 @@ class WebSocketTest {
             requireContext.socketServer.broadcast<Nothing>(SocketRoute.REQUEST_ONLINE_LIST)
             assert(awaitItem() is SocketRequestOnlineListMessage)
         }
+
+        requireContext.socketServer.messageFlow.test {
+            requireContext.socketClient.send(SocketRoute.ONLINE_LIST, OnlineListMessageData(listOf("1")))
+            assert(awaitItem() is SocketOnlineListMessage)
+        }
         // Test event
         requireContext.socketClient.messageFlow.test {
             requireContext.socketClient.send(
-                SocketRoute.MESSAGE,
+                SocketRoute.SERVER_EVENT,
                 ServerEventMessageData(
                     instance = ServerEvent.Text.Minecraft(
                         author = "author",

@@ -27,7 +27,7 @@ class SocketEventListener(
     Logger by JUtiltLogger("SocketEventListener") {
     private val webHookClient = WebHookClientFactory(jda)
         .create("756872937696526377")
-        .shareIn(this, SharingStarted.Eagerly, 1)
+        .shareIn(this, SharingStarted.Lazily, 1)
 
     @Suppress("LongMethod")
     private suspend fun onServerEvent(event: ServerEvent) {
@@ -97,10 +97,12 @@ class SocketEventListener(
             }
 
             ServerEvent.ServerClosed -> {
+                channel.manager.setTopic("Рестриминг чата из игры")
                 channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").queue()
             }
 
             ServerEvent.ServerOpen -> {
+                channel.manager.setTopic("Сервер только запустился...")
                 channel.sendMessage("✅ **Сервер успешно запущен**").queue()
             }
         }
@@ -115,15 +117,16 @@ class SocketEventListener(
     }
 
     private fun onOnlineList(data: OnlineListMessageData) {
+        info { "#onOnlineList" }
         val channel = jda.getTextChannelById("756872937696526377") ?: run {
             error { "#onServerEvent could not get text channel" }
             return
         }
         val text = data.onlinePlayers.joinToString(
             separator = ", ",
-            prefix = "Сейчас онлайн ${data.onlinePlayers.size} игроков:"
+            prefix = "Сейчас онлайн ${data.onlinePlayers.size} игроков:\n"
         )
-        channel.sendMessage(text)
+        channel.sendMessage(text).queue()
     }
 
     init {

@@ -9,8 +9,8 @@ import ru.astrainteractive.discordbot.module.bridge.model.data.MessageData
 class PluginBridgeApi : BridgeApi {
     private val sharedFlow = MutableSharedFlow<MessageData>()
 
-    override suspend fun broadcastEvent(event: MessageData) {
-        sharedFlow.emit(event)
+    override suspend fun broadcastEvent(data: MessageData) {
+        sharedFlow.emit(data)
     }
 
     override fun eventFlow(): Flow<MessageData> {

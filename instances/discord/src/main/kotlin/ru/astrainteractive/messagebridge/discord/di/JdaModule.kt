@@ -19,6 +19,8 @@ class JdaModule(jdaCoreModule: JdaCoreModule) {
         val config = jdaCoreModule.config.cachedValue
         JDABuilder.createLight(config.token).apply {
             enableIntents(GatewayIntent.MESSAGE_CONTENT)
+            enableIntents(GatewayIntent.DIRECT_MESSAGES)
+            enableIntents(GatewayIntent.GUILD_MESSAGES)
             setActivity(Activity.playing(config.activity))
 //            setHttpClientBuilder(
 //                OkHttpClient.Builder()

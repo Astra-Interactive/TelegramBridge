@@ -25,7 +25,7 @@ internal object SocketMessageFactory {
 
             SocketRoute.PONG -> SocketPongMessage(id = getId.invoke())
 
-            SocketRoute.MESSAGE -> SocketServerEventMessage(
+            SocketRoute.SERVER_EVENT -> SocketServerEventMessage(
                 id = getId.invoke(),
                 data = data as ServerEventMessageData
             )

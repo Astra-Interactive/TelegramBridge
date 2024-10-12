@@ -13,7 +13,7 @@ interface ServerBridgeModule {
     class Default : ServerBridgeModule {
         private val socketServer by lazy {
             WebSocketServer(
-                host = "89.150.35.252",
+                host = "192.168.1.3",
                 port = 1111
             )
         }

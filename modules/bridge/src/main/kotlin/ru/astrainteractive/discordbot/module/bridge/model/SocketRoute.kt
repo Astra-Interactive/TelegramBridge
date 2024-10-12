@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 internal enum class SocketRoute {
     PING,
     PONG,
-    MESSAGE,
+    SERVER_EVENT,
     UPDATE_ONLINE,
     BOT_MESSAGE_RECEIVED,
     REQUEST_ONLINE_LIST,

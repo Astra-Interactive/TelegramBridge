@@ -28,7 +28,7 @@ internal object SocketMessageSerializer {
                 string = string
             )
 
-            SocketRoute.MESSAGE -> SocketMessageFormat.decodeFromString(
+            SocketRoute.SERVER_EVENT -> SocketMessageFormat.decodeFromString(
                 deserializer = SocketServerEventMessage.serializer(),
                 string = string
             )

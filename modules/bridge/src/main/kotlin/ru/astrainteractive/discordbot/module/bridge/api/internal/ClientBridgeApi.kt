@@ -6,17 +6,15 @@ import kotlinx.coroutines.flow.map
 import ru.astrainteractive.discordbot.module.bridge.WebSocketClient
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
-import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.data.MessageData
+import ru.astrainteractive.discordbot.module.bridge.serializer.SocketRouteFactory
 
 internal class ClientBridgeApi(private val client: WebSocketClient) : BridgeApi {
-    override suspend fun broadcastEvent(event: MessageData) {
-        client.send(SocketRoute.MESSAGE, event)
+    override suspend fun broadcastEvent(data: MessageData) {
+        client.send(SocketRouteFactory.toRoute(data), data)
     }
 
     override fun eventFlow(): Flow<MessageData> {
-        return client.messageFlow
-            .filterIsInstance<SocketMessage>()
-            .map { it.data }
+        return client.messageFlow.map { it.data }
     }
 }

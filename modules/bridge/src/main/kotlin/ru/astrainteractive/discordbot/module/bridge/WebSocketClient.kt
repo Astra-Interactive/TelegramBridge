@@ -80,6 +80,7 @@ internal class WebSocketClient(
     }
 
     suspend fun <T> send(route: SocketRoute, data: T? = null): Flow<SocketMessage> {
+        info { "#send $route" }
         val message = SocketMessageFactory.create(
             data = data,
             route = route,

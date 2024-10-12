@@ -8,6 +8,7 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.events.BridgeEvent
 import ru.astrainteractive.messagebridge.events.BukkitEvent
 import ru.astrainteractive.messagebridge.events.PluginEventConsumer
+import ru.astrainteractive.messagebridge.events.SocketEvent
 import ru.astrainteractive.messagebridge.messaging.di.MessagingModule
 
 class EventModule(
@@ -32,6 +33,9 @@ class EventModule(
         clientBridgeApi = clientBridgeModule.clientBridgeApi,
         pluginBridgeApi = clientBridgeModule.pluginBridgeApi
     )
+    private val socketEvent = SocketEvent(
+        clientBridgeApi = clientBridgeModule.clientBridgeApi,
+    )
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
@@ -42,6 +46,7 @@ class EventModule(
             bukkitEvent.onDisable()
             bridgeEvent.cancel()
             pluginEventConsumer.cancel()
+            socketEvent.cancel()
         }
     )
 }

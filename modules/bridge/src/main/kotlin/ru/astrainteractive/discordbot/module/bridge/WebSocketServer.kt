@@ -93,6 +93,7 @@ internal class WebSocketServer(
     }
 
     suspend fun <T> broadcast(route: SocketRoute, data: T? = null) {
+        info { "#broadcast $route" }
         val message = SocketMessageFactory.create(
             route = route,
             data = data,

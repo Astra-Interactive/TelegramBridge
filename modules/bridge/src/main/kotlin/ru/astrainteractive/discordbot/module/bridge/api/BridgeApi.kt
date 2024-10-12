@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.astrainteractive.discordbot.module.bridge.model.data.MessageData
 
 interface BridgeApi {
-    suspend fun broadcastEvent(event: MessageData)
+    suspend fun broadcastEvent(data: MessageData)
 
     fun eventFlow(): Flow<MessageData>
 }

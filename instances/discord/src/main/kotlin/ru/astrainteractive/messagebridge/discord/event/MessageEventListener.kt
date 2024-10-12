@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import ru.astrainteractive.astralibs.async.CoroutineFeature
+import ru.astrainteractive.astralibs.logging.JUtiltLogger
+import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedMessageData
 import ru.astrainteractive.discordbot.module.bridge.model.data.RequestOnlineMessageData
@@ -17,7 +19,8 @@ class MessageEventListener(
     private val serverBridgeApi: BridgeApi
 ) : ListenerAdapter(),
     DiscordEventListener,
-    CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO) {
+    CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
+    Logger by JUtiltLogger("MessageEventListener") {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.isWebhookMessage) return
         if (event.author.isBot) return
@@ -31,6 +34,7 @@ class MessageEventListener(
         }
         if (event.message.channelId != "756872937696526377") return
         if (event.message.contentRaw == "!vanilla") {
+            info { "#onMessageReceived !vanilla executed" }
             launch { serverBridgeApi.broadcastEvent(RequestOnlineMessageData) }
             return
         }

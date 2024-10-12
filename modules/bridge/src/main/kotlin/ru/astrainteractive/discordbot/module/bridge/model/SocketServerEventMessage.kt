@@ -7,4 +7,4 @@ import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessag
 internal data class SocketServerEventMessage(
     override val id: Long,
     override val data: ServerEventMessageData
-) : SocketMessage(SocketRoute.MESSAGE)
+) : SocketMessage(SocketRoute.SERVER_EVENT)
