@@ -11,8 +11,11 @@ import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineMessageData
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import java.net.InetAddress
+import java.util.UUID
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -99,6 +102,20 @@ class WebSocketTest {
         requireContext.socketClient.messageFlow.test {
             requireContext.socketServer.broadcast<Nothing>(SocketRoute.REQUEST_ONLINE_LIST)
             assert(awaitItem() is SocketRequestOnlineListMessage)
+        }
+        // Test event
+        requireContext.socketClient.messageFlow.test {
+            requireContext.socketClient.send(
+                SocketRoute.MESSAGE,
+                ServerEventMessageData(
+                    instance = ServerEvent.Text.Minecraft(
+                        author = "author",
+                        text = "text",
+                        uuid = UUID.randomUUID().toString()
+                    )
+                )
+            )
+            assert(awaitItem().also { println(it) } is SocketPongMessage)
         }
     }
 }
