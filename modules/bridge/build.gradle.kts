@@ -24,4 +24,7 @@ dependencies {
     compileOnly(libs.minecraft.discordsrv)
     compileOnly(libs.minecraft.essentialsx)
     implementation(projects.modules.messenger.api)
+    // Test
+    testImplementation(libs.bundles.testing.kotlin)
+    testImplementation(kotlin("test"))
 }
