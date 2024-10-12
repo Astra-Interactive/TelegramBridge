@@ -42,8 +42,8 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "MessageBridge"
 
 // Spigot
-include("plugin")
-include("discord")
-include("modules:bridge")
-include("modules:messenger:api")
-include("modules:core")
+include(":instances:plugin")
+include(":instances:discord")
+include(":modules:messenger:api")
+include(":modules:bridge")
+include(":modules:core")

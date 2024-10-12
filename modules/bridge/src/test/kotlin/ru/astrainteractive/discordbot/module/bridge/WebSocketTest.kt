@@ -90,7 +90,7 @@ class WebSocketTest {
                 SocketRoute.BOT_MESSAGE_RECEIVED,
                 BotMessageReceivedMessageData(
                     message = "Hello world",
-                    fromUserId = 0L
+                    fromUserId = "0"
                 )
             )
             assert(awaitItem() is SocketBotMessageReceivedMessage)
