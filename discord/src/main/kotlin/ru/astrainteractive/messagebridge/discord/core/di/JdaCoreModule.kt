@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.discord.di
+package ru.astrainteractive.messagebridge.discord.core.di
 
 import ru.astrainteractive.astralibs.serialization.YamlStringFormat
 import ru.astrainteractive.messagebridge.core.di.factory.ConfigKrateFactory

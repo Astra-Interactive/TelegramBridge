@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Dns
-import ru.astrainteractive.messagebridge.core.util.getValue
+import ru.astrainteractive.messagebridge.discord.core.di.JdaCoreModule
 import java.net.InetAddress
 
 class JdaModule(jdaCoreModule: JdaCoreModule) {
