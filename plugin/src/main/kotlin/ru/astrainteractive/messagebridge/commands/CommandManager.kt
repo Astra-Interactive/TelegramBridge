@@ -4,6 +4,7 @@ import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.permission.BukkitPermissibleExt.toPermissible
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.MessageBridge
+import ru.astrainteractive.messagebridge.core.LifecyclePlugin
 import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.utils.getValue
@@ -11,7 +12,7 @@ import ru.astrainteractive.messagebridge.utils.getValue
 class CommandManager(
     translationKrate: Krate<PluginTranslation>,
     kyoriKrate: Krate<KyoriComponentSerializer>,
-    private val plugin: MessageBridge
+    private val plugin: LifecyclePlugin
 ) : Logger by JUtiltLogger("CommandManager") {
     val translation by translationKrate
     val kyori by kyoriKrate

@@ -1,9 +1,10 @@
 package ru.astrainteractive.messagebridge
 
 import org.bukkit.plugin.java.JavaPlugin
+import ru.astrainteractive.messagebridge.core.LifecyclePlugin
 import ru.astrainteractive.messagebridge.di.RootModuleImpl
 
-class MessageBridge : JavaPlugin() {
+class MessageBridge : LifecyclePlugin() {
     private val rootModule = RootModuleImpl(this)
 
     override fun onEnable() {
@@ -14,7 +15,7 @@ class MessageBridge : JavaPlugin() {
         rootModule.lifecycle.onDisable()
     }
 
-    fun onReload() {
+    override fun onReload() {
         rootModule.lifecycle.onReload()
     }
 }

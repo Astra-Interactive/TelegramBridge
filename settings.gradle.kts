@@ -45,3 +45,4 @@ rootProject.name = "MessageBridge"
 include("plugin")
 include("modules:bridge")
 include("modules:messenger:api")
+include("modules:core")

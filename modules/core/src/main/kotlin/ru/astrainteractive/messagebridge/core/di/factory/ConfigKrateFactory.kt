@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.di.factory
+package ru.astrainteractive.messagebridge.core.di.factory
 
 import kotlinx.serialization.StringFormat
 import ru.astrainteractive.astralibs.logging.JUtiltLogger

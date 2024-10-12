@@ -35,6 +35,7 @@ dependencies {
     compileOnly(libs.minecraft.essentialsx)
     implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
+    implementation(projects.modules.core)
 }
 
 minecraftProcessResource {
