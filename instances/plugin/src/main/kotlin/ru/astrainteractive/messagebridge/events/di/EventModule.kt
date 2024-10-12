@@ -25,7 +25,8 @@ class EventModule(
 
     private val bridgeEvent = BridgeEvent(
         clientBridgeApi = clientBridgeModule.clientBridgeApi,
-        minecraftMessageController = telegramModule.minecraftMessageController
+        minecraftMessageController = telegramModule.minecraftMessageController,
+        telegramMessageController = telegramModule.telegramMessageController
     )
 
     private val socketEvent = SocketEvent(

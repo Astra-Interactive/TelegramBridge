@@ -16,7 +16,7 @@ interface ClientBridgeModule {
     class Default : ClientBridgeModule {
         private val socketClient by lazy {
             WebSocketClient(
-                host = "192.168.1.3",
+                host = "89.150.35.252",
                 port = 1111
             )
         }

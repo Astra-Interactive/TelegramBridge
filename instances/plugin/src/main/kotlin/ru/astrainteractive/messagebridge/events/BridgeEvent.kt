@@ -16,13 +16,15 @@ import ru.astrainteractive.discordbot.module.bridge.model.data.RequestOnlineMess
 import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineMessageData
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
+import ru.astrainteractive.messagebridge.messaging.TelegramMessageController
 
 /**
  * Events from discord by socket
  */
 class BridgeEvent(
     clientBridgeApi: BridgeApi,
-    private val minecraftMessageController: MinecraftMessageController
+    private val minecraftMessageController: MinecraftMessageController,
+    private val telegramMessageController: TelegramMessageController
 ) : CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
     Logger by JUtiltLogger("MessageBridge-BridgeEvent") {
 
@@ -37,6 +39,7 @@ class BridgeEvent(
 
             is ServerEventMessageData -> {
                 minecraftMessageController.send(data.instance)
+                telegramMessageController.send(data.instance)
             }
         }
     }
