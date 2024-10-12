@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 class BotMessageReceivedMessageData(
     val message: String,
-    val fromUserId: Long
+    val fromUserId: String
 ) : MessageData
