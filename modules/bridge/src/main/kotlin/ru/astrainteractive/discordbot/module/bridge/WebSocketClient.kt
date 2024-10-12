@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -64,6 +66,8 @@ internal class WebSocketClient(
 
     private val _messageFlow = MutableSharedFlow<SocketMessage>()
     val messageFlow = _messageFlow.asSharedFlow()
+
+    suspend fun awaitConnected() = webSocketFlow.filterNotNull().first()
 
     private suspend fun send(
         message: SocketMessage,
@@ -164,7 +168,7 @@ internal class WebSocketClient(
     }
 
     companion object {
-        private const val EXIT_CODE = -222
+        private const val EXIT_CODE = 4999
         private val RECONNECT_DELAY = 5.seconds
         private val MAX_MESSAGE_LIFETIME = 30.seconds
     }

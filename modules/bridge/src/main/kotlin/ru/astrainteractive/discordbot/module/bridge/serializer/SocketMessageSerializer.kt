@@ -1,11 +1,13 @@
 package ru.astrainteractive.discordbot.module.bridge.serializer
 
+import ru.astrainteractive.discordbot.module.bridge.model.SocketBotMessageReceivedMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPingMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRouteMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketUpdateOnlineMessage
 
 internal object SocketMessageSerializer {
     fun fromString(string: String): SocketMessage {
@@ -26,6 +28,16 @@ internal object SocketMessageSerializer {
 
             SocketRoute.MESSAGE -> SocketMessageFormat.decodeFromString(
                 deserializer = SocketServerEventMessage.serializer(),
+                string = string
+            )
+
+            SocketRoute.UPDATE_ONLINE -> SocketMessageFormat.decodeFromString(
+                deserializer = SocketUpdateOnlineMessage.serializer(),
+                string = string
+            )
+
+            SocketRoute.BOT_MESSAGE_RECEIVED -> SocketMessageFormat.decodeFromString(
+                deserializer = SocketBotMessageReceivedMessage.serializer(),
                 string = string
             )
         }

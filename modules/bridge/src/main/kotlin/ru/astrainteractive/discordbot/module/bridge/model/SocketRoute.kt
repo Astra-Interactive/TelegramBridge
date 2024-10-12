@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal enum class SocketRoute {
-    PING, PONG, MESSAGE
+    PING, PONG, MESSAGE, UPDATE_ONLINE, BOT_MESSAGE_RECEIVED
 }

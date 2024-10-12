@@ -10,6 +10,7 @@ internal object SocketMessageFormat : StringFormat by Json(
         isLenient = true
         prettyPrint = true
         ignoreUnknownKeys = true
+        encodeDefaults = true
     }
 )
 
