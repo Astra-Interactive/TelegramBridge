@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.discordbot.module.bridge.model.SocketBotMessageReceivedMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedData
 import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineData
@@ -16,8 +17,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.flow.filterIsInstance
-import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 
 class WebSocketTest {
     private class TestContext(

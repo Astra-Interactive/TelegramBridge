@@ -16,10 +16,11 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.model.SocketBotMessageReceivedMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPingMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
-import ru.astrainteractive.discordbot.module.bridge.model.SocketRouteMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketUpdateOnlineMessage
 import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageFactory
@@ -27,8 +28,6 @@ import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageSeri
 import ru.astrainteractive.discordbot.module.bridge.serializer.broadcast
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import ru.astrainteractive.discordbot.module.bridge.model.SocketOnlineListMessage
-import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 
 internal class WebSocketServer(
     host: String,
@@ -75,8 +74,7 @@ internal class WebSocketServer(
                 }
 
                 is SocketRequestOnlineListMessage,
-                is SocketBotMessageReceivedMessage,
-                is SocketRouteMessage -> {
+                is SocketBotMessageReceivedMessage -> {
                     error { "#onMessage ${decodedMessage::class} is not for parsing" }
                 }
             }
