@@ -15,6 +15,16 @@ sealed interface MessageEvent {
     val from: MessageFrom
 
     @Serializable
+    data object ServerClosed : MessageEvent {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
+
+    @Serializable
+    data object ServerOpen : MessageEvent {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
+
+    @Serializable
     @SerialName("TextMessageEvent")
     sealed interface Text : MessageEvent {
         val author: String

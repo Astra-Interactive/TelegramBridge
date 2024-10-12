@@ -9,11 +9,10 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
-import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
+import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
 import ru.astrainteractive.messagebridge.utils.getValue
 
@@ -22,8 +21,7 @@ import ru.astrainteractive.messagebridge.utils.getValue
  */
 class BukkitEvent(
     configKrate: Krate<PluginConfiguration>,
-    private val telegramMessageController: MessageController,
-    private val clientBridgeApi: BridgeApi,
+    private val pluginBridgeApi: PluginBridgeApi,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : EventListener {
@@ -37,8 +35,7 @@ class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
             )
-            telegramMessageController.send(messageEvent)
-            clientBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(messageEvent)
         }
     }
 
@@ -50,8 +47,7 @@ class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
             )
-            telegramMessageController.send(messageEvent)
-            clientBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(messageEvent)
         }
     }
 
@@ -64,8 +60,7 @@ class BukkitEvent(
                 text = textComponent.content(),
                 uuid = it.player.uniqueId.toString()
             )
-            telegramMessageController.send(messageEvent)
-            clientBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(messageEvent)
         }
     }
 
@@ -79,8 +74,7 @@ class BukkitEvent(
                 cause = deathCause,
                 uuid = it.player.uniqueId.toString()
             )
-            telegramMessageController.send(messageEvent)
-            clientBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(messageEvent)
         }
     }
 }

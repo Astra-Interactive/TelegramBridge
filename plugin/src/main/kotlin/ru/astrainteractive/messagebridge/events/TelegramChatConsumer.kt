@@ -15,11 +15,10 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
+import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.model.MessageEvent
 import ru.astrainteractive.messagebridge.utils.getValue
 import kotlin.time.Duration.Companion.seconds
@@ -27,10 +26,9 @@ import kotlin.time.Duration.Companion.seconds
 class TelegramChatConsumer(
     configKrate: Krate<PluginConfiguration>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-    private val minecraftMessageController: MinecraftMessageController,
+    private val pluginBridgeApi: PluginBridgeApi,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val clientBridgeApi: BridgeApi
 ) : LongPollingSingleThreadUpdateConsumer, Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val config by configKrate
 
@@ -114,8 +112,7 @@ class TelegramChatConsumer(
                 author = author,
                 text = text,
             )
-            minecraftMessageController.send(messageEvent)
-            clientBridgeApi.broadcastEvent(messageEvent)
+            pluginBridgeApi.broadcastEvent(messageEvent)
         }
     }
 

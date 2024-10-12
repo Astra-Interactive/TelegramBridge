@@ -27,6 +27,8 @@ class MinecraftMessageController(
                 )
             }
 
+            MessageEvent.ServerOpen,
+            MessageEvent.ServerClosed,
             is MessageEvent.PlayerLeave,
             is MessageEvent.PlayerJoined,
             is MessageEvent.PlayerDeath -> null

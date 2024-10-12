@@ -13,14 +13,14 @@ internal object SocketMessageFormat : StringFormat by Json(
     }
 )
 
-internal inline fun <reified T> WebSocket.send(value: T): Boolean {
+internal suspend inline fun <reified T> WebSocket.send(value: T): Boolean {
     return send(SocketMessageFormat.encodeToString(value))
 }
 
-internal inline fun <reified T> org.java_websocket.WebSocket.send(value: T) {
+internal suspend inline fun <reified T> org.java_websocket.WebSocket.send(value: T) {
     return send(SocketMessageFormat.encodeToString(value))
 }
 
-internal inline fun <reified T> org.java_websocket.server.WebSocketServer.broadcast(value: T) {
+internal suspend inline fun <reified T> org.java_websocket.server.WebSocketServer.broadcast(value: T) {
     return broadcast(SocketMessageFormat.encodeToString(value))
 }

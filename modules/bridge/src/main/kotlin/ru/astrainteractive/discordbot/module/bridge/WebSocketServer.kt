@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
@@ -12,7 +11,10 @@ import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
-import ru.astrainteractive.discordbot.module.bridge.model.SocketMessageFormat
+import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
+import ru.astrainteractive.discordbot.module.bridge.model.broadcast
+import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageFactory
+import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageSerializer
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 
@@ -28,7 +30,12 @@ internal class WebSocketServer(
 
     override fun onOpen(client: WebSocket, handshake: ClientHandshake) {
         scope.launch {
-            info { "#onOpen new client ${client.remoteSocketAddress.address.hostAddress}. Total ${connections.size}" }
+            info {
+                """
+                 #onOpen new client ${client.remoteSocketAddress.address.hostAddress}.\n
+                 Total connections: ${connections.size}
+                """.trimIndent().replace("\\n", "")
+            }
         }
     }
 
@@ -38,11 +45,7 @@ internal class WebSocketServer(
 
     override fun onMessage(client: WebSocket, text: String) {
         info { "#onMessage $client $text" }
-        val decodedMessage = kotlin.runCatching {
-            SocketMessageFormat.decodeFromString<SocketMessage>(text)
-        }.getOrNull() ?: kotlin.runCatching {
-            SocketMessageFormat.decodeFromString<SocketMessage.Data>(text)
-        }.getOrThrow()
+        val decodedMessage = SocketMessageSerializer.fromString(text)
         scope.launch { _messageFlow.emit(decodedMessage) }
     }
 
@@ -52,10 +55,20 @@ internal class WebSocketServer(
 
     override fun onError(client: WebSocket?, ex: Exception) {
         info {
-            "#onError ${client?.remoteSocketAddress?.address?.hostAddress}." +
-                " message: ${ex.message} cause: ${ex.cause?.message}"
+            """
+             #onError ${client?.remoteSocketAddress?.address?.hostAddress}.\n
+             message: ${ex.message} cause: ${ex.cause?.message}
+            """.trimIndent().replace("\\n", "")
         }
-        if (client != null) Unit
+    }
+
+    suspend fun <T> broadcast(route: SocketRoute, data: T? = null) {
+        val message = SocketMessageFactory.create(
+            route = route,
+            data = data,
+            getId = { -1 }
+        )
+        broadcast(message)
     }
 
     override fun onStart() {

@@ -4,10 +4,12 @@ import kotlinx.coroutines.runBlocking
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.discordbot.module.bridge.WebSocketClient
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
-import ru.astrainteractive.discordbot.module.bridge.api.ClientBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.api.internal.ClientBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
 
 interface BridgeModule {
     val clientBridgeApi: BridgeApi
+    val pluginBridgeApi: PluginBridgeApi
 
     val lifecycle: Lifecycle
 
@@ -21,6 +23,8 @@ interface BridgeModule {
         override val clientBridgeApi: BridgeApi by lazy {
             ClientBridgeApi(socketClient)
         }
+
+        override val pluginBridgeApi: PluginBridgeApi = PluginBridgeApi()
 
         override val lifecycle: Lifecycle = Lifecycle.Lambda(
             onEnable = {

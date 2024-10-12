@@ -25,6 +25,10 @@ data class PluginTranslation(
     private val telegramMessageFormat: StringDesc.Raw = StringDesc.Raw("[%from%] %player%:\n%message%"),
     @SerialName("messaging.message.to_minecraft")
     private val minecraftMessageFormat: StringDesc.Raw = StringDesc.Raw("[%from%] &#27A1E0%player%: &#FFFFFF%message%"),
+    @SerialName("messaging.message.server_open")
+    val serverOpenMessage: StringDesc.Raw = StringDesc.Raw("✅ Сервер успешно запущен"),
+    @SerialName("messaging.message.server_closed")
+    val serverClosedMessage: StringDesc.Raw = StringDesc.Raw("\uD83D\uDED1 Сервер остановлен"),
 ) {
     fun minecraftMessageFormat(
         playerName: String,

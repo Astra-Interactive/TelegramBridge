@@ -57,6 +57,14 @@ class TelegramMessageController(
                     name = messageEvent.name,
                 )
             }
+
+            MessageEvent.ServerClosed -> {
+                translation.serverClosedMessage
+            }
+
+            MessageEvent.ServerOpen -> {
+                translation.serverOpenMessage
+            }
         }.raw
         val sendMessage = SendMessage(config.chatID, text).apply {
             replyToMessageId = config.topicID.toIntOrNull()

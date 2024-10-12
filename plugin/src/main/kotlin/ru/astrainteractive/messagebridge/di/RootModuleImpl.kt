@@ -24,6 +24,7 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.di.factory.ConfigKrateFactory
 import ru.astrainteractive.messagebridge.events.BridgeEvent
 import ru.astrainteractive.messagebridge.events.BukkitEvent
+import ru.astrainteractive.messagebridge.events.PluginEventConsumer
 import ru.astrainteractive.messagebridge.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.TelegramMessageController
@@ -77,11 +78,10 @@ class RootModuleImpl(
 
     val consumer = TelegramChatConsumer(
         configKrate = configKrate,
-        minecraftMessageController = minecraftMessageController,
         telegramClientFlow = telegramClientFlow,
         scope = scope,
         dispatchers = dispatchers,
-        clientBridgeApi = bridgeModule.clientBridgeApi
+        pluginBridgeApi = bridgeModule.pluginBridgeApi
     )
 
     val bridgeBotFlow = configKrate.cachedStateFlow
@@ -110,9 +110,14 @@ class RootModuleImpl(
 
     private val bukkitEvent = BukkitEvent(
         configKrate = configKrate,
-        telegramMessageController = telegramMessageController,
         scope = scope,
         dispatchers = dispatchers,
+        pluginBridgeApi = bridgeModule.pluginBridgeApi
+    )
+    private val pluginEventConsumer = PluginEventConsumer(
+        pluginBridgeApi = bridgeModule.pluginBridgeApi,
+        telegramMessageController = telegramMessageController,
+        minecraftMessageController = minecraftMessageController,
         clientBridgeApi = bridgeModule.clientBridgeApi
     )
 
@@ -143,6 +148,7 @@ class RootModuleImpl(
         onDisable = {
             bukkitEvent.onDisable()
             bridgeEvent.cancel()
+            pluginEventConsumer.cancel()
             bridgeModule.lifecycle.onDisable()
             HandlerList.unregisterAll(plugin)
             scope.cancel()
