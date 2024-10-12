@@ -3,6 +3,7 @@ package ru.astrainteractive.messagebridge.discord.event
 import club.minnced.discord.webhook.send.WebhookMessageBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -10,23 +11,31 @@ import kotlinx.coroutines.flow.shareIn
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import ru.astrainteractive.astralibs.async.CoroutineFeature
+import ru.astrainteractive.astralibs.logging.JUtiltLogger
+import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
+import ru.astrainteractive.discordbot.module.bridge.model.data.OnlineListMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineMessageData
 import ru.astrainteractive.messagebridge.discord.event.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 class SocketEventListener(
     private val jda: JDA,
-    private val serverBridgeApi: BridgeApi,
-) : CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO) {
+    serverBridgeApi: BridgeApi,
+) : CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
+    Logger by JUtiltLogger("SocketEventListener") {
     private val webHookClient = WebHookClientFactory(jda)
         .create("756872937696526377")
         .shareIn(this, SharingStarted.Eagerly, 1)
 
+    @Suppress("LongMethod")
     private suspend fun onServerEvent(event: ServerEvent) {
         if (event.from == ServerEvent.MessageFrom.DISCORD) {
             return
         }
         val channel = jda.getTextChannelById("756872937696526377") ?: run {
+            error { "#onServerEvent could not get text channel" }
             return
         }
 
@@ -97,9 +106,40 @@ class SocketEventListener(
         }
     }
 
+    private fun onOnlineUpdate(data: UpdateOnlineMessageData) {
+        val channel = jda.getTextChannelById("756872937696526377") ?: run {
+            error { "#onServerEvent could not get text channel" }
+            return
+        }
+        channel.manager.setTopic("Сейчас онлайн: ${data.current}/${data.max}")
+    }
+
+    private fun onOnlineList(data: OnlineListMessageData) {
+        val channel = jda.getTextChannelById("756872937696526377") ?: run {
+            error { "#onServerEvent could not get text channel" }
+            return
+        }
+        val text = data.onlinePlayers.joinToString(
+            separator = ", ",
+            prefix = "Сейчас онлайн ${data.onlinePlayers.size} игроков:"
+        )
+        channel.sendMessage(text)
+    }
+
     init {
         serverBridgeApi.eventFlow()
-            .onEach { onServerEvent(it) }
-            .launchIn(CoroutineFeature.Default(Dispatchers.IO))
+            .filterIsInstance<ServerEventMessageData>()
+            .onEach { onServerEvent(it.instance) }
+            .launchIn(this)
+
+        serverBridgeApi.eventFlow()
+            .filterIsInstance<UpdateOnlineMessageData>()
+            .onEach { onOnlineUpdate(it) }
+            .launchIn(this)
+
+        serverBridgeApi.eventFlow()
+            .filterIsInstance<OnlineListMessageData>()
+            .onEach { onOnlineList(it) }
+            .launchIn(this)
     }
 }

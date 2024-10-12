@@ -10,8 +10,8 @@ import ru.astrainteractive.discordbot.module.bridge.model.SocketBotMessageReceiv
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
-import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedData
-import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineData
+import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineMessageData
 import java.net.InetAddress
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -81,14 +81,14 @@ class WebSocketTest {
         requireContext.socketClient.send<Nothing>(SocketRoute.PONG).test {
             assert(awaitItem() is SocketPongMessage)
         }
-        requireContext.socketClient.send(SocketRoute.UPDATE_ONLINE, UpdateOnlineData(10, 30)).test {
+        requireContext.socketClient.send(SocketRoute.UPDATE_ONLINE, UpdateOnlineMessageData(10, 30)).test {
             assert(awaitItem() is SocketPongMessage)
         }
         // Bot received discord message
         requireContext.socketClient.messageFlow.test {
             requireContext.socketServer.broadcast(
                 SocketRoute.BOT_MESSAGE_RECEIVED,
-                BotMessageReceivedData(
+                BotMessageReceivedMessageData(
                     message = "Hello world",
                     fromUserId = 0L
                 )

@@ -1,11 +1,13 @@
 package ru.astrainteractive.messagebridge.events
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
@@ -19,7 +21,7 @@ class PluginEventConsumer(
 
     private suspend fun onEvent(event: ServerEvent) {
         if (event.from != ServerEvent.MessageFrom.DISCORD) {
-            clientBridgeApi.broadcastEvent(event)
+            clientBridgeApi.broadcastEvent(ServerEventMessageData(event))
         }
         if (event.from != ServerEvent.MessageFrom.TELEGRAM) {
             telegramMessageController.send(event)
@@ -31,7 +33,8 @@ class PluginEventConsumer(
 
     init {
         pluginBridgeApi.eventFlow()
-            .onEach { onEvent(it) }
+            .filterIsInstance<ServerEventMessageData>()
+            .onEach { onEvent(it.instance) }
             .launchIn(this)
     }
 }

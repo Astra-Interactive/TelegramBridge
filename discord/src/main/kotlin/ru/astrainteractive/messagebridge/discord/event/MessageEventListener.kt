@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.messagebridge.discord.event.core.DiscordEventListener
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
@@ -23,7 +24,7 @@ class MessageEventListener(
             text = event.message.contentRaw
         )
         launch(Dispatchers.IO) {
-            serverBridgeApi.broadcastEvent(serverEvent)
+            serverBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
         }
     }
 }

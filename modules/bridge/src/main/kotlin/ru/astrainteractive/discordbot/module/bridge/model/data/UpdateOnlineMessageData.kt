@@ -3,7 +3,7 @@ package ru.astrainteractive.discordbot.module.bridge.model.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UpdateOnlineData(
+data class UpdateOnlineMessageData(
     val current: Int,
     val max: Int
-)
+) : MessageData

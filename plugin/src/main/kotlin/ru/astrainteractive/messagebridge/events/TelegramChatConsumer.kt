@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
@@ -112,7 +113,7 @@ class TelegramChatConsumer(
                 author = author,
                 text = text,
             )
-            pluginBridgeApi.broadcastEvent(serverEvent)
+            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
         }
     }
 

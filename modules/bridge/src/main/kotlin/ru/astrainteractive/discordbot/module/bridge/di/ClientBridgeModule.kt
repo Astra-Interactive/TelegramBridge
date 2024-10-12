@@ -6,6 +6,7 @@ import ru.astrainteractive.discordbot.module.bridge.WebSocketClient
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.discordbot.module.bridge.api.internal.ClientBridgeApi
 import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 interface ClientBridgeModule {
@@ -30,13 +31,13 @@ interface ClientBridgeModule {
         override val lifecycle: Lifecycle = Lifecycle.Lambda(
             onEnable = {
                 runBlocking {
-                    pluginBridgeApi.broadcastEvent(ServerEvent.ServerOpen)
+                    pluginBridgeApi.broadcastEvent(ServerEventMessageData(ServerEvent.ServerOpen))
                 }
                 socketClient.tryOpenConnection()
             },
             onDisable = {
                 runBlocking {
-                    pluginBridgeApi.broadcastEvent(ServerEvent.ServerClosed)
+                    pluginBridgeApi.broadcastEvent(ServerEventMessageData(ServerEvent.ServerClosed))
                     socketClient.close()
                 }
             }

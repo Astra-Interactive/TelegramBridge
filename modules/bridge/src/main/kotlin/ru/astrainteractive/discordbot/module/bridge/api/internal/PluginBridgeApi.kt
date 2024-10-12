@@ -4,16 +4,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.discordbot.module.bridge.model.data.MessageData
 
 class PluginBridgeApi : BridgeApi {
-    private val sharedFlow = MutableSharedFlow<ServerEvent>()
+    private val sharedFlow = MutableSharedFlow<MessageData>()
 
-    override suspend fun broadcastEvent(event: ServerEvent) {
+    override suspend fun broadcastEvent(event: MessageData) {
         sharedFlow.emit(event)
     }
 
-    override fun eventFlow(): Flow<ServerEvent> {
+    override fun eventFlow(): Flow<MessageData> {
         return sharedFlow.asSharedFlow()
     }
 }

@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
 import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
@@ -35,7 +36,7 @@ class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
             )
-            pluginBridgeApi.broadcastEvent(serverEvent)
+            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
         }
     }
 
@@ -47,7 +48,7 @@ class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(serverEvent)
+            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
         }
     }
 
@@ -60,7 +61,7 @@ class BukkitEvent(
                 text = textComponent.content(),
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(serverEvent)
+            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
         }
     }
 
@@ -74,7 +75,7 @@ class BukkitEvent(
                 cause = deathCause,
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(serverEvent)
+            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
         }
     }
 }

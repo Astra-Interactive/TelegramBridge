@@ -9,10 +9,10 @@ import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineLis
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketUpdateOnlineMessage
-import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedData
-import ru.astrainteractive.discordbot.module.bridge.model.data.OnlineListData
-import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineData
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.OnlineListMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
+import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineMessageData
 
 internal object SocketMessageFactory {
     fun <T> create(
@@ -27,24 +27,24 @@ internal object SocketMessageFactory {
 
             SocketRoute.MESSAGE -> SocketServerEventMessage(
                 id = getId.invoke(),
-                event = data as ServerEvent
+                data = data as ServerEventMessageData
             )
 
             SocketRoute.UPDATE_ONLINE -> SocketUpdateOnlineMessage(
                 id = getId.invoke(),
-                data = data as UpdateOnlineData
+                data = data as UpdateOnlineMessageData
             )
 
             SocketRoute.BOT_MESSAGE_RECEIVED -> SocketBotMessageReceivedMessage(
                 id = getId.invoke(),
-                data = data as BotMessageReceivedData
+                data = data as BotMessageReceivedMessageData
             )
 
             SocketRoute.REQUEST_ONLINE_LIST -> SocketRequestOnlineListMessage(id = getId.invoke())
 
             SocketRoute.ONLINE_LIST -> SocketOnlineListMessage(
                 id = getId.invoke(),
-                data = data as OnlineListData
+                data = data as OnlineListMessageData
             )
         }
     }
