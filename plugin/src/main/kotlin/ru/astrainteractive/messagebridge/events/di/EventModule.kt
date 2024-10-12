@@ -30,8 +30,7 @@ class EventModule(
 
     private val bridgeEvent = BridgeEvent(
         clientBridgeApi = bridgeModule.clientBridgeApi,
-        minecraftMessageController = messagingModule.minecraftMessageController,
-        telegramMessageController = messagingModule.telegramMessageController
+        pluginBridgeApi = bridgeModule.pluginBridgeApi
     )
 
     val lifecycle = Lifecycle.Lambda(

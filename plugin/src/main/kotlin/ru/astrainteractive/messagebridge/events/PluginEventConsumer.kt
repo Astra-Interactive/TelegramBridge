@@ -18,9 +18,15 @@ class PluginEventConsumer(
 ) : CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO) {
 
     private suspend fun onEvent(event: MessageEvent) {
-        clientBridgeApi.broadcastEvent(event)
-        telegramMessageController.send(event)
-        minecraftMessageController.send(event)
+        if (event.from != MessageEvent.MessageFrom.DISCORD) {
+            clientBridgeApi.broadcastEvent(event)
+        }
+        if (event.from != MessageEvent.MessageFrom.TELEGRAM) {
+            telegramMessageController.send(event)
+        }
+        if (event.from != MessageEvent.MessageFrom.MINECRAFT) {
+            minecraftMessageController.send(event)
+        }
     }
 
     init {
