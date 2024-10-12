@@ -16,6 +16,8 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.flow.filterIsInstance
+import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 
 class WebSocketTest {
     private class TestContext(
@@ -84,15 +86,20 @@ class WebSocketTest {
             assert(awaitItem() is SocketPongMessage)
         }
         // Bot received discord message
-        requireContext.socketServer.broadcast(
-            SocketRoute.BOT_MESSAGE_RECEIVED,
-            BotMessageReceivedData(
-                message = "Hello world",
-                fromUserId = 0L
-            )
-        )
         requireContext.socketClient.messageFlow.test {
+            requireContext.socketServer.broadcast(
+                SocketRoute.BOT_MESSAGE_RECEIVED,
+                BotMessageReceivedData(
+                    message = "Hello world",
+                    fromUserId = 0L
+                )
+            )
             assert(awaitItem() is SocketBotMessageReceivedMessage)
+        }
+        // Request online
+        requireContext.socketClient.messageFlow.test {
+            requireContext.socketServer.broadcast<Nothing>(SocketRoute.REQUEST_ONLINE_LIST)
+            assert(awaitItem() is SocketRequestOnlineListMessage)
         }
     }
 }

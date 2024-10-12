@@ -27,6 +27,8 @@ import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageSeri
 import ru.astrainteractive.discordbot.module.bridge.serializer.broadcast
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
+import ru.astrainteractive.discordbot.module.bridge.model.SocketOnlineListMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 
 internal class WebSocketServer(
     host: String,
@@ -63,6 +65,7 @@ internal class WebSocketServer(
         scope.launch {
             _messageFlow.emit(decodedMessage)
             when (decodedMessage) {
+                is SocketOnlineListMessage,
                 is SocketUpdateOnlineMessage,
                 is SocketServerEventMessage,
                 is SocketPingMessage,
@@ -71,12 +74,10 @@ internal class WebSocketServer(
                     broadcast(response)
                 }
 
+                is SocketRequestOnlineListMessage,
+                is SocketBotMessageReceivedMessage,
                 is SocketRouteMessage -> {
-                    error { "#onMessage SocketRouteMessage is not for parsing" }
-                }
-
-                is SocketBotMessageReceivedMessage -> {
-                    error { "#onMessage SocketBotMessageReceivedMessage is not for server" }
+                    error { "#onMessage ${decodedMessage::class} is not for parsing" }
                 }
             }
         }

@@ -2,12 +2,15 @@ package ru.astrainteractive.discordbot.module.bridge.serializer
 
 import ru.astrainteractive.discordbot.module.bridge.model.SocketBotMessageReceivedMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPingMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketPongMessage
+import ru.astrainteractive.discordbot.module.bridge.model.SocketRequestOnlineListMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.model.SocketServerEventMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketUpdateOnlineMessage
 import ru.astrainteractive.discordbot.module.bridge.model.data.BotMessageReceivedData
+import ru.astrainteractive.discordbot.module.bridge.model.data.OnlineListData
 import ru.astrainteractive.discordbot.module.bridge.model.data.UpdateOnlineData
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
@@ -19,7 +22,9 @@ internal object SocketMessageFactory {
     ): SocketMessage {
         return when (route) {
             SocketRoute.PING -> SocketPingMessage(id = getId.invoke())
+
             SocketRoute.PONG -> SocketPongMessage(id = getId.invoke())
+
             SocketRoute.MESSAGE -> SocketServerEventMessage(
                 id = getId.invoke(),
                 event = data as ServerEvent
@@ -33,6 +38,13 @@ internal object SocketMessageFactory {
             SocketRoute.BOT_MESSAGE_RECEIVED -> SocketBotMessageReceivedMessage(
                 id = getId.invoke(),
                 data = data as BotMessageReceivedData
+            )
+
+            SocketRoute.REQUEST_ONLINE_LIST -> SocketRequestOnlineListMessage(id = getId.invoke())
+
+            SocketRoute.ONLINE_LIST -> SocketOnlineListMessage(
+                id = getId.invoke(),
+                data = data as OnlineListData
             )
         }
     }
