@@ -24,13 +24,13 @@ import okio.ByteString
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.discordbot.module.bridge.util.AtomicList
 import ru.astrainteractive.discordbot.module.bridge.model.SocketMessage
 import ru.astrainteractive.discordbot.module.bridge.model.SocketRoute
 import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageFactory
 import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageFormat
 import ru.astrainteractive.discordbot.module.bridge.serializer.SocketMessageSerializer
 import ru.astrainteractive.discordbot.module.bridge.serializer.send
+import ru.astrainteractive.discordbot.module.bridge.util.AtomicList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
