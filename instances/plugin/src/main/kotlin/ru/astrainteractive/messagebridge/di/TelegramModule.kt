@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.timeout
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
@@ -13,6 +14,9 @@ import ru.astrainteractive.discordbot.module.bridge.di.ClientBridgeModule
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.events.TelegramChatConsumer
+import ru.astrainteractive.messagebridge.messaging.MinecraftMessageController
+import ru.astrainteractive.messagebridge.messaging.TelegramMessageController
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import kotlin.time.Duration.Companion.seconds
 
 class TelegramModule(
@@ -23,19 +27,31 @@ class TelegramModule(
         .mapCached<PluginConfiguration, OkHttpTelegramClient>(
             scope = coreModule.scope,
             transform = { config, prev ->
-                info { "#telegramClientFlow creating telegram client" }
+                info { "#telegramClientFlow creating telegram client ${config.token}_token" }
                 val clinet = OkHttpTelegramClient(config.token)
                 info { "#telegramClientFlow telegram client created!" }
                 clinet
             }
         )
 
+    val telegramMessageController = TelegramMessageController(
+        configKrate = coreModule.configKrate,
+        telegramClientFlow = telegramClientFlow,
+        translationKrate = coreModule.translationKrate
+    )
+
+    val minecraftMessageController = MinecraftMessageController(
+        kyoriKrate = coreModule.kyoriKrate,
+        translationKrate = coreModule.translationKrate
+    )
+
     val consumer = TelegramChatConsumer(
         configKrate = coreModule.configKrate,
         telegramClientFlow = telegramClientFlow,
         scope = coreModule.scope,
         dispatchers = coreModule.dispatchers,
-        pluginBridgeApi = clientBridgeModule.pluginBridgeApi
+        clientBridgeApi = clientBridgeModule.clientBridgeApi,
+        minecraftMessageController = minecraftMessageController
     )
 
     val bridgeBotFlow = coreModule.configKrate.cachedStateFlow
@@ -43,7 +59,7 @@ class TelegramModule(
             scope = coreModule.scope,
             transform = { config, prev ->
 
-                info { "#bridgeBotFlow closing previous bot" }
+                info { "#bridgeBotFlow closing previous bot ${config.token}" }
                 prev?.unregisterBot(config.token)
                 prev?.stop()
                 prev?.close()
@@ -57,7 +73,11 @@ class TelegramModule(
         )
 
     val lifecycle = Lifecycle.Lambda(
+        onEnable = {
+            coreModule.scope.launch { telegramMessageController.send(ServerEvent.ServerOpen) }
+        },
         onDisable = {
+            coreModule.scope.launch { telegramMessageController.send(ServerEvent.ServerOpen) }
             runBlocking(coreModule.dispatchers.IO) {
                 runCatching {
                     bridgeBotFlow.timeout(TIMEOUT).first().let { bot ->

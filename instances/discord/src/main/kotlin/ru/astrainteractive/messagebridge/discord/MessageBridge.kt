@@ -4,7 +4,7 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.messagebridge.discord.di.RootModule
 
-object MessageBridgePlugin : Logger by JUtiltLogger("MessageBridgePlugin") {
+object MessageBridge : Logger by JUtiltLogger("MessageBridgePlugin") {
     private val rootModule = RootModule()
 
     @JvmStatic

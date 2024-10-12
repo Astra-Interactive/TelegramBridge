@@ -5,34 +5,29 @@ import org.bukkit.event.HandlerList
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.discordbot.module.bridge.di.ClientBridgeModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.di.TelegramModule
 import ru.astrainteractive.messagebridge.events.BridgeEvent
 import ru.astrainteractive.messagebridge.events.BukkitEvent
-import ru.astrainteractive.messagebridge.events.PluginEventConsumer
 import ru.astrainteractive.messagebridge.events.SocketEvent
-import ru.astrainteractive.messagebridge.messaging.di.MessagingModule
 
 class EventModule(
     coreModule: CoreModule,
-    messagingModule: MessagingModule,
+    telegramModule: TelegramModule,
     clientBridgeModule: ClientBridgeModule
 ) {
     private val bukkitEvent = BukkitEvent(
         configKrate = coreModule.configKrate,
         scope = coreModule.scope,
         dispatchers = coreModule.dispatchers,
-        pluginBridgeApi = clientBridgeModule.pluginBridgeApi
-    )
-    private val pluginEventConsumer = PluginEventConsumer(
-        pluginBridgeApi = clientBridgeModule.pluginBridgeApi,
-        telegramMessageController = messagingModule.telegramMessageController,
-        minecraftMessageController = messagingModule.minecraftMessageController,
-        clientBridgeApi = clientBridgeModule.clientBridgeApi
+        clientBridgeApi = clientBridgeModule.clientBridgeApi,
+        telegramMessageController = telegramModule.telegramMessageController
     )
 
     private val bridgeEvent = BridgeEvent(
         clientBridgeApi = clientBridgeModule.clientBridgeApi,
-        pluginBridgeApi = clientBridgeModule.pluginBridgeApi
+        minecraftMessageController = telegramModule.minecraftMessageController
     )
+
     private val socketEvent = SocketEvent(
         clientBridgeApi = clientBridgeModule.clientBridgeApi,
     )
@@ -45,7 +40,6 @@ class EventModule(
             HandlerList.unregisterAll(coreModule.plugin)
             bukkitEvent.onDisable()
             bridgeEvent.cancel()
-            pluginEventConsumer.cancel()
             socketEvent.cancel()
         }
     )

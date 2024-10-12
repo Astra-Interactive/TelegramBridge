@@ -9,12 +9,13 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
-import ru.astrainteractive.discordbot.module.bridge.api.internal.PluginBridgeApi
+import ru.astrainteractive.discordbot.module.bridge.api.BridgeApi
 import ru.astrainteractive.discordbot.module.bridge.model.data.ServerEventMessageData
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
+import ru.astrainteractive.messagebridge.messaging.TelegramMessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 
 /**
@@ -22,7 +23,8 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
  */
 class BukkitEvent(
     configKrate: Krate<PluginConfiguration>,
-    private val pluginBridgeApi: PluginBridgeApi,
+    private val clientBridgeApi: BridgeApi,
+    private val telegramMessageController: TelegramMessageController,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : EventListener {
@@ -36,7 +38,9 @@ class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
             )
-            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
+            val data = ServerEventMessageData(serverEvent)
+            clientBridgeApi.broadcastEvent(data)
+            telegramMessageController.send(data.instance)
         }
     }
 
@@ -48,7 +52,9 @@ class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
+            val data = ServerEventMessageData(serverEvent)
+            clientBridgeApi.broadcastEvent(data)
+            telegramMessageController.send(data.instance)
         }
     }
 
@@ -61,7 +67,9 @@ class BukkitEvent(
                 text = textComponent.content(),
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
+            val data = ServerEventMessageData(serverEvent)
+            clientBridgeApi.broadcastEvent(data)
+            telegramMessageController.send(data.instance)
         }
     }
 
@@ -75,7 +83,9 @@ class BukkitEvent(
                 cause = deathCause,
                 uuid = it.player.uniqueId.toString()
             )
-            pluginBridgeApi.broadcastEvent(ServerEventMessageData(serverEvent))
+            val data = ServerEventMessageData(serverEvent)
+            clientBridgeApi.broadcastEvent(data)
+            telegramMessageController.send(data.instance)
         }
     }
 }
