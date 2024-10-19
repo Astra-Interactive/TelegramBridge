@@ -14,6 +14,8 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 class TelegramEventModule(
     coreModule: CoreModule,
@@ -33,11 +35,11 @@ class TelegramEventModule(
     )
 
     private val bridgeBotFlow = coreModule.configKrate.cachedStateFlow
-        .mapCached<PluginConfiguration, TelegramBotsLongPollingApplication>(
+        .map { it.tgConfig }
+        .distinctUntilChanged()
+        .mapCached<PluginConfiguration.TelegramConfig, TelegramBotsLongPollingApplication>(
             scope = coreModule.scope,
-            transform = { config, prev ->
-                val tgConfig = config.tgConfig
-
+            transform = { tgConfig, prev ->
                 info { "#bridgeBotFlow closing previous bot ${tgConfig.token}" }
                 prev?.unregisterBot(tgConfig.token)
                 prev?.stop()

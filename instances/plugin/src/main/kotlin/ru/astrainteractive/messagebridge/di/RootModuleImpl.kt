@@ -74,6 +74,7 @@ class RootModuleImpl(
             eventBukkitMessengerModule.lifecycle,
             jdaEventModule.lifecycle,
             tgEventModule.lifecycle,
+            // other
             commandModule.lifecycle
         )
 
