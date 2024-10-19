@@ -16,15 +16,13 @@ dependencies {
     implementation(libs.minecraft.astralibs.menu.bukkit)
     implementation(libs.minecraft.astralibs.core.bukkit)
     implementation(libs.klibs.kstorage)
-    api("com.squareup.okhttp3:okhttp:4.12.0")
-    api("org.java-websocket:Java-WebSocket:1.5.7")
+    compileOnly(libs.minecraft.vaultapi)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.discordsrv)
     compileOnly(libs.minecraft.essentialsx)
+    implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
-    // Test
-    testImplementation(libs.bundles.testing.kotlin)
-    testImplementation(kotlin("test"))
+    implementation(projects.modules.core)
 }
