@@ -1,6 +1,8 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.runBlocking
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
@@ -14,8 +16,6 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 
 class TelegramEventModule(
     coreModule: CoreModule,

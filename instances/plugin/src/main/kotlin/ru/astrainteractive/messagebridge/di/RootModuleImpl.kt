@@ -1,5 +1,6 @@
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -9,6 +10,7 @@ import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.CoreBukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.EventBukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.CoreJdaModule
@@ -80,12 +82,20 @@ class RootModuleImpl(
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
+            coreModule.scope.launch {
+                jdaCoreModule.discordMessageController.send(ServerEvent.ServerOpen)
+                tgCoreModule.telegramMessageController.send(ServerEvent.ServerOpen)
+            }
             lifecycles.forEach(Lifecycle::onEnable)
         },
         onReload = {
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
+            coreModule.scope.launch {
+                jdaCoreModule.discordMessageController.send(ServerEvent.ServerClosed)
+                tgCoreModule.telegramMessageController.send(ServerEvent.ServerClosed)
+            }
             lifecycles.forEach(Lifecycle::onDisable)
         }
     )

@@ -60,7 +60,7 @@ class CoreJdaModule(
                             }
                     )
                 }
-            }.build()
+            }.build().awaitReady()
         }
     val webhookClient = jdaFlow.mapCached<JDA, WebhookClient>(coreModule.scope) { jda, old ->
         old?.close()
@@ -75,5 +75,8 @@ class CoreJdaModule(
         translationKrate = coreModule.translationKrate
     )
 
+    /**
+     * handled by [EventJdaModule]
+     */
     val lifecycle = Lifecycle.Lambda()
 }

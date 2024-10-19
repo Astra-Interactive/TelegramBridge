@@ -37,6 +37,7 @@ class EventJdaModule(
             runBlocking {
                 coreJdaModule.jdaFlow.first().let { jda ->
                     messageEventListener.onDisable(jda)
+                    jda.registeredListeners.forEach(jda::removeEventListener)
                     jda.shutdownNow()
                     jda.awaitShutdown()
                 }
