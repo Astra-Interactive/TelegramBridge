@@ -7,6 +7,7 @@ import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.serialization.YamlStringFormat
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
+import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.LifecyclePlugin
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
@@ -17,7 +18,7 @@ class CoreModule(
 ) {
     val yamlStringFormat = YamlStringFormat()
 
-    val dispatchers = DefaultBukkitDispatchers(plugin)
+    val dispatchers: KotlinDispatchers = DefaultBukkitDispatchers(plugin)
 
     val scope = CoroutineFeature.Default(dispatchers.IO)
 

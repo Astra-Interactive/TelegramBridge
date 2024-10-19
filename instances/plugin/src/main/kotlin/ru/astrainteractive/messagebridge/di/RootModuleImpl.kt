@@ -1,30 +1,62 @@
 package ru.astrainteractive.messagebridge.di
 
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.discordbot.module.bridge.di.ClientBridgeModule
 import ru.astrainteractive.messagebridge.MessageBridge
+import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.events.di.EventModule
+import ru.astrainteractive.messagebridge.messenger.bukkit.di.CoreBukkitMessengerModule
+import ru.astrainteractive.messagebridge.messenger.bukkit.di.EventBukkitMessengerModule
+import ru.astrainteractive.messagebridge.messenger.discord.di.CoreJdaModule
+import ru.astrainteractive.messagebridge.messenger.discord.di.EventJdaModule
+import ru.astrainteractive.messagebridge.messenger.telegram.di.CoreTelegramModule
+import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramEventModule
 
 class RootModuleImpl(
     plugin: MessageBridge
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+    private val minecraftBridge = object : MinecraftBridge {
+        override fun getOnlinePlayers(): List<String> {
+            return Bukkit.getOnlinePlayers().map(Player::getDisplayName)
+        }
+    }
+
     val coreModule = CoreModule(plugin)
 
-    val clientBridgeModule = ClientBridgeModule.Default()
-
-    val telegramModule = TelegramModule(
+    val bukkitCoreModule = CoreBukkitMessengerModule(
+        coreModule = coreModule
+    )
+    val jdaCoreModule = CoreJdaModule(
         coreModule = coreModule,
-        clientBridgeModule = clientBridgeModule
+    )
+    val tgCoreModule = CoreTelegramModule(
+        coreModule = coreModule
     )
 
-    val eventModule = EventModule(
+    val eventBukkitMessengerModule = EventBukkitMessengerModule(
         coreModule = coreModule,
-        telegramModule = telegramModule,
-        clientBridgeModule = clientBridgeModule
+        telegramMessageController = tgCoreModule.telegramMessageController,
+        discordMessageController = jdaCoreModule.discordMessageController
+    )
+
+    val jdaEventModule = EventJdaModule(
+        coreModule = coreModule,
+        coreJdaModule = jdaCoreModule,
+        telegramMessageController = tgCoreModule.telegramMessageController,
+        minecraftMessageController = bukkitCoreModule.minecraftMessageController,
+        minecraftBridge = minecraftBridge
+    )
+
+    val tgEventModule = TelegramEventModule(
+        coreModule = coreModule,
+        minecraftMessageController = bukkitCoreModule.minecraftMessageController,
+        discordMessageController = jdaCoreModule.discordMessageController,
+        minecraftBridge = minecraftBridge,
+        coreTelegramModule = tgCoreModule
     )
 
     val commandModule by lazy {
@@ -34,9 +66,14 @@ class RootModuleImpl(
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
-            clientBridgeModule.lifecycle,
-            eventModule.lifecycle,
-            telegramModule.lifecycle,
+            // core
+            bukkitCoreModule.lifecycle,
+            jdaCoreModule.lifecycle,
+            tgCoreModule.lifecycle,
+            // event
+            eventBukkitMessengerModule.lifecycle,
+            jdaEventModule.lifecycle,
+            tgEventModule.lifecycle,
             commandModule.lifecycle
         )
 

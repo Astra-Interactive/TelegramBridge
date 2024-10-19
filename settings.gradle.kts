@@ -43,7 +43,9 @@ rootProject.name = "MessageBridge"
 
 // Spigot
 include(":instances:plugin")
-include(":instances:discord")
 include(":modules:messenger:api")
+include(":modules:messenger:bukkit")
+include(":modules:messenger:telegram")
+include(":modules:messenger:discord")
 include(":modules:bridge")
 include(":modules:core")
