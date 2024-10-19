@@ -17,6 +17,10 @@ data class PluginTranslation(
     val noPermission: StringDesc.Raw = StringDesc.Raw("&#db2c18У вас нет прав!"),
     @SerialName("messaging.player_join")
     private val playerJoinMessage: StringDesc.Raw = StringDesc.Raw("Игрок %player% присоединился"),
+    @SerialName("messaging.player_join_first_time")
+    private val playerJoinMessageFirstTime: StringDesc.Raw = StringDesc.Raw(
+        "\uD83E\uDD73 Игрок %player% присоединился впервые!"
+    ),
     @SerialName("messaging.player_leave")
     private val playerLeaveMessage: StringDesc.Raw = StringDesc.Raw("Игрок %player% покинул нас"),
     @SerialName("messaging.player_died")
@@ -56,5 +60,7 @@ data class PluginTranslation(
         .replace("%player%", name)
 
     fun playerJoinMessage(name: String) = playerJoinMessage
+        .replace("%player%", name)
+    fun playerJoinMessageFirstTime(name: String) = playerJoinMessageFirstTime
         .replace("%player%", name)
 }

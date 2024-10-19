@@ -43,7 +43,7 @@ minecraftProcessResource {
 }
 
 setupShadow {
-    destination = File("/home/makeevrserg/Desktop/server/data/plugins")
+    destination = File("_/home/makeevrserg/Desktop/server/data/plugins")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()

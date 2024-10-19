@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("LongParameterList")
 internal class TelegramChatConsumer(
     configKrate: Krate<PluginConfiguration>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,

@@ -50,9 +50,15 @@ class TelegramMessageController(
             }
 
             is ServerEvent.PlayerJoined -> {
-                translation.playerJoinMessage(
-                    name = serverEvent.name,
-                )
+                if (serverEvent.hasPlayedBefore) {
+                    translation.playerJoinMessage(
+                        name = serverEvent.name,
+                    )
+                } else {
+                    translation.playerJoinMessageFirstTime(
+                        name = serverEvent.name,
+                    )
+                }
             }
 
             is ServerEvent.PlayerLeave -> {

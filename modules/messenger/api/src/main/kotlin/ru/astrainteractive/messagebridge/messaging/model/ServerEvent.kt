@@ -63,7 +63,8 @@ sealed interface ServerEvent {
     @SerialName("PlayerJoinedMessageEvent")
     data class PlayerJoined(
         val name: String,
-        val uuid: String
+        val uuid: String,
+        val hasPlayedBefore: Boolean
     ) : ServerEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
     }

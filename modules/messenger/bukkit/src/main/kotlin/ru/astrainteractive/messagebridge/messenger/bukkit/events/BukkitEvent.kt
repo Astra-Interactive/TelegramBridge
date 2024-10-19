@@ -31,10 +31,12 @@ internal class BukkitEvent(
     @EventHandler
     fun playerJoin(it: PlayerJoinEvent) {
         if (!config.displayJoinMessage) return
+
         scope.launch(dispatchers.IO) {
             val serverEvent = ServerEvent.PlayerJoined(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
+                hasPlayedBefore = it.player.hasPlayedBefore()
             )
             telegramMessageController.send(serverEvent)
             discordMessageController.send(serverEvent)
