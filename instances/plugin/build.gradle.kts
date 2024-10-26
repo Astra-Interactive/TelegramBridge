@@ -21,36 +21,53 @@ dependencies {
     implementation(libs.minecraft.astralibs.menu.bukkit)
     implementation(libs.minecraft.astralibs.core.bukkit)
     implementation(libs.klibs.kstorage)
-    compileOnly(libs.minecraft.vaultapi)
+    implementation(libs.minecraft.vaultapi)
     compileOnly(libs.driver.h2)
     compileOnly(libs.driver.jdbc)
     compileOnly(libs.driver.mysql)
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+    implementation(libs.kotlin.datetime)
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.discordsrv)
     compileOnly(libs.minecraft.essentialsx)
+    // Local
     implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.messenger.bukkit)
     implementation(projects.modules.messenger.discord)
     implementation(projects.modules.messenger.telegram)
     implementation(projects.modules.core)
+    implementation(projects.modules.link)
 }
 
-minecraftProcessResource {
-    spigotResourceProcessor.process()
+val processResources = project.tasks.named<ProcessResources>("processResources") {
+    filteringCharset = "UTF-8"
+    filesMatching("plugin.yml") {
+        val additionalProperties = mapOf(
+            "libraries" to listOf(
+                libs.driver.h2.get(),
+                libs.driver.jdbc.get(),
+                libs.driver.mysql.get(),
+            ).joinToString("\",\"", "[\"", "\"]")
+        )
+        expand(minecraftProcessResource.spigotResourceProcessor.getDefaultProperties().plus(additionalProperties))
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 setupShadow {
-    destination = File("_/home/makeevrserg/Desktop/server/data/plugins")
+    destination = File("D:\\Minecraft Servers\\server-docker\\data\\plugins")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
-    requireProjectInfo
     requireShadowJarTask {
+        relocate("org.bstats", requireProjectInfo.group)
+
+        dependsOn(processResources)
         minimize {
-            exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.version.get()}"))
+            exclude(dependency(libs.exposed.jdbc.get()))
+            exclude(dependency(libs.exposed.core.get()))
+            exclude(dependency(libs.exposed.dao.get()))
         }
     }
 }

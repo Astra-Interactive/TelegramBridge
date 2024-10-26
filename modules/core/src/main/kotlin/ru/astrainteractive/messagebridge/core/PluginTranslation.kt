@@ -33,7 +33,27 @@ data class PluginTranslation(
     val serverOpenMessage: StringDesc.Raw = StringDesc.Raw("✅ Сервер успешно запущен"),
     @SerialName("messaging.message.server_closed")
     val serverClosedMessage: StringDesc.Raw = StringDesc.Raw("\uD83D\uDED1 Сервер остановлен"),
+    @SerialName("link")
+    val link: Link = Link()
 ) {
+    @Serializable
+    data class Link(
+        @SerialName("code_created")
+        private val codeCreated: StringDesc.Raw = StringDesc.Raw(
+            "&#42f596Ваш код: %code%. Используйте /link <code> в TG или Discord."
+        ),
+        @SerialName("already_linked")
+        val alreadyLinked: StringDesc.Raw = StringDesc.Raw("Вы уже привязали аккаунт этим способом"),
+        @SerialName("no_code_found")
+        val noCodeFound: StringDesc.Raw = StringDesc.Raw("Код не найден. Используйте /link в игре для создания кода"),
+        @SerialName("unknown_error")
+        val unknownError: StringDesc.Raw = StringDesc.Raw("Произошла неизвестная ошибка"),
+        @SerialName("link_success")
+        val linkSuccess: StringDesc.Raw = StringDesc.Raw("Привязка прошла успешно"),
+    ) {
+        fun codeCreated(code: Int) = codeCreated.replace("%code%", "$code")
+    }
+
     fun minecraftMessageFormat(
         playerName: String,
         message: String,
@@ -61,6 +81,7 @@ data class PluginTranslation(
 
     fun playerJoinMessage(name: String) = playerJoinMessage
         .replace("%player%", name)
+
     fun playerJoinMessageFirstTime(name: String) = playerJoinMessageFirstTime
         .replace("%player%", name)
 }
