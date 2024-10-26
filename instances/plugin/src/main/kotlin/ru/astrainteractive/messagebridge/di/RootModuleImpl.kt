@@ -10,6 +10,7 @@ import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.CoreBukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.EventBukkitMessengerModule
@@ -28,6 +29,8 @@ class RootModuleImpl(
     }
 
     val coreModule = CoreModule(plugin)
+
+    val linkModule = LinkModule.Default(coreModule)
 
     val bukkitCoreModule = CoreBukkitMessengerModule(
         coreModule = coreModule
@@ -50,7 +53,8 @@ class RootModuleImpl(
         coreJdaModule = jdaCoreModule,
         telegramMessageController = tgCoreModule.telegramMessageController,
         minecraftMessageController = bukkitCoreModule.minecraftMessageController,
-        minecraftBridge = minecraftBridge
+        minecraftBridge = minecraftBridge,
+        linkModule = linkModule
     )
 
     val tgEventModule = TelegramEventModule(
@@ -58,11 +62,12 @@ class RootModuleImpl(
         minecraftMessageController = bukkitCoreModule.minecraftMessageController,
         discordMessageController = jdaCoreModule.discordMessageController,
         minecraftBridge = minecraftBridge,
-        coreTelegramModule = tgCoreModule
+        coreTelegramModule = tgCoreModule,
+        linkModule = linkModule
     )
 
     val commandModule by lazy {
-        CommandModule(coreModule)
+        CommandModule(coreModule, linkModule)
     }
 
     private val lifecycles: List<Lifecycle>

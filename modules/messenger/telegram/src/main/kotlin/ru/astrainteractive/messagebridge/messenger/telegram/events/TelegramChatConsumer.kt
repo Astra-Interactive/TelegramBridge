@@ -17,7 +17,10 @@ import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
+import ru.astrainteractive.messagebridge.link.api.LinkApi
+import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import kotlin.time.Duration.Companion.seconds
@@ -25,14 +28,17 @@ import kotlin.time.Duration.Companion.seconds
 @Suppress("LongParameterList")
 internal class TelegramChatConsumer(
     configKrate: Krate<PluginConfiguration>,
+    translationKrate: Krate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val minecraftMessageController: MessageController,
     private val discordMessageController: MessageController,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val minecraftBridge: MinecraftBridge
+    private val minecraftBridge: MinecraftBridge,
+    private val linkApi: LinkApi
 ) : LongPollingSingleThreadUpdateConsumer, Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val config by configKrate
+    private val translation by translationKrate
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 
@@ -73,7 +79,6 @@ internal class TelegramChatConsumer(
         }
         val replyMessageId = update.message?.replyToMessage?.messageId?.toString()
         val messageThreadId = update.message?.messageThreadId?.toString()
-
         val date = update.message?.date?.toLong() ?: run {
             info { "#consume the date of message is null" }
             return
@@ -125,8 +130,8 @@ internal class TelegramChatConsumer(
         val text = update.message.text ?: return false
         val chatId = update.message.chatId.toString()
         val originalMessageId = update.message?.replyToMessage?.messageId
-        when (text) {
-            "/minfo" -> {
+        when {
+            text.equals("/minfo") -> {
                 val message = "chatID is $chatId; originalMessageId: $originalMessageId"
                 val sendMessage = SendMessage(chatId, message).apply {
                     replyToMessageId = originalMessageId
@@ -135,12 +140,25 @@ internal class TelegramChatConsumer(
                 return true
             }
 
-            "/vanilla" -> {
+            text.equals("/vanilla") -> {
                 val players = minecraftBridge.getOnlinePlayers()
                 val message = players.joinToString(
                     ", ",
                     prefix = "Сейчас онлайн ${players.size} игроков\n"
                 )
+                val sendMessage = SendMessage(chatId, message).apply {
+                    replyToMessageId = originalMessageId
+                }
+                telegramClientOrNull()?.execute(sendMessage)
+                return true
+            }
+
+            text.startsWith("/link") -> {
+                val code = text.replace("/link ", "").toIntOrNull() ?: -1
+                val user = update.message?.from ?: return true
+                val response = linkApi.linkTelegram(code, user)
+                val message = response.asMessage(translation.link).raw
+
                 val sendMessage = SendMessage(chatId, message).apply {
                     replyToMessageId = originalMessageId
                 }

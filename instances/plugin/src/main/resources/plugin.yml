@@ -7,9 +7,10 @@ authors: [ "${authors}" ]
 author: "${author}"
 website: "${url}"
 api-version: 1.18
-softdepend: [ ]
+softdepend: [ "luckperms" ]
 depend: [ ]
 loadbefore: [ ]
-libraries: [ ]
+libraries: ${libraries}
 commands:
   mbreload:
+  link:

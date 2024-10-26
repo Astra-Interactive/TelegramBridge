@@ -8,12 +8,14 @@ import kotlinx.coroutines.runBlocking
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
 
 class EventJdaModule(
     coreModule: CoreModule,
     coreJdaModule: CoreJdaModule,
+    linkModule: LinkModule,
     telegramMessageController: MessageController,
     minecraftMessageController: MessageController,
     minecraftBridge: MinecraftBridge
@@ -23,7 +25,9 @@ class EventJdaModule(
         configKrate = coreModule.configKrate,
         telegramMessageController = telegramMessageController,
         minecraftMessageController = minecraftMessageController,
-        minecraftBridge = minecraftBridge
+        minecraftBridge = minecraftBridge,
+        translationKrate = coreModule.translationKrate,
+        linkApi = linkModule.linkApi
     )
 
     val lifecycle = Lifecycle.Lambda(

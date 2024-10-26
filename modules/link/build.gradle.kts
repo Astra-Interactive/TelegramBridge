@@ -8,21 +8,19 @@ dependencies {
     implementation(libs.bundles.kotlin)
     // Spigot dependencies
     compileOnly(libs.minecraft.paper.api)
-    implementation(libs.minecraft.bstats)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
-    implementation(libs.klibs.mikro.core)
-    implementation(libs.minecraft.astralibs.menu.bukkit)
+    implementation(libs.minecraft.astralibs.exposed)
     implementation(libs.minecraft.astralibs.core.bukkit)
+    implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
-    implementation(libs.minecraft.vaultapi)
-    implementation(libs.kotlin.datetime)
-    // Spigot
+    implementation(libs.cache4k)
+
     compileOnly(libs.minecraft.luckperms)
-    compileOnly(libs.minecraft.discordsrv)
-    compileOnly(libs.minecraft.essentialsx)
+    implementation(libs.jda)
+    implementation(libs.bundles.exposed)
+    implementation(libs.telegrambots.client)
+
     // Local
-    implementation(projects.modules.bridge)
-    implementation(projects.modules.messenger.api)
     implementation(projects.modules.core)
 }

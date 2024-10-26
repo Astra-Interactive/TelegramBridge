@@ -10,7 +10,14 @@ data class PluginConfiguration(
     val displayJoinMessage: Boolean = true,
     val displayLeaveMessage: Boolean = true,
     val displayDeathMessage: Boolean = true,
+    val link: Link? = null
 ) {
+    @Serializable
+    data class Link(
+        val linkDiscordRole: String,
+        val linkLuckPermsRole: String
+    )
+
     @Serializable
     data class JdaConfig(
         val token: String = "",

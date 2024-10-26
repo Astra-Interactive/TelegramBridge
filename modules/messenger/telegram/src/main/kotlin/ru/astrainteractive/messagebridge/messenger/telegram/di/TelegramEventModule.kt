@@ -13,6 +13,7 @@ import ru.astrainteractive.astralibs.util.FlowExt.mapCached
 import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import kotlin.time.Duration.Companion.seconds
@@ -20,9 +21,10 @@ import kotlin.time.Duration.Companion.seconds
 class TelegramEventModule(
     coreModule: CoreModule,
     minecraftBridge: MinecraftBridge,
+    linkModule: LinkModule,
     coreTelegramModule: CoreTelegramModule,
     minecraftMessageController: MessageController,
-    discordMessageController: MessageController
+    discordMessageController: MessageController,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
     private val consumer = TelegramChatConsumer(
         configKrate = coreModule.configKrate,
@@ -31,7 +33,9 @@ class TelegramEventModule(
         dispatchers = coreModule.dispatchers,
         minecraftMessageController = minecraftMessageController,
         discordMessageController = discordMessageController,
-        minecraftBridge = minecraftBridge
+        minecraftBridge = minecraftBridge,
+        translationKrate = coreModule.translationKrate,
+        linkApi = linkModule.linkApi
     )
 
     private val bridgeBotFlow = coreModule.configKrate.cachedStateFlow
