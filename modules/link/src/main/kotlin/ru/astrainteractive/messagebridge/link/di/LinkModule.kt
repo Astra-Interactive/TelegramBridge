@@ -8,7 +8,7 @@ import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.api.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.controller.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsFactory
+import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsProvider
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.dao.internal.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.database.di.LinkDatabaseModule
@@ -24,7 +24,7 @@ interface LinkModule {
 
     class Default(
         coreModule: CoreModule,
-        luckPermsFactory: LuckPermsFactory
+        luckPermsProvider: LuckPermsProvider
     ) : LinkModule {
 
         private val linkDatabaseModule = LinkDatabaseModule.Default(
@@ -37,7 +37,7 @@ interface LinkModule {
         override val discordRoleController: DiscordRoleController = DiscordRoleController(coreModule.configKrate)
         override val luckPermsRoleController = LuckPermsRoleController(
             configKrate = coreModule.configKrate,
-            luckPermsFactory = luckPermsFactory
+            luckPermsProvider = luckPermsProvider
         )
         override val linkApi: LinkApi = LinkApiImpl(
             linkingDao = linkingDao,

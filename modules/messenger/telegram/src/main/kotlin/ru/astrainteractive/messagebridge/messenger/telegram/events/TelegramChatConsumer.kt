@@ -15,7 +15,7 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
-import ru.astrainteractive.messagebridge.MinecraftBridge
+import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
@@ -34,7 +34,7 @@ internal class TelegramChatConsumer(
     private val discordMessageController: MessageController,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val minecraftBridge: MinecraftBridge,
+    private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi
 ) : LongPollingSingleThreadUpdateConsumer, Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val config by configKrate
@@ -141,7 +141,7 @@ internal class TelegramChatConsumer(
             }
 
             text.equals("/vanilla") -> {
-                val players = minecraftBridge.getOnlinePlayers()
+                val players = onlinePlayersProvider.provide()
                 val message = players.joinToString(
                     ", ",
                     prefix = "Сейчас онлайн ${players.size} игроков\n"

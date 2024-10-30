@@ -10,7 +10,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
-import ru.astrainteractive.messagebridge.MinecraftBridge
+import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class TelegramEventModule(
     coreModule: CoreModule,
-    minecraftBridge: MinecraftBridge,
+    onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
     coreTelegramModule: CoreTelegramModule,
     minecraftMessageController: MessageController,
@@ -33,7 +33,7 @@ class TelegramEventModule(
         dispatchers = coreModule.dispatchers,
         minecraftMessageController = minecraftMessageController,
         discordMessageController = discordMessageController,
-        minecraftBridge = minecraftBridge,
+        onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
         linkApi = linkModule.linkApi
     )

@@ -1,10 +1,10 @@
-package ru.astrainteractive.messagebridge
+package ru.astrainteractive.messagebridge.di.factory
 
 import net.luckperms.api.LuckPerms
 import org.bukkit.Bukkit
-import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsFactory
+import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsProvider
 
-object BukkitLuckPermsFactory : LuckPermsFactory {
+object BukkitLuckPermsProvider : LuckPermsProvider {
     override fun provide(): LuckPerms? {
         return Bukkit.getServicesManager()
             .getRegistration(LuckPerms::class.java)
