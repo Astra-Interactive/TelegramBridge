@@ -11,6 +11,7 @@ import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.MessageController
@@ -19,11 +20,13 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 class DiscordMessageController(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
+    configKrate: Krate<PluginConfiguration>,
     kyoriKrate: Krate<KyoriComponentSerializer>,
     translationKrate: Krate<PluginTranslation>
 ) : MessageController, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
     @Suppress("UnusedPrivateProperty")
     private val kyori by kyoriKrate
+    private val config by configKrate
 
     @Suppress("UnusedPrivateProperty")
     private val translation by translationKrate
@@ -109,7 +112,7 @@ class DiscordMessageController(
         if (serverEvent.from == ServerEvent.MessageFrom.DISCORD) {
             return
         }
-        val channel = jda().getTextChannelById("756872937696526377") ?: run {
+        val channel = jda().getTextChannelById(config.jdaConfig.channelId) ?: run {
             error { "#onServerEvent could not get text channel" }
             return
         }

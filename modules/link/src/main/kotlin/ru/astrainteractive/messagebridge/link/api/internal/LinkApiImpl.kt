@@ -19,6 +19,7 @@ class LinkApiImpl(
     override suspend fun linkDiscord(code: Int, member: Member): Response {
         val codeUser = codeApi.getUser(code)
         if (codeUser == null) return Response.NoCode
+        codeApi.clearCode(code)
         val user = linkingDao.findByUuid(codeUser.uuid)
             .onFailure { return Response.UnknownError }
             .getOrNull()
@@ -43,6 +44,7 @@ class LinkApiImpl(
     override suspend fun linkTelegram(code: Int, tgUser: User): Response {
         val codeUser = codeApi.getUser(code)
         if (codeUser == null) return Response.NoCode
+        codeApi.clearCode(code)
         val user = linkingDao.findByUuid(codeUser.uuid)
             .onFailure { return Response.UnknownError }
             .getOrNull()

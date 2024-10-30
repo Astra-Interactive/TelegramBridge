@@ -9,6 +9,7 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messenger.bukkit.util.ServerExt
 
 internal class MinecraftMessageController(
     kyoriKrate: Krate<KyoriComponentSerializer>,
@@ -34,6 +35,11 @@ internal class MinecraftMessageController(
             is ServerEvent.PlayerJoined,
             is ServerEvent.PlayerDeath -> null
         }?.let(kyori::toComponent) ?: return
-        Bukkit.broadcast(component)
+        if (ServerExt.isPaper()) {
+            Bukkit.broadcast(component)
+        } else {
+            val stringText = KyoriComponentSerializer.Plain.serializer.serialize(component)
+            Bukkit.broadcastMessage(stringText)
+        }
     }
 }

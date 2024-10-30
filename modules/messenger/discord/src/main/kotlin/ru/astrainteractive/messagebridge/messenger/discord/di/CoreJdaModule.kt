@@ -72,7 +72,8 @@ class CoreJdaModule(
         jdaFlow = jdaFlow,
         webHookClientFlow = webhookClient,
         kyoriKrate = coreModule.kyoriKrate,
-        translationKrate = coreModule.translationKrate
+        translationKrate = coreModule.translationKrate,
+        configKrate = coreModule.configKrate
     )
 
     /**

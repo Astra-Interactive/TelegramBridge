@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.messagebridge.MinecraftBridge
+import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.MessageController
@@ -18,14 +18,14 @@ class EventJdaModule(
     linkModule: LinkModule,
     telegramMessageController: MessageController,
     minecraftMessageController: MessageController,
-    minecraftBridge: MinecraftBridge
+    onlinePlayersProvider: OnlinePlayersProvider
 ) {
 
     private val messageEventListener = MessageEventListener(
         configKrate = coreModule.configKrate,
         telegramMessageController = telegramMessageController,
         minecraftMessageController = minecraftMessageController,
-        minecraftBridge = minecraftBridge,
+        onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
         linkApi = linkModule.linkApi
     )

@@ -37,6 +37,7 @@ dependencies {
     implementation(projects.modules.messenger.discord)
     implementation(projects.modules.messenger.telegram)
     implementation(projects.modules.core)
+    implementation(projects.modules.coreBukkit)
     implementation(projects.modules.link)
 }
 
@@ -56,7 +57,7 @@ val processResources = project.tasks.named<ProcessResources>("processResources")
 }
 
 setupShadow {
-    destination = File("D:\\Minecraft Servers\\server-docker\\data\\plugins")
+    destination = File("_D:\\Minecraft Servers\\server-docker\\data\\plugins")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()

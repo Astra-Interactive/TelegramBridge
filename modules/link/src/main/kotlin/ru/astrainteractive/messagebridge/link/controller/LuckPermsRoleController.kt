@@ -2,23 +2,22 @@ package ru.astrainteractive.messagebridge.link.controller
 
 import net.luckperms.api.LuckPerms
 import net.luckperms.api.node.types.InheritanceNode
-import org.bukkit.Bukkit
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
+import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsProvider
 import java.util.UUID
 
 class LuckPermsRoleController(
     configKrate: Krate<PluginConfiguration>,
+    private val luckPermsProvider: LuckPermsProvider
 ) : Logger by JUtiltLogger("MessageBridge-LuckPermsRoleController") {
     private val config by configKrate
 
     private val luckPermsOrNull: LuckPerms?
-        get() = Bukkit.getServicesManager()
-            .getRegistration(LuckPerms::class.java)
-            ?.provider
+        get() = luckPermsProvider.provide()
 
     fun addLinkRole(uuid: UUID) {
         val link = config.link ?: return

@@ -1,15 +1,16 @@
 package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.launch
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
+import ru.astrainteractive.astralibs.async.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
-import ru.astrainteractive.messagebridge.MinecraftBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
+import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.di.factory.BukkitLuckPermsProvider
+import ru.astrainteractive.messagebridge.di.factory.BukkitOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.CoreBukkitMessengerModule
@@ -22,17 +23,17 @@ import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramEventModu
 class RootModuleImpl(
     plugin: MessageBridge
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
-    private val minecraftBridge = object : MinecraftBridge {
-        override fun getOnlinePlayers(): List<String> {
-            return Bukkit.getOnlinePlayers().map(Player::getDisplayName)
-        }
-    }
 
-    val coreModule = CoreModule(plugin)
+    val bukkitCoreModule = BukkitCoreModule(plugin)
 
-    val linkModule = LinkModule.Default(coreModule)
+    val coreModule = CoreModule(
+        dataFolder = bukkitCoreModule.plugin.dataFolder,
+        dispatchers = DefaultBukkitDispatchers(bukkitCoreModule.plugin)
+    )
 
-    val bukkitCoreModule = CoreBukkitMessengerModule(
+    val linkModule = LinkModule.Default(coreModule, BukkitLuckPermsProvider)
+
+    val coreBukkitMessengerModule = CoreBukkitMessengerModule(
         coreModule = coreModule
     )
     val jdaCoreModule = CoreJdaModule(
@@ -44,6 +45,7 @@ class RootModuleImpl(
 
     val eventBukkitMessengerModule = EventBukkitMessengerModule(
         coreModule = coreModule,
+        bukkitCoreModule = bukkitCoreModule,
         telegramMessageController = tgCoreModule.telegramMessageController,
         discordMessageController = jdaCoreModule.discordMessageController
     )
@@ -52,29 +54,33 @@ class RootModuleImpl(
         coreModule = coreModule,
         coreJdaModule = jdaCoreModule,
         telegramMessageController = tgCoreModule.telegramMessageController,
-        minecraftMessageController = bukkitCoreModule.minecraftMessageController,
-        minecraftBridge = minecraftBridge,
+        minecraftMessageController = coreBukkitMessengerModule.minecraftMessageController,
+        onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule
     )
 
     val tgEventModule = TelegramEventModule(
         coreModule = coreModule,
-        minecraftMessageController = bukkitCoreModule.minecraftMessageController,
+        minecraftMessageController = coreBukkitMessengerModule.minecraftMessageController,
         discordMessageController = jdaCoreModule.discordMessageController,
-        minecraftBridge = minecraftBridge,
+        onlinePlayersProvider = BukkitOnlinePlayersProvider,
         coreTelegramModule = tgCoreModule,
         linkModule = linkModule
     )
 
     val commandModule by lazy {
-        CommandModule(coreModule, linkModule)
+        CommandModule(
+            coreModule = coreModule,
+            bukkitCoreModule = bukkitCoreModule,
+            linkModule = linkModule
+        )
     }
 
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
             // core
-            bukkitCoreModule.lifecycle,
+            coreBukkitMessengerModule.lifecycle,
             jdaCoreModule.lifecycle,
             tgCoreModule.lifecycle,
             // event
