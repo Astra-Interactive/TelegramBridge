@@ -4,7 +4,37 @@
 
 # MessageBridge
 
-Send Telegram-Minecraft messages
+Send Telegram-Discord-Minecraft messages
+
+# Configuration
+
+```yaml
+# Discord bot configuration
+jdaConfig:
+  token: ""
+  activity: "play.EmpireProjekt.ru"
+  channelId: ""
+  # Your VPS located in countries that block discord? Use this proxy config
+  proxy:
+    host: "0.0.0.0"
+    port: 2222
+    username: "user"
+    password: "password"
+# Telegram bot configuration    
+tgConfig:
+  token: "TOKEN"
+  chat_id: "-11111111"
+  topic_id: "1111111"
+  max_telegram_message_length: 140
+# In-Game events
+displayJoinMessage: true
+displayLeaveMessage: true
+displayDeathMessage: true
+# Want to enable linking?
+link:
+  linkDiscordRole: "123213123123123"
+  linkLuckPermsRole: "verified"
+```
 
 # Platforms
 
