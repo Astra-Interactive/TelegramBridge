@@ -8,6 +8,8 @@ dependencies {
     implementation(libs.bundles.kotlin)
     // Spigot dependencies
     compileOnly(libs.minecraft.paper.api)
+//    compileOnly(libs.minecraft.spigot.api)
+    compileOnly("net.kyori:adventure-text-serializer-plain:4.17.0")
     implementation(libs.minecraft.bstats)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)

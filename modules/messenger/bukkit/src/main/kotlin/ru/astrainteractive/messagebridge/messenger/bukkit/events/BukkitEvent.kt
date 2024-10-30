@@ -3,18 +3,23 @@ package ru.astrainteractive.messagebridge.messenger.bukkit.events
 import io.papermc.paper.event.player.AsyncChatEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.essentialsx.api.v2.events.chat.ChatEvent
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
+import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messenger.bukkit.util.ServerExt
 
 /**
  * This is a most convenient way to use bukkit events in kotlin
@@ -56,18 +61,34 @@ internal class BukkitEvent(
         }
     }
 
-    @EventHandler
-    fun messageEvent(it: AsyncChatEvent) {
+    private fun onChatEvent(message: Component, player: Player) {
         scope.launch(dispatchers.IO) {
-            val textComponent = it.message() as TextComponent
+            val textComponent = message as TextComponent
             val serverEvent = ServerEvent.Text.Minecraft(
-                author = it.player.name,
+                author = player.name,
                 text = textComponent.content(),
-                uuid = it.player.uniqueId.toString()
+                uuid = player.uniqueId.toString()
             )
             telegramMessageController.send(serverEvent)
             discordMessageController.send(serverEvent)
         }
+    }
+
+    @EventHandler
+    fun syncMessageEvent(it: ChatEvent) {
+        if (ServerExt.isPaper()) return
+        onChatEvent(
+            message = KyoriComponentSerializer.Plain.toComponent(it.message),
+            player = it.player
+        )
+    }
+
+    @EventHandler
+    fun messageEvent(it: AsyncChatEvent) {
+        onChatEvent(
+            message = it.message(),
+            player = it.player
+        )
     }
 
     @EventHandler

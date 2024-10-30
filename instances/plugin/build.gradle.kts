@@ -57,7 +57,7 @@ val processResources = project.tasks.named<ProcessResources>("processResources")
 }
 
 setupShadow {
-    destination = File("D:\\Minecraft Servers\\server-docker\\data\\plugins")
+    destination = File("_D:\\Minecraft Servers\\server-docker\\data\\plugins")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
