@@ -10,7 +10,6 @@ dependencies {
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
-    implementation(libs.minecraft.vaultapi)
     implementation(libs.kotlin.datetime)
     implementation(libs.telegrambots.longpolling)
     implementation(libs.telegrambots.extensions)

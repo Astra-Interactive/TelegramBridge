@@ -37,6 +37,7 @@ dependencies {
     implementation(projects.modules.messenger.discord)
     implementation(projects.modules.messenger.telegram)
     implementation(projects.modules.core)
+    implementation(projects.modules.coreBukkit)
     implementation(projects.modules.link)
 }
 
