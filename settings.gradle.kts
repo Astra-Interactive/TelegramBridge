@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://maven.minecraftforge.net")
         maven("https://plugins.gradle.org/m2/")
         maven("https://jitpack.io")
         gradlePluginPortal()
@@ -43,6 +44,7 @@ rootProject.name = "MessageBridge"
 
 // Spigot
 include(":instances:plugin")
+include(":instances:forge")
 include(":modules:messenger:api")
 include(":modules:messenger:bukkit")
 include(":modules:messenger:telegram")
