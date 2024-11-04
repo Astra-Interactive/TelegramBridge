@@ -41,30 +41,25 @@ dependencies {
     implementation(projects.modules.link)
 }
 
-val processResources = project.tasks.named<ProcessResources>("processResources") {
-    filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        val additionalProperties = mapOf(
+minecraftProcessResource {
+    bukkit(
+        customProperties = mapOf(
             "libraries" to listOf(
                 libs.driver.h2.get(),
                 libs.driver.jdbc.get(),
                 libs.driver.mysql.get(),
             ).joinToString("\",\"", "[\"", "\"]")
         )
-        expand(minecraftProcessResource.spigotResourceProcessor.getDefaultProperties().plus(additionalProperties))
-    }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    )
 }
 
-setupShadow {
+astraShadowJar {
     destination = File("_D:\\Minecraft Servers\\server-docker\\data\\plugins")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
     requireShadowJarTask {
         relocate("org.bstats", requireProjectInfo.group)
-
-        dependsOn(processResources)
         minimize {
             exclude(dependency(libs.exposed.jdbc.get()))
             exclude(dependency(libs.exposed.core.get()))
