@@ -5,6 +5,7 @@ import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
@@ -12,6 +13,7 @@ import ru.astrainteractive.messagebridge.di.RootModuleImpl
 import ru.astrainteractive.messagebridge.event.core.ForgeEventBusListener
 import javax.annotation.ParametersAreNonnullByDefault
 
+@Mod("messagebridge")
 @ParametersAreNonnullByDefault
 class ForgeEntryPoint :
     ForgeEventBusListener,

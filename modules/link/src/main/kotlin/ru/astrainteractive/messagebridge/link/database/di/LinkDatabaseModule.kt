@@ -11,7 +11,6 @@ import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import ru.astrainteractive.astralibs.exposed.factory.DatabaseFactory
 import ru.astrainteractive.astralibs.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
@@ -30,7 +29,11 @@ interface LinkDatabaseModule {
             .mapCached(scope) { dbConfig, previous ->
                 previous?.connector?.invoke()?.close()
                 previous?.run(TransactionManager::closeAndUnregister)
-                val database = DatabaseFactory(dataFolder).create(dbConfig)
+
+                val database = Database.connect(
+                    url = "jdbc:h2:${dataFolder.resolve("${dbConfig.name}.db").absolutePath}${dbConfig.stringArgument}",
+                    driver = "org.h2.Driver",
+                )
                 TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
                 transaction(database) {
                     addLogger(Slf4jSqlDebugLogger)

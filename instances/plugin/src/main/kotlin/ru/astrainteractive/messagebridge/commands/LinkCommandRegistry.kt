@@ -30,7 +30,9 @@ internal class LinkCommandRegistry(
                     uuid = player.uniqueId
                 )
                 val code = codeApi.generateCodeForPlayer(codeUser)
-                player.sendMessage(translation.link.codeCreated(code).component)
+                translation.link.codeCreated(code).component
+                    .let(KyoriComponentSerializer.Plain.serializer::serialize)
+                    .run(player::sendMessage)
             }
         }
         true

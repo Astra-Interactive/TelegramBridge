@@ -70,14 +70,14 @@ telegrambots = "7.10.0"
 
 [libraries]
 # Kotlin
-kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlin-coroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
 kotlin-coroutines-coreJvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlin-coroutines" }
-kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin-version" }
-kotlin-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-json" }
-kotlin-serializationKaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kotlin-kaml" }
+kotlin-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm", version.ref = "kotlin-json" }
+kotlin-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "kotlin-json" }
+kotlin-serializationKaml = { module = "com.charleskorn.kaml:kaml-jvm", version.ref = "kotlin-kaml" }
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-version" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlin-datetime" }
+kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", version.ref = "kotlin-datetime" }
 kotlin-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlin-benchmark" }
 
 # Shadow
@@ -123,9 +123,9 @@ telegrambots-extensions = { module = "org.telegram:telegrambots-extensions", ver
 telegrambots-client = { module = "org.telegram:telegrambots-client", version.ref = "telegrambots" }
 
 # klibs
-klibs-mikro-core = { module = "ru.astrainteractive.klibs:mikro-core", version.ref = "klibs-mikro" }
-klibs-kdi = { module = "ru.astrainteractive.klibs:kdi", version.ref = "klibs-kdi" }
-klibs-kstorage = { module = "ru.astrainteractive.klibs:kstorage", version.ref = "klibs-kstorage" }
+klibs-mikro-core = { module = "ru.astrainteractive.klibs:mikro-core-jvm", version.ref = "klibs-mikro" }
+klibs-kdi = { module = "ru.astrainteractive.klibs:kdi-jvm", version.ref = "klibs-kdi" }
+klibs-kstorage = { module = "ru.astrainteractive.klibs:kstorage-jvm", version.ref = "klibs-kstorage" }
 
 # AstraLibs
 minecraft-astralibs-orm = { module = "ru.astrainteractive.astralibs:orm", version.ref = "minecraft-astralibs" }
@@ -136,7 +136,7 @@ minecraft-astralibs-core-bukkit = { module = "ru.astrainteractive.astralibs:core
 minecraft-astralibs-command = { module = "ru.astrainteractive.astralibs:command", version.ref = "minecraft-astralibs" }
 minecraft-astralibs-command-bukkit = { module = "ru.astrainteractive.astralibs:command-bukkit", version.ref = "minecraft-astralibs" }
 
-cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
+cache4k = { module = "io.github.reactivecircus.cache4k:cache4k-jvm", version.ref = "cache4k" }
 
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
@@ -144,7 +144,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 exposed = ["exposed-java-time", "exposed-jdbc", "exposed-dao", "exposed-core"]
 minecraft-bukkit = ["minecraft-paper-api", "minecraft-spigot-api", "minecraft-spigot-core", "minecraft-vaultapi", "minecraft-papi"]
 testing-kotlin = ["turbine", "kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-coroutines-test", "driver-jdbc", "driver-mysql", "driver-h2", "kotlin-serialization", "kotlin-serializationJson"]
-kotlin = ["kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-serialization", "kotlin-serializationJson", "kotlin-serializationKaml", "kotlin-gradle"]
+kotlin = ["kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-serialization", "kotlin-serializationJson", "kotlin-serializationKaml", ]
 
 
 [plugins]

@@ -1,12 +1,12 @@
 pluginManagement {
     repositories {
-        maven("https://maven.minecraftforge.net")
         maven("https://plugins.gradle.org/m2/")
         maven("https://jitpack.io")
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
         google()
+        maven("https://maven.minecraftforge.net")
     }
 }
 

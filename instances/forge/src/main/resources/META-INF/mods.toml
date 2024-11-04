@@ -1,0 +1,22 @@
+license = "MIT"
+modLoader = "javafml"
+loaderVersion = "[46,)"
+[[mods]]
+modId = "${modId}"
+version = "${version}"
+displayName = "${displayName}"
+authors = "${authors}"
+logoFile = "icon.png"
+description = "${description}"
+[[dependencies.${ modId }]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.${ modId }]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1]"
+ordering = "NONE"
+side = "BOTH"

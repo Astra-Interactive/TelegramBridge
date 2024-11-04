@@ -1,13 +1,14 @@
 package ru.astrainteractive.messagebridge.messaging
 
-import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.server.MinecraftServer
+import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.util.NativeComponentExt.toNative
 
 internal class ForgeMessageController(
     translationKrate: Krate<PluginTranslation>,
@@ -17,7 +18,7 @@ internal class ForgeMessageController(
 
     override suspend fun send(serverEvent: ServerEvent) {
         if (serverEvent.from == ServerEvent.MessageFrom.MINECRAFT) return
-        val stringDesc = when (serverEvent) {
+        val component = when (serverEvent) {
             is ServerEvent.Text -> {
                 translation.minecraftMessageFormat(
                     playerName = serverEvent.author,
@@ -31,9 +32,10 @@ internal class ForgeMessageController(
             is ServerEvent.PlayerLeave,
             is ServerEvent.PlayerJoined,
             is ServerEvent.PlayerDeath -> null
-        } ?: return
+        }?.let(KyoriComponentSerializer.Legacy::toComponent) ?: return
+
         getServer.invoke()?.playerList?.players.orEmpty().forEach { player ->
-            player.sendSystemMessage(ComponentUtils.fromMessage { stringDesc.raw })
+            player.sendSystemMessage(component.toNative())
         }
     }
 }
