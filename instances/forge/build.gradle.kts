@@ -33,6 +33,7 @@ dependencies {
     shade(libs.bundles.exposed)
     // AstraLibs
     shade(libs.minecraft.astralibs.core)
+    shade(libs.kotlin.serializationKaml)
     shade(libs.minecraft.astralibs.orm)
     shade(libs.klibs.mikro.core)
     shade(libs.klibs.kstorage)
@@ -86,7 +87,7 @@ val processResources = project.tasks.withType<ProcessResources> {
     }
 }
 
-val destination = File("/media/makeevrserg/WDGOLD2TB/Minecraft Servers/server-docker-forge/data/mods")
+val destination = File("_/media/makeevrserg/WDGOLD2TB/Minecraft Servers/server-docker-forge/data/mods")
     .takeIf(File::exists)
     ?: File(rootDir, "jars")
 
@@ -137,6 +138,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     // Becuase relocation org will break other non-relocated dependencies such as org.minecraft
     listOf(
         "com.fasterxml",
+        "net.kyori",
+        "org.h2",
         "com.neovisionaries",
         "gnu.trove",
         "org.json",
@@ -156,7 +159,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "org.jetbrains.exposed.jdbc",
         "org.jetbrains.kotlin",
         "org.jetbrains.kotlinx",
-        "com.charleskorn",
+        "com.charleskorn.kaml",
         "ru.astrainteractive.klibs",
         "ru.astrainteractive.astralibs",
         "club.minnced.discord",

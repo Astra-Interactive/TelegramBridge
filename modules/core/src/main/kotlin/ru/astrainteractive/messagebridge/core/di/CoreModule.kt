@@ -1,9 +1,10 @@
 package ru.astrainteractive.messagebridge.core.di
 
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.coroutines.cancel
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.serialization.YamlStringFormat
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
@@ -14,7 +15,15 @@ class CoreModule(
     val dataFolder: File,
     val dispatchers: KotlinDispatchers
 ) {
-    val yamlStringFormat = YamlStringFormat()
+    val configuration: YamlConfiguration = Yaml.default.configuration.copy(
+        encodeDefaults = true,
+        strictMode = false
+    )
+    val yaml: Yaml = Yaml(
+        serializersModule = Yaml.default.serializersModule,
+        configuration = configuration
+    )
+    val yamlStringFormat = yaml
 
     val scope = CoroutineFeature.Default(dispatchers.IO)
 
