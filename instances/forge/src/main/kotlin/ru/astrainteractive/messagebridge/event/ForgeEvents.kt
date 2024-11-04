@@ -60,14 +60,15 @@ class ForgeEvents(
     @SubscribeEvent
     fun onPlayerJoin(it: PlayerLoggedInEvent) {
         if (!config.displayJoinMessage) return
-        val nbt = it.entity.persistentData
-        val playedBefore = (nbt.getLong("lastPlayed") - nbt.getLong("firstPlayed")) > 1
+        // doesnt work
+//        val nbt = it.entity.persistentData
+//        val playedBefore = (nbt.getLong("lastPlayed") - nbt.getLong("firstPlayed")) > 1
 
         scope.launch(dispatchers.IO) {
             val serverEvent = ServerEvent.PlayerJoined(
                 name = it.entity.name.string,
                 uuid = it.entity.uuid.toString(),
-                hasPlayedBefore = playedBefore
+                hasPlayedBefore = true
             )
             telegramMessageController.send(serverEvent)
             discordMessageController.send(serverEvent)
