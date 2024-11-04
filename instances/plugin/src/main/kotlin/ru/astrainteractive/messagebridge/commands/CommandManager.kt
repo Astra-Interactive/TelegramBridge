@@ -21,16 +21,19 @@ class CommandManager(
         if (!sender.toPermissible().hasPermission(PluginPermission.Reload)) {
             kyori
                 .toComponent(translation.noPermission)
+                .let(KyoriComponentSerializer.Plain.serializer::serialize)
                 .run(sender::sendMessage)
             info { "#reload no permission" }
             return@setExecutor true
         }
         kyori
             .toComponent(translation.reload)
+            .let(KyoriComponentSerializer.Plain.serializer::serialize)
             .run(sender::sendMessage)
         plugin.onReload()
         kyori
             .toComponent(translation.reloadComplete)
+            .let(KyoriComponentSerializer.Plain.serializer::serialize)
             .run(sender::sendMessage)
         true
     }

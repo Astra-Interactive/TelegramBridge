@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.first
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
@@ -21,11 +20,8 @@ class DiscordMessageController(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
     configKrate: Krate<PluginConfiguration>,
-    kyoriKrate: Krate<KyoriComponentSerializer>,
     translationKrate: Krate<PluginTranslation>
 ) : MessageController, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
-    @Suppress("UnusedPrivateProperty")
-    private val kyori by kyoriKrate
     private val config by configKrate
 
     @Suppress("UnusedPrivateProperty")

@@ -71,7 +71,6 @@ class CoreJdaModule(
     val discordMessageController = DiscordMessageController(
         jdaFlow = jdaFlow,
         webHookClientFlow = webhookClient,
-        kyoriKrate = coreModule.kyoriKrate,
         translationKrate = coreModule.translationKrate,
         configKrate = coreModule.configKrate
     )

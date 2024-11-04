@@ -2,9 +2,11 @@ package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.async.DefaultBukkitDispatchers
+import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
@@ -33,8 +35,13 @@ class RootModuleImpl(
 
     val linkModule = LinkModule.Default(coreModule, BukkitLuckPermsProvider)
 
+    val kyoriKrate = DefaultMutableKrate<KyoriComponentSerializer>(
+        factory = { KyoriComponentSerializer.Legacy },
+        loader = { null }
+    )
     val coreBukkitMessengerModule = CoreBukkitMessengerModule(
-        coreModule = coreModule
+        coreModule = coreModule,
+        kyoriKrate = kyoriKrate
     )
     val jdaCoreModule = CoreJdaModule(
         coreModule = coreModule,
@@ -72,7 +79,8 @@ class RootModuleImpl(
         CommandModule(
             coreModule = coreModule,
             bukkitCoreModule = bukkitCoreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            kyoriKrate = kyoriKrate
         )
     }
 

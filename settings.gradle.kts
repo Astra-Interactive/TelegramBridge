@@ -6,6 +6,7 @@ pluginManagement {
         mavenCentral()
         mavenLocal()
         google()
+        maven("https://maven.minecraftforge.net")
     }
 }
 
@@ -43,6 +44,7 @@ rootProject.name = "MessageBridge"
 
 // Spigot
 include(":instances:plugin")
+include(":instances:forge")
 include(":modules:messenger:api")
 include(":modules:messenger:bukkit")
 include(":modules:messenger:telegram")

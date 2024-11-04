@@ -1,14 +1,11 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.events
 
-import io.papermc.paper.event.player.AsyncChatEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.essentialsx.api.v2.events.chat.ChatEvent
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
@@ -61,7 +58,12 @@ internal class BukkitEvent(
         }
     }
 
-    private fun onChatEvent(message: Component, player: Player) {
+    @EventHandler
+    fun syncMessageEvent(it: AsyncPlayerChatEvent) {
+        if (ServerExt.isPaper()) return
+        val message = KyoriComponentSerializer.Plain.toComponent(it.message)
+        val player = it.player
+
         scope.launch(dispatchers.IO) {
             val textComponent = message as TextComponent
             val serverEvent = ServerEvent.Text.Minecraft(
@@ -75,31 +77,14 @@ internal class BukkitEvent(
     }
 
     @EventHandler
-    fun syncMessageEvent(it: ChatEvent) {
-        if (ServerExt.isPaper()) return
-        onChatEvent(
-            message = KyoriComponentSerializer.Plain.toComponent(it.message),
-            player = it.player
-        )
-    }
-
-    @EventHandler
-    fun messageEvent(it: AsyncChatEvent) {
-        onChatEvent(
-            message = it.message(),
-            player = it.player
-        )
-    }
-
-    @EventHandler
     fun deathEvent(it: PlayerDeathEvent) {
         if (!config.displayDeathMessage) return
         scope.launch(dispatchers.IO) {
-            val deathCause = (it.deathMessage() as? TextComponent?)?.content() ?: it.deathMessage
+            val deathCause = it.deathMessage
             val serverEvent = ServerEvent.PlayerDeath(
-                name = it.player.name,
+                name = it.entity.name,
                 cause = deathCause,
-                uuid = it.player.uniqueId.toString()
+                uuid = it.entity.uniqueId.toString()
             )
             telegramMessageController.send(serverEvent)
             discordMessageController.send(serverEvent)

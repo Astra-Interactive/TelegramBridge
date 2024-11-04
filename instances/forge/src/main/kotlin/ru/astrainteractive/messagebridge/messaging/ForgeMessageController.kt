@@ -1,20 +1,19 @@
-package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
+package ru.astrainteractive.messagebridge.messaging
 
-import org.bukkit.Bukkit
+import net.minecraft.server.MinecraftServer
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
-import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.util.NativeComponentExt.toNative
 
-internal class MinecraftMessageController(
-    kyoriKrate: Krate<KyoriComponentSerializer>,
-    translationKrate: Krate<PluginTranslation>
+internal class ForgeMessageController(
+    translationKrate: Krate<PluginTranslation>,
+    private val getServer: () -> MinecraftServer?
 ) : MessageController, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
-    private val kyori by kyoriKrate
     private val translation by translationKrate
 
     override suspend fun send(serverEvent: ServerEvent) {
@@ -33,8 +32,10 @@ internal class MinecraftMessageController(
             is ServerEvent.PlayerLeave,
             is ServerEvent.PlayerJoined,
             is ServerEvent.PlayerDeath -> null
-        }?.let(kyori::toComponent) ?: return
-        val stringText = KyoriComponentSerializer.Plain.serializer.serialize(component)
-        Bukkit.broadcastMessage(stringText)
+        }?.let(KyoriComponentSerializer.Legacy::toComponent) ?: return
+
+        getServer.invoke()?.playerList?.players.orEmpty().forEach { player ->
+            player.sendSystemMessage(component.toNative())
+        }
     }
 }
