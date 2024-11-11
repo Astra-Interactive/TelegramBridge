@@ -42,10 +42,10 @@ minecraft-protocollib = "5.3.0" # https://github.com/dmulloy2/ProtocolLib
 minecraft-vault = "1.7.1" # https://github.com/MilkBowl/VaultAPI
 minecraft-astralibs = "3.15.0" # https://github.com/Astra-Interactive/AstraLibs
 minecraft-bstats = "3.1.0" # https://github.com/Bastian/bStats
-minecraft-mockbukkit = "3.133.2" #https://github.com/MockBukkit/MockBukkit
+minecraft-mockbukkit = "4.1.1" #https://github.com/MockBukkit/MockBukkit
 minecraft-luckperms = "5.4" # https://github.com/LuckPerms/LuckPerms
 minecraft-essentialsx = "2.20.1" # https://github.com/EssentialsX/Essentials
-minecraft-towny = "0.100.4.9" # https://github.com/TownyAdvanced/Towny
+minecraft-towny = "0.100.4.11" # https://github.com/TownyAdvanced/Towny
 
 # Shadow
 gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
@@ -64,7 +64,7 @@ mockito = "5.14.2" # https://github.com/mockito/mockito
 cache4k = "0.13.0" # https://github.com/ReactiveCircus/cache4k
 turbine = "1.2.0" # https://github.com/cashapp/turbine
 
-jda = "5.2.0" # https://github.com/discord-jda/JDA
+jda = "5.2.1" # https://github.com/discord-jda/JDA
 jda-webhook = "0.8.4"
 telegrambots = "7.10.0"
 
