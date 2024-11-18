@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:1.20.1-47.2.20")
+    minecraft("net.minecraftforge:forge:1.21.3-53.0.19")
     // Kotlin
     shade(libs.bundles.kotlin)
     shade(libs.bundles.exposed)
