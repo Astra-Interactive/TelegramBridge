@@ -29,7 +29,7 @@ klibs-gradle-minecraft-multiplatform = { id = "ru.astrainteractive.gradleplugin.
 # klibs - minecraft
 klibs-minecraft-resource-processor = { id = "ru.astrainteractive.gradleplugin.minecraft.resource-processor", version.ref = "klibs-gradleplugin" }
 klibs-minecraft-shadow = { id = "ru.astrainteractive.gradleplugin.minecraft.shadow", version.ref = "klibs-gradleplugin" }
-klibs-gradleplugin = "1.4.0" # https://github.com/makeevrserg/gradle-plugin
+klibs-gradleplugin = "1.5.0-alpha01" # https://github.com/makeevrserg/gradle-plugin
 klibs-mikro = "1.8.8" # https://github.com/makeevrserg/klibs.mikro
 klibs-kdi = "1.4.8" # https://github.com/makeevrserg/klibs.kdi
 klibs-kstorage = "3.2.0" # https://github.com/makeevrserg/klibs.kstorage

@@ -1,6 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.utils.extendsFrom
-import ru.astrainteractive.gradleplugin.model.Developer
 import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
 
 plugins {
@@ -12,46 +10,32 @@ plugins {
     alias(libs.plugins.klibs.minecraft.resource.processor)
 }
 
-val shade: Configuration by configurations.creating
-
-val implementation: Configuration by configurations.getting {
-    this.extendsFrom(shade)
-}
-
-repositories {
-    mavenLocal {
-        this.mavenContent {
-            this.includeGroup("org.jetbrains.exposed")
-        }
-    }
-}
-
 dependencies {
     minecraft("net.minecraftforge:forge:1.20.1-47.2.20")
     // Kotlin
-    shade(libs.bundles.kotlin)
-    shade(libs.bundles.exposed)
+    shadeImplementation(libs.bundles.kotlin)
+    shadeImplementation(libs.bundles.exposed)
     // AstraLibs
-    shade(libs.minecraft.astralibs.core)
-    shade(libs.kotlin.serializationKaml)
-    shade(libs.minecraft.astralibs.orm)
-    shade(libs.klibs.mikro.core)
-    shade(libs.klibs.kstorage)
-    shade(libs.kotlin.datetime)
-    shade(libs.driver.h2)
+    shadeImplementation(libs.minecraft.astralibs.core)
+    shadeImplementation(libs.kotlin.serializationKaml)
+    shadeImplementation(libs.minecraft.astralibs.orm)
+    shadeImplementation(libs.klibs.mikro.core)
+    shadeImplementation(libs.klibs.kstorage)
+    shadeImplementation(libs.kotlin.datetime)
+    shadeImplementation(libs.driver.h2)
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     // Local
-    shade(projects.modules.bridge)
-    shade(projects.modules.messenger.api)
-    shade(projects.modules.messenger.discord)
-    shade(projects.modules.messenger.telegram)
-    shade(projects.modules.core)
-    shade(projects.modules.coreBukkit)
-    shade(projects.modules.link)
-    shade("net.kyori:adventure-text-serializer-plain:4.17.0")
-    shade("net.kyori:adventure-text-serializer-legacy:4.17.0")
-    shade("net.kyori:adventure-text-serializer-gson:4.17.0")
+    shadeImplementation(projects.modules.bridge)
+    shadeImplementation(projects.modules.messenger.api)
+    shadeImplementation(projects.modules.messenger.discord)
+    shadeImplementation(projects.modules.messenger.telegram)
+    shadeImplementation(projects.modules.core)
+    shadeImplementation(projects.modules.coreBukkit)
+    shadeImplementation(projects.modules.link)
+    shadeImplementation("net.kyori:adventure-text-serializer-plain:4.17.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-gson:4.17.0")
 }
 
 minecraft {
@@ -70,34 +54,27 @@ configurations {
     }
 }
 
-val processResources = project.tasks.withType<ProcessResources> {
-    filteringCharset = "UTF-8"
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-    from(sourceSets.main.get().resources.srcDirs) {
-        include("META-INF/mods.toml")
-        include("mods.toml")
-        expand(
-            "modId" to requireProjectInfo.name.lowercase(),
-            "version" to requireProjectInfo.versionString,
-            "description" to requireProjectInfo.description,
-            "displayName" to requireProjectInfo.name,
-            "authors" to requireProjectInfo.developersList.map(Developer::id).joinToString(",")
-        )
-    }
-}
-
 val destination = File("_/media/makeevrserg/WDGOLD2TB/Minecraft Servers/server-docker-forge/data/mods")
     .takeIf(File::exists)
     ?: File(rootDir, "jars")
 
 val reobfShadowJar = reobf.create("shadowJar")
 
+astraShadowJar.configureManifest()
+
+minecraftProcessResource.forge()
+
 val shadowJar by tasks.getting(ShadowJar::class) {
-    mustRunAfter(processResources)
-    dependsOn(processResources)
-    configurations = listOf(shade)
-//    shade.isTransitive = true
+    mergeServiceFiles()
+    mustRunAfter(minecraftProcessResource.task)
+    dependsOn(minecraftProcessResource.task)
+    finalizedBy(reobfShadowJar)
+    configurations = listOf(project.configurations.shadeImplementation.get())
+    isReproducibleFileOrder = true
+    archiveClassifier = null as String?
+    archiveVersion = requireProjectInfo.versionString
+    archiveBaseName = "${requireProjectInfo.name}-forge-shadow"
+    destinationDirectory = destination
 
     dependencies {
         // deps
@@ -165,20 +142,4 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "club.minnced.discord",
         "club.minnced.opus"
     ).forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
-    mergeServiceFiles()
-    manifest {
-        attributes(
-            "Specification-Title" to project.name,
-            "Specification-Vendor" to requireProjectInfo.developersList.first().id,
-            "Specification-Version" to project.version,
-            "Implementation-Title" to project.name,
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to requireProjectInfo.developersList.first().id
-        )
-    }
-    isReproducibleFileOrder = true
-    archiveClassifier.set(null as String?)
-    archiveBaseName.set("${requireProjectInfo.name}-forge-shadow")
-    destinationDirectory.set(destination)
-    finalizedBy(reobfShadowJar)
 }
