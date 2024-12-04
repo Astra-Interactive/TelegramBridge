@@ -11,14 +11,13 @@ plugins {
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:1.21.3-53.0.25")
+    minecraft("net.minecraftforge:forge:1.20.1-47.2.20")
     // Kotlin
     shadeImplementation(libs.bundles.kotlin)
     shadeImplementation(libs.bundles.exposed)
     // AstraLibs
     shadeImplementation(libs.minecraft.astralibs.core)
     shadeImplementation(libs.kotlin.serializationKaml)
-    shadeImplementation(libs.minecraft.astralibs.orm)
     shadeImplementation(libs.klibs.mikro.core)
     shadeImplementation(libs.klibs.kstorage)
     shadeImplementation(libs.kotlin.datetime)
