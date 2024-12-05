@@ -31,7 +31,7 @@ internal class BukkitEvent(
 ) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent") {
     private val config by configKrate
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun playerJoin(it: PlayerJoinEvent) {
         if (!config.displayJoinMessage) return
 
@@ -46,7 +46,7 @@ internal class BukkitEvent(
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun playerLeaveEvent(it: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         scope.launch(dispatchers.IO) {
@@ -59,7 +59,7 @@ internal class BukkitEvent(
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun asyncMessageEvent(it: AsyncPlayerChatEvent) {
         val message = KyoriComponentSerializer.Plain.toComponent(it.message)
         val player = it.player
@@ -78,7 +78,7 @@ internal class BukkitEvent(
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun deathEvent(it: PlayerDeathEvent) {
         if (!config.displayDeathMessage) return
         scope.launch(dispatchers.IO) {
