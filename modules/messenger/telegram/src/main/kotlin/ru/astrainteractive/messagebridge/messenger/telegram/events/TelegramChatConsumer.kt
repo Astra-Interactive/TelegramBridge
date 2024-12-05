@@ -2,8 +2,7 @@ package ru.astrainteractive.messagebridge.messenger.telegram.events
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.timeout
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
@@ -56,7 +55,7 @@ internal class TelegramChatConsumer(
 
     private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
         return kotlin.runCatching {
-            telegramClientFlow.timeout(5.seconds).first()
+            telegramClientFlow.firstOrNull()
         }.onFailure { error { "#onDisable could not get telegramClient: ${it.message} ${it.cause?.message}" } }
             .getOrNull()
     }
@@ -121,6 +120,7 @@ internal class TelegramChatConsumer(
             val serverEvent = ServerEvent.Text.Telegram(
                 author = author,
                 text = text,
+                authorId = update.message.from.id
             )
             minecraftMessageController.send(serverEvent)
             discordMessageController.send(serverEvent)

@@ -10,13 +10,14 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
+import ru.astrainteractive.astralibs.logging.JUtiltLogger
+import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
-import ru.astrainteractive.messagebridge.messenger.bukkit.util.ServerExt
 
 /**
  * This is a most convenient way to use bukkit events in kotlin
@@ -27,7 +28,7 @@ internal class BukkitEvent(
     private val discordMessageController: MessageController,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
-) : EventListener {
+) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent") {
     private val config by configKrate
 
     @EventHandler
@@ -59,8 +60,7 @@ internal class BukkitEvent(
     }
 
     @EventHandler
-    fun syncMessageEvent(it: AsyncPlayerChatEvent) {
-        if (ServerExt.isPaper()) return
+    fun asyncMessageEvent(it: AsyncPlayerChatEvent) {
         val message = KyoriComponentSerializer.Plain.toComponent(it.message)
         val player = it.player
 
@@ -71,7 +71,9 @@ internal class BukkitEvent(
                 text = textComponent.content(),
                 uuid = player.uniqueId.toString()
             )
+            info { "#asyncMessageEvent telegram" }
             telegramMessageController.send(serverEvent)
+            info { "#asyncMessageEvent discord" }
             discordMessageController.send(serverEvent)
         }
     }

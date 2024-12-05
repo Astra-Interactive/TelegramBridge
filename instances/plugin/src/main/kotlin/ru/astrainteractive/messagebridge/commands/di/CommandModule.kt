@@ -27,7 +27,8 @@ class CommandModule(
         kyoriKrate = kyoriKrate,
         plugin = bukkitCoreModule.plugin,
         scope = coreModule.scope,
-        codeApi = linkModule.codeApi
+        codeApi = linkModule.codeApi,
+        linkingDao = linkModule.linkingDao
     )
 
     val lifecycle = Lifecycle.Lambda(

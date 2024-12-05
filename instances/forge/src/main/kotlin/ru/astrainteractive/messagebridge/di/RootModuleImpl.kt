@@ -40,6 +40,8 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val jdaCoreModule by lazy {
         CoreJdaModule(
             coreModule = coreModule,
+            linkModule = linkModule,
+            onlinePlayersProvider = forgeOnlinePlayersProvider
         )
     }
     val tgCoreModule by lazy {

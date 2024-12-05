@@ -77,7 +77,8 @@ internal class MessageEventListener(
         }
         val serverEvent = ServerEvent.Text.Discord(
             author = event.member?.nickname ?: event.author.name,
-            text = event.message.contentRaw
+            text = event.message.contentRaw,
+            authorId = event.author.idLong
         )
         launch(Dispatchers.IO) {
             telegramMessageController.send(serverEvent)

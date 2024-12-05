@@ -1,10 +1,10 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.messaging
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.timeout
+import kotlinx.coroutines.flow.firstOrNull
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
@@ -13,7 +13,6 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
-import kotlin.time.Duration.Companion.seconds
 
 class TelegramMessageController(
     configKrate: Krate<PluginConfiguration>,
@@ -26,8 +25,8 @@ class TelegramMessageController(
     private val translation by translationKrate
 
     private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
-        return runCatching { telegramClientFlow.timeout(5.seconds).first() }
-            .onFailure { error { "#onDisable could not get telegramClient: ${it.message} ${it.cause?.message}" } }
+        return runCatching { telegramClientFlow.firstOrNull() }
+            .onFailure { error(it) { "#onDisable could not get telegramClient: ${it.message} ${it.cause?.message}" } }
             .getOrNull()
     }
 
@@ -78,6 +77,14 @@ class TelegramMessageController(
         val sendMessage = SendMessage(tgConfig.chatID, text).apply {
             replyToMessageId = tgConfig.topicID.toIntOrNull()
         }
-        telegramClientOrNull()?.execute(sendMessage)
+        try {
+            telegramClientOrNull()?.execute(sendMessage)
+        } catch (e: TelegramApiRequestException) {
+            if (e.errorCode == 404) {
+                error { "#sendMessage: Wrong token, chat or topic id" }
+            } else {
+                error(e) { "#sendMessage unknown exception" }
+            }
+        }
     }
 }

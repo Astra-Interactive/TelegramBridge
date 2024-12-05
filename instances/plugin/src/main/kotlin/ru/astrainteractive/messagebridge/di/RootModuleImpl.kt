@@ -41,10 +41,13 @@ class RootModuleImpl(
     )
     val coreBukkitMessengerModule = CoreBukkitMessengerModule(
         coreModule = coreModule,
-        kyoriKrate = kyoriKrate
+        kyoriKrate = kyoriKrate,
+        linkingDao = linkModule.linkingDao
     )
     val jdaCoreModule = CoreJdaModule(
         coreModule = coreModule,
+        linkModule = linkModule,
+        onlinePlayersProvider = BukkitOnlinePlayersProvider
     )
     val tgCoreModule = CoreTelegramModule(
         coreModule = coreModule

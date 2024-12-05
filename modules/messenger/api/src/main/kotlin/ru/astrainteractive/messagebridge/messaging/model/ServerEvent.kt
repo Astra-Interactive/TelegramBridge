@@ -34,7 +34,8 @@ sealed interface ServerEvent {
         @SerialName("TelegramTextMessageEvent")
         data class Telegram(
             override val author: String,
-            override val text: String
+            override val text: String,
+            val authorId: Long
         ) : Text {
             override val from: MessageFrom = MessageFrom.TELEGRAM
         }
@@ -43,7 +44,8 @@ sealed interface ServerEvent {
         @SerialName("DiscordTextMessageEvent")
         data class Discord(
             override val author: String,
-            override val text: String
+            override val text: String,
+            val authorId: Long
         ) : Text {
             override val from: MessageFrom = MessageFrom.DISCORD
         }

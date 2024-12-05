@@ -27,4 +27,5 @@ dependencies {
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.core)
     implementation(projects.modules.coreBukkit)
+    implementation(projects.modules.link)
 }

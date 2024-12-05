@@ -59,6 +59,16 @@ class LinkingDaoImpl(
         }
     }.onFailure { error(it) { "#findByDiscordId" } }
 
+    override suspend fun findByTelegramId(id: Long): Result<LinkedPlayerModel> = kotlin.runCatching {
+        transaction(requireDatabase()) {
+            LinkedPlayerTable.selectAll()
+                .where { LinkedPlayerTable.telegramId eq id }
+                .limit(1)
+                .map(::toLinkedPlayerModel)
+                .first()
+        }
+    }.onFailure { error(it) { "#findByDiscordId" } }
+
     override suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel> = kotlin.runCatching {
         transaction(requireDatabase()) {
             val isExists = LinkedPlayerTable.selectAll()
