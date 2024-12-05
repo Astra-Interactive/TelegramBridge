@@ -13,7 +13,9 @@ import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
+import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageController
 import java.net.InetSocketAddress
@@ -21,6 +23,8 @@ import java.net.Proxy
 
 class CoreJdaModule(
     coreModule: CoreModule,
+    linkModule: LinkModule,
+    onlinePlayersProvider: OnlinePlayersProvider
 ) {
     val jdaFlow = coreModule.configKrate.cachedStateFlow
         .map { it.jdaConfig }
@@ -72,7 +76,9 @@ class CoreJdaModule(
         jdaFlow = jdaFlow,
         webHookClientFlow = webhookClient,
         translationKrate = coreModule.translationKrate,
-        configKrate = coreModule.configKrate
+        configKrate = coreModule.configKrate,
+        linkingDao = linkModule.linkingDao,
+        onlinePlayersProvider = onlinePlayersProvider
     )
 
     /**

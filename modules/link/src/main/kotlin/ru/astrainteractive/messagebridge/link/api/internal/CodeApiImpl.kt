@@ -17,17 +17,17 @@ class CodeApiImpl : CodeApi {
         var code: Int
         do {
             code = Random.nextInt(0, 9999)
-        } while (code in codes.indices)
+        } while (code in codes)
         cache[codeUser] = code
         code
     }
 
-    override suspend fun getUser(code: Int): CodeUser? {
+    override suspend fun findUserByCode(code: Int): CodeUser? {
         return cache.filter { it.value == code }.keys.firstOrNull()
     }
 
     override suspend fun clearCode(code: Int) {
-        val key = getUser(code)
+        val key = findUserByCode(code)
         cache.remove(key)
     }
 }

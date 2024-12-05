@@ -1,10 +1,11 @@
 package ru.astrainteractive.messagebridge.link.database.di
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
@@ -46,7 +47,7 @@ interface LinkDatabaseModule {
 
         override val lifecycle: Lifecycle = Lifecycle.Lambda(
             onDisable = {
-                runBlocking { TransactionManager.closeAndUnregister(databaseFlow.first()) }
+                GlobalScope.launch { databaseFlow.firstOrNull()?.run(TransactionManager::closeAndUnregister) }
             }
         )
     }

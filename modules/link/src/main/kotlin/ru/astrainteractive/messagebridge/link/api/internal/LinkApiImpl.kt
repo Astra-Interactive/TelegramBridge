@@ -17,15 +17,15 @@ class LinkApiImpl(
     private val luckPermsRoleController: LuckPermsRoleController
 ) : LinkApi {
     override suspend fun linkDiscord(code: Int, member: Member): Response {
-        val codeUser = codeApi.getUser(code)
+        val codeUser = codeApi.findUserByCode(code)
         if (codeUser == null) return Response.NoCode
         codeApi.clearCode(code)
-        val user = linkingDao.findByUuid(codeUser.uuid)
+        val linkedPlayerModel = linkingDao.findByUuid(codeUser.uuid)
             .onFailure { return Response.UnknownError }
             .getOrNull()
             ?: LinkedPlayerModel(codeUser.uuid, codeUser.name)
-        if (user.discordLink != null) return Response.AlreadyLinked
-        val updatedUser = user.copy(
+        if (linkedPlayerModel.discordLink != null) return Response.AlreadyLinked
+        val updatedUser = linkedPlayerModel.copy(
             discordLink = LinkedPlayerModel.DiscordLink(
                 discordId = member.idLong,
                 lastDiscordName = member.effectiveName
@@ -42,7 +42,7 @@ class LinkApiImpl(
     }
 
     override suspend fun linkTelegram(code: Int, tgUser: User): Response {
-        val codeUser = codeApi.getUser(code)
+        val codeUser = codeApi.findUserByCode(code)
         if (codeUser == null) return Response.NoCode
         codeApi.clearCode(code)
         val user = linkingDao.findByUuid(codeUser.uuid)

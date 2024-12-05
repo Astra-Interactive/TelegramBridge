@@ -1,10 +1,11 @@
 package ru.astrainteractive.messagebridge.messenger.discord.di
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -38,8 +39,8 @@ class EventJdaModule(
         },
         onDisable = {
             messageEventListener.cancel()
-            runBlocking {
-                coreJdaModule.jdaFlow.first().let { jda ->
+            GlobalScope.launch {
+                coreJdaModule.jdaFlow.firstOrNull()?.let { jda ->
                     messageEventListener.onDisable(jda)
                     jda.registeredListeners.forEach(jda::removeEventListener)
                     jda.shutdownNow()

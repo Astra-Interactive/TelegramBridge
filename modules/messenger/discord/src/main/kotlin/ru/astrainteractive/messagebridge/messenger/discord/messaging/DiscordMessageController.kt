@@ -10,17 +10,23 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
+import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import java.util.UUID
 
 class DiscordMessageController(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
     configKrate: Krate<PluginConfiguration>,
-    translationKrate: Krate<PluginTranslation>
+    translationKrate: Krate<PluginTranslation>,
+    private val linkingDao: LinkingDao,
+    private val onlinePlayersProvider: OnlinePlayersProvider
 ) : MessageController, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
     private val config by configKrate
 
@@ -43,6 +49,7 @@ class DiscordMessageController(
     }
 
     private fun sendJoined(serverEvent: ServerEvent.PlayerJoined, channel: TextChannel) {
+        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
         val text = when (serverEvent.hasPlayedBefore) {
             false -> "${serverEvent.name} присоединился впервые!"
             true -> "${serverEvent.name} присоединился"
@@ -63,16 +70,17 @@ class DiscordMessageController(
     }
 
     private fun sendClosed(channel: TextChannel) {
-        channel.manager.setTopic("Рестриминг чата из игры")
+        channel.manager.setTopic("Рестриминг чата из игры").queue()
         channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").queue()
     }
 
     private fun sendOpen(channel: TextChannel) {
-        channel.manager.setTopic("Сервер только запустился...")
+        channel.manager.setTopic("Сервер только запустился...").queue()
         channel.sendMessage("✅ **Сервер успешно запущен**").queue()
     }
 
     private fun sendLeave(serverEvent: ServerEvent.PlayerLeave, channel: TextChannel) {
+        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -84,16 +92,48 @@ class DiscordMessageController(
         channel.sendMessageEmbeds(embed).queue()
     }
 
-    private suspend fun sendText(serverEvent: ServerEvent.Text) {
+    private suspend fun sendText(serverEvent: ServerEvent.Text, channel: TextChannel) {
+        val linkedPlayerModel = when (serverEvent) {
+            is ServerEvent.Text.Discord -> {
+                linkingDao.findByDiscordId(serverEvent.authorId).getOrNull()
+            }
+
+            is ServerEvent.Text.Minecraft -> {
+                linkingDao.findByUuid(UUID.fromString(serverEvent.uuid)).getOrNull()
+            }
+
+            is ServerEvent.Text.Telegram -> {
+                linkingDao.findByTelegramId(serverEvent.authorId).getOrNull()
+            }
+        }
+
+        val member = linkedPlayerModel?.discordLink
+            ?.discordId
+            ?.let(channel.guild::getMemberById)
+            ?: linkedPlayerModel?.discordLink
+                ?.discordId
+                ?.let(channel.guild::retrieveMemberById)
+                ?.await()
+
         // Change appearance of webhook message
         val message = WebhookMessageBuilder()
-            .setUsername("[${serverEvent.from.short}] ${serverEvent.author}") // use this username
+            .setUsername(
+                when {
+                    member != null -> "[${serverEvent.from.short}] ${member.effectiveName}"
+                    else -> "[${serverEvent.from.short}] ${serverEvent.author}"
+                }
+            ) // use this username
             .setAvatarUrl(
                 when (serverEvent) {
                     is ServerEvent.Text.Discord -> error("Can't send discord to discord")
-                    is ServerEvent.Text.Minecraft -> "https://mc-heads.net/avatar/${serverEvent.uuid}"
+                    is ServerEvent.Text.Minecraft -> {
+                        member?.effectiveAvatarUrl
+                            ?: "https://mc-heads.net/avatar/${serverEvent.uuid}"
+                    }
+
                     is ServerEvent.Text.Telegram -> {
-                        "https://upload.wikimedia.org/wikipedia/commons/5/5c/Telegram_Messenger.png"
+                        member?.effectiveAvatarUrl
+                            ?: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Telegram_Messenger.png"
                     }
                 }
             )
@@ -136,7 +176,10 @@ class DiscordMessageController(
             }
 
             is ServerEvent.Text -> {
-                sendText(serverEvent)
+                sendText(
+                    serverEvent,
+                    channel
+                )
             }
 
             ServerEvent.ServerClosed -> {

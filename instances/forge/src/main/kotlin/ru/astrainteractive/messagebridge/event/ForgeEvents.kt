@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.event
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.minecraft.world.entity.player.Player
 import net.minecraftforge.event.ServerChatEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent
@@ -78,7 +79,7 @@ class ForgeEvents(
     @SubscribeEvent
     fun onPlayerDeath(it: LivingDeathEvent) {
         if (!config.displayDeathMessage) return
-
+        if (it.entity !is Player) return
         scope.launch(dispatchers.IO) {
             val deathCause = it.source.getLocalizedDeathMessage(it.entity).string
             val serverEvent = ServerEvent.PlayerDeath(

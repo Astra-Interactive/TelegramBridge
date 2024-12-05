@@ -16,6 +16,8 @@ dependencies {
     implementation(libs.minecraft.bstats)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
+    implementation(libs.minecraft.astralibs.command)
+    implementation(libs.minecraft.astralibs.command.bukkit)
     implementation(libs.klibs.mikro.core)
     implementation(libs.minecraft.astralibs.menu.bukkit)
     implementation(libs.minecraft.astralibs.core.bukkit)
@@ -53,7 +55,7 @@ minecraftProcessResource {
 }
 
 astraShadowJar {
-    destination = File("_D:\\Minecraft Servers\\server-docker\\data\\plugins")
+    destination = File("/run/media/makeevrserg/WDGOLD2TB/MinecraftServers/Servers/conf.smp/smp/plugins/")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()

@@ -16,12 +16,11 @@ class CoreTelegramModule(
     val telegramClientFlow = coreModule.configKrate.cachedStateFlow
         .mapCached<PluginConfiguration, OkHttpTelegramClient>(
             scope = coreModule.scope,
-            transform = { config, prev ->
+            transform = { config, _ ->
                 val tgConfig = config.tgConfig
-                info { "#telegramClientFlow creating telegram client ${tgConfig.token}_token" }
-                val clinet = OkHttpTelegramClient(tgConfig.token)
+                val client = OkHttpTelegramClient(tgConfig.token)
                 info { "#telegramClientFlow telegram client created!" }
-                clinet
+                client
             }
         )
 

@@ -1,11 +1,12 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.timeout
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
+import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
@@ -16,7 +17,6 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.MessageController
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
-import kotlin.time.Duration.Companion.seconds
 
 class TelegramEventModule(
     coreModule: CoreModule,
@@ -51,17 +51,21 @@ class TelegramEventModule(
                 info { "#bridgeBotFlow loading bot" }
 
                 val longPollingApplication = TelegramBotsLongPollingApplication()
-                longPollingApplication.registerBot(tgConfig.token, consumer)
-                info { "#bot loaded!" }
+                try {
+                    longPollingApplication.registerBot(tgConfig.token, consumer)
+                    info { "#bot loaded!" }
+                } catch (e: TelegramApiErrorResponseException) {
+                    info { "#telegramMessageListener could not load event. Error ${e.message}" }
+                }
                 longPollingApplication
             }
         )
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
-            runBlocking(coreModule.dispatchers.IO) {
+            GlobalScope.launch {
                 runCatching {
-                    bridgeBotFlow.timeout(TIMEOUT).first().let { bot ->
+                    bridgeBotFlow.firstOrNull()?.let { bot ->
                         bot.unregisterBot(coreModule.configKrate.cachedStateFlow.value.tgConfig.token)
                         bot.stop()
                         bot.close()
@@ -70,8 +74,4 @@ class TelegramEventModule(
             }
         }
     )
-
-    companion object {
-        private val TIMEOUT = 5.seconds
-    }
 }
