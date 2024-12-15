@@ -24,6 +24,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 import java.util.UUID
+import kotlinx.coroutines.withContext
 
 internal class MinecraftBEventConsumer(
     kyoriKrate: Krate<KyoriComponentSerializer>,
@@ -31,7 +32,7 @@ internal class MinecraftBEventConsumer(
     private val linkingDao: LinkingDao,
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(dispatchers.Main),
+    CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val kyori by kyoriKrate
     private val translation by translationKrate
@@ -69,7 +70,7 @@ internal class MinecraftBEventConsumer(
             is PlayerDeathBEvent -> null
         }?.let(kyori::toComponent) ?: return
 
-        Bukkit.broadcast(component)
+        withContext(dispatchers.Main) { Bukkit.broadcast(component) }
     }
 
     init {
