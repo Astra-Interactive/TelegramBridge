@@ -15,7 +15,7 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.event.core.ForgeEventBusListener
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
@@ -25,8 +25,6 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 
 class ForgeEvents(
     configKrate: Krate<PluginConfiguration>,
-    private val telegramBEventConsumer: BEventConsumer,
-    private val discordBEventConsumer: BEventConsumer,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : ForgeEventBusListener {
@@ -36,8 +34,7 @@ class ForgeEvents(
     @SubscribeEvent
     fun onServerStart(it: ServerStartedEvent) {
         scope.launch {
-            telegramBEventConsumer.consume(ServerOpenBEvent)
-            discordBEventConsumer.consume(ServerOpenBEvent)
+            BEventChannel.consume(ServerOpenBEvent)
         }
     }
 
@@ -45,8 +42,7 @@ class ForgeEvents(
     @SubscribeEvent
     fun onServerStop(it: ServerStoppingEvent) {
         scope.launch {
-            telegramBEventConsumer.consume(ServerClosedBEvent)
-            discordBEventConsumer.consume(ServerClosedBEvent)
+            BEventChannel.consume(ServerClosedBEvent)
         }
     }
 
@@ -58,8 +54,7 @@ class ForgeEvents(
                 name = it.entity.name.string,
                 uuid = it.entity.uuid.toString()
             )
-            telegramBEventConsumer.consume(serverEvent)
-            discordBEventConsumer.consume(serverEvent)
+            BEventChannel.consume(serverEvent)
         }
     }
 
@@ -76,8 +71,7 @@ class ForgeEvents(
                 uuid = it.entity.uuid.toString(),
                 hasPlayedBefore = true
             )
-            telegramBEventConsumer.consume(serverEvent)
-            discordBEventConsumer.consume(serverEvent)
+            BEventChannel.consume(serverEvent)
         }
     }
 
@@ -92,8 +86,7 @@ class ForgeEvents(
                 cause = deathCause,
                 uuid = it.entity.uuid.toString()
             )
-            telegramBEventConsumer.consume(serverEvent)
-            discordBEventConsumer.consume(serverEvent)
+            BEventChannel.consume(serverEvent)
         }
     }
 
@@ -105,8 +98,7 @@ class ForgeEvents(
                 text = it.message.string,
                 uuid = it.player.uuid.toString()
             )
-            telegramBEventConsumer.consume(serverEvent)
-            discordBEventConsumer.consume(serverEvent)
+            BEventChannel.consume(serverEvent)
         }
     }
 }

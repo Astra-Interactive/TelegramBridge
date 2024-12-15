@@ -1,16 +1,20 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
 
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.bukkit.Bukkit
+import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import java.util.UUID
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
@@ -18,12 +22,16 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import java.util.UUID
 
 internal class MinecraftBEventConsumer(
     kyoriKrate: Krate<KyoriComponentSerializer>,
     translationKrate: Krate<PluginTranslation>,
     private val linkingDao: LinkingDao,
-) : BEventConsumer, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
+    private val dispatchers: KotlinDispatchers
+) : BEventConsumer,
+    CoroutineFeature by CoroutineFeature.Default(dispatchers.Main),
+    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val kyori by kyoriKrate
     private val translation by translationKrate
 
@@ -61,5 +69,11 @@ internal class MinecraftBEventConsumer(
         }?.let(kyori::toComponent) ?: return
         val stringText = KyoriComponentSerializer.Plain.serializer.serialize(component)
         Bukkit.broadcastMessage(stringText)
+    }
+
+    init {
+        BEventChannel.bEvents
+            .onEach { bEvent -> consume(bEvent) }
+            .launchIn(this)
     }
 }

@@ -20,17 +20,15 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
-import kotlin.time.Duration.Companion.seconds
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList")
 internal class TelegramChatConsumer(
     configKrate: Krate<PluginConfiguration>,
     translationKrate: Krate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-    private val minecraftBEventConsumer: BEventConsumer,
-    private val discordBEventConsumer: BEventConsumer,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
     private val onlinePlayersProvider: OnlinePlayersProvider,
@@ -122,8 +120,7 @@ internal class TelegramChatConsumer(
                 text = text,
                 authorId = update.message.from.id
             )
-            minecraftBEventConsumer.consume(serverEvent)
-            discordBEventConsumer.consume(serverEvent)
+            BEventChannel.consume(serverEvent)
         }
     }
 

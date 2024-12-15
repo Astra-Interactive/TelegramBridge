@@ -1,10 +1,12 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -15,24 +17,38 @@ import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 
-class TelegramEventModule(
+class TelegramMessengerModule(
     coreModule: CoreModule,
     onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
-    coreTelegramModule: CoreTelegramModule,
-    minecraftBEventConsumer: BEventConsumer,
-    discordBEventConsumer: BEventConsumer,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
+
+    private val telegramClientFlow = coreModule.configKrate.cachedStateFlow
+        .mapCached<PluginConfiguration, OkHttpTelegramClient>(
+            scope = coreModule.scope,
+            transform = { config, _ ->
+                val tgConfig = config.tgConfig
+                val client = OkHttpTelegramClient(tgConfig.token)
+                info { "#telegramClientFlow telegram client created!" }
+                client
+            }
+        )
+
+    private val telegramMessageController = TelegramBEventConsumer(
+        configKrate = coreModule.configKrate,
+        translationKrate = coreModule.translationKrate,
+        telegramClientFlow = telegramClientFlow,
+        dispatchers = coreModule.dispatchers
+    )
+
     private val consumer = TelegramChatConsumer(
         configKrate = coreModule.configKrate,
-        telegramClientFlow = coreTelegramModule.telegramClientFlow,
+        telegramClientFlow = telegramClientFlow,
         scope = coreModule.scope,
         dispatchers = coreModule.dispatchers,
-        minecraftBEventConsumer = minecraftBEventConsumer,
-        discordBEventConsumer = discordBEventConsumer,
         onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
         linkApi = linkModule.linkApi
@@ -63,6 +79,7 @@ class TelegramEventModule(
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
+            telegramMessageController.cancel()
             GlobalScope.launch {
                 runCatching {
                     bridgeBotFlow.firstOrNull()?.let { bot ->

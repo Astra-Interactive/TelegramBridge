@@ -4,21 +4,24 @@ import club.minnced.discord.webhook.WebhookClient
 import club.minnced.discord.webhook.send.WebhookMessageBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
-import java.util.UUID
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
@@ -26,15 +29,21 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import java.util.UUID
 
-class DiscordBEventConsumer(
+@Suppress("LongParameterList")
+internal class DiscordBEventConsumer(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
     configKrate: Krate<PluginConfiguration>,
     translationKrate: Krate<PluginTranslation>,
     private val linkingDao: LinkingDao,
-    private val onlinePlayersProvider: OnlinePlayersProvider
-) : BEventConsumer, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
+    private val onlinePlayersProvider: OnlinePlayersProvider,
+    private val dispatchers: KotlinDispatchers
+) : BEventConsumer,
+    CoroutineFeature by CoroutineFeature.Default(dispatchers.Main),
+    Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
     private val config by configKrate
 
     @Suppress("UnusedPrivateProperty")
@@ -197,5 +206,12 @@ class DiscordBEventConsumer(
                 sendOpen(channel)
             }
         }
+    }
+
+    init {
+        BEventChannel
+            .bEvents
+            .onEach { bEvent -> consume(bEvent) }
+            .launchIn(this)
     }
 }
