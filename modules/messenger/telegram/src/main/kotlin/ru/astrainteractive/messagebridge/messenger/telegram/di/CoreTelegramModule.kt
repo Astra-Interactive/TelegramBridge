@@ -7,7 +7,7 @@ import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageController
+import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 
 class CoreTelegramModule(
     coreModule: CoreModule,
@@ -24,7 +24,7 @@ class CoreTelegramModule(
             }
         )
 
-    val telegramMessageController = TelegramMessageController(
+    val telegramMessageController = TelegramBEventConsumer(
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow

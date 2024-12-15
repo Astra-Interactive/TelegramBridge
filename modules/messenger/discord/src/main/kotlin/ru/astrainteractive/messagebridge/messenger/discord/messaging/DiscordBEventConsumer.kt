@@ -15,19 +15,26 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
-import ru.astrainteractive.messagebridge.messaging.MessageController
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messaging.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 import java.util.UUID
+import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
+import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messaging.model.Text
 
-class DiscordMessageController(
+class DiscordBEventConsumer(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
     configKrate: Krate<PluginConfiguration>,
     translationKrate: Krate<PluginTranslation>,
     private val linkingDao: LinkingDao,
     private val onlinePlayersProvider: OnlinePlayersProvider
-) : MessageController, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
+) : BEventConsumer, Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
     private val config by configKrate
 
     @Suppress("UnusedPrivateProperty")
@@ -36,7 +43,7 @@ class DiscordMessageController(
     private suspend fun jda() = jdaFlow.first()
     private suspend fun webHookClient() = webHookClientFlow.first()
 
-    private fun sendDeath(serverEvent: ServerEvent.PlayerDeath, channel: TextChannel) {
+    private fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -48,7 +55,7 @@ class DiscordMessageController(
         channel.sendMessageEmbeds(embed).queue()
     }
 
-    private fun sendJoined(serverEvent: ServerEvent.PlayerJoined, channel: TextChannel) {
+    private fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
         channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
         val text = when (serverEvent.hasPlayedBefore) {
             false -> "${serverEvent.name} присоединился впервые!"
@@ -79,7 +86,7 @@ class DiscordMessageController(
         channel.sendMessage("✅ **Сервер успешно запущен**").queue()
     }
 
-    private fun sendLeave(serverEvent: ServerEvent.PlayerLeave, channel: TextChannel) {
+    private fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
         channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
@@ -92,17 +99,17 @@ class DiscordMessageController(
         channel.sendMessageEmbeds(embed).queue()
     }
 
-    private suspend fun sendText(serverEvent: ServerEvent.Text, channel: TextChannel) {
+    private suspend fun sendText(serverEvent: Text, channel: TextChannel) {
         val linkedPlayerModel = when (serverEvent) {
-            is ServerEvent.Text.Discord -> {
+            is Text.Discord -> {
                 linkingDao.findByDiscordId(serverEvent.authorId).getOrNull()
             }
 
-            is ServerEvent.Text.Minecraft -> {
+            is Text.Minecraft -> {
                 linkingDao.findByUuid(UUID.fromString(serverEvent.uuid)).getOrNull()
             }
 
-            is ServerEvent.Text.Telegram -> {
+            is Text.Telegram -> {
                 linkingDao.findByTelegramId(serverEvent.authorId).getOrNull()
             }
         }
@@ -125,13 +132,13 @@ class DiscordMessageController(
             ) // use this username
             .setAvatarUrl(
                 when (serverEvent) {
-                    is ServerEvent.Text.Discord -> error("Can't send discord to discord")
-                    is ServerEvent.Text.Minecraft -> {
+                    is Text.Discord -> error("Can't send discord to discord")
+                    is Text.Minecraft -> {
                         member?.effectiveAvatarUrl
                             ?: "https://mc-heads.net/avatar/${serverEvent.uuid}"
                     }
 
-                    is ServerEvent.Text.Telegram -> {
+                    is Text.Telegram -> {
                         member?.effectiveAvatarUrl
                             ?: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Telegram_Messenger.png"
                     }
@@ -144,8 +151,8 @@ class DiscordMessageController(
         client.send(message)
     }
 
-    override suspend fun send(serverEvent: ServerEvent) {
-        if (serverEvent.from == ServerEvent.MessageFrom.DISCORD) {
+    override suspend fun consume(bEvent: BEvent) {
+        if (bEvent.from == MessageFrom.DISCORD) {
             return
         }
         val channel = jda().getTextChannelById(config.jdaConfig.channelId) ?: run {
@@ -153,40 +160,40 @@ class DiscordMessageController(
             return
         }
 
-        when (serverEvent) {
-            is ServerEvent.PlayerDeath -> {
+        when (bEvent) {
+            is PlayerDeathBEvent -> {
                 sendDeath(
                     channel = channel,
-                    serverEvent = serverEvent
+                    serverEvent = bEvent
                 )
             }
 
-            is ServerEvent.PlayerJoined -> {
+            is PlayerJoinedBEvent -> {
                 sendJoined(
                     channel = channel,
-                    serverEvent = serverEvent
+                    serverEvent = bEvent
                 )
             }
 
-            is ServerEvent.PlayerLeave -> {
+            is PlayerLeaveBEvent -> {
                 sendLeave(
                     channel = channel,
-                    serverEvent = serverEvent
+                    serverEvent = bEvent
                 )
             }
 
-            is ServerEvent.Text -> {
+            is Text -> {
                 sendText(
-                    serverEvent,
+                    bEvent,
                     channel
                 )
             }
 
-            ServerEvent.ServerClosed -> {
+            ServerClosedBEvent -> {
                 sendClosed(channel)
             }
 
-            ServerEvent.ServerOpen -> {
+            ServerOpenBEvent -> {
                 sendOpen(channel)
             }
         }

@@ -12,8 +12,9 @@ import ru.astrainteractive.messagebridge.di.factory.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.di.factory.ForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.event.ForgeEvents
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.ForgeMessageController
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messaging.ForgeBEventConsumer
+import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.CoreJdaModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.EventJdaModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.CoreTelegramModule
@@ -53,15 +54,15 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val eventBukkitMessengerModule by lazy {
         ForgeEvents(
             configKrate = coreModule.configKrate,
-            telegramMessageController = tgCoreModule.telegramMessageController,
-            discordMessageController = jdaCoreModule.discordMessageController,
+            telegramBEventConsumer = tgCoreModule.telegramMessageController,
+            discordBEventConsumer = jdaCoreModule.discordMessageController,
             scope = coreModule.scope,
             dispatchers = coreModule.dispatchers
         )
     }
 
     private val minecraftMessageController by lazy {
-        ForgeMessageController(
+        ForgeBEventConsumer(
             translationKrate = coreModule.translationKrate,
             getServer = { minecraftServer },
         )
@@ -71,8 +72,8 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
         EventJdaModule(
             coreModule = coreModule,
             coreJdaModule = jdaCoreModule,
-            telegramMessageController = tgCoreModule.telegramMessageController,
-            minecraftMessageController = minecraftMessageController,
+            telegramBEventConsumer = tgCoreModule.telegramMessageController,
+            minecraftBEventConsumer = minecraftMessageController,
             onlinePlayersProvider = forgeOnlinePlayersProvider,
             linkModule = linkModule
         )
@@ -81,8 +82,8 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val tgEventModule by lazy {
         TelegramEventModule(
             coreModule = coreModule,
-            minecraftMessageController = minecraftMessageController,
-            discordMessageController = jdaCoreModule.discordMessageController,
+            minecraftBEventConsumer = minecraftMessageController,
+            discordBEventConsumer = jdaCoreModule.discordMessageController,
             onlinePlayersProvider = forgeOnlinePlayersProvider,
             coreTelegramModule = tgCoreModule,
             linkModule = linkModule
@@ -103,8 +104,8 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.scope.launch {
-                jdaCoreModule.discordMessageController.send(ServerEvent.ServerOpen)
-                tgCoreModule.telegramMessageController.send(ServerEvent.ServerOpen)
+                jdaCoreModule.discordMessageController.consume(ServerOpenBEvent)
+                tgCoreModule.telegramMessageController.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
             eventBukkitMessengerModule.register()
@@ -114,8 +115,8 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
         },
         onDisable = {
             coreModule.scope.launch {
-                jdaCoreModule.discordMessageController.send(ServerEvent.ServerClosed)
-                tgCoreModule.telegramMessageController.send(ServerEvent.ServerClosed)
+                jdaCoreModule.discordMessageController.consume(ServerClosedBEvent)
+                tgCoreModule.telegramMessageController.consume(ServerClosedBEvent)
             }
             lifecycles.forEach(Lifecycle::onDisable)
             eventBukkitMessengerModule.unregister()

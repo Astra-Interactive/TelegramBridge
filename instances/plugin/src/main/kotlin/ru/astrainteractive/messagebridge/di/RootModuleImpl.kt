@@ -14,7 +14,8 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.di.factory.BukkitLuckPermsProvider
 import ru.astrainteractive.messagebridge.di.factory.BukkitOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.CoreBukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.EventBukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.CoreJdaModule
@@ -56,23 +57,23 @@ class RootModuleImpl(
     val eventBukkitMessengerModule = EventBukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        telegramMessageController = tgCoreModule.telegramMessageController,
-        discordMessageController = jdaCoreModule.discordMessageController
+        telegramBEventConsumer = tgCoreModule.telegramMessageController,
+        discordBEventConsumer = jdaCoreModule.discordMessageController
     )
 
     val jdaEventModule = EventJdaModule(
         coreModule = coreModule,
         coreJdaModule = jdaCoreModule,
-        telegramMessageController = tgCoreModule.telegramMessageController,
-        minecraftMessageController = coreBukkitMessengerModule.minecraftMessageController,
+        telegramBEventConsumer = tgCoreModule.telegramMessageController,
+        minecraftBEventConsumer = coreBukkitMessengerModule.minecraftBEventConsumer,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule
     )
 
     val tgEventModule = TelegramEventModule(
         coreModule = coreModule,
-        minecraftMessageController = coreBukkitMessengerModule.minecraftMessageController,
-        discordMessageController = jdaCoreModule.discordMessageController,
+        minecraftBEventConsumer = coreBukkitMessengerModule.minecraftBEventConsumer,
+        discordBEventConsumer = jdaCoreModule.discordMessageController,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         coreTelegramModule = tgCoreModule,
         linkModule = linkModule
@@ -105,8 +106,8 @@ class RootModuleImpl(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.scope.launch {
-                jdaCoreModule.discordMessageController.send(ServerEvent.ServerOpen)
-                tgCoreModule.telegramMessageController.send(ServerEvent.ServerOpen)
+                jdaCoreModule.discordMessageController.consume(ServerOpenBEvent)
+                tgCoreModule.telegramMessageController.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -115,8 +116,8 @@ class RootModuleImpl(
         },
         onDisable = {
             coreModule.scope.launch {
-                jdaCoreModule.discordMessageController.send(ServerEvent.ServerClosed)
-                tgCoreModule.telegramMessageController.send(ServerEvent.ServerClosed)
+                jdaCoreModule.discordMessageController.consume(ServerClosedBEvent)
+                tgCoreModule.telegramMessageController.consume(ServerClosedBEvent)
             }
             lifecycles.forEach(Lifecycle::onDisable)
         }

@@ -15,7 +15,7 @@ import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.MessageController
+import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 
 class TelegramEventModule(
@@ -23,16 +23,16 @@ class TelegramEventModule(
     onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
     coreTelegramModule: CoreTelegramModule,
-    minecraftMessageController: MessageController,
-    discordMessageController: MessageController,
+    minecraftBEventConsumer: BEventConsumer,
+    discordBEventConsumer: BEventConsumer,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
     private val consumer = TelegramChatConsumer(
         configKrate = coreModule.configKrate,
         telegramClientFlow = coreTelegramModule.telegramClientFlow,
         scope = coreModule.scope,
         dispatchers = coreModule.dispatchers,
-        minecraftMessageController = minecraftMessageController,
-        discordMessageController = discordMessageController,
+        minecraftBEventConsumer = minecraftBEventConsumer,
+        discordBEventConsumer = discordBEventConsumer,
         onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
         linkApi = linkModule.linkApi

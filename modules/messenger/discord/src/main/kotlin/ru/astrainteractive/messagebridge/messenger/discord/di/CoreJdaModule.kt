@@ -17,7 +17,7 @@ import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
-import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageController
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordBEventConsumer
 import java.net.InetSocketAddress
 import java.net.Proxy
 
@@ -72,7 +72,7 @@ class CoreJdaModule(
         WebHookClientFactory(jda).create(channel).first()
     }
 
-    val discordMessageController = DiscordMessageController(
+    val discordMessageController = DiscordBEventConsumer(
         jdaFlow = jdaFlow,
         webHookClientFlow = webhookClient,
         translationKrate = coreModule.translationKrate,

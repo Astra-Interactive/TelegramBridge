@@ -10,22 +10,22 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.MessageController
+import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
 
 class EventJdaModule(
     coreModule: CoreModule,
     coreJdaModule: CoreJdaModule,
     linkModule: LinkModule,
-    telegramMessageController: MessageController,
-    minecraftMessageController: MessageController,
+    telegramBEventConsumer: BEventConsumer,
+    minecraftBEventConsumer: BEventConsumer,
     onlinePlayersProvider: OnlinePlayersProvider
 ) {
 
     private val messageEventListener = MessageEventListener(
         configKrate = coreModule.configKrate,
-        telegramMessageController = telegramMessageController,
-        minecraftMessageController = minecraftMessageController,
+        telegramBEventConsumer = telegramBEventConsumer,
+        minecraftBEventConsumer = minecraftBEventConsumer,
         onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
         linkApi = linkModule.linkApi
