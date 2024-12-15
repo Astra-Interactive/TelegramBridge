@@ -33,7 +33,7 @@ internal class TelegramBEventConsumer(
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val dispatchers: KotlinDispatchers,
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(dispatchers.Main),
+    CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
     Logger by JUtiltLogger("MessageBridge-TelegramMessageController") {
     private val config by configKrate
     private val tgConfig: PluginConfiguration.TelegramConfig

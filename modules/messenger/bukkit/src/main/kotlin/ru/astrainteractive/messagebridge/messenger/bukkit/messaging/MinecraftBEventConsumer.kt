@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
 
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
@@ -31,7 +32,7 @@ internal class MinecraftBEventConsumer(
     private val linkingDao: LinkingDao,
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(dispatchers.Main),
+    CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val kyori by kyoriKrate
     private val translation by translationKrate
@@ -69,7 +70,7 @@ internal class MinecraftBEventConsumer(
             is PlayerDeathBEvent -> null
         }?.let(kyori::toComponent) ?: return
 
-        Bukkit.broadcast(component)
+        withContext(dispatchers.Main) { Bukkit.broadcast(component) }
     }
 
     init {

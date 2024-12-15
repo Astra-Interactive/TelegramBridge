@@ -49,7 +49,7 @@ internal class DiscordBEventConsumer(
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(dispatchers.Main),
+    CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
     Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
     private val config by configKrate
 
