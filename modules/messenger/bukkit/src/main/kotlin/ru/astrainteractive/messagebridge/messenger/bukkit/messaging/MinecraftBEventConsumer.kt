@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.tryConsume
 import java.util.UUID
 
 internal class MinecraftBEventConsumer(
@@ -74,7 +75,7 @@ internal class MinecraftBEventConsumer(
     init {
         BEventChannel
             .bEvents
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }
 }
