@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
 
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
@@ -24,7 +25,6 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 import java.util.UUID
-import kotlinx.coroutines.withContext
 
 internal class MinecraftBEventConsumer(
     kyoriKrate: Krate<KyoriComponentSerializer>,
