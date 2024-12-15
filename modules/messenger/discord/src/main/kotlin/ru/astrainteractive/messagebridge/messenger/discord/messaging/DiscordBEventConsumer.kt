@@ -33,6 +33,7 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
@@ -227,7 +228,7 @@ internal class DiscordBEventConsumer(
     init {
         BEventChannel
             .bEvents
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }
 }
