@@ -8,10 +8,12 @@ dependencies {
     compileOnly(libs.bundles.kotlin)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
+
     implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
+
     implementation(libs.kotlin.datetime)
-    compileOnly(libs.minecraft.vaultapi)
+
     implementation(libs.discord.webhook)
     implementation(libs.jda)
     // Spigot

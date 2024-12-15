@@ -32,7 +32,7 @@ interface LinkDatabaseModule {
                 previous?.run(TransactionManager::closeAndUnregister)
 
                 val database = Database.connect(
-                    url = "jdbc:h2:${dataFolder.resolve("${dbConfig.name}.db").absolutePath}${dbConfig.stringArgument}",
+                    url = "jdbc:h2:${dataFolder.resolve(dbConfig.name).absolutePath}${dbConfig.stringArgument}",
                     driver = "org.h2.Driver",
                 )
                 TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE

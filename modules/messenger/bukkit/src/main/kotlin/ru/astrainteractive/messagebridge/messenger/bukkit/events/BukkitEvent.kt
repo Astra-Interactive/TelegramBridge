@@ -16,16 +16,17 @@ import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.getValue
-import ru.astrainteractive.messagebridge.messaging.MessageController
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messaging.model.Text
 
 /**
  * This is a most convenient way to use bukkit events in kotlin
  */
 internal class BukkitEvent(
     configKrate: Krate<PluginConfiguration>,
-    private val telegramMessageController: MessageController,
-    private val discordMessageController: MessageController,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent") {
@@ -36,13 +37,12 @@ internal class BukkitEvent(
         if (!config.displayJoinMessage) return
 
         scope.launch(dispatchers.IO) {
-            val serverEvent = ServerEvent.PlayerJoined(
+            val bEvent = PlayerJoinedBEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
                 hasPlayedBefore = it.player.hasPlayedBefore()
             )
-            telegramMessageController.send(serverEvent)
-            discordMessageController.send(serverEvent)
+            BEventChannel.consume(bEvent)
         }
     }
 
@@ -50,12 +50,11 @@ internal class BukkitEvent(
     fun playerLeaveEvent(it: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         scope.launch(dispatchers.IO) {
-            val serverEvent = ServerEvent.PlayerLeave(
+            val bEvent = PlayerLeaveBEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
             )
-            telegramMessageController.send(serverEvent)
-            discordMessageController.send(serverEvent)
+            BEventChannel.consume(bEvent)
         }
     }
 
@@ -66,15 +65,12 @@ internal class BukkitEvent(
 
         scope.launch(dispatchers.IO) {
             val textComponent = message as TextComponent
-            val serverEvent = ServerEvent.Text.Minecraft(
+            val bEvent = Text.Minecraft(
                 author = player.name,
                 text = textComponent.content(),
                 uuid = player.uniqueId.toString()
             )
-            info { "#asyncMessageEvent telegram" }
-            telegramMessageController.send(serverEvent)
-            info { "#asyncMessageEvent discord" }
-            discordMessageController.send(serverEvent)
+            BEventChannel.consume(bEvent)
         }
     }
 
@@ -83,13 +79,12 @@ internal class BukkitEvent(
         if (!config.displayDeathMessage) return
         scope.launch(dispatchers.IO) {
             val deathCause = it.deathMessage
-            val serverEvent = ServerEvent.PlayerDeath(
+            val bEvent = PlayerDeathBEvent(
                 name = it.entity.name,
                 cause = deathCause,
                 uuid = it.entity.uniqueId.toString()
             )
-            telegramMessageController.send(serverEvent)
-            discordMessageController.send(serverEvent)
+            BEventChannel.consume(bEvent)
         }
     }
 }

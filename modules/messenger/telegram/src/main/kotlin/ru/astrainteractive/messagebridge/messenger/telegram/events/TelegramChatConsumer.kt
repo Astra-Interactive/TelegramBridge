@@ -20,8 +20,8 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
-import ru.astrainteractive.messagebridge.messaging.MessageController
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.model.Text
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList")
@@ -29,8 +29,6 @@ internal class TelegramChatConsumer(
     configKrate: Krate<PluginConfiguration>,
     translationKrate: Krate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-    private val minecraftMessageController: MessageController,
-    private val discordMessageController: MessageController,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
     private val onlinePlayersProvider: OnlinePlayersProvider,
@@ -70,11 +68,11 @@ internal class TelegramChatConsumer(
         return null
     }
 
-    override fun consume(update: Update) {
+    override fun consume(update: Update?) {
         update ?: return
         onInfoCommand(update)
-        if (tgConfig.chatID != update?.message?.chatId?.toString()) {
-            info { "#consume configChatId!=message ${tgConfig.chatID}!=${update?.message?.chatId?.toString()}" }
+        if (tgConfig.chatID != update.message?.chatId?.toString()) {
+            info { "#consume configChatId!=message ${tgConfig.chatID}!=${update.message?.chatId?.toString()}" }
             return
         }
         val replyMessageId = update.message?.replyToMessage?.messageId?.toString()
@@ -117,19 +115,18 @@ internal class TelegramChatConsumer(
                 return@launch
             }
             if (onCommand(update)) return@launch
-            val serverEvent = ServerEvent.Text.Telegram(
+            val serverEvent = Text.Telegram(
                 author = author,
                 text = text,
                 authorId = update.message.from.id
             )
-            minecraftMessageController.send(serverEvent)
-            discordMessageController.send(serverEvent)
+            BEventChannel.consume(serverEvent)
         }
     }
 
-    private fun onInfoCommand(update: Update) {
-        val text = update.message.text ?: return
-        val chatId = update.message.chatId.toString()
+    private fun onInfoCommand(update: Update?) {
+        val text = update?.message?.text ?: return
+        val chatId = update.message?.chatId.toString()
         val originalMessageId = update.message?.replyToMessage?.messageId
         when {
             text == "/minfo" -> {
@@ -144,7 +141,7 @@ internal class TelegramChatConsumer(
         val chatId = update.message.chatId.toString()
         val originalMessageId = update.message?.replyToMessage?.messageId
         when {
-            text.equals("/vanilla") -> {
+            text == "/vanilla" -> {
                 val players = onlinePlayersProvider.provide()
                 val message = players.joinToString(
                     ", ",

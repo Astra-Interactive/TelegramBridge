@@ -15,15 +15,13 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
-import ru.astrainteractive.messagebridge.messaging.MessageController
-import ru.astrainteractive.messagebridge.messaging.model.ServerEvent
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
 
 internal class MessageEventListener(
     private val configKrate: Krate<PluginConfiguration>,
     private val translationKrate: Krate<PluginTranslation>,
-    private val telegramMessageController: MessageController,
-    private val minecraftMessageController: MessageController,
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi
 ) : ListenerAdapter(),
@@ -75,14 +73,13 @@ internal class MessageEventListener(
                 event.message.reply(message).queue()
             }
         }
-        val serverEvent = ServerEvent.Text.Discord(
+        val bEvent = Text.Discord(
             author = event.member?.nickname ?: event.author.name,
             text = event.message.contentRaw,
             authorId = event.author.idLong
         )
         launch(Dispatchers.IO) {
-            telegramMessageController.send(serverEvent)
-            minecraftMessageController.send(serverEvent)
+            BEventChannel.consume(bEvent)
         }
     }
 }

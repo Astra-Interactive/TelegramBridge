@@ -2,9 +2,15 @@ package ru.astrainteractive.messagebridge.messenger.discord.di
 
 import club.minnced.discord.webhook.WebhookClient
 import com.neovisionaries.ws.client.WebSocketFactory
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
@@ -17,16 +23,18 @@ import ru.astrainteractive.messagebridge.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
-import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageController
+import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordBEventConsumer
 import java.net.InetSocketAddress
 import java.net.Proxy
 
-class CoreJdaModule(
+class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider
 ) {
-    val jdaFlow = coreModule.configKrate.cachedStateFlow
+
+    private val jdaFlow = coreModule.configKrate.cachedStateFlow
         .map { it.jdaConfig }
         .distinctUntilChanged()
         .mapCached(coreModule.scope) { config, old: JDA? ->
@@ -66,23 +74,47 @@ class CoreJdaModule(
                 }
             }.build().awaitReady()
         }
-    val webhookClient = jdaFlow.mapCached<JDA, WebhookClient>(coreModule.scope) { jda, old ->
+
+    private val webhookClient = jdaFlow.mapCached<JDA, WebhookClient>(coreModule.scope) { jda, old ->
         old?.close()
         val channel = coreModule.configKrate.cachedValue.jdaConfig.channelId
         WebHookClientFactory(jda).create(channel).first()
     }
 
-    val discordMessageController = DiscordMessageController(
+    private val discordMessageController = DiscordBEventConsumer(
         jdaFlow = jdaFlow,
         webHookClientFlow = webhookClient,
         translationKrate = coreModule.translationKrate,
         configKrate = coreModule.configKrate,
         linkingDao = linkModule.linkingDao,
-        onlinePlayersProvider = onlinePlayersProvider
+        onlinePlayersProvider = onlinePlayersProvider,
+        dispatchers = coreModule.dispatchers
     )
 
-    /**
-     * handled by [EventJdaModule]
-     */
-    val lifecycle = Lifecycle.Lambda()
+    private val messageEventListener = MessageEventListener(
+        configKrate = coreModule.configKrate,
+        onlinePlayersProvider = onlinePlayersProvider,
+        translationKrate = coreModule.translationKrate,
+        linkApi = linkModule.linkApi
+    )
+
+    val lifecycle = Lifecycle.Lambda(
+        onEnable = {
+            jdaFlow
+                .onEach { messageEventListener.onEnable(it) }
+                .launchIn(coreModule.scope)
+        },
+        onDisable = {
+            discordMessageController.cancel()
+            messageEventListener.cancel()
+            GlobalScope.launch {
+                jdaFlow.firstOrNull()?.let { jda ->
+                    messageEventListener.onDisable(jda)
+                    jda.registeredListeners.forEach(jda::removeEventListener)
+                    jda.shutdownNow()
+                    jda.awaitShutdown()
+                }
+            }
+        }
+    )
 }
