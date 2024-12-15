@@ -55,7 +55,7 @@ minecraftProcessResource {
 }
 
 astraShadowJar {
-    destination = File("/run/media/makeevrserg/WDGOLD2TB/MinecraftServers/Servers/conf.smp/smp/plugins/")
+    destination = File("_/run/media/makeevrserg/WDGOLD2TB/MinecraftServers/Servers/conf.smp/smp/plugins/")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
