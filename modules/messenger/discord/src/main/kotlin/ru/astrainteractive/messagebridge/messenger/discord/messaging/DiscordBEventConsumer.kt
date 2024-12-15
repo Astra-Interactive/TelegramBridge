@@ -3,9 +3,13 @@ package ru.astrainteractive.messagebridge.messenger.discord.messaging
 import club.minnced.discord.webhook.WebhookClient
 import club.minnced.discord.webhook.send.WebhookMessageBuilder
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
@@ -31,8 +35,10 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "UnusedPrivateProperty", "TooManyFunctions")
 internal class DiscordBEventConsumer(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
@@ -46,11 +52,13 @@ internal class DiscordBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
     private val config by configKrate
 
-    @Suppress("UnusedPrivateProperty")
-    private val translation by translationKrate
-
-    private suspend fun jda() = jdaFlow.first()
     private suspend fun webHookClient() = webHookClientFlow.first()
+
+    private fun textChannelFlow() = jdaFlow.map { jda ->
+        jda.getTextChannelById(config.jdaConfig.channelId)
+    }.shareIn(this, SharingStarted.Eagerly, 1)
+
+    private suspend fun textChannel() = textChannelFlow().firstOrNull()
 
     private fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
@@ -64,8 +72,15 @@ internal class DiscordBEventConsumer(
         channel.sendMessageEmbeds(embed).queue()
     }
 
-    private fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
+    private var lastOnlineChanged = System.currentTimeMillis().milliseconds
+    private fun changeOnlineCount(channel: TextChannel) {
+        val current = System.currentTimeMillis().milliseconds
+        if (current.minus(lastOnlineChanged) < 1.minutes) return
+        lastOnlineChanged = current
         channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
+    }
+
+    private fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
         val text = when (serverEvent.hasPlayedBefore) {
             false -> "${serverEvent.name} присоединился впервые!"
             true -> "${serverEvent.name} присоединился"
@@ -96,7 +111,6 @@ internal class DiscordBEventConsumer(
     }
 
     private fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
-        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -164,7 +178,7 @@ internal class DiscordBEventConsumer(
         if (bEvent.from == MessageFrom.DISCORD) {
             return
         }
-        val channel = jda().getTextChannelById(config.jdaConfig.channelId) ?: run {
+        val channel = textChannel() ?: run {
             error { "#onServerEvent could not get text channel" }
             return
         }
@@ -178,6 +192,7 @@ internal class DiscordBEventConsumer(
             }
 
             is PlayerJoinedBEvent -> {
+                changeOnlineCount(channel)
                 sendJoined(
                     channel = channel,
                     serverEvent = bEvent
@@ -185,6 +200,7 @@ internal class DiscordBEventConsumer(
             }
 
             is PlayerLeaveBEvent -> {
+                changeOnlineCount(channel)
                 sendLeave(
                     channel = channel,
                     serverEvent = bEvent
