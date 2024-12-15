@@ -68,11 +68,11 @@ internal class TelegramChatConsumer(
         return null
     }
 
-    override fun consume(update: Update) {
+    override fun consume(update: Update?) {
         update ?: return
         onInfoCommand(update)
-        if (tgConfig.chatID != update?.message?.chatId?.toString()) {
-            info { "#consume configChatId!=message ${tgConfig.chatID}!=${update?.message?.chatId?.toString()}" }
+        if (tgConfig.chatID != update.message?.chatId?.toString()) {
+            info { "#consume configChatId!=message ${tgConfig.chatID}!=${update.message?.chatId?.toString()}" }
             return
         }
         val replyMessageId = update.message?.replyToMessage?.messageId?.toString()
@@ -124,9 +124,9 @@ internal class TelegramChatConsumer(
         }
     }
 
-    private fun onInfoCommand(update: Update) {
-        val text = update.message.text ?: return
-        val chatId = update.message.chatId.toString()
+    private fun onInfoCommand(update: Update?) {
+        val text = update?.message?.text ?: return
+        val chatId = update.message?.chatId.toString()
         val originalMessageId = update.message?.replyToMessage?.messageId
         when {
             text == "/minfo" -> {
@@ -141,7 +141,7 @@ internal class TelegramChatConsumer(
         val chatId = update.message.chatId.toString()
         val originalMessageId = update.message?.replyToMessage?.messageId
         when {
-            text.equals("/vanilla") -> {
+            text == "/vanilla" -> {
                 val players = onlinePlayersProvider.provide()
                 val message = players.joinToString(
                     ", ",

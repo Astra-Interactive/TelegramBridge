@@ -67,8 +67,8 @@ internal class MinecraftBEventConsumer(
             is PlayerJoinedBEvent,
             is PlayerDeathBEvent -> null
         }?.let(kyori::toComponent) ?: return
-        val stringText = KyoriComponentSerializer.Plain.serializer.serialize(component)
-        Bukkit.broadcastMessage(stringText)
+
+        Bukkit.broadcast(component)
     }
 
     init {
