@@ -43,7 +43,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "MessageBridge"
 
 // Spigot
-include(":instances:plugin")
+include(":instances:bukkit")
 include(":instances:forge")
 include(":modules:messenger:api")
 include(":modules:messenger:bukkit")
