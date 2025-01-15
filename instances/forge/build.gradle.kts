@@ -72,7 +72,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     isReproducibleFileOrder = true
     archiveClassifier = null as String?
     archiveVersion = requireProjectInfo.versionString
-    archiveBaseName = "${requireProjectInfo.name}-forge-shadow"
+    archiveBaseName = "${requireProjectInfo.name}-forge"
     destinationDirectory = destination
 
     dependencies {
