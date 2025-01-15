@@ -59,8 +59,8 @@ astraShadowJar {
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
-//    archiveBaseName.set("${projectInfo.name}-bukkit")
     requireShadowJarTask {
+        archiveBaseName.set("${requireProjectInfo.name}-bukkit")
         relocate("org.bstats", requireProjectInfo.group)
         minimize {
             exclude(dependency(libs.exposed.jdbc.get()))
