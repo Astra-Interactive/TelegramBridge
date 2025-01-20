@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:1.20.1-47.2.20")
+    minecraft("net.minecraftforge:forge:1.21.4-54.0.17")
     // Kotlin
     shadeImplementation(libs.bundles.kotlin)
     shadeImplementation(libs.bundles.exposed)
@@ -32,9 +32,9 @@ dependencies {
     shadeImplementation(projects.modules.core)
     shadeImplementation(projects.modules.coreBukkit)
     shadeImplementation(projects.modules.link)
-    shadeImplementation("net.kyori:adventure-text-serializer-plain:4.17.0")
-    shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
-    shadeImplementation("net.kyori:adventure-text-serializer-gson:4.17.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-plain:4.18.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.18.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-gson:4.18.0")
 }
 
 minecraft {
