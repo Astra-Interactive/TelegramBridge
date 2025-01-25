@@ -32,9 +32,9 @@ dependencies {
     shadeImplementation(projects.modules.core)
     shadeImplementation(projects.modules.coreBukkit)
     shadeImplementation(projects.modules.link)
-    shadeImplementation("net.kyori:adventure-text-serializer-plain:4.17.0")
-    shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
-    shadeImplementation("net.kyori:adventure-text-serializer-gson:4.17.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-plain:4.18.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.18.0")
+    shadeImplementation("net.kyori:adventure-text-serializer-gson:4.18.0")
 }
 
 minecraft {
