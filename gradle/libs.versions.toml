@@ -4,8 +4,8 @@ kotlin-version = "2.0.0" # https://github.com/JetBrains/kotlin
 kotlin-benchmark = "0.4.13" # https://github.com/Kotlin/kotlinx-benchmark
 kotlin-coroutines = "1.10.1" # https://github.com/Kotlin/kotlinx.coroutines
 kotlin-json = "1.8.0" # https://github.com/Kotlin/kotlinx.serialization
-kotlin-kaml = "0.71.0" # https://github.com/charleskorn/kaml
-kotlin-datetime = "0.6.1" # https://github.com/Kotlin/kotlinx-datetime
+kotlin-kaml = "0.72.0" # https://github.com/charleskorn/kaml
+kotlin-datetime = "0.6.2" # https://github.com/Kotlin/kotlinx-datetime
 
 # Drivers
 driver-jdbc = "3.49.0.0" # https://github.com/xerial/sqlite-jdbc
@@ -25,7 +25,7 @@ minecraft-protocollib = "5.3.0" # https://github.com/dmulloy2/ProtocolLib
 minecraft-vault = "1.7.1" # https://github.com/MilkBowl/VaultAPI
 minecraft-astralibs = "3.17.0" # https://github.com/Astra-Interactive/AstraLibs
 minecraft-bstats = "3.1.0" # https://github.com/Bastian/bStats
-minecraft-mockbukkit = "4.32.0" #https://github.com/MockBukkit/MockBukkit
+minecraft-mockbukkit = "4.33.2" #https://github.com/MockBukkit/MockBukkit
 minecraft-luckperms = "5.4" # https://github.com/LuckPerms/LuckPerms
 minecraft-essentialsx = "2.20.1" # https://github.com/EssentialsX/Essentials
 minecraft-towny = "0.101.1.0" # https://github.com/TownyAdvanced/Towny
