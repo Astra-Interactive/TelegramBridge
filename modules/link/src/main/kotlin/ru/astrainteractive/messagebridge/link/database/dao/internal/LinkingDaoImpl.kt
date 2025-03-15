@@ -47,7 +47,7 @@ class LinkingDaoImpl(
                 .map(::toLinkedPlayerModel)
                 .firstOrNull()
         }
-    }.onFailure { error(it) { "#findByUuid" } }
+    }
 
     override suspend fun findByDiscordId(id: Long): Result<LinkedPlayerModel> = kotlin.runCatching {
         transaction(requireDatabase()) {
@@ -57,7 +57,7 @@ class LinkingDaoImpl(
                 .map(::toLinkedPlayerModel)
                 .first()
         }
-    }.onFailure { error(it) { "#findByDiscordId" } }
+    }
 
     override suspend fun findByTelegramId(id: Long): Result<LinkedPlayerModel> = kotlin.runCatching {
         transaction(requireDatabase()) {
@@ -67,7 +67,7 @@ class LinkingDaoImpl(
                 .map(::toLinkedPlayerModel)
                 .first()
         }
-    }.onFailure { error(it) { "#findByDiscordId" } }
+    }
 
     override suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel> = kotlin.runCatching {
         transaction(requireDatabase()) {
@@ -100,5 +100,5 @@ class LinkingDaoImpl(
             }
         }
         findByUuid(linkedPlayerModel.uuid).getOrThrow() ?: error("Could not insert user somehow?")
-    }.onFailure { error(it) { "#upsert" } }
+    }
 }
