@@ -21,6 +21,7 @@ object BEventChannel : BEventConsumer, BEventReceiver {
     override suspend fun consume(bEvent: BEvent) {
         channel.emit(bEvent)
     }
+
     /**
      * When people write a lot of messages at one time - we can
      * encounter timeout for discord/tg api, so we need to wait a little
