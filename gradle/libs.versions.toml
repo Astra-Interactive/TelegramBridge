@@ -8,7 +8,7 @@ kotlin-kaml = "0.72.0" # https://github.com/charleskorn/kaml
 kotlin-datetime = "0.6.2" # https://github.com/Kotlin/kotlinx-datetime
 
 # Drivers
-driver-jdbc = "3.49.0.0" # https://github.com/xerial/sqlite-jdbc
+driver-jdbc = "3.49.1.0" # https://github.com/xerial/sqlite-jdbc
 driver-mysql = "8.0.33" # https://github.com/mysql/mysql-connector-j
 driver-h2 = "2.3.232" # https://github.com/h2database/h2database
 
@@ -34,16 +34,16 @@ minecraft-towny = "0.101.1.0" # https://github.com/TownyAdvanced/Towny
 gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
 
 # BuildConfig
-gradle-buildconfig = "5.5.1" # https://github.com/gmazzo/gradle-buildconfig-plugin
+gradle-buildconfig = "5.5.4" # https://github.com/gmazzo/gradle-buildconfig-plugin
 
 # Exposed
-exposed = "0.59.0" # https://github.com/JetBrains/Exposed
+exposed = "0.60.0" # https://github.com/JetBrains/Exposed
 
 # DisordSrv
 discordsrv = "1.29.0" # https://github.com/DiscordSRV/DiscordSRV
 
 # Mockito
-mockito = "5.15.2" # https://github.com/mockito/mockito
+mockito = "5.16.1" # https://github.com/mockito/mockito
 cache4k = "0.14.0" # https://github.com/ReactiveCircus/cache4k
 turbine = "1.2.0" # https://github.com/cashapp/turbine
 
