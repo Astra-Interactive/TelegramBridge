@@ -27,6 +27,8 @@ import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventLis
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordBEventConsumer
 import java.net.InetSocketAddress
 import java.net.Proxy
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class JdaMessengerModule(
     coreModule: CoreModule,
@@ -55,6 +57,8 @@ class JdaMessengerModule(
                         WebSocketFactory()
                             .setVerifyHostname(false)
                             .also {
+                                it.setSocketTimeout(10000)
+                                it.setConnectionTimeout(10000)
                                 it.proxySettings.setHost(proxy.host)
                                 it.proxySettings.setPort(proxy.port)
                                 it.proxySettings.setCredentials(proxy.username, proxy.password)
@@ -62,6 +66,11 @@ class JdaMessengerModule(
                     )
                     setHttpClientBuilder(
                         OkHttpClient.Builder()
+                            .callTimeout(15.seconds.toJavaDuration())
+                            .readTimeout(15.seconds.toJavaDuration())
+                            .writeTimeout(15.seconds.toJavaDuration())
+                            .connectTimeout(15.seconds.toJavaDuration())
+                            .pingInterval(30.seconds.toJavaDuration())
                             .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
                             .proxyAuthenticator { route, response ->
                                 var builder = response.request.newBuilder()
