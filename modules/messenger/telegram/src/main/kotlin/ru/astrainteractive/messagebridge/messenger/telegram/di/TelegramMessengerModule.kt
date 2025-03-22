@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
@@ -19,6 +20,8 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
@@ -31,7 +34,16 @@ class TelegramMessengerModule(
             scope = coreModule.scope,
             transform = { config, _ ->
                 val tgConfig = config.tgConfig
-                val client = OkHttpTelegramClient(tgConfig.token)
+                val client = OkHttpTelegramClient(
+                    OkHttpClient.Builder()
+                        .callTimeout(15.seconds.toJavaDuration())
+                        .readTimeout(15.seconds.toJavaDuration())
+                        .writeTimeout(15.seconds.toJavaDuration())
+                        .connectTimeout(15.seconds.toJavaDuration())
+                        .pingInterval(30.seconds.toJavaDuration())
+                        .build(),
+                    tgConfig.token
+                )
                 info { "#telegramClientFlow telegram client created!" }
                 client
             }
