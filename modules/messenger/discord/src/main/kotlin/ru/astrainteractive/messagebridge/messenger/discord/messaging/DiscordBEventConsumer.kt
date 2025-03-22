@@ -61,7 +61,7 @@ internal class DiscordBEventConsumer(
 
     private suspend fun textChannel() = textChannelFlow().firstOrNull()
 
-    private suspend fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
+    private fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -70,18 +70,18 @@ internal class DiscordBEventConsumer(
                 "https://mc-heads.net/avatar/${serverEvent.uuid}"
             )
             .build()
-        channel.sendMessageEmbeds(embed).await()
+        channel.sendMessageEmbeds(embed).queue()
     }
 
     private var lastOnlineChanged = System.currentTimeMillis().milliseconds
-    private suspend fun changeOnlineCount(channel: TextChannel) {
+    private fun changeOnlineCount(channel: TextChannel) {
         val current = System.currentTimeMillis().milliseconds
-        if (current.minus(lastOnlineChanged) < 3.minutes) return
+        if (current.minus(lastOnlineChanged) < 1.minutes) return
         lastOnlineChanged = current
-        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").await()
+        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
     }
 
-    private suspend fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
+    private fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
         val text = when (serverEvent.hasPlayedBefore) {
             false -> "${serverEvent.name} присоединился впервые!"
             true -> "${serverEvent.name} присоединился"
@@ -98,20 +98,20 @@ internal class DiscordBEventConsumer(
                 "https://mc-heads.net/avatar/${serverEvent.uuid}"
             )
             .build()
-        channel.sendMessageEmbeds(embed).await()
+        channel.sendMessageEmbeds(embed).queue()
     }
 
-    private suspend fun sendClosed(channel: TextChannel) {
-        channel.manager.setTopic("Рестриминг чата из игры").await()
-        channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").await()
+    private fun sendClosed(channel: TextChannel) {
+        channel.manager.setTopic("Рестриминг чата из игры").queue()
+        channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").queue()
     }
 
-    private suspend fun sendOpen(channel: TextChannel) {
-        channel.manager.setTopic("Сервер только запустился...").await()
-        channel.sendMessage("✅ **Сервер успешно запущен**").await()
+    private fun sendOpen(channel: TextChannel) {
+        channel.manager.setTopic("Сервер только запустился...").queue()
+        channel.sendMessage("✅ **Сервер успешно запущен**").queue()
     }
 
-    private suspend fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
+    private fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -120,7 +120,7 @@ internal class DiscordBEventConsumer(
                 "https://mc-heads.net/avatar/${serverEvent.uuid}"
             )
             .build()
-        channel.sendMessageEmbeds(embed).await()
+        channel.sendMessageEmbeds(embed).queue()
     }
 
     private suspend fun sendText(serverEvent: Text, channel: TextChannel) {

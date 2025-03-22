@@ -18,7 +18,6 @@ import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
 internal class MessageEventListener(
     private val configKrate: Krate<PluginConfiguration>,
@@ -30,12 +29,14 @@ internal class MessageEventListener(
     CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
     Logger by JUtiltLogger("MessageEventListener") {
 
-    private suspend fun onPrivateMessage(event: MessageReceivedEvent) {
+    private fun onPrivateMessage(event: MessageReceivedEvent) {
         val member = event.member ?: return
-        val code = event.message.contentRaw.toIntOrNull() ?: -1
-        val response = linkApi.linkDiscord(code, member)
-        val message = response.asMessage(translationKrate.cachedValue.link).raw
-        event.message.reply(message).await()
+        launch {
+            val code = event.message.contentRaw.toIntOrNull() ?: -1
+            val response = linkApi.linkDiscord(code, member)
+            val message = response.asMessage(translationKrate.cachedValue.link).raw
+            event.message.reply(message).queue()
+        }
     }
 
     override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
@@ -47,7 +48,7 @@ internal class MessageEventListener(
         if (event.isWebhookMessage) return
         if (event.author.isBot) return
         if (event.channelType == ChannelType.PRIVATE) {
-            launch { onPrivateMessage(event) }
+            onPrivateMessage(event)
             return
         }
         if (event.message.channelId != configKrate.cachedValue.jdaConfig.channelId) return
@@ -58,7 +59,7 @@ internal class MessageEventListener(
                 ", ",
                 prefix = "Сейчас онлайн ${players.size} игроков\n"
             )
-            launch { event.message.reply(message).await() }
+            event.message.reply(message).queue()
             return
         }
         if (event.message.contentRaw.startsWith("/link")) {
@@ -69,7 +70,7 @@ internal class MessageEventListener(
                     ?: -1
                 val response = linkApi.linkDiscord(code, member)
                 val message = response.asMessage(translationKrate.cachedValue.link).raw
-                event.message.reply(message).await()
+                event.message.reply(message).queue()
             }
         }
         val bEvent = Text.Discord(
