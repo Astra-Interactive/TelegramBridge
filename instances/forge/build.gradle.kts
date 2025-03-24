@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:1.20.1-47.2.20")
+    minecraft("net.minecraftforge:forge:1.21.4-54.1.3")
     // Kotlin
     shadeImplementation(libs.bundles.kotlin)
     shadeImplementation(libs.bundles.exposed)
