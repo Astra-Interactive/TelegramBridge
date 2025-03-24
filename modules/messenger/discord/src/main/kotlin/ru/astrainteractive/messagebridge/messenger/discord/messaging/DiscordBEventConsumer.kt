@@ -35,6 +35,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -61,7 +62,7 @@ internal class DiscordBEventConsumer(
 
     private suspend fun textChannel() = textChannelFlow().firstOrNull()
 
-    private fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
+    private suspend fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -70,18 +71,20 @@ internal class DiscordBEventConsumer(
                 "https://mc-heads.net/avatar/${serverEvent.uuid}"
             )
             .build()
-        channel.sendMessageEmbeds(embed).queue()
+        channel.sendMessageEmbeds(embed).await()
     }
 
     private var lastOnlineChanged = System.currentTimeMillis().milliseconds
-    private fun changeOnlineCount(channel: TextChannel) {
+    private suspend fun changeOnlineCount(channel: TextChannel) {
         val current = System.currentTimeMillis().milliseconds
         if (current.minus(lastOnlineChanged) < 1.minutes) return
         lastOnlineChanged = current
-        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").queue()
+        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}")
+            .awaitCatching()
+            .onFailure { error(it) { "#changeOnlineCount" } }
     }
 
-    private fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
+    private suspend fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
         val text = when (serverEvent.hasPlayedBefore) {
             false -> "${serverEvent.name} присоединился впервые!"
             true -> "${serverEvent.name} присоединился"
@@ -98,20 +101,20 @@ internal class DiscordBEventConsumer(
                 "https://mc-heads.net/avatar/${serverEvent.uuid}"
             )
             .build()
-        channel.sendMessageEmbeds(embed).queue()
+        channel.sendMessageEmbeds(embed).await()
     }
 
-    private fun sendClosed(channel: TextChannel) {
-        channel.manager.setTopic("Рестриминг чата из игры").queue()
-        channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").queue()
+    private suspend fun sendClosed(channel: TextChannel) {
+        channel.manager.setTopic("Рестриминг чата из игры").await()
+        channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").await()
     }
 
-    private fun sendOpen(channel: TextChannel) {
-        channel.manager.setTopic("Сервер только запустился...").queue()
-        channel.sendMessage("✅ **Сервер успешно запущен**").queue()
+    private suspend fun sendOpen(channel: TextChannel) {
+        channel.manager.setTopic("Сервер только запустился...").await()
+        channel.sendMessage("✅ **Сервер успешно запущен**").await()
     }
 
-    private fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
+    private suspend fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
             .setAuthor(
@@ -120,7 +123,7 @@ internal class DiscordBEventConsumer(
                 "https://mc-heads.net/avatar/${serverEvent.uuid}"
             )
             .build()
-        channel.sendMessageEmbeds(embed).queue()
+        channel.sendMessageEmbeds(embed).await()
     }
 
     private suspend fun sendText(serverEvent: Text, channel: TextChannel) {

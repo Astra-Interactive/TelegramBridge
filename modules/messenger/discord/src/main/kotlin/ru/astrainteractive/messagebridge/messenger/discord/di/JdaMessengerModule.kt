@@ -55,6 +55,8 @@ class JdaMessengerModule(
                         WebSocketFactory()
                             .setVerifyHostname(false)
                             .also {
+//                                it.setSocketTimeout(10000)
+//                                it.setConnectionTimeout(10000)
                                 it.proxySettings.setHost(proxy.host)
                                 it.proxySettings.setPort(proxy.port)
                                 it.proxySettings.setCredentials(proxy.username, proxy.password)

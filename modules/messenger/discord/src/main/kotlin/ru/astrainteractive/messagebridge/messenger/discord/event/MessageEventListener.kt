@@ -18,6 +18,7 @@ import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
 
 internal class MessageEventListener(
     private val configKrate: Krate<PluginConfiguration>,
@@ -35,7 +36,9 @@ internal class MessageEventListener(
             val code = event.message.contentRaw.toIntOrNull() ?: -1
             val response = linkApi.linkDiscord(code, member)
             val message = response.asMessage(translationKrate.cachedValue.link).raw
-            event.message.reply(message).queue()
+            event.message.reply(message)
+                .awaitCatching()
+                .onFailure { error(it) { "#onPrivateMessage" } }
         }
     }
 
@@ -59,7 +62,11 @@ internal class MessageEventListener(
                 ", ",
                 prefix = "Сейчас онлайн ${players.size} игроков\n"
             )
-            event.message.reply(message).queue()
+            launch {
+                event.message.reply(message)
+                    .awaitCatching()
+                    .onFailure { error(it) { "#onMessageReceived" } }
+            }
             return
         }
         if (event.message.contentRaw.startsWith("/link")) {
@@ -70,7 +77,9 @@ internal class MessageEventListener(
                     ?: -1
                 val response = linkApi.linkDiscord(code, member)
                 val message = response.asMessage(translationKrate.cachedValue.link).raw
-                event.message.reply(message).queue()
+                event.message.reply(message)
+                    .awaitCatching()
+                    .onFailure { error(it) { "#onMessageReceived" } }
             }
         }
         val bEvent = Text.Discord(
