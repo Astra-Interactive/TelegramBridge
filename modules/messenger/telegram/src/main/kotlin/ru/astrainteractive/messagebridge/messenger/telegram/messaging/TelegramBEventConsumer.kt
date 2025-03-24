@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
@@ -101,6 +102,8 @@ internal class TelegramBEventConsumer(
             } else {
                 error(e) { "#sendMessage unknown exception" }
             }
+        } catch (e: TelegramApiException) {
+            error { "#sendMessage: Got TelegramApiException: ${e.message}. Probably fake exception." }
         }
     }
 

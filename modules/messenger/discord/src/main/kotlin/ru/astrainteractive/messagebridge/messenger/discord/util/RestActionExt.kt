@@ -15,6 +15,14 @@ internal object RestActionExt {
         }
     }
 
+    suspend fun <T> RestAction<T>.awaitCatching() = supervisorScope {
+        kotlin.runCatching {
+            suspendCancellableCoroutine<T> { continuation ->
+                queue(continuation::resume, continuation::resumeWithException)
+            }
+        }
+    }
+
     suspend fun <T> RestAction<T>.async(): Deferred<T> = supervisorScope {
         async { await() }
     }

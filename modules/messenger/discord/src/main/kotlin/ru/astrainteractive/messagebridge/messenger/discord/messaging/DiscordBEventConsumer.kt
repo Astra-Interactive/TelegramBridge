@@ -35,6 +35,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -76,9 +77,11 @@ internal class DiscordBEventConsumer(
     private var lastOnlineChanged = System.currentTimeMillis().milliseconds
     private suspend fun changeOnlineCount(channel: TextChannel) {
         val current = System.currentTimeMillis().milliseconds
-        if (current.minus(lastOnlineChanged) < 3.minutes) return
+        if (current.minus(lastOnlineChanged) < 1.minutes) return
         lastOnlineChanged = current
-        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").await()
+        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}")
+            .awaitCatching()
+            .onFailure { error(it) { "#changeOnlineCount" } }
     }
 
     private suspend fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
