@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.messaging
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import net.minecraft.server.MinecraftServer
@@ -24,7 +25,7 @@ import ru.astrainteractive.messagebridge.util.NativeComponentExt.toNative
 
 internal class ForgeBEventConsumer(
     translationKrate: Krate<PluginTranslation>,
-    private val getServer: () -> MinecraftServer?
+    private val serverStateFlow: StateFlow<MinecraftServer?>
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
     Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
@@ -48,7 +49,7 @@ internal class ForgeBEventConsumer(
             is PlayerDeathBEvent -> null
         }?.let(KyoriComponentSerializer.Legacy::toComponent) ?: return
 
-        getServer.invoke()?.playerList?.players.orEmpty().forEach { player ->
+        serverStateFlow.value?.playerList?.players.orEmpty().forEach { player ->
             player.sendSystemMessage(component.toNative())
         }
     }

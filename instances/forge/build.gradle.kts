@@ -17,6 +17,7 @@ dependencies {
     shadeImplementation(libs.bundles.exposed)
     // AstraLibs
     shadeImplementation(libs.minecraft.astralibs.core)
+    shadeImplementation(libs.minecraft.astralibs.command)
     shadeImplementation(libs.kotlin.serializationKaml)
     shadeImplementation(libs.klibs.mikro.core)
     shadeImplementation(libs.klibs.kstorage)
@@ -53,7 +54,7 @@ configurations {
     }
 }
 
-val destination = File("_/media/makeevrserg/WDGOLD2TB/Minecraft Servers/server-docker-forge/data/mods")
+val destination = File("/home/makeevrsergh/Desktop/server/mods/")
     .takeIf(File::exists)
     ?: File(rootDir, "jars")
 
