@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.command.argumenttype
+package ru.astrainteractive.messagebridge.forge.core.command.argumenttype
 
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.StringReader

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.command.util
+package ru.astrainteractive.messagebridge.forge.core.command.util
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.ArgumentType

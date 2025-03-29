@@ -35,7 +35,7 @@ dependencies {
     shadeImplementation(projects.modules.messenger.discord)
     shadeImplementation(projects.modules.messenger.telegram)
     shadeImplementation(projects.modules.core)
-    shadeImplementation(projects.modules.coreBukkit)
+    shadeImplementation(projects.modules.coreForge)
     shadeImplementation(projects.modules.link)
     shadeImplementation("net.kyori:adventure-text-serializer-plain:4.19.0")
     shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.19.0")
@@ -44,6 +44,7 @@ dependencies {
 
 minecraft {
     mappings("official", libs.versions.minecraft.version.get())
+    accessTransformer(rootProject.file("build").resolve("accesstransformer.cfg"))
 }
 
 configurations {
@@ -79,7 +80,6 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     archiveVersion = requireProjectInfo.versionString
     archiveBaseName = "${requireProjectInfo.name}-forge"
     destinationDirectory = destination
-
     dependencies {
         // deps
         exclude(dependency("org.jetbrains:annotations"))
