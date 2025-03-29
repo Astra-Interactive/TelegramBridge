@@ -2,8 +2,11 @@ package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.minecraft.server.MinecraftServer
+import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.fml.loading.FMLPaths
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
@@ -13,6 +16,7 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.di.factory.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.di.factory.ForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.event.ForgeEvents
+import ru.astrainteractive.messagebridge.forge.core.event.flowEvent
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.ForgeBEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -22,8 +26,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 
 class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
-    var minecraftServer: MinecraftServer? = null
-
     val coreModule by lazy {
         CoreModule(
             dataFolder = FMLPaths.CONFIGDIR.get().resolve("MessageBridge").toAbsolutePath().toFile(),
@@ -31,8 +33,12 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
         )
     }
 
+    private val serverStateFlow = flowEvent<ServerStartedEvent>()
+        .map { event -> event.server }
+        .stateIn(coreModule.scope, SharingStarted.Eagerly, null)
+
     val forgeOnlinePlayersProvider by lazy {
-        ForgeOnlinePlayersProvider(getServer = { minecraftServer })
+        ForgeOnlinePlayersProvider(serverStateFlow = serverStateFlow)
     }
 
     val linkModule by lazy {
@@ -50,7 +56,7 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     private val minecraftMessageController by lazy {
         ForgeBEventConsumer(
             translationKrate = coreModule.translationKrate,
-            getServer = { minecraftServer },
+            serverStateFlow = serverStateFlow,
         )
     }
 
