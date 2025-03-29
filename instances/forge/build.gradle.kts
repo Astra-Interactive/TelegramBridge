@@ -4,14 +4,18 @@ import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("net.minecraftforge.gradle") version "[6.0,6.2)"
+    alias(libs.plugins.forgegradle)
     id("io.github.goooler.shadow")
     alias(libs.plugins.klibs.minecraft.shadow)
     alias(libs.plugins.klibs.minecraft.resource.processor)
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:1.20.1-47.2.20")
+    minecraft(
+        "net.minecraftforge",
+        "forge",
+        "${libs.versions.minecraft.version.get()}-${libs.versions.minecraft.forgeversion.get()}"
+    )
     // Kotlin
     shadeImplementation(libs.bundles.kotlin)
     shadeImplementation(libs.bundles.exposed)
@@ -39,7 +43,7 @@ dependencies {
 }
 
 minecraft {
-    mappings("official", "1.20.1")
+    mappings("official", libs.versions.minecraft.version.get())
 }
 
 configurations {
