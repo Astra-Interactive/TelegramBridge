@@ -12,8 +12,8 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.dispatchers.DefaultKotlinDispatchers
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.di.factory.ForgeLuckPermsProvider
-import ru.astrainteractive.messagebridge.di.factory.ForgeOnlinePlayersProvider
+import ru.astrainteractive.messagebridge.forge.core.api.ForgeLuckPermsProvider
+import ru.astrainteractive.messagebridge.forge.core.api.ForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.forge.core.event.flowEvent
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel

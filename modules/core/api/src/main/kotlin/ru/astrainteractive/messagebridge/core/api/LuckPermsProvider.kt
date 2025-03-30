@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.controller.di.factory
+package ru.astrainteractive.messagebridge.core.api
 
 import net.luckperms.api.LuckPerms
 

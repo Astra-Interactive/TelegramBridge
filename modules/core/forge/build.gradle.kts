@@ -7,6 +7,7 @@ plugins {
 dependencies {
     // Kotlin
     implementation(libs.bundles.kotlin)
+    compileOnly(libs.minecraft.luckperms)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.command)

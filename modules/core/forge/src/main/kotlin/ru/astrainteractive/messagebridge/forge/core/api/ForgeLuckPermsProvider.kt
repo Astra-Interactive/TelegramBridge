@@ -1,11 +1,11 @@
-package ru.astrainteractive.messagebridge.di.factory
+package ru.astrainteractive.messagebridge.forge.core.api
 
 import net.luckperms.api.LuckPerms
-import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsProvider
+import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
 
 object ForgeLuckPermsProvider : LuckPermsProvider {
     override fun provide(): LuckPerms? {
-        return kotlin.runCatching {
+        return runCatching {
             net.luckperms.api.LuckPermsProvider.get()
         }.getOrNull()
     }
