@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messaging
+package ru.astrainteractive.messagebridge.messenger.forge.messaging
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +12,7 @@ import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.getValue
+import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
@@ -21,7 +22,7 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import ru.astrainteractive.messagebridge.util.NativeComponentExt.toNative
+import ru.astrainteractive.messagebridge.messenger.forge.util.toNative
 
 internal class ForgeBEventConsumer(
     translationKrate: Krate<PluginTranslation>,

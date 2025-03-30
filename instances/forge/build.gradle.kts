@@ -33,6 +33,7 @@ dependencies {
     shadeImplementation(projects.modules.bridge)
     shadeImplementation(projects.modules.messenger.api)
     shadeImplementation(projects.modules.messenger.discord)
+    shadeImplementation(projects.modules.messenger.forge)
     shadeImplementation(projects.modules.messenger.telegram)
     shadeImplementation(projects.modules.core.api)
     shadeImplementation(projects.modules.core.forge)

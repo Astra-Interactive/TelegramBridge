@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.forge.core.event
 
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import net.minecraftforge.common.MinecraftForge
@@ -11,7 +12,7 @@ import java.util.function.Consumer
 fun <T : Event> flowEvent(
     type: Class<T>,
     priority: EventPriority = EventPriority.NORMAL
-) = callbackFlow {
+): Flow<T> = callbackFlow {
     val isCancelled = false
     val consumer = Consumer {
         launch { send(it) }
@@ -29,7 +30,7 @@ fun <T : Event> flowEvent(
 
 inline fun <reified T : Event> flowEvent(
     priority: EventPriority = EventPriority.NORMAL
-) = flowEvent(
+): Flow<T> = flowEvent(
     type = T::class.java,
     priority = priority
 )
