@@ -13,7 +13,7 @@ dependencies {
     implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
     // Local
-    implementation(projects.modules.core)
+    implementation(projects.modules.core.api)
 }
 
 dependencies {
