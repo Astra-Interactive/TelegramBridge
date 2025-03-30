@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.Mod
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.messagebridge.command.giveItemCommand
 import ru.astrainteractive.messagebridge.di.RootModuleImpl
 import ru.astrainteractive.messagebridge.forge.core.event.flowEvent
 import javax.annotation.ParametersAreNonnullByDefault
@@ -50,6 +49,5 @@ class ForgeEntryPoint :
     val registerCommandsEvent = flowEvent<RegisterCommandsEvent>(EventPriority.HIGHEST)
         .onEach { e ->
             info { "#registerCommandsEvent" }
-            e.giveItemCommand()
         }.launchIn(rootModule.coreModule.scope)
 }
