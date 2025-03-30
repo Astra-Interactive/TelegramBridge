@@ -12,6 +12,9 @@ dependencies {
     implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
     implementation(libs.kotlin.datetime)
+    implementation(libs.minecraft.kyori.plain)
+    implementation(libs.minecraft.kyori.legacy)
+    implementation(libs.minecraft.kyori.gson)
     // Local
     implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)

@@ -31,6 +31,7 @@ minecraft-essentialsx = "2.20.1" # https://github.com/EssentialsX/Essentials
 minecraft-towny = "0.101.1.0" # https://github.com/TownyAdvanced/Towny
 minecraft-version = "1.20.1"
 minecraft-forgeversion = "47.2.20"
+minecraft-kyori="4.19.0"
 
 # Shadow
 gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
@@ -95,6 +96,9 @@ minecraft-papi = { module = "me.clip:placeholderapi", version.ref = "minecraft-p
 minecraft-vaultapi = { module = "com.github.MilkBowl:VaultAPI", version.ref = "minecraft-vault" }
 minecraft-bstats = { module = "org.bstats:bstats-bukkit", version.ref = "minecraft-bstats" }
 minecraft-mockbukkit = { module = "com.github.MockBukkit:MockBukkit", version.ref = "minecraft-mockbukkit" }
+minecraft-kyori-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "minecraft-kyori" }
+minecraft-kyori-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "minecraft-kyori" }
+minecraft-kyori-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "minecraft-kyori" }
 
 minecraft-discordsrv = { module = "com.discordsrv:discordsrv", version.ref = "discordsrv" }
 

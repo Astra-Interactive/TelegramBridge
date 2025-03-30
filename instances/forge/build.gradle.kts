@@ -38,9 +38,9 @@ dependencies {
     shadeImplementation(projects.modules.core.api)
     shadeImplementation(projects.modules.core.forge)
     shadeImplementation(projects.modules.link)
-    shadeImplementation("net.kyori:adventure-text-serializer-plain:4.19.0")
-    shadeImplementation("net.kyori:adventure-text-serializer-legacy:4.19.0")
-    shadeImplementation("net.kyori:adventure-text-serializer-gson:4.19.0")
+    shadeImplementation(libs.minecraft.kyori.plain)
+    shadeImplementation(libs.minecraft.kyori.legacy)
+    shadeImplementation(libs.minecraft.kyori.gson)
 }
 
 minecraft {

@@ -14,8 +14,8 @@ fun <T : Event> flowEvent(
     priority: EventPriority = EventPriority.NORMAL
 ): Flow<T> = callbackFlow {
     val isCancelled = false
-    val consumer = Consumer {
-        launch { send(it) }
+    val consumer = Consumer<T> { event ->
+        launch { send(event) }
     }
     MinecraftForge.EVENT_BUS.addListener<T>(
         priority,
