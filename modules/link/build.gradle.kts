@@ -17,5 +17,5 @@ dependencies {
     implementation(libs.bundles.exposed)
     implementation(libs.telegrambots.client)
     // Local
-    implementation(projects.modules.core)
+    implementation(projects.modules.core.api)
 }

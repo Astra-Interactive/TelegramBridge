@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.link.di
 
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.CodeApi
 import ru.astrainteractive.messagebridge.link.api.LinkApi
@@ -8,7 +9,6 @@ import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.api.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.controller.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.controller.di.factory.LuckPermsProvider
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.dao.internal.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.database.di.LinkDatabaseModule

@@ -19,7 +19,7 @@ import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
-import ru.astrainteractive.messagebridge.OnlinePlayersProvider
+import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory

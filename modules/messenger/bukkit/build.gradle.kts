@@ -25,7 +25,7 @@ dependencies {
     // Local
     implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
-    implementation(projects.modules.core)
-    implementation(projects.modules.coreBukkit)
+    implementation(projects.modules.core.api)
+    implementation(projects.modules.core.bukkit)
     implementation(projects.modules.link)
 }
