@@ -4,12 +4,16 @@ import club.minnced.discord.webhook.WebhookClient
 import com.neovisionaries.ws.client.WebSocketFactory
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -18,6 +22,8 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.logging.JUtiltLogger
+import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -32,7 +38,7 @@ class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider
-) {
+) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule") {
 
     private val jdaFlow = coreModule.configKrate.cachedStateFlow
         .map { it.jdaConfig }
@@ -44,7 +50,7 @@ class JdaMessengerModule(
                 jda.registeredListeners.forEach(jda::removeEventListener)
             }
 
-            JDABuilder.createLight(config.token).apply {
+            val builder = JDABuilder.createLight(config.token).apply {
                 enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 enableIntents(GatewayIntent.DIRECT_MESSAGES)
                 enableIntents(GatewayIntent.GUILD_MESSAGES)
@@ -74,14 +80,23 @@ class JdaMessengerModule(
                             }
                     )
                 }
-            }.build().awaitReady()
+            }
+            flow { emit(builder.build().awaitReady()) }
+                .retryWhen { t, _ ->
+                    error { "#jdaFlow could not create JDA: ${t.localizedMessage}" }
+                    delay(timeMillis = 10000L)
+                    true
+                }
+                .first()
         }
 
-    private val webhookClient = jdaFlow.mapCached<JDA, WebhookClient>(coreModule.scope) { jda, old ->
-        old?.close()
-        val channel = coreModule.configKrate.cachedValue.jdaConfig.channelId
-        WebHookClientFactory(jda).create(channel).first()
-    }
+    private val webhookClient = jdaFlow
+        .filterNotNull()
+        .mapCached<JDA, WebhookClient>(coreModule.scope) { jda, old ->
+            old?.close()
+            val channel = coreModule.configKrate.cachedValue.jdaConfig.channelId
+            WebHookClientFactory(jda).create(channel).first()
+        }
 
     private val discordMessageController = DiscordBEventConsumer(
         jdaFlow = jdaFlow,
@@ -103,6 +118,7 @@ class JdaMessengerModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             jdaFlow
+                .filterNotNull()
                 .onEach { messageEventListener.onEnable(it) }
                 .launchIn(coreModule.scope)
         },

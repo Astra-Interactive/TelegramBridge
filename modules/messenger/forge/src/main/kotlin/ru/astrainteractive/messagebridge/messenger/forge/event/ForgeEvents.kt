@@ -12,6 +12,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent
 import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
+import ru.astrainteractive.astralibs.logging.JUtiltLogger
+import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.Krate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
@@ -29,10 +31,11 @@ class ForgeEvents(
     configKrate: Krate<PluginConfiguration>,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
-) {
+) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
     private val config by configKrate
 
     val serverStartedEvent = flowEvent<ServerStartedEvent>()
+        .onEach { info { "#serverStartedEvent" } }
         .onEach {
             scope.launch {
                 BEventChannel.consume(ServerOpenBEvent)
@@ -40,6 +43,7 @@ class ForgeEvents(
         }.launchIn(scope)
 
     val serverStoppingEvent = flowEvent<ServerStoppingEvent>()
+        .onEach { info { "#serverStoppingEvent" } }
         .onEach {
             scope.launch {
                 BEventChannel.consume(ServerClosedBEvent)
@@ -47,6 +51,7 @@ class ForgeEvents(
         }.launchIn(scope)
 
     val playerLoggedOutEvent = flowEvent<PlayerLoggedOutEvent>()
+        .onEach { info { "#playerLoggedOutEvent" } }
         .filter { config.displayLeaveMessage }
         .onEach {
             scope.launch(dispatchers.IO) {
@@ -59,6 +64,7 @@ class ForgeEvents(
         }.launchIn(scope)
 
     val playerLoggedInEvent = flowEvent<PlayerLoggedInEvent>()
+        .onEach { info { "#playerLoggedInEvent" } }
         .filter { config.displayJoinMessage }
         .onEach {
             // doesnt work
@@ -76,6 +82,7 @@ class ForgeEvents(
         }.launchIn(scope)
 
     val livingDeathEvent = flowEvent<LivingDeathEvent>()
+        .onEach { info { "#livingDeathEvent" } }
         .filter { config.displayDeathMessage }
         .filter { event -> event.entity is Player }
         .onEach {
@@ -91,6 +98,7 @@ class ForgeEvents(
         }.launchIn(scope)
 
     val serverChatEvent = flowEvent<ServerChatEvent>()
+        .onEach { info { "#serverChatEvent" } }
         .onEach {
             scope.launch(dispatchers.IO) {
                 val serverEvent = Text.Minecraft(
