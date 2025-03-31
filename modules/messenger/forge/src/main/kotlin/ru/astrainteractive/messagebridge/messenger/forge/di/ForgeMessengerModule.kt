@@ -13,19 +13,15 @@ class ForgeMessengerModule(
     serverStateFlow: StateFlow<MinecraftServer?>
 ) {
 
-    val eventBukkitMessengerModule by lazy {
-        ForgeEvents(
-            configKrate = coreModule.configKrate,
-            scope = coreModule.scope,
-            dispatchers = coreModule.dispatchers
-        )
-    }
-    private val minecraftMessageController by lazy {
-        ForgeBEventConsumer(
-            translationKrate = coreModule.translationKrate,
-            serverStateFlow = serverStateFlow,
-        )
-    }
+    val eventBukkitMessengerModule = ForgeEvents(
+        configKrate = coreModule.configKrate,
+        scope = coreModule.scope,
+        dispatchers = coreModule.dispatchers
+    )
+    private val minecraftMessageController = ForgeBEventConsumer(
+        translationKrate = coreModule.translationKrate,
+        serverStateFlow = serverStateFlow,
+    )
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
