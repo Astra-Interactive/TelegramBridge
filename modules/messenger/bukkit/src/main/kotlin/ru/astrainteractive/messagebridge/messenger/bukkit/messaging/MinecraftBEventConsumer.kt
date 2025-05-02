@@ -75,7 +75,7 @@ internal class MinecraftBEventConsumer(
 
     init {
         BEventChannel
-            .bEvents
+            .bEvents(this)
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }

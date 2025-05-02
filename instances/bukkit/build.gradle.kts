@@ -55,7 +55,7 @@ minecraftProcessResource {
 }
 
 astraShadowJar {
-    destination = File("_/run/media/makeevrserg/WDGOLD2TB/MinecraftServers/Servers/conf.smp/smp/plugins/")
+    destination = File("/home/makeevrserg/Desktop/temp-server/build/bukkit/plugins/")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()

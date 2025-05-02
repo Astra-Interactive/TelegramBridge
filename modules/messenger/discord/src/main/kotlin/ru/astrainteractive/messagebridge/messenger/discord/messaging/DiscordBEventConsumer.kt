@@ -35,10 +35,11 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitWithTimeout
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList", "UnusedPrivateProperty", "TooManyFunctions")
 internal class DiscordBEventConsumer(
@@ -51,7 +52,7 @@ internal class DiscordBEventConsumer(
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
-    Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
+    Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
     private val config by configKrate
 
     private suspend fun webHookClient() = webHookClientFlow.first()
@@ -79,9 +80,7 @@ internal class DiscordBEventConsumer(
         val current = System.currentTimeMillis().milliseconds
         if (current.minus(lastOnlineChanged) < 1.minutes) return
         lastOnlineChanged = current
-        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}")
-            .awaitCatching()
-            .onFailure { error(it) { "#changeOnlineCount" } }
+        channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").awaitWithTimeout(2.seconds)
     }
 
     private suspend fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
@@ -105,12 +104,12 @@ internal class DiscordBEventConsumer(
     }
 
     private suspend fun sendClosed(channel: TextChannel) {
-        channel.manager.setTopic("Рестриминг чата из игры").await()
+        channel.manager.setTopic("Сервер только запустился...").awaitWithTimeout(2.seconds)
         channel.sendMessage("\uD83D\uDED1 **Сервер остановлен**").await()
     }
 
     private suspend fun sendOpen(channel: TextChannel) {
-        channel.manager.setTopic("Сервер только запустился...").await()
+        channel.manager.setTopic("Сервер только запустился...").awaitWithTimeout(2.seconds)
         channel.sendMessage("✅ **Сервер успешно запущен**").await()
     }
 
@@ -230,7 +229,8 @@ internal class DiscordBEventConsumer(
 
     init {
         BEventChannel
-            .bEvents
+            .bEvents(this)
+            .onEach { info { "#init receive event $it" } }
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }

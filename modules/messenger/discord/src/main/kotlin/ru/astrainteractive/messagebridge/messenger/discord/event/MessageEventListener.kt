@@ -1,6 +1,9 @@
 package ru.astrainteractive.messagebridge.messenger.discord.event
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
@@ -17,6 +20,7 @@ import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.withRetry
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
 
@@ -63,9 +67,10 @@ internal class MessageEventListener(
                 prefix = "Сейчас онлайн ${players.size} игроков\n"
             )
             launch {
-                event.message.reply(message)
-                    .awaitCatching()
-                    .onFailure { error(it) { "#onMessageReceived" } }
+                flow { emit(event.message.reply(message).awaitCatching()) }
+                    .withRetry()
+                    .catch { error(it) { "#onMessageReceived could not send !vailla" } }
+                    .collect()
             }
             return
         }
@@ -77,9 +82,10 @@ internal class MessageEventListener(
                     ?: -1
                 val response = linkApi.linkDiscord(code, member)
                 val message = response.asMessage(translationKrate.cachedValue.link).raw
-                event.message.reply(message)
-                    .awaitCatching()
-                    .onFailure { error(it) { "#onMessageReceived" } }
+                flow { emit(event.message.reply(message).awaitCatching()) }
+                    .withRetry()
+                    .catch { error(it) { "#onMessageReceived could not send /link" } }
+                    .collect()
             }
         }
         val bEvent = Text.Discord(
