@@ -1,8 +1,11 @@
 package ru.astrainteractive.messagebridge.messaging.internal
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transform
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
@@ -16,12 +19,12 @@ object BEventChannel :
     Logger by JUtiltLogger("MessageBridge-BEventChannel") {
     private val channel = MutableSharedFlow<BEvent>(1)
 
-    override val bEvents: Flow<BEvent> = channel
+    override fun bEvents(scope: CoroutineScope): Flow<BEvent> = channel
         .asSharedFlow()
         .transform { event ->
             emit(event)
             kotlinx.coroutines.delay(DELAY_MILLIS)
-        }
+        }.shareIn(scope, SharingStarted.Lazily)
 
     override suspend fun consume(bEvent: BEvent) {
         channel.emit(bEvent)

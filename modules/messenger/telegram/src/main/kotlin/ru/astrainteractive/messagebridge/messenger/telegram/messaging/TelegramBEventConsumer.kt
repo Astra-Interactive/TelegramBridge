@@ -35,7 +35,7 @@ internal class TelegramBEventConsumer(
     private val dispatchers: KotlinDispatchers,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
-    Logger by JUtiltLogger("MessageBridge-TelegramMessageController") {
+    Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer") {
     private val config by configKrate
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
@@ -109,7 +109,7 @@ internal class TelegramBEventConsumer(
 
     init {
         BEventChannel
-            .bEvents
+            .bEvents(this)
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }

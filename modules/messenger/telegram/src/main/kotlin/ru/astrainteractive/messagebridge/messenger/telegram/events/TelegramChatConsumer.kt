@@ -2,7 +2,10 @@ package ru.astrainteractive.messagebridge.messenger.telegram.events
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
@@ -22,6 +25,7 @@ import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.withRetry
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList")
@@ -150,7 +154,10 @@ internal class TelegramChatConsumer(
                 val sendMessage = SendMessage(chatId, message).apply {
                     replyToMessageId = originalMessageId
                 }
-                telegramClientOrNull()?.execute(sendMessage)
+                flow { emit(telegramClientOrNull()?.execute(sendMessage)) }
+                    .withRetry()
+                    .catch { error(it) { "#tryConsume could not send /vanilla" } }
+                    .collect()
                 return true
             }
 
@@ -163,7 +170,10 @@ internal class TelegramChatConsumer(
                 val sendMessage = SendMessage(chatId, message).apply {
                     replyToMessageId = originalMessageId
                 }
-                telegramClientOrNull()?.execute(sendMessage)
+                flow { emit(telegramClientOrNull()?.execute(sendMessage)) }
+                    .withRetry()
+                    .catch { error(it) { "#tryConsume could not send /link" } }
+                    .collect()
                 return true
             }
         }

@@ -29,7 +29,7 @@ internal class ForgeBEventConsumer(
     private val serverStateFlow: StateFlow<MinecraftServer?>
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
-    Logger by JUtiltLogger("MessageBridge-MinecraftMessageController") {
+    Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer") {
     private val translation by translationKrate
 
     override suspend fun consume(bEvent: BEvent) {
@@ -57,7 +57,7 @@ internal class ForgeBEventConsumer(
 
     init {
         BEventChannel
-            .bEvents
+            .bEvents(this)
             .onEach { bEvent -> consume(bEvent) }
             .launchIn(this)
     }
