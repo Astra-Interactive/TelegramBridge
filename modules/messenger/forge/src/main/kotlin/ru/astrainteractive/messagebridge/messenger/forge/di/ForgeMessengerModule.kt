@@ -4,7 +4,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
 import net.minecraft.server.MinecraftServer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.forge.event.ForgeEvents
 import ru.astrainteractive.messagebridge.messenger.forge.messaging.ForgeBEventConsumer
 

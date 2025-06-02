@@ -6,6 +6,7 @@ plugins {
     id("io.github.goooler.shadow")
     alias(libs.plugins.klibs.minecraft.shadow)
     alias(libs.plugins.klibs.minecraft.resource.processor)
+    alias(libs.plugins.metro)
 }
 
 dependencies {

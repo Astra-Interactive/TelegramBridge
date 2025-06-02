@@ -2,7 +2,6 @@ package ru.astrainteractive.messagebridge.link.di
 
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
-import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.CodeApi
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl

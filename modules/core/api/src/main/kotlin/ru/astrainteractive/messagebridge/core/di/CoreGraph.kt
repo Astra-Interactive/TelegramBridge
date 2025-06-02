@@ -2,46 +2,65 @@ package ru.astrainteractive.messagebridge.core.di
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import dev.zacsweers.metro.Provides
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.serialization.StringFormat
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.klibs.kstorage.api.StateFlowMutableKrate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
+import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.factory.ConfigKrateFactory
 import java.io.File
 
-class CoreModule(
-    val dataFolder: File,
+interface CoreGraph {
     val dispatchers: KotlinDispatchers
-) {
-    val configuration: YamlConfiguration = Yaml.default.configuration.copy(
+    val dataFolder: File
+    val luckPermsProvider: LuckPermsProvider
+    val onlinePlayersProvider: OnlinePlayersProvider
+
+    @Provides
+    fun provideYamlConfig() = Yaml.default.configuration.copy(
         encodeDefaults = true,
         strictMode = false
     )
-    val yaml: Yaml = Yaml(
+
+    @Provides
+    fun provideYaml(configuration: YamlConfiguration): StringFormat = Yaml(
         serializersModule = Yaml.default.serializersModule,
         configuration = configuration
     )
-    val yamlStringFormat = yaml
 
-    val scope = CoroutineFeature.Default(dispatchers.IO)
+    @Provides
+    fun provideScope(dispatchers: KotlinDispatchers) = CoroutineFeature.Default(dispatchers.IO)
 
-    val configKrate = ConfigKrateFactory.create(
+
+    @Provides
+    fun provideConfigKrate(yamlStringFormat: StringFormat) = ConfigKrateFactory.create(
         fileNameWithoutExtension = "config",
         stringFormat = yamlStringFormat,
         dataFolder = dataFolder,
         factory = ::PluginConfiguration
     )
 
-    val translationKrate = ConfigKrateFactory.create(
+    @Provides
+    fun provideTranslationKrate(yamlStringFormat: StringFormat) = ConfigKrateFactory.create(
         fileNameWithoutExtension = "translations",
         stringFormat = yamlStringFormat,
         dataFolder = dataFolder,
         factory = ::PluginTranslation
     )
 
-    val lifecycle = Lifecycle.Lambda(
+    @Provides
+    fun provideLifecycle(
+        configKrate: StateFlowMutableKrate<PluginConfiguration>,
+        translationKrate: StateFlowMutableKrate<PluginTranslation>,
+        scope: CoroutineScope
+    ) = Lifecycle.Lambda(
         onReload = {
             configKrate.getValue()
             translationKrate.getValue()

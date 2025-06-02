@@ -56,6 +56,7 @@ telegrambots = "8.3.0"
 
 forgegradle = "[6.0,6.2)"
 
+metro = "0.3.5"
 [libraries]
 # Kotlin
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlin-coroutines" }
@@ -169,3 +170,4 @@ klibs-gradle-minecraft-multiplatform = { id = "ru.astrainteractive.gradleplugin.
 klibs-minecraft-resource-processor = { id = "ru.astrainteractive.gradleplugin.minecraft.resource-processor", version.ref = "klibs-gradleplugin" }
 klibs-minecraft-shadow = { id = "ru.astrainteractive.gradleplugin.minecraft.shadow", version.ref = "klibs-gradleplugin" }
 forgegradle = { id = "net.minecraftforge.gradle", version.ref = "forgegradle" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }

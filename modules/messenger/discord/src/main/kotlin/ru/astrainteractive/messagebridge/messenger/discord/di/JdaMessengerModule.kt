@@ -26,7 +26,6 @@ import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.astralibs.util.FlowExt.mapCached
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
-import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
