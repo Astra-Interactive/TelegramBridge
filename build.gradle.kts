@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.gradle.buildconfig) apply false
+    alias(libs.plugins.metro) apply false
 
     // klibs - core
     alias(libs.plugins.klibs.gradle.detekt) apply false

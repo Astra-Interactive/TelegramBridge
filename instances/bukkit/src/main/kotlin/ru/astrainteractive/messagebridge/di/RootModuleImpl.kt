@@ -13,8 +13,6 @@ import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.BukkitLuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.BukkitOnlinePlayersProvider
-import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
-import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
