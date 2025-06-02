@@ -16,12 +16,12 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -45,8 +45,8 @@ import kotlin.time.Duration.Companion.seconds
 internal class DiscordBEventConsumer(
     private val jdaFlow: Flow<JDA>,
     private val webHookClientFlow: Flow<WebhookClient>,
-    configKrate: Krate<PluginConfiguration>,
-    translationKrate: Krate<PluginTranslation>,
+    configKrate: CachedKrate<PluginConfiguration>,
+    translationKrate: CachedKrate<PluginTranslation>,
     private val linkingDao: LinkingDao,
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val dispatchers: KotlinDispatchers

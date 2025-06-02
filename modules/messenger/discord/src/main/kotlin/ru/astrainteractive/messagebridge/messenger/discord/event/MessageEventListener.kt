@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
@@ -25,8 +25,8 @@ import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEve
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
 
 internal class MessageEventListener(
-    private val configKrate: Krate<PluginConfiguration>,
-    private val translationKrate: Krate<PluginTranslation>,
+    private val configKrate: CachedKrate<PluginConfiguration>,
+    private val translationKrate: CachedKrate<PluginTranslation>,
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi
 ) : ListenerAdapter(),

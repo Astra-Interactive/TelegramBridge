@@ -10,17 +10,17 @@ import ru.astrainteractive.astralibs.command.api.context.BukkitCommandContext
 import ru.astrainteractive.astralibs.command.api.context.BukkitCommandContextExt.requireArgument
 import ru.astrainteractive.astralibs.command.api.exception.CommandException
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.messagebridge.core.LifecyclePlugin
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.api.CodeApi
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 
 internal class LinkCommandRegistry(
-    translationKrate: Krate<PluginTranslation>,
-    kyoriKrate: Krate<KyoriComponentSerializer>,
+    translationKrate: CachedKrate<PluginTranslation>,
+    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
     private val plugin: LifecyclePlugin,
     private val scope: CoroutineScope,
     private val codeApi: CodeApi,

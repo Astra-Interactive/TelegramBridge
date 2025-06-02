@@ -3,12 +3,12 @@ package ru.astrainteractive.messagebridge.link.controller
 import net.dv8tion.jda.api.entities.Member
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.util.getValue
 
 class DiscordRoleController(
-    configKrate: Krate<PluginConfiguration>,
+    configKrate: CachedKrate<PluginConfiguration>,
 ) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController") {
     private val config by configKrate
 

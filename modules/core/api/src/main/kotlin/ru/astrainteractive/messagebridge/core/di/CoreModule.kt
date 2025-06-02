@@ -43,8 +43,8 @@ class CoreModule(
 
     val lifecycle = Lifecycle.Lambda(
         onReload = {
-            configKrate.loadAndGet()
-            translationKrate.loadAndGet()
+            configKrate.getValue()
+            translationKrate.getValue()
         },
         onDisable = {
             scope.cancel()

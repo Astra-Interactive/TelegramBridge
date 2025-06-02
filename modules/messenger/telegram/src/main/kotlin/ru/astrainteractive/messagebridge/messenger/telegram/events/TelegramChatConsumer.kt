@@ -15,12 +15,12 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -30,8 +30,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList")
 internal class TelegramChatConsumer(
-    configKrate: Krate<PluginConfiguration>,
-    translationKrate: Krate<PluginTranslation>,
+    configKrate: CachedKrate<PluginConfiguration>,
+    translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
