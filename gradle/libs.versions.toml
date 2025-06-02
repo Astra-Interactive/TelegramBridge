@@ -4,7 +4,7 @@ kotlin-version = "2.0.0" # https://github.com/JetBrains/kotlin
 kotlin-benchmark = "0.4.14" # https://github.com/Kotlin/kotlinx-benchmark
 kotlin-coroutines = "1.10.2" # https://github.com/Kotlin/kotlinx.coroutines
 kotlin-json = "1.8.1" # https://github.com/Kotlin/kotlinx.serialization
-kotlin-kaml = "0.78.0" # https://github.com/charleskorn/kaml
+kotlin-kaml = "0.80.1" # https://github.com/charleskorn/kaml
 kotlin-datetime = "0.6.2" # https://github.com/Kotlin/kotlinx-datetime
 
 # Drivers
@@ -13,9 +13,9 @@ driver-mysql = "8.0.33" # https://github.com/mysql/mysql-connector-j
 driver-h2 = "2.3.232" # https://github.com/h2database/h2database
 
 klibs-gradleplugin = "1.5.0-alpha02" # https://github.com/makeevrserg/gradle-plugin
-klibs-mikro = "1.9.0" # https://github.com/makeevrserg/klibs.mikro
+klibs-mikro = "1.11.0" # https://github.com/makeevrserg/klibs.mikro
 klibs-kdi = "1.4.8" # https://github.com/makeevrserg/klibs.kdi
-klibs-kstorage = "4.0.0" # https://github.com/makeevrserg/klibs.kstorage
+klibs-kstorage = "4.2.0" # https://github.com/makeevrserg/klibs.kstorage
 
 # Minecraft
 minecraft-velocity = "4.0.0-SNAPSHOT" # https://github.com/PaperMC/Velocity
