@@ -8,10 +8,10 @@ import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -27,8 +27,8 @@ import ru.astrainteractive.messagebridge.messaging.tryConsume
 import java.util.UUID
 
 internal class MinecraftBEventConsumer(
-    kyoriKrate: Krate<KyoriComponentSerializer>,
-    translationKrate: Krate<PluginTranslation>,
+    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
+    translationKrate: CachedKrate<PluginTranslation>,
     private val linkingDao: LinkingDao,
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,

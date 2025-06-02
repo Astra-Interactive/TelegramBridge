@@ -11,11 +11,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
@@ -29,8 +29,8 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 
 internal class TelegramBEventConsumer(
-    configKrate: Krate<PluginConfiguration>,
-    translationKrate: Krate<PluginTranslation>,
+    configKrate: CachedKrate<PluginConfiguration>,
+    translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val dispatchers: KotlinDispatchers,
 ) : BEventConsumer,

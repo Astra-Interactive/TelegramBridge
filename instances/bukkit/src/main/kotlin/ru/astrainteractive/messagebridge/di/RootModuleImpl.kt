@@ -8,6 +8,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
+import ru.astrainteractive.klibs.kstorage.util.asCachedKrate
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.BukkitLuckPermsProvider
@@ -38,7 +39,7 @@ class RootModuleImpl(
     val kyoriKrate = DefaultMutableKrate<KyoriComponentSerializer>(
         factory = { KyoriComponentSerializer.Legacy },
         loader = { null }
-    )
+    ).asCachedKrate()
 
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,

@@ -14,10 +14,10 @@ import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.forge.core.event.flowEvent
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -28,7 +28,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 class ForgeEvents(
-    configKrate: Krate<PluginConfiguration>,
+    configKrate: CachedKrate<PluginConfiguration>,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {

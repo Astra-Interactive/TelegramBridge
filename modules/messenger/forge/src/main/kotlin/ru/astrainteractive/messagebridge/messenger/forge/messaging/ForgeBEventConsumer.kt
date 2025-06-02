@@ -9,9 +9,9 @@ import ru.astrainteractive.astralibs.async.CoroutineFeature
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.util.getValue
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
@@ -25,7 +25,7 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.forge.util.toNative
 
 internal class ForgeBEventConsumer(
-    translationKrate: Krate<PluginTranslation>,
+    translationKrate: CachedKrate<PluginTranslation>,
     private val serverStateFlow: StateFlow<MinecraftServer?>
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),

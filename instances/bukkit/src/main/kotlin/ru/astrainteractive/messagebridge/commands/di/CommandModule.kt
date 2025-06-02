@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.commands.di
 import CommandManager
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.klibs.kstorage.api.Krate
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.messagebridge.commands.LinkCommandRegistry
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -13,7 +13,7 @@ class CommandModule(
     coreModule: CoreModule,
     bukkitCoreModule: BukkitCoreModule,
     linkModule: LinkModule,
-    kyoriKrate: Krate<KyoriComponentSerializer>
+    kyoriKrate: CachedKrate<KyoriComponentSerializer>
 ) {
     private val commandManager by lazy {
         CommandManager(
