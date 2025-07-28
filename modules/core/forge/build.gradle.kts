@@ -21,11 +21,11 @@ dependencies {
     minecraft(
         "net.minecraftforge",
         "forge",
-        "${libs.versions.minecraft.version.get()}-${libs.versions.minecraft.forgeversion.get()}"
+        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forge.version.get()}"
     )
 }
 minecraft {
-    mappings("official", libs.versions.minecraft.version.get())
+    mappings("official", libs.versions.minecraft.mojang.version.get())
 }
 
 configurations.runtimeElements {

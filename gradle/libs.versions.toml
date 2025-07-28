@@ -15,24 +15,23 @@ driver-h2 = "2.3.232" # https://github.com/h2database/h2database
 klibs-gradleplugin = "1.5.0-alpha02" # https://github.com/makeevrserg/gradle-plugin
 klibs-mikro = "1.9.0" # https://github.com/makeevrserg/klibs.mikro
 klibs-kdi = "1.4.8" # https://github.com/makeevrserg/klibs.kdi
-klibs-kstorage = "4.0.0" # https://github.com/makeevrserg/klibs.kstorage
+klibs-kstorage = "4.2.0" # https://github.com/makeevrserg/klibs.kstorage
 
 # Minecraft
 minecraft-velocity = "4.0.0-SNAPSHOT" # https://github.com/PaperMC/Velocity
 minecraft-spigot = "1.21.3-R0.1-SNAPSHOT" # https://github.com/PaperMC/Paper
 minecraft-papi = "2.11.6" # https://github.com/PlaceholderAPI/PlaceholderAPI
 minecraft-protocollib = "5.3.0" # https://github.com/dmulloy2/ProtocolLib
-minecraft-vault = "1.7.1" # https://github.com/MilkBowl/VaultAPI
-minecraft-astralibs = "3.17.0" # https://github.com/Astra-Interactive/AstraLibs
+minecraft-vault = "1.7" # https://github.com/MilkBowl/VaultAPI
+minecraft-astralibs = "3.25.0" # https://github.com/Astra-Interactive/AstraLibs
 minecraft-bstats = "3.1.0" # https://github.com/Bastian/bStats
 minecraft-mockbukkit = "4.33.2" #https://github.com/MockBukkit/MockBukkit
 minecraft-luckperms = "5.5" # https://github.com/LuckPerms/LuckPerms
 minecraft-essentialsx = "2.21.1" # https://github.com/EssentialsX/Essentials
 minecraft-towny = "0.101.1.0" # https://github.com/TownyAdvanced/Towny
-minecraft-version = "1.20.1"
-minecraft-forgeversion = "47.2.20"
-minecraft-kyori="4.21.0"
-
+minecraft-forge-version = "47.2.20"
+minecraft-kyori = "4.21.0"
+gson = "2.13.1" # https://github.com/google/gson
 # Shadow
 gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
 
@@ -55,6 +54,12 @@ jda-webhook = "0.8.4"
 telegrambots = "8.3.0"
 
 forgegradle = "[6.0,6.2)"
+# Fabric
+minecraft-fabric-loom = "1.10.1"
+minecraft-fabric-loader = "0.16.10"
+minecraft-fabric-api = "0.116.0+"
+minecraft-fabric-yarn = "1.20.1+build.1"
+minecraft-mojang-version = "1.20.1"
 
 [libraries]
 # Kotlin
@@ -93,7 +98,7 @@ minecraft-spigot-core = { module = "org.spigotmc:spigot", version.ref = "minecra
 minecraft-velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "minecraft-velocity" }
 minecraft-protocollib = { module = "com.comphenix.protocol:ProtocolLib", version.ref = "minecraft-protocollib" }
 minecraft-papi = { module = "me.clip:placeholderapi", version.ref = "minecraft-papi" }
-minecraft-vaultapi = { module = "com.github.MilkBowl:VaultAPI", version.ref = "minecraft-vault" }
+minecraft-vaultapi = { module = "net.milkbowl.vault:VaultAPI", version.ref = "minecraft-vault" }
 minecraft-bstats = { module = "org.bstats:bstats-bukkit", version.ref = "minecraft-bstats" }
 minecraft-mockbukkit = { module = "com.github.MockBukkit:MockBukkit", version.ref = "minecraft-mockbukkit" }
 minecraft-kyori-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "minecraft-kyori" }
@@ -131,12 +136,18 @@ cache4k = { module = "io.github.reactivecircus.cache4k:cache4k-jvm", version.ref
 
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
+# Fabric
+minecraft-fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "minecraft-fabric-loader" }
+minecraft-fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "minecraft-fabric-api" }
+minecraft-fabric-mojang = { module = "com.mojang:minecraft", version.ref = "minecraft-mojang-version" }
+
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
 [bundles]
 exposed = ["exposed-java-time", "exposed-jdbc", "exposed-dao", "exposed-core"]
 minecraft-bukkit = ["minecraft-paper-api", "minecraft-spigot-api", "minecraft-spigot-core", "minecraft-vaultapi", "minecraft-papi"]
 testing-kotlin = ["turbine", "kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-coroutines-test", "driver-jdbc", "driver-mysql", "driver-h2", "kotlin-serialization", "kotlin-serializationJson"]
 kotlin = ["kotlin-coroutines-core", "kotlin-coroutines-coreJvm", "kotlin-serialization", "kotlin-serializationJson", "kotlin-serializationKaml", ]
-
 
 [plugins]
 
@@ -169,3 +180,4 @@ klibs-gradle-minecraft-multiplatform = { id = "ru.astrainteractive.gradleplugin.
 klibs-minecraft-resource-processor = { id = "ru.astrainteractive.gradleplugin.minecraft.resource-processor", version.ref = "klibs-gradleplugin" }
 klibs-minecraft-shadow = { id = "ru.astrainteractive.gradleplugin.minecraft.shadow", version.ref = "klibs-gradleplugin" }
 forgegradle = { id = "net.minecraftforge.gradle", version.ref = "forgegradle" }
+fabric-loom = { id = "fabric-loom", version.ref = "minecraft-fabric-loom" }

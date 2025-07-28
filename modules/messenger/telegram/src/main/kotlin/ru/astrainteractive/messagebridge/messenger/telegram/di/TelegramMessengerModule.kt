@@ -12,7 +12,7 @@ import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponse
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
 import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.astralibs.util.FlowExt.mapCached
+import ru.astrainteractive.astralibs.util.mapCached
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule

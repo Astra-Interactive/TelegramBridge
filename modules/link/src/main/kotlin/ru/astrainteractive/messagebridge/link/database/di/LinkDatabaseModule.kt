@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.astrainteractive.astralibs.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.util.FlowExt.mapCached
+import ru.astrainteractive.astralibs.util.mapCached
 import ru.astrainteractive.messagebridge.link.database.table.LinkedPlayerTable
 import java.io.File
 

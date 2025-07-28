@@ -1,3 +1,11 @@
+// Fix for fabric
+// Can not set final java.util.Map field net.fabricmc.loom.configuration.providers.minecraft.VersionsManifest.latest
+buildscript {
+    dependencies {
+        classpath(libs.gson)
+    }
+}
+
 plugins {
     java
     `maven-publish`

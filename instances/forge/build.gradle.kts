@@ -14,7 +14,7 @@ dependencies {
     minecraft(
         "net.minecraftforge",
         "forge",
-        "${libs.versions.minecraft.version.get()}-${libs.versions.minecraft.forgeversion.get()}"
+        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forge.version.get()}"
     )
     // Kotlin
     shadeImplementation(libs.bundles.kotlin)
@@ -44,7 +44,7 @@ dependencies {
 }
 
 minecraft {
-    mappings("official", libs.versions.minecraft.version.get())
+    mappings("official", libs.versions.minecraft.mojang.version.get())
     accessTransformer(rootProject.file("build").resolve("accesstransformer.cfg"))
 }
 
