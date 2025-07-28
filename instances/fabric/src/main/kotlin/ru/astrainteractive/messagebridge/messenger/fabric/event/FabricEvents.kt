@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -89,20 +89,19 @@ class FabricEvents(
             }
         }.launchIn(scope)
 
-    val livingDeathEvent = fabricEventFlow {
-        val callback = ServerEntityCombatEvents.AfterKilledOtherEntity(::send)
-        ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register(callback)
+    val afterDeathEvent = fabricEventFlow {
+        val callback = ServerLivingEntityEvents.AfterDeath(::send)
+        ServerLivingEntityEvents.AFTER_DEATH.register(callback)
     }
-        .onEach { info { "#livingDeathEvent" } }
         .filter { config.displayDeathMessage }
-        .filter { (_, _, killedEntity) -> killedEntity.isPlayer }
-        .onEach { (_, _, killedEntity) ->
+        .filter { (entity, source) -> entity.isPlayer }
+        .onEach { (entity, source) ->
             scope.launch(dispatchers.IO) {
-                val deathCause = null
+                val deathCause = source.getDeathMessage(entity)?.string
                 val serverEvent = PlayerDeathBEvent(
-                    name = killedEntity.name.string,
+                    name = entity.name.string,
                     cause = deathCause,
-                    uuid = killedEntity.uuid.toString()
+                    uuid = entity.uuid.toString()
                 )
                 BEventChannel.consume(serverEvent)
             }

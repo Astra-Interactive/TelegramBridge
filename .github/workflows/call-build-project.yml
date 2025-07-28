@@ -12,6 +12,8 @@ jobs:
             task: ":instances:forge:build"
           - id: "bukkit"
             task: ":instances:bukkit:build"
+          - id: "fabric"
+            task: ":instances:fabric:build"
     steps:
       - name: Checkout Git repo
         uses: actions/checkout@v4
