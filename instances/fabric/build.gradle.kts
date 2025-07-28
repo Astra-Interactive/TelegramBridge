@@ -1,21 +1,23 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.fabricmc.loom.task.RemapJarTask
 import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
 
 plugins {
     kotlin("jvm")
-    kotlin("plugin.serialization")
-    alias(libs.plugins.forgegradle)
+    alias(libs.plugins.fabric.loom)
+    alias(libs.plugins.klibs.minecraft.resource.processor)
     id("io.github.goooler.shadow")
     alias(libs.plugins.klibs.minecraft.shadow)
-    alias(libs.plugins.klibs.minecraft.resource.processor)
 }
 
 dependencies {
-    minecraft(
-        "net.minecraftforge",
-        "forge",
-        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forge.version.get()}"
-    )
+    minecraft(libs.minecraft.fabric.mojang.get())
+    mappings("net.fabricmc:yarn:${libs.versions.minecraft.fabric.yarn.get()}:v2")
+    modImplementation(libs.minecraft.fabric.loader.get())
+    modImplementation(libs.minecraft.fabric.api.get())
+}
+
+dependencies {
     // Kotlin
     shadeImplementation(libs.bundles.kotlin)
     shadeImplementation(libs.bundles.exposed)
@@ -43,44 +45,23 @@ dependencies {
     shadeImplementation(libs.minecraft.kyori.gson)
 }
 
-minecraft {
-    mappings("official", libs.versions.minecraft.mojang.version.get())
-    accessTransformer(rootProject.file("build").resolve("accesstransformer.cfg"))
+minecraftProcessResource {
+    fabric()
 }
 
-configurations {
-    apiElements {
-        artifacts.clear()
-    }
-    runtimeElements {
-        setExtendsFrom(emptySet())
-        // Publish the jarJar
-        artifacts.clear()
-        outgoing.artifact(tasks.jarJar)
-    }
-}
-
-val destination = File("/home/makeevrsergh/Desktop/server/mods/")
-    .takeIf(File::exists)
-    ?: File(rootDir, "jars")
-
-val reobfShadowJar = reobf.create("shadowJar")
-
-astraShadowJar.configureManifest()
-
-minecraftProcessResource.forge()
+val destination = rootDir.resolve("build")
+    .resolve("fabric")
+    .resolve("mods")
 
 val shadowJar by tasks.getting(ShadowJar::class) {
     mergeServiceFiles()
     mustRunAfter(minecraftProcessResource.task)
     dependsOn(minecraftProcessResource.task)
-    finalizedBy(reobfShadowJar)
     configurations = listOf(project.configurations.shadeImplementation.get())
     isReproducibleFileOrder = true
     archiveClassifier = null as String?
     archiveVersion = requireProjectInfo.versionString
-    archiveBaseName = "${requireProjectInfo.name}-forge"
-    destinationDirectory = destination
+    archiveBaseName = "${requireProjectInfo.name}-fabric"
     dependencies {
         // deps
         exclude(dependency("org.jetbrains:annotations"))
@@ -147,4 +128,27 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "club.minnced.discord",
         "club.minnced.opus"
     ).forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
+}
+
+val remapJar = tasks.getByName<RemapJarTask>("remapJar") {
+    dependsOn(shadowJar)
+    mustRunAfter(shadowJar)
+    inputFile = shadowJar.archiveFile
+    addNestedDependencies.set(true)
+    archiveBaseName.set("${requireProjectInfo.name}-fabric")
+    destinationDirectory.set(destination)
+    archiveVersion = requireProjectInfo.versionString
+}
+
+tasks.assemble {
+    dependsOn(remapJar)
+}
+
+artifacts {
+    archives(remapJar)
+    shadow(shadowJar)
+}
+
+minecraftProcessResource {
+    fabric()
 }

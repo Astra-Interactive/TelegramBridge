@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://maven.fabricmc.net/") { name = "Fabric" }
         maven("https://plugins.gradle.org/m2/")
         maven("https://jitpack.io")
         gradlePluginPortal()
@@ -37,6 +38,12 @@ dependencyResolutionManagement {
         maven("https://m2.dv8tion.net/releases")
         maven("https://repo1.maven.org/maven2/")
         maven("https://maven.playpro.com")
+        maven("https://ci.ender.zone/plugin/repository/everything") {
+            name = "spigot-vault-api"
+            mavenContent {
+                includeModule("net.milkbowl.vault", "VaultAPI")
+            }
+        }
         maven("https://jitpack.io")
     }
 }
@@ -47,6 +54,7 @@ rootProject.name = "MessageBridge"
 // Spigot
 include(":instances:bukkit")
 include(":instances:forge")
+include(":instances:fabric")
 include(":modules:messenger:api")
 include(":modules:messenger:bukkit")
 include(":modules:messenger:forge")
