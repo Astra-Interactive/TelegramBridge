@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.core.util
 
 import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ class FabricEventProducerScopeImpl<in E>(
 fun <T> fabricEventFlow(block: suspend FabricEventProducerScope<T>.() -> Unit): Flow<T> = channelFlow {
     val scope = FabricEventProducerScopeImpl(this)
     block.invoke(scope)
+    awaitClose { }
 }
 
 /**

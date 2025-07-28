@@ -13,6 +13,7 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.DefaultKotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.api.FabricLuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.FabricOnlinePlayersProvider
+import ru.astrainteractive.messagebridge.core.api.FabricServer
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -21,10 +22,14 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.fabric.di.FabricMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
+import java.io.File
 
 class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
     val coreModule = CoreModule(
-        dataFolder = FabricLoader.getInstance().configDir.toFile(),
+        dataFolder = FabricLoader.getInstance().configDir
+            .toFile()
+            .resolve("MessageBridge")
+            .also(File::mkdirs),
         dispatchers = object : KotlinDispatchers {
             override val Main = DefaultKotlinDispatchers.IO
             override val IO = DefaultKotlinDispatchers.IO
@@ -45,7 +50,7 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
 
     val fabricMessengerModule = FabricMessengerModule(
         coreModule = coreModule,
-        serverStateFlow = _root_ide_package_.ru.astrainteractive.messagebridge.core.api.FabricServer.serverFlow
+        serverStateFlow = FabricServer.serverFlow
     )
 
     val jdaMessengerModule = JdaMessengerModule(

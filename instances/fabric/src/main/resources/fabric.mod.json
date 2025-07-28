@@ -20,27 +20,15 @@
   "entrypoints": {
     "main": [
       {
-        "adapter": "kotlin",
-        "value": "ru.astrainteractive.astratemplate.FabricEntryPoint"
-      }
-    ],
-    "client": [
-      {
-        "adapter": "kotlin",
-        "value": "ru.astrainteractive.astratemplate.ClientEntryPoint"
+        "value": "ru.astrainteractive.messagebridge.FabricEntryPoint"
       }
     ]
   },
-  "mixins": [
-    "astratemplate.mixins.json"
-  ],
-
   "depends": {
     "fabricloader": ">=0.14.24",
     "fabric": "*",
     "minecraft": "1.20.x",
-    "java": ">=17",
-    "fabric-language-kotlin": ">=1.10.17+kotlin.1.9.22"
+    "java": ">=17"
   },
   "suggests": {
     "another-mod": "*"

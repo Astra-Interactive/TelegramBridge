@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import ru.astrainteractive.astralibs.logging.JUtiltLogger
@@ -33,8 +33,8 @@ class FabricEvents(
     private val config by configKrate
 
     val serverStartedEvent = fabricEventFlow {
-        val callback = ServerTickEvents.StartTick(::send)
-        ServerTickEvents.START_SERVER_TICK.register(callback)
+        val callback = ServerLifecycleEvents.ServerStarted(::send)
+        ServerLifecycleEvents.SERVER_STARTED.register(callback)
     }
         .onEach { info { "#serverStartedEvent" } }
         .onEach {
@@ -44,8 +44,8 @@ class FabricEvents(
         }.launchIn(scope)
 
     val serverStoppingEvent = fabricEventFlow {
-        val callback = ServerTickEvents.EndTick(::send)
-        ServerTickEvents.END_SERVER_TICK.register(callback)
+        val callback = ServerLifecycleEvents.ServerStopping(::send)
+        ServerLifecycleEvents.SERVER_STOPPING.register(callback)
     }
         .onEach { info { "#serverStoppingEvent" } }
         .onEach {
