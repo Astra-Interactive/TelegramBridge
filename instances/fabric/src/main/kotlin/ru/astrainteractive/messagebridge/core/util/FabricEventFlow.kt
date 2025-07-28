@@ -1,12 +1,9 @@
-package ru.astrainteractive.messagebridge
+package ru.astrainteractive.messagebridge.core.util
 
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-
 
 // data
 data class KFabricEventData1<T>(val t: T)

@@ -1,7 +1,6 @@
-package ru.astrainteractive.messagebridge.di
+package ru.astrainteractive.messagebridge.core.api
 
 import net.luckperms.api.LuckPerms
-import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
 
 object FabricLuckPermsProvider : LuckPermsProvider {
     override fun provide(): LuckPerms? {

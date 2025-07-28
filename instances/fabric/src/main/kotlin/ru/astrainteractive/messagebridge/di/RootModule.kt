@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.di
 
-
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.fabricmc.loader.api.FabricLoader
@@ -12,13 +11,15 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.kstorage.util.asCachedKrate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.DefaultKotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
-import ru.astrainteractive.messagebridge.command.di.CommandModule
+import ru.astrainteractive.messagebridge.core.api.FabricLuckPermsProvider
+import ru.astrainteractive.messagebridge.core.api.FabricOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
+import ru.astrainteractive.messagebridge.messenger.fabric.di.FabricMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 
 class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
@@ -32,7 +33,6 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
         }
     )
 
-
     val fabricLuckPermsProvider = FabricLuckPermsProvider
     val fabricOnlinePlayersProvider = FabricOnlinePlayersProvider()
 
@@ -45,9 +45,7 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
 
     val fabricMessengerModule = FabricMessengerModule(
         coreModule = coreModule,
-        bukkitCoreModule = bukkitCoreModule,
-        kyoriKrate = kyoriKrate,
-        linkingDao = linkModule.linkingDao
+        serverStateFlow = _root_ide_package_.ru.astrainteractive.messagebridge.core.api.FabricServer.serverFlow
     )
 
     val jdaMessengerModule = JdaMessengerModule(
@@ -62,15 +60,6 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
         linkModule = linkModule
     )
 
-    val commandModule by lazy {
-        CommandModule(
-            coreModule = coreModule,
-            bukkitCoreModule = bukkitCoreModule,
-            linkModule = linkModule,
-            kyoriKrate = kyoriKrate
-        )
-    }
-
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
@@ -78,8 +67,6 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
             fabricMessengerModule.lifecycle,
             jdaMessengerModule.lifecycle,
             telegramMessengerModule.lifecycle,
-            // other
-            commandModule.lifecycle
         )
 
     val lifecycle = Lifecycle.Lambda(
