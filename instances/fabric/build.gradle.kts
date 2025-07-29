@@ -52,6 +52,8 @@ minecraftProcessResource {
 val destination = rootDir.resolve("build")
     .resolve("fabric")
     .resolve("mods")
+    .takeIf { it.exists() }
+    ?: File(rootDir, "jars")
 
 val shadowJar by tasks.getting(ShadowJar::class) {
     mergeServiceFiles()
