@@ -55,7 +55,9 @@ minecraftProcessResource {
 }
 
 astraShadowJar {
-    destination = File("/home/makeevrserg/Desktop/temp-server/build/bukkit/plugins/")
+    destination = rootProject.layout.buildDirectory.asFile.get()
+        .resolve("bukkit")
+        .resolve("plugins")
         .takeIf { it.exists() }
         ?: File(rootDir, "jars")
     configureDefaults()
