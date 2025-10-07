@@ -13,9 +13,9 @@ driver-mysql = "8.0.33" # https://github.com/mysql/mysql-connector-j
 driver-h2 = "2.4.240" # https://github.com/h2database/h2database
 
 klibs-gradleplugin = "1.5.0-alpha02" # https://github.com/makeevrserg/gradle-plugin
-klibs-mikro = "1.14.1" # https://github.com/makeevrserg/klibs.mikro
+klibs-mikro = "1.14.2" # https://github.com/makeevrserg/klibs.mikro
 klibs-kdi = "1.4.8" # https://github.com/makeevrserg/klibs.kdi
-klibs-kstorage = "4.2.2" # https://github.com/makeevrserg/klibs.kstorage
+klibs-kstorage = "4.2.3" # https://github.com/makeevrserg/klibs.kstorage
 
 # Minecraft
 minecraft-velocity = "4.0.0-SNAPSHOT" # https://github.com/PaperMC/Velocity
@@ -30,7 +30,7 @@ minecraft-luckperms = "5.5" # https://github.com/LuckPerms/LuckPerms
 minecraft-essentialsx = "2.21.2" # https://github.com/EssentialsX/Essentials
 minecraft-towny = "0.101.2.1" # https://github.com/TownyAdvanced/Towny
 minecraft-forge-version = "47.2.20"
-minecraft-kyori = "4.24.0"
+minecraft-kyori = "4.25.0"
 gson = "2.13.2" # https://github.com/google/gson
 # Shadow
 gradle-shadow = "8.0.0" # https://github.com/johnrengelman/shadow
@@ -57,7 +57,7 @@ forgegradle = "[6.0,6.2)"
 # Fabric
 minecraft-fabric-loom = "1.11.8"
 minecraft-fabric-loader = "0.17.2"
-minecraft-fabric-api = "0.133.9+"
+minecraft-fabric-api = "0.134.1+"
 minecraft-fabric-yarn = "1.20.1+build.10"
 minecraft-mojang-version = "1.20.1"
 
