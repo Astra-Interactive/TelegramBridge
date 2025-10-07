@@ -1,6 +1,6 @@
 package ru.astrainteractive.messagebridge.link.database.table
 
-import ru.astrainteractive.astralibs.exposed.table.StringIdTable
+import ru.astrainteractive.klibs.mikro.exposed.dao.StringIdTable
 
 object LinkedPlayerTable : StringIdTable("LinkedPlayerTable", "uuid") {
     val lastMinecraftName = text("last_minecraft_name")

@@ -12,11 +12,11 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent
 import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.forge.core.event.flowEvent
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -31,7 +31,7 @@ class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
-) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
+) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
     private val config by configKrate
 
     val serverStartedEvent = flowEvent<ServerStartedEvent>()

@@ -12,11 +12,11 @@ import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import ru.astrainteractive.astralibs.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.util.mapCached
+import ru.astrainteractive.klibs.mikro.core.coroutines.mapCached
+import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
+import ru.astrainteractive.klibs.mikro.exposed.util.connect
 import ru.astrainteractive.messagebridge.link.database.table.LinkedPlayerTable
-import java.io.File
 
 interface LinkDatabaseModule {
     val databaseFlow: Flow<Database>
@@ -24,17 +24,13 @@ interface LinkDatabaseModule {
 
     class Default(
         scope: CoroutineScope,
-        dataFolder: File
     ) : LinkDatabaseModule {
         override val databaseFlow: Flow<Database> = flowOf(DatabaseConfiguration.H2("linking"))
             .mapCached(scope) { dbConfig, previous ->
                 previous?.connector?.invoke()?.close()
                 previous?.run(TransactionManager::closeAndUnregister)
 
-                val database = Database.connect(
-                    url = "jdbc:h2:${dataFolder.resolve(dbConfig.name).absolutePath}${dbConfig.stringArgument}",
-                    driver = "org.h2.Driver",
-                )
+                val database = dbConfig.connect()
                 TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
                 transaction(database) {
                     addLogger(Slf4jSqlDebugLogger)

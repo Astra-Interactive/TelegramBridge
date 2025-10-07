@@ -3,11 +3,13 @@ package ru.astrainteractive.messagebridge.messenger.discord.di.factory
 import club.minnced.discord.webhook.WebhookClientBuilder
 import kotlinx.coroutines.flow.flow
 import net.dv8tion.jda.api.JDA
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
-internal class WebHookClientFactory(private val jda: JDA) : Logger by JUtiltLogger("WebHookClientFactory") {
+internal class WebHookClientFactory(
+    private val jda: JDA
+) : Logger by JUtiltLogger("WebHookClientFactory").withoutParentHandlers() {
     fun create(channelId: String) = flow {
         jda.awaitReady()
         val channel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")

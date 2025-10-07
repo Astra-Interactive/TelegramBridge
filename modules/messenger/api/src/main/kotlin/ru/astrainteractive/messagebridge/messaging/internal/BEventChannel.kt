@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transform
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
@@ -16,7 +16,7 @@ import ru.astrainteractive.messagebridge.messaging.model.BEvent
 object BEventChannel :
     BEventConsumer,
     BEventReceiver,
-    Logger by JUtiltLogger("MessageBridge-BEventChannel") {
+    Logger by JUtiltLogger("MessageBridge-BEventChannel").withoutParentHandlers() {
     private val channel = MutableSharedFlow<BEvent>(1)
 
     override fun bEvents(scope: CoroutineScope): Flow<BEvent> = channel

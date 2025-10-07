@@ -24,6 +24,7 @@ dependencies {
     shadeImplementation(libs.minecraft.astralibs.command)
     shadeImplementation(libs.kotlin.serializationKaml)
     shadeImplementation(libs.klibs.mikro.core)
+    shadeImplementation(libs.klibs.mikro.extensions)
     shadeImplementation(libs.klibs.kstorage)
     shadeImplementation(libs.kotlin.datetime)
     shadeImplementation(libs.driver.h2)

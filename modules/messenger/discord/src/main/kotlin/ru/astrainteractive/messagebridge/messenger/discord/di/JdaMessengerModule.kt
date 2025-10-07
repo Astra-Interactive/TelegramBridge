@@ -22,9 +22,9 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.astralibs.util.mapCached
+import ru.astrainteractive.klibs.mikro.core.coroutines.mapCached
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
@@ -38,7 +38,7 @@ class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider
-) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule") {
+) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
     private val jdaFlow = coreModule.configKrate.cachedStateFlow
         .map { it.jdaConfig }

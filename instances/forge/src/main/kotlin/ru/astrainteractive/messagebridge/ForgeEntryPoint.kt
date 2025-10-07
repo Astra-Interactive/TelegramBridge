@@ -8,8 +8,8 @@ import net.minecraftforge.event.server.ServerStoppingEvent
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.fml.common.Mod
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.di.RootModuleImpl
 import ru.astrainteractive.messagebridge.forge.core.event.flowEvent
 import javax.annotation.ParametersAreNonnullByDefault
@@ -17,7 +17,7 @@ import javax.annotation.ParametersAreNonnullByDefault
 @Mod("messagebridge")
 @ParametersAreNonnullByDefault
 class ForgeEntryPoint :
-    Logger by JUtiltLogger("ForgeEntryPoint"),
+    Logger by JUtiltLogger("ForgeEntryPoint").withoutParentHandlers(),
     Lifecycle {
     private val rootModule by lazy { RootModuleImpl() }
 

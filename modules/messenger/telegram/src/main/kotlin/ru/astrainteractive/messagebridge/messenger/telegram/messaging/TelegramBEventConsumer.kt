@@ -8,12 +8,12 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
-import ru.astrainteractive.astralibs.async.CoroutineFeature
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.astralibs.async.withTimings
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
-import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
@@ -32,10 +32,9 @@ internal class TelegramBEventConsumer(
     configKrate: CachedKrate<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-    private val dispatchers: KotlinDispatchers,
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
-    Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer") {
+    CoroutineFeature by CoroutineFeature.IO.withTimings(),
+    Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer").withoutParentHandlers() {
     private val config by configKrate
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
