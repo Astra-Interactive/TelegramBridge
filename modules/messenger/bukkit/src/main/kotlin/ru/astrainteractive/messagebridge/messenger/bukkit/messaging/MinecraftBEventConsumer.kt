@@ -4,13 +4,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
-import ru.astrainteractive.astralibs.async.CoroutineFeature
+import ru.astrainteractive.astralibs.async.withTimings
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
+import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
@@ -32,8 +33,8 @@ internal class MinecraftBEventConsumer(
     private val linkingDao: LinkingDao,
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(dispatchers.IO),
-    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
+    CoroutineFeature by CoroutineFeature.IO.withTimings(),
+    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
     private val kyori by kyoriKrate
     private val translation by translationKrate
 

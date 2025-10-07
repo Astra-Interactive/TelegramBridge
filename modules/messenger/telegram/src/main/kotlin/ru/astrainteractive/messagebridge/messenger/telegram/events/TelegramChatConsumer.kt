@@ -13,11 +13,11 @@ import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateC
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
@@ -37,7 +37,8 @@ internal class TelegramChatConsumer(
     private val dispatchers: KotlinDispatchers,
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi
-) : LongPollingSingleThreadUpdateConsumer, Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
+) : LongPollingSingleThreadUpdateConsumer,
+    Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
     private val config by configKrate
     private val translation by translationKrate
     private val tgConfig: PluginConfiguration.TelegramConfig

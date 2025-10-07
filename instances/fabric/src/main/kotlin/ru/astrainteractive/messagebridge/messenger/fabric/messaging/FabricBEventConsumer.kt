@@ -1,16 +1,16 @@
 package ru.astrainteractive.messagebridge.messenger.fabric.messaging
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import net.minecraft.server.MinecraftServer
-import ru.astrainteractive.astralibs.async.CoroutineFeature
+import ru.astrainteractive.astralibs.async.withTimings
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
+import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.util.toText
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
@@ -28,8 +28,8 @@ internal class FabricBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val serverStateFlow: StateFlow<MinecraftServer?>
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
-    Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer") {
+    CoroutineFeature by CoroutineFeature.IO.withTimings(),
+    Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer").withoutParentHandlers() {
     private val translation by translationKrate
 
     override suspend fun consume(bEvent: BEvent) {

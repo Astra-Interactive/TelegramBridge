@@ -9,11 +9,11 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.util.fabricEventFlow
 import ru.astrainteractive.messagebridge.core.util.send
@@ -29,7 +29,7 @@ class FabricEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val scope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
-) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
+) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
     private val config by configKrate
 
     val serverStartedEvent = fabricEventFlow {

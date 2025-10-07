@@ -9,10 +9,11 @@ import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import ru.astrainteractive.astralibs.async.CoroutineFeature
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.astralibs.async.withTimings
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
@@ -31,7 +32,7 @@ internal class MessageEventListener(
     private val linkApi: LinkApi
 ) : ListenerAdapter(),
     DiscordEventListener,
-    CoroutineFeature by CoroutineFeature.Default(Dispatchers.IO),
+    CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageEventListener") {
 
     private fun onPrivateMessage(event: MessageReceivedEvent) {

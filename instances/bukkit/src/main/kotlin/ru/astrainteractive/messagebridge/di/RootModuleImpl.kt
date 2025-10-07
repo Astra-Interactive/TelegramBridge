@@ -5,10 +5,10 @@ import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.async.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.kstorage.util.asCachedKrate
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.BukkitLuckPermsProvider
@@ -25,7 +25,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessenger
 
 class RootModuleImpl(
     plugin: MessageBridge
-) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
 
     val bukkitCoreModule = BukkitCoreModule(plugin)
 

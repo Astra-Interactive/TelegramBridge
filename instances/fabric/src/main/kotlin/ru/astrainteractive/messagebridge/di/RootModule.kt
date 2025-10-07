@@ -5,12 +5,12 @@ import kotlinx.coroutines.launch
 import net.fabricmc.loader.api.FabricLoader
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.kstorage.util.asCachedKrate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.DefaultKotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.FabricLuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.FabricOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.FabricServer
@@ -24,7 +24,7 @@ import ru.astrainteractive.messagebridge.messenger.fabric.di.FabricMessengerModu
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import java.io.File
 
-class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
     val coreModule = CoreModule(
         dataFolder = FabricLoader.getInstance().configDir
             .toFile()

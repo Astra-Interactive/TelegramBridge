@@ -8,8 +8,8 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.database.table.LinkedPlayerTable
@@ -17,7 +17,7 @@ import java.util.UUID
 
 class LinkingDaoImpl(
     private val databaseFlow: Flow<Database>
-) : LinkingDao, Logger by JUtiltLogger("LinkingDao") {
+) : LinkingDao, Logger by JUtiltLogger("LinkingDao").withoutParentHandlers() {
     private suspend fun requireDatabase() = databaseFlow.first()
 
     private fun toLinkedPlayerModel(row: ResultRow): LinkedPlayerModel {

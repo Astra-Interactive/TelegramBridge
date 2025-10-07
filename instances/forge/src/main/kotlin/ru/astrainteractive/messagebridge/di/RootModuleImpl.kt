@@ -8,9 +8,9 @@ import kotlinx.coroutines.launch
 import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.fml.loading.FMLPaths
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.dispatchers.DefaultKotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.forge.core.api.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.forge.core.api.ForgeOnlinePlayersProvider
@@ -23,7 +23,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.forge.di.ForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 
-class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
     val coreModule by lazy {
         CoreModule(
             dataFolder = FMLPaths.CONFIGDIR.get().resolve("MessageBridge").toAbsolutePath().toFile(),

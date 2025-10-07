@@ -6,6 +6,7 @@ plugins {
 dependencies {
 
     implementation(libs.minecraft.astralibs.core)
+    implementation(libs.klibs.mikro.core)
     // Kotlin
     implementation(libs.bundles.kotlin)
 }

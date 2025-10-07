@@ -10,9 +10,9 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.logging.JUtiltLogger
-import ru.astrainteractive.astralibs.logging.Logger
-import ru.astrainteractive.astralibs.util.mapCached
+import ru.astrainteractive.klibs.mikro.core.coroutines.mapCached
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -41,7 +41,6 @@ class TelegramMessengerModule(
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow,
-        dispatchers = coreModule.dispatchers
     )
 
     private val consumer = TelegramChatConsumer(
