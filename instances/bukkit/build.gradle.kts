@@ -1,16 +1,14 @@
-import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
-
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("io.github.goooler.shadow")
-    alias(libs.plugins.klibs.minecraft.shadow)
     alias(libs.plugins.klibs.minecraft.resource.processor)
+    alias(libs.plugins.gradle.shadow)
 }
 
 dependencies {
     // Kotlin
-    implementation(libs.bundles.kotlin)
+    implementation(libs.kotlin.coroutines.core)
+
     // Spigot dependencies
     compileOnly(libs.minecraft.paper.api)
     implementation(libs.minecraft.bstats)
@@ -54,20 +52,20 @@ minecraftProcessResource {
     )
 }
 
-astraShadowJar {
-    destination = rootProject.layout.buildDirectory.asFile.get()
-        .resolve("bukkit")
-        .resolve("plugins")
-        .takeIf { it.exists() }
-        ?: File(rootDir, "jars")
-    configureDefaults()
-    requireShadowJarTask {
-        archiveBaseName.set("${requireProjectInfo.name}-bukkit")
-        relocate("org.bstats", requireProjectInfo.group)
-        minimize {
-            exclude(dependency(libs.exposed.jdbc.get()))
-            exclude(dependency(libs.exposed.core.get()))
-            exclude(dependency(libs.exposed.dao.get()))
-        }
-    }
-}
+// astraShadowJar {
+//    destination = rootProject.layout.buildDirectory.asFile.get()
+//        .resolve("bukkit")
+//        .resolve("plugins")
+//        .takeIf { it.exists() }
+//        ?: File(rootDir, "jars")
+//    configureDefaults()
+//    requireShadowJarTask {
+//        archiveBaseName.set("${requireProjectInfo.name}-bukkit")
+//        relocate("org.bstats", requireProjectInfo.group)
+//        minimize {
+//            exclude(dependency(libs.exposed.jdbc.get()))
+//            exclude(dependency(libs.exposed.core.get()))
+//            exclude(dependency(libs.exposed.dao.get()))
+//        }
+//    }
+// }

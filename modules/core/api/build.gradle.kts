@@ -5,7 +5,10 @@ plugins {
 
 dependencies {
     // Kotlin
-    implementation(libs.bundles.kotlin)
+    implementation(libs.kotlin.coroutines.core)
+    implementation(libs.kotlin.serialization.json)
+    implementation(libs.kotlin.serialization.kaml)
+
     implementation(libs.minecraft.luckperms)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)

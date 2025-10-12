@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     // Kotlin
-    implementation(libs.bundles.kotlin)
+
     // Spigot dependencies
     compileOnly(libs.minecraft.paper.api)
     compileOnly(libs.minecraft.luckperms)

@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    // Kotlin
-    compileOnly(libs.bundles.kotlin)
+    implementation(libs.kotlin.coroutines.core)
+
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
 
