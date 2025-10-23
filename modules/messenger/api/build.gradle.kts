@@ -4,9 +4,9 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.kotlin.coroutines.core)
+    implementation(libs.kotlin.serialization.json)
 
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.klibs.mikro.core)
-    // Kotlin
-    implementation(libs.bundles.kotlin)
 }

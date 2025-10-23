@@ -6,7 +6,8 @@ plugins {
 
 dependencies {
     // Kotlin
-    implementation(libs.bundles.kotlin)
+    implementation(libs.kotlin.coroutines.core)
+
     compileOnly(libs.minecraft.luckperms)
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
@@ -21,7 +22,7 @@ dependencies {
     minecraft(
         "net.minecraftforge",
         "forge",
-        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forge.version.get()}"
+        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forgeversion.get()}"
     )
 }
 minecraft {

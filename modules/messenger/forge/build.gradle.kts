@@ -6,15 +6,16 @@ plugins {
 
 dependencies {
     // Kotlin
-    implementation(libs.bundles.kotlin)
+    implementation(libs.kotlin.coroutines.core)
+
     // AstraLibs
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
     implementation(libs.kotlin.datetime)
-    implementation(libs.minecraft.kyori.plain)
-    implementation(libs.minecraft.kyori.legacy)
-    implementation(libs.minecraft.kyori.gson)
+    implementation(libs.kyori.plain)
+    implementation(libs.kyori.legacy)
+    implementation(libs.kyori.gson)
     // Local
     implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
@@ -26,7 +27,7 @@ dependencies {
     minecraft(
         "net.minecraftforge",
         "forge",
-        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forge.version.get()}"
+        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forgeversion.get()}"
     )
 }
 minecraft {

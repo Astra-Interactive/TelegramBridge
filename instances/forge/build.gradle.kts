@@ -5,8 +5,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     alias(libs.plugins.forgegradle)
-    id("io.github.goooler.shadow")
-    alias(libs.plugins.klibs.minecraft.shadow)
+    alias(libs.plugins.gradle.shadow)
     alias(libs.plugins.klibs.minecraft.resource.processor)
 }
 
@@ -14,34 +13,33 @@ dependencies {
     minecraft(
         "net.minecraftforge",
         "forge",
-        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forge.version.get()}"
+        "${libs.versions.minecraft.mojang.version.get()}-${libs.versions.minecraft.forgeversion.get()}"
     )
     // Kotlin
-    shadeImplementation(libs.bundles.kotlin)
-    shadeImplementation(libs.bundles.exposed)
+    implementation(libs.kotlin.coroutines.core)
     // AstraLibs
-    shadeImplementation(libs.minecraft.astralibs.core)
-    shadeImplementation(libs.minecraft.astralibs.command)
-    shadeImplementation(libs.kotlin.serializationKaml)
-    shadeImplementation(libs.klibs.mikro.core)
-    shadeImplementation(libs.klibs.mikro.extensions)
-    shadeImplementation(libs.klibs.kstorage)
-    shadeImplementation(libs.kotlin.datetime)
-    shadeImplementation(libs.driver.h2)
+    implementation(libs.minecraft.astralibs.core)
+    implementation(libs.minecraft.astralibs.command)
+    implementation(libs.kotlin.serialization.kaml)
+    implementation(libs.klibs.mikro.core)
+    implementation(libs.klibs.mikro.extensions)
+    implementation(libs.klibs.kstorage)
+    implementation(libs.kotlin.datetime)
+    implementation(libs.driver.h2)
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     // Local
-    shadeImplementation(projects.modules.bridge)
-    shadeImplementation(projects.modules.messenger.api)
-    shadeImplementation(projects.modules.messenger.discord)
-    shadeImplementation(projects.modules.messenger.forge)
-    shadeImplementation(projects.modules.messenger.telegram)
-    shadeImplementation(projects.modules.core.api)
-    shadeImplementation(projects.modules.core.forge)
-    shadeImplementation(projects.modules.link)
-    shadeImplementation(libs.minecraft.kyori.plain)
-    shadeImplementation(libs.minecraft.kyori.legacy)
-    shadeImplementation(libs.minecraft.kyori.gson)
+    implementation(projects.modules.bridge)
+    implementation(projects.modules.messenger.api)
+    implementation(projects.modules.messenger.discord)
+    implementation(projects.modules.messenger.forge)
+    implementation(projects.modules.messenger.telegram)
+    implementation(projects.modules.core.api)
+    implementation(projects.modules.core.forge)
+    implementation(projects.modules.link)
+    implementation(libs.kyori.plain)
+    implementation(libs.kyori.legacy)
+    implementation(libs.kyori.gson)
 }
 
 minecraft {
@@ -67,16 +65,16 @@ val destination = File("/home/makeevrsergh/Desktop/server/mods/")
 
 val reobfShadowJar = reobf.create("shadowJar")
 
-astraShadowJar.configureManifest()
+// astraShadowJar.configureManifest()
 
-minecraftProcessResource.forge()
+// minecraftProcessResource.forge()
 
 val shadowJar by tasks.getting(ShadowJar::class) {
     mergeServiceFiles()
-    mustRunAfter(minecraftProcessResource.task)
-    dependsOn(minecraftProcessResource.task)
+//    mustRunAfter(minecraftProcessResource.task)
+//    dependsOn(minecraftProcessResource.task)
     finalizedBy(reobfShadowJar)
-    configurations = listOf(project.configurations.shadeImplementation.get())
+    configurations = listOf(project.configurations.shadow.get())
     isReproducibleFileOrder = true
     archiveClassifier = null as String?
     archiveVersion = requireProjectInfo.versionString
