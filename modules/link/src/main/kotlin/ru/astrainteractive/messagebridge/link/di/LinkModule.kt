@@ -29,6 +29,7 @@ interface LinkModule {
 
         private val linkDatabaseModule = LinkDatabaseModule.Default(
             scope = coreModule.scope,
+            dataFolder = coreModule.dataFolder
         )
 
         override val linkingDao: LinkingDao = LinkingDaoImpl(linkDatabaseModule.databaseFlow)

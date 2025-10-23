@@ -17,6 +17,7 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.mapCached
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connect
 import ru.astrainteractive.messagebridge.link.database.table.LinkedPlayerTable
+import java.io.File
 
 interface LinkDatabaseModule {
     val databaseFlow: Flow<Database>
@@ -24,22 +25,24 @@ interface LinkDatabaseModule {
 
     class Default(
         scope: CoroutineScope,
+        dataFolder: File
     ) : LinkDatabaseModule {
-        override val databaseFlow: Flow<Database> = flowOf(DatabaseConfiguration.H2("linking"))
-            .mapCached(scope) { dbConfig, previous ->
-                previous?.connector?.invoke()?.close()
-                previous?.run(TransactionManager::closeAndUnregister)
+        override val databaseFlow: Flow<Database> = flowOf(
+            value = DatabaseConfiguration.H2(dataFolder.resolve("linking").absolutePath)
+        ).mapCached(scope) { dbConfig, previous ->
+            previous?.connector?.invoke()?.close()
+            previous?.run(TransactionManager::closeAndUnregister)
 
-                val database = dbConfig.connect()
-                TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
-                transaction(database) {
-                    addLogger(Slf4jSqlDebugLogger)
-                    SchemaUtils.create(
-                        LinkedPlayerTable
-                    )
-                }
-                database
+            val database = dbConfig.connect()
+            TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
+            transaction(database) {
+                addLogger(Slf4jSqlDebugLogger)
+                SchemaUtils.create(
+                    LinkedPlayerTable
+                )
             }
+            database
+        }
 
         override val lifecycle: Lifecycle = Lifecycle.Lambda(
             onDisable = {
