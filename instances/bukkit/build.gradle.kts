@@ -1,3 +1,7 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.kotlin.dsl.named
+import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
@@ -52,20 +56,52 @@ minecraftProcessResource {
     )
 }
 
-// astraShadowJar {
-//    destination = rootProject.layout.buildDirectory.asFile.get()
-//        .resolve("bukkit")
-//        .resolve("plugins")
-//        .takeIf { it.exists() }
-//        ?: File(rootDir, "jars")
-//    configureDefaults()
-//    requireShadowJarTask {
-//        archiveBaseName.set("${requireProjectInfo.name}-bukkit")
-//        relocate("org.bstats", requireProjectInfo.group)
-//        minimize {
-//            exclude(dependency(libs.exposed.jdbc.get()))
-//            exclude(dependency(libs.exposed.core.get()))
-//            exclude(dependency(libs.exposed.dao.get()))
-//        }
-//    }
-// }
+val shadowJar = tasks.named<ShadowJar>("shadowJar")
+shadowJar.configure {
+
+    val projectInfo = requireProjectInfo
+    isReproducibleFileOrder = true
+    mergeServiceFiles()
+    dependsOn(configurations)
+    archiveClassifier.set(null as String?)
+
+    minimize {
+        exclude(dependency(libs.exposed.jdbc.get()))
+        exclude(dependency(libs.exposed.dao.get()))
+    }
+    archiveVersion.set(projectInfo.versionString)
+    archiveBaseName.set("${projectInfo.name}-bukkit")
+    destinationDirectory = rootDir.resolve("build")
+        .resolve("bukkit")
+        .resolve("plugins")
+        .takeIf(File::exists)
+        ?: File(rootDir, "jars").also(File::mkdirs)
+
+    relocate("org.bstats", projectInfo.group)
+    listOf(
+        "co.touchlab",
+        "com.mysql",
+        "google.protobuf",
+        "io.github.reactivecircus",
+        "ch.qos.logback",
+        "com.charleskorn.kaml",
+        "com.ibm.icu",
+        "it.krzeminski.snakeyaml",
+        "net.thauvin.erik",
+        "okio",
+        "org.apache",
+        "org.intellij",
+        "org.slf4j",
+        "org.jetbrains.annotations",
+        "ru.astrainteractive.klibs",
+        "ru.astrainteractive.astralibs"
+    ).forEach { pattern -> relocate(pattern, "${projectInfo.group}.$pattern") }
+    listOf(
+        "org.jetbrains.exposed",
+        "kotlinx",
+    ).forEach { pattern ->
+        relocate(pattern, "${projectInfo.group}.$pattern") {
+            exclude("kotlin/kotlin.kotlin_builtins")
+        }
+    }
+}
