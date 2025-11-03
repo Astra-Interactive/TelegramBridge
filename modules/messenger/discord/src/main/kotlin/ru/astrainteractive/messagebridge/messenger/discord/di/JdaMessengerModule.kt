@@ -43,7 +43,7 @@ class JdaMessengerModule(
     private val jdaFlow = coreModule.configKrate.cachedStateFlow
         .map { it.jdaConfig }
         .distinctUntilChanged()
-        .mapCached(coreModule.scope) { config, old: JDA? ->
+        .mapCached(coreModule.ioScope) { config, old: JDA? ->
             old?.let { jda ->
                 jda.shutdownNow()
                 jda.awaitShutdown()
@@ -92,7 +92,7 @@ class JdaMessengerModule(
 
     private val webhookClient = jdaFlow
         .filterNotNull()
-        .mapCached<JDA, WebhookClient>(coreModule.scope) { jda, old ->
+        .mapCached<JDA, WebhookClient>(coreModule.ioScope) { jda, old ->
             old?.close()
             val channel = coreModule.configKrate.cachedValue.jdaConfig.channelId
             WebHookClientFactory(jda).create(channel).first()
@@ -120,7 +120,7 @@ class JdaMessengerModule(
             jdaFlow
                 .filterNotNull()
                 .onEach { messageEventListener.onEnable(it) }
-                .launchIn(coreModule.scope)
+                .launchIn(coreModule.ioScope)
         },
         onDisable = {
             discordMessageController.cancel()

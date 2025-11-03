@@ -14,7 +14,7 @@ class FabricMessengerModule(
 ) {
     val eventBukkitMessengerModule = FabricEvents(
         configKrate = coreModule.configKrate,
-        scope = coreModule.scope,
+        scope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers
     )
     private val minecraftMessageController = FabricBEventConsumer(

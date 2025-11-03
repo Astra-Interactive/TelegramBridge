@@ -28,7 +28,7 @@ interface LinkModule {
     ) : LinkModule {
 
         private val linkDatabaseModule = LinkDatabaseModule.Default(
-            scope = coreModule.scope,
+            scope = coreModule.ioScope,
             dataFolder = coreModule.dataFolder
         )
 

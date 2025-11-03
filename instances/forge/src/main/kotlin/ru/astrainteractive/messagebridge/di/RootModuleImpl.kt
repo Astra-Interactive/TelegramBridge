@@ -33,7 +33,7 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").wi
 
     private val serverStateFlow = flowEvent<ServerStartedEvent>()
         .map { event -> event.server }
-        .stateIn(coreModule.scope, SharingStarted.Eagerly, null)
+        .stateIn(coreModule.ioScope, SharingStarted.Eagerly, null)
 
     val forgeOnlinePlayersProvider by lazy {
         ForgeOnlinePlayersProvider(serverStateFlow = serverStateFlow)

@@ -38,16 +38,16 @@ class ForgeEntryPoint :
         .onEach {
             info { "#serverStartedEvent" }
             onEnable()
-        }.launchIn(rootModule.coreModule.scope)
+        }.launchIn(rootModule.coreModule.ioScope)
 
     val serverStoppingEvent = flowEvent<ServerStoppingEvent>(EventPriority.HIGHEST)
         .onEach {
             info { "#serverStoppingEvent" }
             onDisable()
-        }.launchIn(rootModule.coreModule.scope)
+        }.launchIn(rootModule.coreModule.ioScope)
 
     val registerCommandsEvent = flowEvent<RegisterCommandsEvent>(EventPriority.HIGHEST)
         .onEach { e ->
             info { "#registerCommandsEvent" }
-        }.launchIn(rootModule.coreModule.scope)
+        }.launchIn(rootModule.coreModule.ioScope)
 }

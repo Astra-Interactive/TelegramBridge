@@ -29,7 +29,6 @@ dependencies {
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     // Local
-    implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.messenger.discord)
     implementation(projects.modules.messenger.forge)
