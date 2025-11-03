@@ -26,7 +26,10 @@ class CoreModule(
     )
     val yamlStringFormat = yaml
 
-    val scope = CoroutineFeature.IO.withTimings()
+    val ioScope = CoroutineFeature.IO.withTimings()
+    val mainScope = CoroutineFeature
+        .Default(dispatchers.Main)
+        .withTimings()
 
     val configKrate = ConfigKrateFactory.create(
         fileNameWithoutExtension = "config",
@@ -48,7 +51,8 @@ class CoreModule(
             translationKrate.getValue()
         },
         onDisable = {
-            scope.cancel()
+            ioScope.cancel()
+            mainScope.cancel()
         }
     )
 }

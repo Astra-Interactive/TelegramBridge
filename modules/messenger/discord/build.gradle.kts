@@ -16,7 +16,6 @@ dependencies {
     implementation(libs.discord.webhook)
     implementation(libs.jda)
     // Spigot
-    implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.core.api)
     implementation(projects.modules.link)

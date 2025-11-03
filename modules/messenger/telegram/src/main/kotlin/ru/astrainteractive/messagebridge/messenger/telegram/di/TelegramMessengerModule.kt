@@ -28,7 +28,7 @@ class TelegramMessengerModule(
 
     private val telegramClientFlow = coreModule.configKrate.cachedStateFlow
         .mapCached<PluginConfiguration, OkHttpTelegramClient>(
-            scope = coreModule.scope,
+            scope = coreModule.ioScope,
             transform = { config, _ ->
                 val tgConfig = config.tgConfig
                 val client = OkHttpTelegramClient(tgConfig.token)
@@ -46,7 +46,7 @@ class TelegramMessengerModule(
     private val consumer = TelegramChatConsumer(
         configKrate = coreModule.configKrate,
         telegramClientFlow = telegramClientFlow,
-        scope = coreModule.scope,
+        scope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
         onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
@@ -57,7 +57,7 @@ class TelegramMessengerModule(
         .map { it.tgConfig }
         .distinctUntilChanged()
         .mapCached<PluginConfiguration.TelegramConfig, TelegramBotsLongPollingApplication>(
-            scope = coreModule.scope,
+            scope = coreModule.ioScope,
             transform = { tgConfig, prev ->
                 info { "#bridgeBotFlow closing previous bot ${tgConfig.token}" }
                 prev?.unregisterBot(tgConfig.token)

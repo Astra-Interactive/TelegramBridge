@@ -17,7 +17,6 @@ dependencies {
     implementation(libs.kyori.legacy)
     implementation(libs.kyori.gson)
     // Local
-    implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.core.api)
     implementation(projects.modules.core.forge)

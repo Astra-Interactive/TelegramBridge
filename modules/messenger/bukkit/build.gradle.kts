@@ -24,7 +24,6 @@ dependencies {
     compileOnly(libs.minecraft.discordsrv)
     compileOnly(libs.minecraft.essentialsx)
     // Local
-    implementation(projects.modules.bridge)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.core.api)
     implementation(projects.modules.core.bukkit)
