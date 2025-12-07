@@ -8,12 +8,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - id: "forge"
-            task: ":instances:forge:shadowJar"
+          - id: "neoforge"
+            task: ":instances:neoforge:shadowJar"
           - id: "bukkit"
             task: ":instances:bukkit:shadowJar"
-          - id: "fabric"
-            task: ":instances:fabric:remapJar"
     steps:
       - name: Checkout Git repo
         uses: actions/checkout@v4

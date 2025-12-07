@@ -19,19 +19,14 @@ jobs:
           properties: 'makeevrserg.project.name makeevrserg.project.version.string'
 
       - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
-        name: "Download forge"
+        name: "Download neoforge"
         with:
-          name: forge
+          name: neoforge
           path: ./jars
       - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
         name: "Download bukkit"
         with:
           name: bukkit
-          path: ./jars
-      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
-        name: "Download fabric"
-        with:
-          name: fabric
           path: ./jars
 
       - name: Create release
