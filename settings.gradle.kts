@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://maven.neoforged.net/releases")
         maven("https://maven.fabricmc.net/") { name = "Fabric" }
         maven("https://plugins.gradle.org/m2/")
         maven("https://jitpack.io")
@@ -53,15 +54,14 @@ rootProject.name = "MessageBridge"
 
 // Spigot
 include(":instances:bukkit")
-include(":instances:forge")
-include(":instances:fabric")
+include(":instances:neoforge")
 include(":modules:messenger:api")
 include(":modules:messenger:bukkit")
-include(":modules:messenger:forge")
+include(":modules:messenger:neoforge")
 include(":modules:messenger:telegram")
 include(":modules:messenger:discord")
 include(":modules:core:api")
 include(":modules:core:bukkit")
-include(":modules:core:forge")
+include(":modules:core:neoforge")
 include(":modules:link")
 include(":modules:command:bukkit")

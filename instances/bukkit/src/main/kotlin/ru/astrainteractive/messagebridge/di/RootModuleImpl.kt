@@ -2,7 +2,7 @@ package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import ru.astrainteractive.astralibs.async.DefaultBukkitDispatchers
+import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
