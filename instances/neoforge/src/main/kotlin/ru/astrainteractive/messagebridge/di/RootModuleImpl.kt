@@ -23,7 +23,7 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").wi
     val coreModule by lazy {
         CoreModule(
             dataFolder = FMLPaths.CONFIGDIR.get()
-                .resolve("SoulKeeper")
+                .resolve("MessageBridge")
                 .toAbsolutePath()
                 .toFile()
                 .also(File::mkdirs),
