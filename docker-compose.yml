@@ -12,22 +12,16 @@ services:
       EULA: true
       ONLINE_MODE: false
       # Forge --------------------
-      #      TYPE: FORGE
-      #      VERSION: "1.20.1"
-      #      FORGE_VERSION: "47.2.20"
+      TYPE: NEOFORGE
+      VERSION: "1.21.1"
+      NEOFORGE_VERSION: "21.1.129"
       # Paper --------------------
-      TYPE: PAPER
-      VERSION: 1.21.8
+      #      TYPE: PAPER
+      #      VERSION: 1.21.8
       # Custom -------------------
-      # CUSTOM_SERVER: https://api.papermc.io/v2/projects/paper/versions/1.21.1/builds/121/downloads/paper-1.21.1-121.jar
-      # Fabric
-    #      TYPE: FABRIC
-    #      MEMORY: 6G
-    #      VERSION: "1.20.1"
-    #      FABRIC_LAUNCHER_VERSION: 1.0.3
-    #      FABRIC_LOADER_VERSION: 0.16.14    
+    #      CUSTOM_SERVER: https://api.papermc.io/v2/projects/paper/versions/1.21.1/builds/121/downloads/paper-1.21.1-121.jar
     volumes:
-      #      - ./build/forge:/data # Forge
-      - ./build/bukkit:/data # Bukkit/Paper/Spigot
+      - ./build/neoforge:/data # Forge
+#      - ./build/bukkit:/data # Bukkit/Paper/Spigot
 #      - ./build/velocity:/data # Velocity
 #      - ./build/fabric:/data # Fabric

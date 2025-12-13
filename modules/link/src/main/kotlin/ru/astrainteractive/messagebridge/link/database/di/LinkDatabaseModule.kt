@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -36,10 +34,7 @@ interface LinkDatabaseModule {
             val database = dbConfig.connect()
             TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
             transaction(database) {
-                addLogger(Slf4jSqlDebugLogger)
-                SchemaUtils.create(
-                    LinkedPlayerTable
-                )
+                SchemaUtils.create(LinkedPlayerTable)
             }
             database
         }

@@ -3,13 +3,16 @@ package ru.astrainteractive.messagebridge.core.di
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.coroutines.cancel
-import ru.astrainteractive.astralibs.async.withTimings
+import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.util.parseOrWriteIntoDefault
+import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
+import ru.astrainteractive.klibs.kstorage.util.asStateFlowKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.di.factory.ConfigKrateFactory
 import java.io.File
 
 class CoreModule(
@@ -31,19 +34,27 @@ class CoreModule(
         .Default(dispatchers.Main)
         .withTimings()
 
-    val configKrate = ConfigKrateFactory.create(
-        fileNameWithoutExtension = "config",
-        stringFormat = yamlStringFormat,
-        dataFolder = dataFolder,
-        factory = ::PluginConfiguration
-    )
+    val configKrate = DefaultMutableKrate(
+        factory = ::PluginConfiguration,
+        loader = {
+            yamlStringFormat.parseOrWriteIntoDefault(
+                file = dataFolder.resolve("config.yml"),
+                logger = JUtiltLogger("MessageBridge-config"),
+                default = ::PluginConfiguration
+            )
+        }
+    ).asStateFlowKrate()
 
-    val translationKrate = ConfigKrateFactory.create(
-        fileNameWithoutExtension = "translations",
-        stringFormat = yamlStringFormat,
-        dataFolder = dataFolder,
-        factory = ::PluginTranslation
-    )
+    val translationKrate = DefaultMutableKrate(
+        factory = ::PluginTranslation,
+        loader = {
+            yamlStringFormat.parseOrWriteIntoDefault(
+                file = dataFolder.resolve("translations.yml"),
+                logger = JUtiltLogger("MessageBridge-translations"),
+                default = ::PluginTranslation
+            )
+        }
+    ).asStateFlowKrate()
 
     val lifecycle = Lifecycle.Lambda(
         onReload = {

@@ -36,3 +36,4 @@ build-logic/plugins/convention/build
 astra.properties
 .gradle
 libs
+**/junit
