@@ -23,7 +23,7 @@ plugins {
     alias(libs.plugins.klibs.gradle.publication) apply false
     alias(libs.plugins.klibs.gradle.rootinfo) apply false
     alias(libs.plugins.klibs.minecraft.resource.processor) apply false
-    alias(libs.plugins.neoforgegradle) apply false
+    alias(libs.plugins.gradle.neoforgegradle) apply false
 }
 
 apply(plugin = "ru.astrainteractive.gradleplugin.dokka.root")

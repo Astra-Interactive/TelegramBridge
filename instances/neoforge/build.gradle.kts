@@ -6,7 +6,7 @@ import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    alias(libs.plugins.neoforgegradle)
+    alias(libs.plugins.gradle.neoforgegradle)
     alias(libs.plugins.gradle.shadow)
 }
 
@@ -27,9 +27,9 @@ dependencies {
     shadow(libs.driver.h2)
     shadow(libs.exposed.jdbc)
 
-    shadow(libs.kyori.plain)
-    shadow(libs.kyori.legacy)
-    shadow(libs.kyori.gson)
+    shadow(libs.minecraft.kyori.plain)
+    shadow(libs.minecraft.kyori.legacy)
+    shadow(libs.minecraft.kyori.gson)
     // Spigot
     compileOnly(libs.minecraft.luckperms)
     // Local
