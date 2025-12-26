@@ -90,6 +90,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         // Dependencies
         exclude(dependency("org.jetbrains:annotations"))
         // Root
+        exclude("kotlin/**") // use kotlin-neoforge
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
         exclude("jetty-dir.css")
@@ -124,18 +125,21 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("META-INF/com.android.tools/**")
         exclude("META-INF/gradle-plugins/**")
         exclude("META-INF/imports/**")
+        exclude("META-INF/kotlin-reflection.kotlin_module")
         exclude("META-INF/license/**")
         exclude("META-INF/maven/**")
         exclude("META-INF/native-image/**")
         exclude("META-INF/native/**")
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
+        exclude("META-INF/services/kotlin.reflect.**")
         exclude("META-INF/versions/**")
     }
 
     // Be sure to relocate EXACT PACKAGES!!
     // For example, relocate org.some.package instead of org
     // Becuase relocation org will break other non-relocated dependencies such as org.minecraft
+    // Don't relocate `org.jetbrains.exposed` and `kotlin`
     listOf(
         "ch.qos.logback",
         "club.minnced.discord",
@@ -148,7 +152,6 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "gnu.trove",
         "it.krzeminski",
         "javax.xml",
-        "kotlin",
         "kotlinx",
         "net.dv8tion",
         "net.kyori",
@@ -157,14 +160,12 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "okio",
         "org.apache",
         "org.h2",
-        "org.jetbrains.exposed.dao",
-        "org.jetbrains.exposed.exceptions",
-        "org.jetbrains.exposed.jdbc",
-        "org.jetbrains.exposed.sql",
+        "org.jetbrains.exposed",
         "org.jetbrains.kotlin",
         "org.jetbrains.kotlinx",
         "org.json",
         "org.slf4j",
+        "org.sqlite",
         "org.telegram",
         "org.w3c.css",
         "org.w3c.dom",
