@@ -1,5 +1,6 @@
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
@@ -82,7 +83,7 @@ class RootModuleImpl(
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 BEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
@@ -91,7 +92,7 @@ class RootModuleImpl(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 BEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.forEach(Lifecycle::onDisable)

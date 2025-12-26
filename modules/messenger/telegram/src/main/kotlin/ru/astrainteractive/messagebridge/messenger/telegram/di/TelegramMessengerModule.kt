@@ -1,5 +1,6 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -79,7 +80,7 @@ class TelegramMessengerModule(
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
             telegramMessageController.cancel()
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 runCatching {
                     bridgeBotFlow.firstOrNull()?.let { bot ->
                         bot.unregisterBot(coreModule.configKrate.cachedStateFlow.value.tgConfig.token)

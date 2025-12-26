@@ -1,5 +1,6 @@
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.neoforged.fml.loading.FMLPaths
@@ -72,7 +73,7 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").wi
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 BEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
@@ -81,7 +82,7 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").wi
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 BEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.forEach(Lifecycle::onDisable)

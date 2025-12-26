@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.messenger.discord.di
 
 import club.minnced.discord.webhook.WebhookClient
 import com.neovisionaries.ws.client.WebSocketFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -125,7 +126,7 @@ class JdaMessengerModule(
         onDisable = {
             discordMessageController.cancel()
             messageEventListener.cancel()
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 jdaFlow.firstOrNull()?.let { jda ->
                     messageEventListener.onDisable(jda)
                     jda.registeredListeners.forEach(jda::removeEventListener)
