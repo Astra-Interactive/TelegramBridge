@@ -64,6 +64,7 @@ internal class DiscordBEventConsumer(
 
     private suspend fun textChannel() = textChannelFlow().firstOrNull()
 
+    @Suppress("MagicNumber")
     private suspend fun sendDeath(serverEvent: PlayerDeathBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)
@@ -84,6 +85,7 @@ internal class DiscordBEventConsumer(
         channel.manager.setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}").awaitWithTimeout(2.seconds)
     }
 
+    @Suppress("MagicNumber")
     private suspend fun sendJoined(serverEvent: PlayerJoinedBEvent, channel: TextChannel) {
         val text = when (serverEvent.hasPlayedBefore) {
             false -> "${serverEvent.name} присоединился впервые!"
@@ -114,6 +116,7 @@ internal class DiscordBEventConsumer(
         channel.sendMessage("✅ **Сервер успешно запущен**").await()
     }
 
+    @Suppress("MagicNumber")
     private suspend fun sendLeave(serverEvent: PlayerLeaveBEvent, channel: TextChannel) {
         val embed = EmbedBuilder()
             .setColor(0xb5123b)

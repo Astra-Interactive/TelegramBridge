@@ -44,6 +44,7 @@ internal class TelegramChatConsumer(
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 
+    @Suppress("MagicNumber")
     private fun String.toFixedName(): String {
         val name = this
             .trim()

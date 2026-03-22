@@ -11,6 +11,7 @@ class CodeApiImpl : CodeApi {
 
     private val mutex = Mutex()
 
+    @Suppress("MagicNumber")
     override suspend fun generateCodeForPlayer(codeUser: CodeUser): Int = mutex.withLock {
         cache[codeUser]?.let { return it }
         val codes = cache.values

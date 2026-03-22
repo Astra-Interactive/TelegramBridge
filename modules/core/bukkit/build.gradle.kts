@@ -4,16 +4,13 @@ plugins {
 }
 
 dependencies {
-    // Kotlin
-
-    // Spigot dependencies
-    compileOnly(libs.minecraft.paper.api)
     compileOnly(libs.minecraft.luckperms)
-    // AstraLibs
+    compileOnly(libs.minecraft.paper.api)
+
+    implementation(libs.klibs.kstorage)
+    implementation(libs.klibs.mikro.core)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.core.bukkit)
-    implementation(libs.klibs.mikro.core)
-    implementation(libs.klibs.kstorage)
-    // Local
+
     implementation(projects.modules.core.api)
 }

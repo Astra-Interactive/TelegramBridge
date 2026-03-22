@@ -96,6 +96,7 @@ internal class TelegramBEventConsumer(
         try {
             telegramClientOrNull()?.execute(sendMessage)
         } catch (e: TelegramApiRequestException) {
+            @Suppress("MagicNumber")
             if (e.errorCode == 404) {
                 error { "#sendMessage: Wrong token, chat or topic id" }
             } else {

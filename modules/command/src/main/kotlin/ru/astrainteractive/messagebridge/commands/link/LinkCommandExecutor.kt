@@ -2,8 +2,9 @@ package ru.astrainteractive.messagebridge.commands.link
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.bukkit.entity.Player
+import net.kyori.adventure.text.Component
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
+import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.util.getValue
 import ru.astrainteractive.messagebridge.core.PluginTranslation
@@ -13,7 +14,7 @@ import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import java.util.UUID
 
 internal class LinkCommandExecutor(
-    private val scope: CoroutineScope,
+    private val ioScope: CoroutineScope,
     private val codeApi: CodeApi,
     private val linkingDao: LinkingDao,
     translationKrate: CachedKrate<PluginTranslation>,
@@ -23,37 +24,41 @@ internal class LinkCommandExecutor(
     private val translation by translationKrate
 
     sealed interface Intent {
-        data class Link(val player: Player) : Intent
-        data class UserInfo(val targetPlayerUuid: UUID, val sender: Player) : Intent
+        data class Link(val player: OnlineKPlayer) : Intent
+        data class UserInfo(
+            val targetPlayerUuid: UUID,
+            val sender: OnlineKPlayer
+        ) : Intent
     }
 
     fun onIntent(intent: Intent) {
         when (intent) {
             is Intent.Link -> {
-                scope.launch {
+                ioScope.launch {
                     val player = intent.player
                     val codeUser = CodeUser(
                         name = player.name,
-                        uuid = player.uniqueId
+                        uuid = player.uuid
                     )
                     val code = codeApi.generateCodeForPlayer(codeUser)
                     with(kyori) {
-                        translation.link.codeCreated(code).component
-                            .let(KyoriComponentSerializer.Plain.serializer::serialize)
-                            .run(player::sendMessage)
+                        player.sendMessage(translation.link.codeCreated(code).component)
                     }
                 }
             }
 
             is Intent.UserInfo -> {
-                scope.launch {
+                ioScope.launch {
                     val user = linkingDao.findByUuid(intent.targetPlayerUuid).getOrNull()
                     if (user == null) {
-                        intent.sender.sendMessage("User not found")
+                        intent.sender.sendMessage(Component.text("User not found"))
                     } else {
-                        @Suppress("MaximumLineLength", "MaxLineLength")
                         intent.sender.sendMessage(
-                            "DiscordID: ${user.discordLink?.discordId}; telegramUsername: ${user.telegramLink?.telegramUsername}; minecraftUUID: ${user.uuid}"
+                            Component.text(
+                                "DiscordID: ${user.discordLink?.discordId}; " +
+                                    "telegramUsername: ${user.telegramLink?.telegramUsername}; " +
+                                    "minecraftUUID: ${user.uuid}"
+                            )
                         )
                     }
                 }

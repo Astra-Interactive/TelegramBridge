@@ -1,14 +1,11 @@
 pluginManagement {
     repositories {
         maven("https://maven.neoforged.net/releases")
-        maven("https://maven.fabricmc.net/") { name = "Fabric" }
         maven("https://plugins.gradle.org/m2/")
         maven("https://jitpack.io")
         gradlePluginPortal()
         mavenCentral()
-        mavenLocal()
         google()
-        maven("https://maven.minecraftforge.net")
     }
 }
 
@@ -21,14 +18,13 @@ buildscript {
 dependencyResolutionManagement {
     repositories {
         gradlePluginPortal()
-        mavenLocal()
         mavenCentral()
+        mavenLocal()
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-        maven {
-            name = "papermc"
-            url = uri("https://repo.papermc.io/repository/maven-public/")
-        }
+        maven("https://papermc.io/repo/repository/maven-public/")
+        maven("https://repo.papermc.io/repository/maven-public/")
+        maven("https://repo.codemc.io/repository/maven-releases")
         maven("https://repo.glaremasters.me/repository/towny/")
         maven("https://nexus.scarsz.me/content/groups/public/")
         maven("https://repo.dmulloy2.net/repository/public/")
@@ -39,12 +35,6 @@ dependencyResolutionManagement {
         maven("https://m2.dv8tion.net/releases")
         maven("https://repo1.maven.org/maven2/")
         maven("https://maven.playpro.com")
-        maven("https://ci.ender.zone/plugin/repository/everything") {
-            name = "spigot-vault-api"
-            mavenContent {
-                includeModule("net.milkbowl.vault", "VaultAPI")
-            }
-        }
         maven("https://jitpack.io")
     }
 }
@@ -64,4 +54,4 @@ include(":modules:core:api")
 include(":modules:core:bukkit")
 include(":modules:core:neoforge")
 include(":modules:link")
-include(":modules:command:bukkit")
+include(":modules:command")

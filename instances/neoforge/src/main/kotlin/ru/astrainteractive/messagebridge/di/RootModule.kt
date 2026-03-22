@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import net.neoforged.fml.loading.FMLPaths
 import ru.astrainteractive.astralibs.coroutines.NeoForgeDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.server.bridge.NeoForgePlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -20,7 +21,7 @@ import ru.astrainteractive.messagebridge.messenger.forge.di.NeoForgeMessengerMod
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import java.io.File
 
-class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
+class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
     val coreModule by lazy {
         CoreModule(
             dataFolder = FMLPaths.CONFIGDIR.get()
@@ -28,7 +29,8 @@ class RootModuleImpl : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").wi
                 .toAbsolutePath()
                 .toFile()
                 .also(File::mkdirs),
-            dispatchers = NeoForgeDispatchers()
+            dispatchers = NeoForgeDispatchers(),
+            platformServer = NeoForgePlatformServer
         )
     }
 

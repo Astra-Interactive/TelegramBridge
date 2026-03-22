@@ -4,23 +4,20 @@ plugins {
 }
 
 dependencies {
-    // Kotlin
+    implementation(libs.klibs.kstorage)
+    implementation(libs.klibs.mikro.core)
     implementation(libs.kotlin.coroutines.core)
-
-    // AstraLibs
+    implementation(libs.kotlin.datetime)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.core.neoforge)
-    implementation(libs.klibs.mikro.core)
-    implementation(libs.klibs.kstorage)
-    implementation(libs.kotlin.datetime)
-    implementation(libs.minecraft.kyori.plain)
-    implementation(libs.minecraft.kyori.legacy)
     implementation(libs.minecraft.kyori.gson)
-    // Local
-    implementation(projects.modules.messenger.api)
+    implementation(libs.minecraft.kyori.legacy)
+    implementation(libs.minecraft.kyori.plain)
+
     implementation(projects.modules.core.api)
     implementation(projects.modules.core.neoforge)
     implementation(projects.modules.link)
+    implementation(projects.modules.messenger.api)
 }
 
 dependencies {
@@ -38,8 +35,8 @@ dependencies {
         )
     )
     compileOnly(libs.minecraft.neoforgeversion)
-    compileOnly("org.joml:joml:1.10.8")
-    compileOnly("com.mojang:datafixerupper:8.0.16")
-    compileOnly("com.mojang:brigadier:1.3.10")
-    compileOnly("net.neoforged:bus:8.0.2")
+    compileOnly(libs.joml)
+    compileOnly(libs.minecraft.datafixerupper)
+    compileOnly(libs.minecraft.brigadier)
+    compileOnly(libs.minecraft.neoforged.bus)
 }

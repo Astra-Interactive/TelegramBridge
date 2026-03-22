@@ -5,6 +5,7 @@ import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.coroutines.cancel
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.util.parseOrWriteIntoDefault
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.kstorage.util.asStateFlowKrate
@@ -17,7 +18,8 @@ import java.io.File
 
 class CoreModule(
     val dataFolder: File,
-    val dispatchers: KotlinDispatchers
+    val dispatchers: KotlinDispatchers,
+    val platformServer: PlatformServer,
 ) {
     val configuration: YamlConfiguration = Yaml.default.configuration.copy(
         encodeDefaults = true,

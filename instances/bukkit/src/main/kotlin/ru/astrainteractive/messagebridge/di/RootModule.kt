@@ -3,9 +3,13 @@ package ru.astrainteractive.messagebridge.di
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
+import ru.astrainteractive.astralibs.command.api.brigadier.command.PaperMultiplatformCommands
+import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.kstorage.util.asCachedKrate
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -24,7 +28,7 @@ import ru.astrainteractive.messagebridge.messenger.bukkit.di.BukkitMessengerModu
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 
-class RootModuleImpl(
+class RootModule(
     plugin: MessageBridge
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
 
@@ -32,7 +36,8 @@ class RootModuleImpl(
 
     val coreModule = CoreModule(
         dataFolder = bukkitCoreModule.plugin.dataFolder,
-        dispatchers = DefaultBukkitDispatchers(bukkitCoreModule.plugin)
+        dispatchers = DefaultBukkitDispatchers(bukkitCoreModule.plugin),
+        platformServer = BukkitPlatformServer()
     )
 
     val linkModule = LinkModule.Default(coreModule, BukkitLuckPermsProvider)
@@ -64,20 +69,23 @@ class RootModuleImpl(
     val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
-            bukkitCoreModule = bukkitCoreModule,
             linkModule = linkModule,
-            kyoriKrate = kyoriKrate
+            kyoriKrate = kyoriKrate,
+            lifecyclePlugin = plugin,
+            commandRegistrarContext = PaperCommandRegistrarContext(
+                mainScope = coreModule.mainScope,
+                plugin = plugin
+            ),
+            multiplatformCommand = MultiplatformCommand(PaperMultiplatformCommands())
         )
     }
 
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
-            // event
             bukkitMessengerModule.lifecycle,
             jdaMessengerModule.lifecycle,
             telegramMessengerModule.lifecycle,
-            // other
             commandModule.lifecycle
         )
 

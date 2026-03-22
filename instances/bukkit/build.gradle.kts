@@ -10,38 +10,34 @@ plugins {
 }
 
 dependencies {
-    // Kotlin
-    implementation(libs.kotlin.coroutines.core)
-
-    // Spigot dependencies
-    compileOnly(libs.minecraft.paper.api)
-    implementation(libs.minecraft.bstats)
-    // AstraLibs
-    implementation(libs.minecraft.astralibs.core)
-    implementation(libs.minecraft.astralibs.command)
-    implementation(libs.minecraft.astralibs.command.bukkit)
-    implementation(libs.klibs.mikro.core)
-    implementation(libs.minecraft.astralibs.menu.bukkit)
-    implementation(libs.minecraft.astralibs.core.bukkit)
-    implementation(libs.klibs.kstorage)
-    implementation(libs.minecraft.vaultapi)
     compileOnly(libs.driver.h2)
     compileOnly(libs.driver.jdbc)
     compileOnly(libs.driver.mysql)
-    implementation(libs.kotlin.datetime)
-    // Spigot
-    compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.discordsrv)
     compileOnly(libs.minecraft.essentialsx)
-    // Local
+    compileOnly(libs.minecraft.luckperms)
+    compileOnly(libs.minecraft.paper.api)
+
+    implementation(libs.klibs.kstorage)
+    implementation(libs.klibs.mikro.core)
+    implementation(libs.kotlin.coroutines.core)
+    implementation(libs.kotlin.datetime)
+    implementation(libs.minecraft.astralibs.command)
+    implementation(libs.minecraft.astralibs.command.bukkit)
+    implementation(libs.minecraft.astralibs.core)
+    implementation(libs.minecraft.astralibs.core.bukkit)
+    implementation(libs.minecraft.astralibs.menu.bukkit)
+    implementation(libs.minecraft.bstats)
+    implementation(libs.minecraft.vaultapi)
+
+    implementation(projects.modules.command)
+    implementation(projects.modules.core.api)
+    implementation(projects.modules.core.bukkit)
+    implementation(projects.modules.link)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.messenger.bukkit)
     implementation(projects.modules.messenger.discord)
     implementation(projects.modules.messenger.telegram)
-    implementation(projects.modules.core.api)
-    implementation(projects.modules.core.bukkit)
-    implementation(projects.modules.link)
-    implementation(projects.modules.command.bukkit)
 }
 
 minecraftProcessResource {
@@ -70,19 +66,59 @@ shadowJar.configure {
         exclude(dependency(libs.exposed.dao.get()))
     }
     archiveVersion.set(projectInfo.versionString)
-    archiveBaseName.set("${projectInfo.name}-bukkit")
+    archiveBaseName = "${requireProjectInfo.name}-${project.name}"
     destinationDirectory = rootDir.resolve("build")
         .resolve("bukkit")
         .resolve("plugins")
         .takeIf(File::exists)
         ?: File(rootDir, "jars").also(File::mkdirs)
 
+    dependencies {
+        // Dependencies
+        exclude("mozilla/**")
+        exclude("javax/**")
+        exclude("it/unimi/dsi/**")
+        exclude("ch/qos/logback/**")
+        exclude("org/intellij/lang/annotations/**")
+        exclude("org/jetbrains/annotations/**")
+        exclude("org/slf4j/**")
+        exclude("org/apache/xmlgraphics/**")
+        exclude("org/apache/batik/**")
+        exclude("org/apache/commons/logging/**")
+        exclude("com/ibm/icu/**")
+        // Root
+        exclude("_COROUTINE/**")
+        exclude("DebugProbesKt.bin")
+        exclude("jetty-dir.css")
+        exclude("license/**")
+        exclude("licenses/**")
+        exclude("**LICENCE**")
+        exclude("**LICENSE**")
+        // META
+        exclude("META-INF/**.md")
+        exclude("META-INF/**.MD")
+        exclude("META-INF/**.txt**")
+        exclude("META-INF/**LICENCE**")
+        exclude("META-INF/com.android.tools/**")
+        exclude("META-INF/gradle-plugins/**")
+        exclude("META-INF/imports/**")
+        exclude("META-INF/kotlin-reflection.kotlin_module")
+        exclude("META-INF/license/**")
+        exclude("META-INF/maven/**")
+        exclude("META-INF/native-image/**")
+        exclude("META-INF/native/**")
+        exclude("META-INF/proguard/**")
+        exclude("META-INF/rewrite/**")
+        exclude("META-INF/services/kotlin.reflect.**")
+        exclude("META-INF/versions/**")
+        exclude(dependency("mysql:mysql-connector-java"))
+        exclude(dependency("com.mysql:mysql-connector-j"))
+        exclude(dependency("org.xerial:sqlite-jdbc"))
+        exclude(dependency("com.mojang:brigadier"))
+        exclude(dependency("net.kyori:.*"))
+    }
     relocate("org.bstats", projectInfo.group)
     listOf(
-        "co.touchlab",
-        "com.mysql",
-        "google.protobuf",
-        "io.github.reactivecircus",
         "ch.qos.logback",
         "com.charleskorn.kaml",
         "com.ibm.icu",
@@ -91,13 +127,14 @@ shadowJar.configure {
         "okio",
         "org.apache",
         "org.intellij",
-        "org.slf4j",
         "org.jetbrains.annotations",
         "ru.astrainteractive.klibs",
-        "ru.astrainteractive.astralibs"
+        "ru.astrainteractive.astralibs",
+        "io.github.reactivecircus",
+        "co.touchlab.stately",
+        "google.protobuf",
     ).forEach { pattern -> relocate(pattern, "${projectInfo.group}.$pattern") }
     listOf(
-        "org.jetbrains.exposed",
         "kotlinx",
     ).forEach { pattern ->
         relocate(pattern, "${projectInfo.group}.$pattern") {

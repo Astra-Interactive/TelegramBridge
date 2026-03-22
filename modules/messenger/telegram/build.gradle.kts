@@ -4,21 +4,16 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlin.coroutines.core)
-
-    // AstraLibs
-    implementation(libs.minecraft.astralibs.core)
-
-    implementation(libs.klibs.mikro.core)
     implementation(libs.klibs.kstorage)
-
+    implementation(libs.klibs.mikro.core)
+    implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.datetime)
-
-    implementation(libs.telegrambots.longpolling)
-    implementation(libs.telegrambots.extensions)
+    implementation(libs.minecraft.astralibs.core)
     implementation(libs.telegrambots.client)
-    // Spigot
-    implementation(projects.modules.messenger.api)
+    implementation(libs.telegrambots.extensions)
+    implementation(libs.telegrambots.longpolling)
+
     implementation(projects.modules.core.api)
     implementation(projects.modules.link)
+    implementation(projects.modules.messenger.api)
 }

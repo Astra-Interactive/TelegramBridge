@@ -5,7 +5,7 @@ import ru.astrainteractive.astralibs.lifecycle.ForgeLifecycleServer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.di.RootModuleImpl
+import ru.astrainteractive.messagebridge.di.RootModule
 import javax.annotation.ParametersAreNonnullByDefault
 
 @Mod("messagebridge")
@@ -14,7 +14,7 @@ class NeoForgeEntryPoint :
     ForgeLifecycleServer(),
     Logger by JUtiltLogger("NeoForgeEntryPoint"),
     Lifecycle {
-    private val rootModule by lazy { RootModuleImpl() }
+    private val rootModule by lazy { RootModule() }
 
     override fun onEnable() {
         rootModule.lifecycle.onEnable()
