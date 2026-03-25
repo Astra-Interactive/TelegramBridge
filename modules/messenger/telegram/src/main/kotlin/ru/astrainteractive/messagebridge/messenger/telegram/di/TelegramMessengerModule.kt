@@ -1,25 +1,23 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.launch
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.klibs.mikro.core.coroutines.mapCached
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
@@ -27,6 +25,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatC
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.util.function.Supplier
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
@@ -85,41 +84,37 @@ class TelegramMessengerModule(
         linkApi = linkModule.linkApi
     )
 
-    private val bridgeBotFlow = coreModule.configKrate.cachedStateFlow
-        .map { it.tgConfig }
+    private val bridgeBotFlow = coreModule.configKrate
+        .cachedStateFlow
+        .map { tgConfig -> tgConfig.tgConfig }
         .distinctUntilChanged()
-        .mapCached<PluginConfiguration.TelegramConfig, TelegramBotsLongPollingApplication>(
-            scope = coreModule.ioScope,
-            transform = { tgConfig, prev ->
-                info { "#bridgeBotFlow closing previous bot ${tgConfig.token}" }
-                prev?.unregisterBot(tgConfig.token)
-                prev?.stop()
-                prev?.close()
-                info { "#bridgeBotFlow loading bot" }
-
-                val longPollingApplication = TelegramBotsLongPollingApplication()
+        .combine(okHttpClient) { tgConfig, okHttpClient ->
+            channelFlow {
+                val tgLpApplication = TelegramBotsLongPollingApplication(
+                    Supplier(::ObjectMapper),
+                    Supplier { okHttpClient }
+                )
                 try {
-                    longPollingApplication.registerBot(tgConfig.token, consumer)
-                    info { "#bot loaded!" }
+                    tgLpApplication.registerBot(tgConfig.token, consumer)
+                    info { "#bridgeBotFlow loaded!" }
+                    send(tgLpApplication)
                 } catch (e: TelegramApiErrorResponseException) {
-                    info { "#telegramMessageListener could not load event. Error ${e.message}" }
+                    info { "#bridgeBotFlow could not load event. Error ${e.message}" }
                 }
-                longPollingApplication
+                awaitClose {
+                    info { "#bridgeBotFlow closing TelegramBotsLongPollingApplication..." }
+                    tgLpApplication.unregisterBot(tgConfig.token)
+                    tgLpApplication.stop()
+                    tgLpApplication.close()
+                }
             }
-        )
+        }
+        .flatMapLatest { tgLpApplicationFlow -> tgLpApplicationFlow }
+        .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
             telegramMessageController.cancel()
-            GlobalScope.launch(Dispatchers.IO) {
-                runCatching {
-                    bridgeBotFlow.firstOrNull()?.let { bot ->
-                        bot.unregisterBot(coreModule.configKrate.cachedStateFlow.value.tgConfig.token)
-                        bot.stop()
-                        bot.close()
-                    }
-                }.onFailure { error { "#onDisable could not close TGBot: ${it.message} ${it.cause?.message}" } }
-            }
         }
     )
 }
