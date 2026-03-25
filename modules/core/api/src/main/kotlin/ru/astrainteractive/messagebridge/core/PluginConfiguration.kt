@@ -19,20 +19,20 @@ data class PluginConfiguration(
     )
 
     @Serializable
+    data class Proxy(
+        val host: String,
+        val port: Int,
+        val username: String,
+        val password: String
+    )
+
+    @Serializable
     data class JdaConfig(
         val token: String = "",
         val activity: String = "",
         val channelId: String = "",
         val proxy: Proxy? = null
-    ) {
-        @Serializable
-        data class Proxy(
-            val host: String,
-            val port: Int,
-            val username: String,
-            val password: String
-        )
-    }
+    )
 
     @Serializable
     data class TelegramConfig(
@@ -44,5 +44,7 @@ data class PluginConfiguration(
         val topicID: String = "",
         @SerialName("max_telegram_message_length")
         val maxTelegramMessageLength: Int = 90,
+        @SerialName("proxy")
+        val proxy: Proxy? = null
     )
 }

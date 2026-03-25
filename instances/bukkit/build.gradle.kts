@@ -75,25 +75,28 @@ shadowJar.configure {
 
     dependencies {
         // Dependencies
-        exclude("mozilla/**")
-        exclude("javax/**")
-        exclude("it/unimi/dsi/**")
         exclude("ch/qos/logback/**")
+        exclude("com/ibm/icu/**")
+        exclude("it/unimi/dsi/**")
+        exclude("javax/**")
+        exclude("mozilla/**")
+        exclude("org/apache/batik/**")
+        exclude("org/apache/commons/logging/**")
+        exclude("org/apache/xmlgraphics/**")
         exclude("org/intellij/lang/annotations/**")
         exclude("org/jetbrains/annotations/**")
         exclude("org/slf4j/**")
-        exclude("org/apache/xmlgraphics/**")
-        exclude("org/apache/batik/**")
-        exclude("org/apache/commons/logging/**")
-        exclude("com/ibm/icu/**")
+        exclude("org/w3c/dom/**")
         // Root
+        exclude("**LICENCE**")
+        exclude("**LICENSE**")
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
         exclude("jetty-dir.css")
+        exclude("LICENSE")
         exclude("license/**")
         exclude("licenses/**")
-        exclude("**LICENCE**")
-        exclude("**LICENSE**")
+        exclude("natives/**")
         // META
         exclude("META-INF/**.md")
         exclude("META-INF/**.MD")
@@ -111,28 +114,49 @@ shadowJar.configure {
         exclude("META-INF/rewrite/**")
         exclude("META-INF/services/kotlin.reflect.**")
         exclude("META-INF/versions/**")
-        exclude(dependency("mysql:mysql-connector-java"))
-        exclude(dependency("com.mysql:mysql-connector-j"))
-        exclude(dependency("org.xerial:sqlite-jdbc"))
+        // DEPENDENCIES
+        exclude(dependency("com.fasterxml.jackson.core:.*"))
+        exclude(dependency("com.google.code.gson:.*"))
+        exclude(dependency("com.google.crypto.tink:.*"))
+        exclude(dependency("com.google.errorprone:.*"))
         exclude(dependency("com.mojang:brigadier"))
+        exclude(dependency("com.mysql:mysql-connector-j"))
+        exclude(dependency("mysql:mysql-connector-java"))
+        exclude(dependency("net.java.dev.jna:.*"))
         exclude(dependency("net.kyori:.*"))
+        exclude(dependency("org.apache.xmlgraphics:.*"))
+        exclude(dependency("org.bouncycastle:.*"))
+        exclude(dependency("org.checkerframework:.*"))
+        exclude(dependency("org.conscrypt:.*"))
+        exclude(dependency("org.eclipse.jetty.toolchain:.*"))
+        exclude(dependency("org.eclipse.jetty:.*"))
+        exclude(dependency("org.xerial:sqlite-jdbc"))
     }
     relocate("org.bstats", projectInfo.group)
     listOf(
         "ch.qos.logback",
+        "club.minnced.discord",
+        "club.minnced.opus",
+        "co.touchlab.stately",
         "com.charleskorn.kaml",
         "com.ibm.icu",
+        "com.neovisionaries.ws",
+        "gnu.trove",
+        "google.protobuf",
+        "io.github.reactivecircus",
         "it.krzeminski.snakeyaml",
+        "net.dv8tion",
         "net.thauvin.erik",
+        "okhttp3",
         "okio",
         "org.apache",
         "org.intellij",
         "org.jetbrains.annotations",
-        "ru.astrainteractive.klibs",
+        "org.json",
+        "org.telegram.telegrambots",
         "ru.astrainteractive.astralibs",
-        "io.github.reactivecircus",
-        "co.touchlab.stately",
-        "google.protobuf",
+        "ru.astrainteractive.klibs",
+        "tomp2p.opuswrapper",
     ).forEach { pattern -> relocate(pattern, "${projectInfo.group}.$pattern") }
     listOf(
         "kotlinx",

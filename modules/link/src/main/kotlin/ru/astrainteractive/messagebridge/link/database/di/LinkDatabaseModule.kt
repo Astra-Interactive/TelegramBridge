@@ -30,7 +30,6 @@ interface LinkDatabaseModule {
         ).mapCached(scope) { dbConfig, previous ->
             previous?.connector?.invoke()?.close()
             previous?.run(TransactionManager::closeAndUnregister)
-
             val database = dbConfig.connect()
             TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
             transaction(database) {
