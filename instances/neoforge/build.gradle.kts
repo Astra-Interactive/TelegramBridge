@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import ru.astrainteractive.gradleplugin.model.Developer
-import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireJinfo
-import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
+import ru.astrainteractive.gradleplugin.property.model.Developer
+import ru.astrainteractive.gradleplugin.property.util.requireJinfo
+import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 
 plugins {
     kotlin("jvm")

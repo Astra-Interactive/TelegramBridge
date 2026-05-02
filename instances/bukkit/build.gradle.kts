@@ -1,6 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.kotlin.dsl.named
-import ru.astrainteractive.gradleplugin.property.extension.ModelPropertyValueExt.requireProjectInfo
+import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 
 plugins {
     kotlin("jvm")
@@ -47,6 +47,7 @@ minecraftProcessResource {
                 libs.driver.h2.get(),
                 libs.driver.jdbc.get(),
                 libs.driver.mysql.get(),
+                libs.driver.mariadb.get()
             ).joinToString("\",\"", "[\"", "\"]")
         )
     )
