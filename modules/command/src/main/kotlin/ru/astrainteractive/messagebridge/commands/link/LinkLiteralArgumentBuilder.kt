@@ -7,7 +7,7 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 
-internal class LinkCommandRegistry(
+internal class LinkLiteralArgumentBuilder(
     private val executor: LinkCommandExecutor,
     private val multiplatformCommand: MultiplatformCommand,
     private val platformServer: PlatformServer

@@ -25,6 +25,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatC
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.util.concurrent.TimeUnit
 import java.util.function.Supplier
 
 class TelegramMessengerModule(
@@ -40,14 +41,20 @@ class TelegramMessengerModule(
             if (proxy == null) {
                 OkHttpClient.Builder().build()
             } else {
-                OkHttpClient
-                    .Builder()
+                @Suppress("MagicNumber")
+                OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .callTimeout(75, TimeUnit.SECONDS)
+                    .pingInterval(15, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(true)
                     .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
                     .proxyAuthenticator { route, response ->
                         var builder = response.request.newBuilder()
                         if (route?.socketAddress?.hostString == proxy.host) {
                             val credential: String = Credentials.basic(proxy.username, proxy.password)
-                            builder = builder.header("Proxy-Authorization", credential)
+                            builder.header("Proxy-Authorization", credential)
                         }
                         builder.build()
                     }

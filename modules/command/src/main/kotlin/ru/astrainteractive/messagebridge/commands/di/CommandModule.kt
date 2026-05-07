@@ -6,7 +6,7 @@ import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.messagebridge.commands.link.LinkCommandExecutor
-import ru.astrainteractive.messagebridge.commands.link.LinkCommandRegistry
+import ru.astrainteractive.messagebridge.commands.link.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.commands.reload.ReloadLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
@@ -26,7 +26,7 @@ class CommandModule(
             kyoriKrate = kyoriKrate,
             multiplatformCommand = multiplatformCommand
         ).create(),
-        LinkCommandRegistry(
+        LinkLiteralArgumentBuilder(
             executor = LinkCommandExecutor(
                 ioScope = coreModule.ioScope,
                 codeApi = linkModule.codeApi,
