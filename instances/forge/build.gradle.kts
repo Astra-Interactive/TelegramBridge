@@ -95,7 +95,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         // Dependencies
         exclude(dependency("org.jetbrains:annotations"))
         // Root
-        exclude("kotlin/**") // use kotlin-for-forge
+//        exclude("kotlin/**") // use kotlin-neoforge
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
         exclude("jetty-dir.css")
@@ -138,7 +138,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
         exclude("META-INF/services/kotlin.reflect.**")
-        exclude("META-INF/versions/**")
+//        exclude("META-INF/versions/**")
     }
 
     // Be sure to relocate EXACT PACKAGES!!
