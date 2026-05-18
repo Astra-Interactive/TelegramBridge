@@ -6,12 +6,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.minecraft.world.entity.player.Player
-import net.neoforged.neoforge.event.ServerChatEvent
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent
-import net.neoforged.neoforge.event.entity.player.PlayerEvent
-import net.neoforged.neoforge.event.server.ServerStartedEvent
-import net.neoforged.neoforge.event.server.ServerStoppingEvent
+import net.minecraftforge.event.ServerChatEvent
+import net.minecraftforge.event.entity.living.LivingDeathEvent
+import net.minecraftforge.event.entity.player.PlayerEvent
+import net.minecraftforge.event.server.ServerStartedEvent
+import net.minecraftforge.event.server.ServerStoppingEvent
 import ru.astrainteractive.astralibs.event.flowEvent
+import ru.astrainteractive.astralibs.server.util.toPlain
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
@@ -26,7 +27,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
-class NeoForgeEvents(
+class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
@@ -66,10 +67,6 @@ class NeoForgeEvents(
         .onEach { info { "#playerLoggedInEvent" } }
         .filter { config.displayJoinMessage }
         .onEach {
-            // doesnt work
-//        val nbt = it.entity.persistentData
-//        val playedBefore = (nbt.getLong("lastPlayed") - nbt.getLong("firstPlayed")) > 1
-
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = PlayerJoinedBEvent(
                     name = it.entity.name.string,
@@ -102,7 +99,7 @@ class NeoForgeEvents(
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = Text.Minecraft(
                     author = it.player.name.string,
-                    text = it.message.string,
+                    text = it.message.toPlain(),
                     uuid = it.player.uuid.toString()
                 )
                 BEventChannel.consume(serverEvent)

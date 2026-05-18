@@ -84,7 +84,7 @@ class TelegramMessengerModule(
     private val consumer = TelegramChatConsumer(
         configKrate = coreModule.configKrate,
         telegramClientFlow = telegramClientFlow,
-        scope = coreModule.ioScope,
+        ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
         onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
