@@ -22,12 +22,12 @@ interface LinkDatabaseModule {
     val lifecycle: Lifecycle
 
     class Default(
-        scope: CoroutineScope,
+        ioScope: CoroutineScope,
         dataFolder: File
     ) : LinkDatabaseModule {
         override val databaseFlow: Flow<Database> = flowOf(
             value = DatabaseConfiguration.H2(dataFolder.resolve("linking").absolutePath)
-        ).mapCached(scope) { dbConfig, previous ->
+        ).mapCached(ioScope) { dbConfig, previous ->
             previous?.connector?.invoke()?.close()
             previous?.run(TransactionManager::closeAndUnregister)
             val database = dbConfig.connect()

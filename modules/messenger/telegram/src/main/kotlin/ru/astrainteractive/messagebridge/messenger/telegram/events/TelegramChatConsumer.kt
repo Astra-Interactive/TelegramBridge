@@ -33,7 +33,7 @@ internal class TelegramChatConsumer(
     configKrate: CachedKrate<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-    private val scope: CoroutineScope,
+    private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi
@@ -99,7 +99,7 @@ internal class TelegramChatConsumer(
         if (tgConfig.topicID != (messageThreadId ?: replyMessageId)) {
             return
         }
-        scope.launch(dispatchers.IO) {
+        ioScope.launch(dispatchers.IO) {
             val deleteMessage = DeleteMessage(
                 update.message.chatId.toString(),
                 update.message.messageId

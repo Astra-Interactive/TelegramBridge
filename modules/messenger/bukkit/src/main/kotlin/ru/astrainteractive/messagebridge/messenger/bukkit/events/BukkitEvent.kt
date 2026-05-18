@@ -27,7 +27,7 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
  */
 internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,
-    private val scope: CoroutineScope,
+    private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent").withoutParentHandlers() {
     private val config by configKrate
@@ -36,7 +36,7 @@ internal class BukkitEvent(
     fun playerJoin(it: PlayerJoinEvent) {
         if (!config.displayJoinMessage) return
 
-        scope.launch(dispatchers.IO) {
+        ioScope.launch(dispatchers.IO) {
             val bEvent = PlayerJoinedBEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString(),
@@ -49,7 +49,7 @@ internal class BukkitEvent(
     @EventHandler(ignoreCancelled = true)
     fun playerLeaveEvent(it: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
-        scope.launch(dispatchers.IO) {
+        ioScope.launch(dispatchers.IO) {
             val bEvent = PlayerLeaveBEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
@@ -63,7 +63,7 @@ internal class BukkitEvent(
         val message = KyoriComponentSerializer.Plain.toComponent(it.message)
         val player = it.player
 
-        scope.launch(dispatchers.IO) {
+        ioScope.launch(dispatchers.IO) {
             val textComponent = message as TextComponent
             val bEvent = Text.Minecraft(
                 author = player.name,
@@ -77,7 +77,7 @@ internal class BukkitEvent(
     @EventHandler(ignoreCancelled = true)
     fun deathEvent(it: PlayerDeathEvent) {
         if (!config.displayDeathMessage) return
-        scope.launch(dispatchers.IO) {
+        ioScope.launch(dispatchers.IO) {
             val deathCause = it.deathMessage
             val bEvent = PlayerDeathBEvent(
                 name = it.entity.name,
