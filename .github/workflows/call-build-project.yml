@@ -10,6 +10,8 @@ jobs:
         include:
           - id: "neoforge"
             task: ":instances:neoforge:build"
+          - id: "forge"
+            task: ":instances:forge:build"
           - id: "bukkit"
             task: ":instances:bukkit:build"
     steps:
