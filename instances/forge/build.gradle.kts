@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     alias(libs.plugins.gradle.forgegradle)
+    alias(libs.plugins.gradle.forgerenamer)
     alias(libs.plugins.gradle.shadow)
 }
 
@@ -61,8 +62,8 @@ tasks.named<ProcessResources>("processResources") {
         include("META-INF/mods.toml")
         expand(
             mapOf(
-                "minecraft_version" to libs.versions.minecraft.minecraftforge.minecraft.get(),
-                "forge_version" to libs.versions.minecraft.minecraftforge.forge.get(),
+                "minecraft_version" to libs.versions.minecraft.forgeversion.get().split("-")[0],
+                "forge_version" to libs.versions.minecraft.forgeversion.get().split("-")[1],
                 "mod_id" to requireProjectInfo.name.lowercase(),
                 "mod_name" to requireProjectInfo.name,
                 "mod_license" to "mod_license",
@@ -121,7 +122,12 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("org/checkerframework/**")
         exclude("org/conscrypt/**")
         exclude("org/eclipse/**")
+        exclude("jdk/xml/**")
+        exclude("org/w3c/**")
         exclude("tomp2p/opuswrapper/**")
+        exclude("org/slf4j/**")
+        exclude("javax/xml/**")
+        exclude("org/xml/**")
         // META
         exclude("META-INF/**.md")
         exclude("META-INF/**.MD")
@@ -156,7 +162,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "dev.icerock",
         "gnu.trove",
         "it.krzeminski",
-        "javax.xml",
+//        "javax.xml",
         "kotlinx",
         "net.dv8tion",
         "net.kyori",
@@ -169,12 +175,12 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "org.jetbrains.kotlin",
         "org.jetbrains.kotlinx",
         "org.json",
-        "org.slf4j",
+//        "org.slf4j",
         "org.sqlite",
         "org.telegram",
         "org.w3c.css",
         "org.w3c.dom",
-        "org.xml.sax",
+//        "org.xml.sax",
         "ru.astrainteractive.astralibs",
         "ru.astrainteractive.klibs",
     ).forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
@@ -182,20 +188,26 @@ val shadowJar by tasks.getting(ShadowJar::class) {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(requireJinfo.jtarget.majorVersion)
 
+minecraft {
+    mappings("official", "1.20.1")
+    useDefaultAccessTransformer()
+}
+
 dependencies {
-    minecraft {
-        implementation(
-            dependency(
-                "net.minecraftforge:forge:" +
-                    libs.versions.minecraft.minecraftforge.minecraft.get() +
-                    "-" +
-                    libs.versions.minecraft.minecraftforge.forge.get()
-            )
-        )
-        mappings("official", libs.versions.minecraft.minecraftforge.minecraft.get())
-    }
+    compileOnly(minecraft.dependency(libs.minecraft.forgeversion.get()))
 }
 
 configurations.runtimeElements {
     setExtendsFrom(emptySet())
 }
+
+renamer {
+    mappings.from(minecraft.dependency.toSrgFile)
+}
+
+val reobfShadowJar by renamer.classes(tasks.named<Jar>("shadowJar")) {
+    output = input
+}
+
+shadowJar.finalizedBy(reobfShadowJar)
+reobfShadowJar.mustRunAfter(shadowJar)

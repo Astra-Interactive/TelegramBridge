@@ -30,17 +30,7 @@ dependencies {
 }
 
 dependencies {
-    minecraft {
-        implementation(
-            dependency(
-                "net.minecraftforge:forge:" +
-                    libs.versions.minecraft.minecraftforge.minecraft.get() +
-                    "-" +
-                    libs.versions.minecraft.minecraftforge.forge.get()
-            )
-        )
-        mappings("official", libs.versions.minecraft.minecraftforge.minecraft.get())
-    }
+    compileOnly(minecraft.dependency(libs.minecraft.forgeversion.get()))
 }
 
 configurations.runtimeElements {
