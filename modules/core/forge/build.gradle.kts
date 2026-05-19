@@ -1,15 +1,6 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("net.minecraftforge.gradle")
-}
-
-repositories {
-    minecraft.mavenizer(this)
-    mavenCentral()
-    mavenLocal()
-    maven(fg.forgeMaven)
-    maven(fg.minecraftLibsMaven)
 }
 
 dependencies {
@@ -26,7 +17,22 @@ dependencies {
 }
 
 dependencies {
-    compileOnly(minecraft.dependency(libs.minecraft.forgeversion.get()))
+    compileOnly(
+        files(
+            rootProject
+                .file(".gradle")
+                .resolve("mavenizer")
+                .resolve("repo")
+                .resolve("net")
+                .resolve("minecraftforge")
+                .resolve("forge")
+                .resolve(libs.versions.minecraft.forgeversion.get())
+                .resolve("forge-${libs.versions.minecraft.forgeversion.get()}.jar")
+        )
+    )
+    compileOnly(libs.minecraft.brigadier)
+    compileOnly(libs.minecraft.forgeversion)
+    compileOnly(libs.minecraft.forge.bus)
 }
 
 configurations.runtimeElements {

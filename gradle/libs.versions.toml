@@ -34,10 +34,14 @@ minecraft-bungee = "26.1-R0.1-SNAPSHOT"
 minecraft-datafixerupper = "8.0.16"
 minecraft-essentialsx = "2.21.2"
 minecraft-fabric-api = "0.139.5+"
-minecraft-fabric-yarn = "1.20.1+build.10"
 minecraft-fabric-kotlin = "1.13.7+"
 minecraft-fabric-loader = "0.19.2"
 minecraft-fabric-loom = "1.16.1"
+minecraft-fabric-yarn = "1.20.1+build.10"
+minecraft-forge-bus="6.0.5"
+minecraft-forgegradle = "7.0.25"
+minecraft-forgerenamer = "1.0.14"
+minecraft-forgeversion = "1.20.1-47.4.12"
 minecraft-kyori = "5.0.1"
 minecraft-luckperms = "5.5"
 minecraft-mcprotocollib = "1.21.7-SNAPSHOT"
@@ -45,10 +49,7 @@ minecraft-mockbukkit = "4.108.0"
 minecraft-mojang-version = "1.21.11"
 minecraft-neoforged-bus = "8.0.2"
 minecraft-neoforgegradle = "7.1.20"
-minecraft-forgegradle = "7.0.25"
-minecraft-forgerenamer = "1.0.14"
 minecraft-neoforgeversion = "21.1.129"
-minecraft-forgeversion = "1.20.1-47.4.12"
 minecraft-packetevents = "2.12.1"
 minecraft-papi = "2.12.2"
 minecraft-protocollib = "5.3.0"
@@ -119,6 +120,8 @@ minecraft-fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.
 minecraft-fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "minecraft-fabric-kotlin" }
 minecraft-fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "minecraft-fabric-loader" }
 minecraft-fabric-mojang = { module = "com.mojang:minecraft", version.ref = "minecraft-mojang-version" }
+minecraft-forge-bus = { module = "net.minecraftforge:eventbus", version.ref = "minecraft-forge-bus" }
+minecraft-forgeversion = { module = "net.minecraftforge:forge", version.ref = "minecraft-forgeversion" }
 minecraft-kyori-api = { module = "net.kyori:adventure-api", version.ref = "minecraft-kyori" }
 minecraft-kyori-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "minecraft-kyori" }
 minecraft-kyori-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "minecraft-kyori" }
@@ -129,7 +132,6 @@ minecraft-mcprotocollib = { module = "org.geysermc.mcprotocollib:protocol", vers
 minecraft-mockbukkit = { module = "com.github.MockBukkit:MockBukkit", version.ref = "minecraft-mockbukkit" }
 minecraft-neoforged-bus = { module = "net.neoforged:bus", version.ref = "minecraft-neoforged-bus" }
 minecraft-neoforgeversion = { module = "net.neoforged:neoforge", version.ref = "minecraft-neoforgeversion" }
-minecraft-forgeversion = { module = "net.minecraftforge:forge", version.ref = "minecraft-forgeversion" }
 minecraft-packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "minecraft-packetevents" }
 minecraft-paper-api = { module = "io.papermc.paper:paper-api", version.ref = "minecraft-spigot" }
 minecraft-papi = { module = "me.clip:placeholderapi", version.ref = "minecraft-papi" }
