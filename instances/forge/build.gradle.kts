@@ -95,8 +95,23 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     dependencies {
         // Dependencies
         exclude(dependency("org.jetbrains:annotations"))
+        exclude("ch/qos/logback/**")
+        exclude("com/ibm/icu/**")
+        exclude("it/unimi/dsi/**")
+        exclude("javax/**")
+        exclude("mozilla/**")
+        exclude("org/apache/batik/**")
+        exclude("org/apache/commons/logging/**")
+        exclude("org/apache/xmlgraphics/**")
+        exclude("org/intellij/lang/annotations/**")
+        exclude("org/jetbrains/annotations/**")
+        exclude("org/slf4j/**")
+        exclude("org/w3c/dom/**")
         // Root
-//        exclude("kotlin/**") // Use kotlin-neoforge or kotlin-forge
+        if (project.name == "forge" || project.name == "neoforge") {
+            // Use kotlin-neoforge or kotlin-forge
+            exclude("kotlin/**")
+        }
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
         exclude("jetty-dir.css")
@@ -147,56 +162,89 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
         exclude("META-INF/services/kotlin.reflect.**")
-//        exclude("META-INF/versions/**") // Don't remove in Forge
+        if (project.name != "forge") {
+            // Don't remove in: [forge]
+            exclude("META-INF/versions/**")
+        }
+        // DEPENDENCIES
+        if (project.name == "bukkit") {
+            exclude(dependency("com.fasterxml.jackson.core:.*"))
+            exclude(dependency("com.google.code.gson:.*"))
+            exclude(dependency("com.google.crypto.tink:.*"))
+            exclude(dependency("com.google.errorprone:.*"))
+            exclude(dependency("com.mojang:brigadier"))
+            exclude(dependency("com.mysql:mysql-connector-j"))
+            exclude(dependency("mysql:mysql-connector-java"))
+            exclude(dependency("net.java.dev.jna:.*"))
+            exclude(dependency("net.kyori:.*"))
+            exclude(dependency("org.apache.xmlgraphics:.*"))
+            exclude(dependency("org.bouncycastle:.*"))
+            exclude(dependency("org.checkerframework:.*"))
+            exclude(dependency("org.conscrypt:.*"))
+            exclude(dependency("org.eclipse.jetty.toolchain:.*"))
+            exclude(dependency("org.eclipse.jetty:.*"))
+            exclude(dependency("org.xerial:sqlite-jdbc"))
+        }
     }
 
+    relocate("org.bstats", requireProjectInfo.group)
     // Be sure to relocate EXACT PACKAGES!!
     // For example, relocate org.some.package instead of org
     // Becuase relocation org will break other non-relocated dependencies such as org.minecraft
     // Don't relocate `org.jetbrains.exposed` and `kotlin`
-    listOf(
-        "ch.qos.logback",
-        "club.minnced.discord",
-        "club.minnced.opus",
-        "co.touchlab.stately",
-        "com.arkivanov",
-        "com.charleskorn.kaml",
-        "com.fasterxml",
-        "com.ibm.icu",
-        "com.neovisionaries",
-        "dev.icerock",
-        "gnu.trove",
-        "google.protobuf",
-        "io.github.reactivecircus",
-        "it.krzeminski",
-        "it.krzeminski.snakeyaml",
-//        "javax.xml", // Is present
-        "kotlinx",
-        "net.dv8tion",
-        "net.kyori",
-        "net.thauvin",
-        "okhttp3",
-        "okio",
-        "org.apache",
-        "org.h2",
-        "org.intellij",
-        "org.jetbrains.annotations",
-        "org.jetbrains.exposed", // Don't relocate
-//        "org.jetbrains.kotlin", // Don't relocate
-        "org.jetbrains.kotlinx",
-        "org.json",
-        "org.json",
-//        "org.slf4j", // Is present
-        "org.sqlite",
-        "org.telegram",
-        "org.telegram.telegrambots",
-        "org.w3c.css",
-        "org.w3c.dom",
-//        "org.xml.sax", // Is present
-        "ru.astrainteractive.astralibs",
-        "ru.astrainteractive.klibs",
-        "tomp2p.opuswrapper",
-    ).forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
+    buildList {
+        add("ch.qos.logback")
+        add("club.minnced.discord")
+        add("club.minnced.opus")
+        add("co.touchlab.stately")
+        add("com.arkivanov")
+        add("com.charleskorn.kaml")
+        if (project.name != "bukkit") {
+            // Don't relocate on: [bukkit]
+            add("com.fasterxml")
+        }
+        add("com.ibm.icu")
+        add("com.neovisionaries")
+        add("dev.icerock")
+        add("gnu.trove")
+        add("google.protobuf")
+        add("io.github.reactivecircus")
+        add("it.krzeminski")
+        add("it.krzeminski.snakeyaml")
+        if (project.name != "bukkit") {
+            // Is present on: [bukkit]
+            add("javax.xml")
+        }
+        add("kotlinx")
+        add("net.dv8tion")
+        if (project.name != "bukkit") {
+            // Don't relocate on: [bukkit]
+            add("net.kyori")
+        }
+        add("net.thauvin")
+        add("okhttp3")
+        add("okio")
+        add("org.apache")
+        if (project.name != "bukkit") {
+            // Don't relocate on: [bukkit]
+            add("org.h2")
+        }
+
+        add("org.intellij")
+        add("org.jetbrains.annotations")
+        add("org.jetbrains.exposed") // Don't relocate on: [*]
+        add("org.jetbrains.kotlinx")
+        add("org.json")
+        add("org.json")
+        add("org.sqlite")
+        add("org.telegram")
+        add("org.telegram.telegrambots")
+        add("org.w3c.css")
+        add("org.w3c.dom")
+        add("ru.astrainteractive.astralibs")
+        add("ru.astrainteractive.klibs")
+        add("tomp2p.opuswrapper")
+    }.forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(requireJinfo.jtarget.majorVersion)

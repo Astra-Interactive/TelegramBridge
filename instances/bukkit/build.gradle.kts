@@ -64,7 +64,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     destinationDirectory = rootProject.layout.buildDirectory.get()
         .asFile
         .resolve(project.name)
-        .resolve("plugins")
+        .resolve("mods")
         .takeIf(File::exists)
         ?: rootDir.resolve("jars")
     dependencies {
@@ -137,7 +137,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
         exclude("META-INF/services/kotlin.reflect.**")
-        if (project.name == "forge") {
+        if (project.name != "forge") {
             // Don't remove in: [forge]
             exclude("META-INF/versions/**")
         }
@@ -186,8 +186,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         add("io.github.reactivecircus")
         add("it.krzeminski")
         add("it.krzeminski.snakeyaml")
-        // Is present on: [bukkit]
         if (project.name != "bukkit") {
+            // Is present on: [bukkit]
             add("javax.xml")
         }
         add("kotlinx")
@@ -208,17 +208,14 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         add("org.intellij")
         add("org.jetbrains.annotations")
         add("org.jetbrains.exposed") // Don't relocate on: [*]
-//        "org.jetbrains.kotlin", // Don't relocate on: [*]
         add("org.jetbrains.kotlinx")
         add("org.json")
         add("org.json")
-//        "org.slf4j", // Is present on: [*]
         add("org.sqlite")
         add("org.telegram")
         add("org.telegram.telegrambots")
         add("org.w3c.css")
         add("org.w3c.dom")
-//        "org.xml.sax", // Is present on: [*]
         add("ru.astrainteractive.astralibs")
         add("ru.astrainteractive.klibs")
         add("tomp2p.opuswrapper")
