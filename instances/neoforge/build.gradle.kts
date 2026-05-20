@@ -15,35 +15,30 @@ repositories {
     mavenLocal()
 }
 dependencies {
-    // Kotlin
-    shadow(libs.kotlin.coroutines.core)
-    shadow(libs.kotlin.datetime)
-    shadow(libs.kotlin.serialization.kaml)
-    // AstraLibs
-    shadow(libs.minecraft.astralibs.core)
-    shadow(libs.minecraft.astralibs.command)
-    shadow(libs.minecraft.astralibs.core.neoforge)
-
-    shadow(libs.klibs.mikro.core)
-    shadow(libs.klibs.mikro.extensions)
-    shadow(libs.klibs.kstorage)
+    compileOnly(libs.minecraft.luckperms)
 
     shadow(libs.driver.h2)
     shadow(libs.exposed.jdbc)
-
-    shadow(libs.minecraft.kyori.plain)
-    shadow(libs.minecraft.kyori.legacy)
+    shadow(libs.klibs.kstorage)
+    shadow(libs.klibs.mikro.core)
+    shadow(libs.klibs.mikro.extensions)
+    shadow(libs.kotlin.coroutines.core)
+    shadow(libs.kotlin.datetime)
+    shadow(libs.kotlin.serialization.kaml)
+    shadow(libs.minecraft.astralibs.command)
+    shadow(libs.minecraft.astralibs.core)
+    shadow(libs.minecraft.astralibs.core.neoforge)
     shadow(libs.minecraft.kyori.gson)
-    // Spigot
-    compileOnly(libs.minecraft.luckperms)
-    // Local
+    shadow(libs.minecraft.kyori.legacy)
+    shadow(libs.minecraft.kyori.plain)
+
+    shadow(projects.modules.core.api)
+    shadow(projects.modules.core.neoforge)
+    shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.discord)
     shadow(projects.modules.messenger.neoforge)
     shadow(projects.modules.messenger.telegram)
-    shadow(projects.modules.core.api)
-    shadow(projects.modules.core.neoforge)
-    shadow(projects.modules.link)
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -84,17 +79,17 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     archiveClassifier = null as String?
     archiveVersion = requireProjectInfo.versionString
     archiveBaseName = "${requireProjectInfo.name}-${project.name}"
-    destinationDirectory = rootDir
-        .resolve("build")
-        .resolve("neoforge")
+    destinationDirectory = rootProject.layout.buildDirectory.get()
+        .asFile
+        .resolve(project.name)
         .resolve("mods")
         .takeIf(File::exists)
-        ?: File(rootDir, "jars")
+        ?: rootDir.resolve("jars")
     dependencies {
         // Dependencies
         exclude(dependency("org.jetbrains:annotations"))
         // Root
-        exclude("kotlin/**") // use kotlin-neoforge
+//        exclude("kotlin/**") // Use kotlin-neoforge or kotlin-forge
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
         exclude("jetty-dir.css")
@@ -119,8 +114,16 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("org/bouncycastle/**")
         exclude("org/checkerframework/**")
         exclude("org/conscrypt/**")
+        exclude("org/apache/batik/**")
+        exclude("org/apache/xmlgraphics/**")
+        exclude("org/apache/xmlcommons/**")
         exclude("org/eclipse/**")
+        exclude("jdk/xml/**")
+        exclude("org/w3c/**")
         exclude("tomp2p/opuswrapper/**")
+        exclude("org/slf4j/**")
+        exclude("javax/xml/**")
+        exclude("org/xml/**")
         // META
         exclude("META-INF/**.md")
         exclude("META-INF/**.MD")
@@ -137,7 +140,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
         exclude("META-INF/services/kotlin.reflect.**")
-        exclude("META-INF/versions/**")
+//        exclude("META-INF/versions/**") // Don't remove in Forge
     }
 
     // Be sure to relocate EXACT PACKAGES!!
@@ -148,14 +151,19 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "ch.qos.logback",
         "club.minnced.discord",
         "club.minnced.opus",
+        "co.touchlab.stately",
         "com.arkivanov",
         "com.charleskorn.kaml",
         "com.fasterxml",
+        "com.ibm.icu",
         "com.neovisionaries",
         "dev.icerock",
         "gnu.trove",
+        "google.protobuf",
+        "io.github.reactivecircus",
         "it.krzeminski",
-        "javax.xml",
+        "it.krzeminski.snakeyaml",
+//        "javax.xml", // Is present
         "kotlinx",
         "net.dv8tion",
         "net.kyori",
@@ -164,18 +172,23 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "okio",
         "org.apache",
         "org.h2",
-        "org.jetbrains.exposed",
-        "org.jetbrains.kotlin",
+        "org.intellij",
+        "org.jetbrains.annotations",
+        "org.jetbrains.exposed", // Don't relocate
+//        "org.jetbrains.kotlin", // Don't relocate
         "org.jetbrains.kotlinx",
         "org.json",
-        "org.slf4j",
+        "org.json",
+//        "org.slf4j", // Is present
         "org.sqlite",
         "org.telegram",
+        "org.telegram.telegrambots",
         "org.w3c.css",
         "org.w3c.dom",
-        "org.xml.sax",
+//        "org.xml.sax", // Is present
         "ru.astrainteractive.astralibs",
         "ru.astrainteractive.klibs",
+        "tomp2p.opuswrapper",
     ).forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
 }
 

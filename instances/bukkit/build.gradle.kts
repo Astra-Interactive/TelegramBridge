@@ -17,27 +17,26 @@ dependencies {
     compileOnly(libs.minecraft.essentialsx)
     compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.paper.api)
+    compileOnly(libs.minecraft.vaultapi)
 
-    implementation(libs.klibs.kstorage)
-    implementation(libs.klibs.mikro.core)
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.kotlin.datetime)
-    implementation(libs.minecraft.astralibs.command)
-    implementation(libs.minecraft.astralibs.command.bukkit)
-    implementation(libs.minecraft.astralibs.core)
-    implementation(libs.minecraft.astralibs.core.bukkit)
-    implementation(libs.minecraft.astralibs.menu.bukkit)
-    implementation(libs.minecraft.bstats)
-    implementation(libs.minecraft.vaultapi)
-
-    implementation(projects.modules.command)
-    implementation(projects.modules.core.api)
-    implementation(projects.modules.core.bukkit)
-    implementation(projects.modules.link)
-    implementation(projects.modules.messenger.api)
-    implementation(projects.modules.messenger.bukkit)
-    implementation(projects.modules.messenger.discord)
-    implementation(projects.modules.messenger.telegram)
+    shadow(libs.klibs.kstorage)
+    shadow(libs.klibs.mikro.core)
+    shadow(libs.kotlin.coroutines.core)
+    shadow(libs.kotlin.datetime)
+    shadow(libs.minecraft.astralibs.command)
+    shadow(libs.minecraft.astralibs.command.bukkit)
+    shadow(libs.minecraft.astralibs.core)
+    shadow(libs.minecraft.astralibs.core.bukkit)
+    shadow(libs.minecraft.astralibs.menu.bukkit)
+    shadow(libs.minecraft.bstats)
+    shadow(projects.modules.command)
+    shadow(projects.modules.core.api)
+    shadow(projects.modules.core.bukkit)
+    shadow(projects.modules.link)
+    shadow(projects.modules.messenger.api)
+    shadow(projects.modules.messenger.bukkit)
+    shadow(projects.modules.messenger.discord)
+    shadow(projects.modules.messenger.telegram)
 }
 
 minecraftProcessResource {
@@ -53,29 +52,24 @@ minecraftProcessResource {
     )
 }
 
-val shadowJar = tasks.named<ShadowJar>("shadowJar")
-shadowJar.configure {
-
-    val projectInfo = requireProjectInfo
-    isReproducibleFileOrder = true
+val shadowJar by tasks.getting(ShadowJar::class) {
     mergeServiceFiles()
-    dependsOn(configurations)
-    archiveClassifier.set(null as String?)
-
-    minimize {
-        exclude(dependency(libs.exposed.jdbc.get()))
-        exclude(dependency(libs.exposed.dao.get()))
-    }
-    archiveVersion.set(projectInfo.versionString)
+    dependsOn(tasks.named<ProcessResources>("processResources"))
+    configurations = listOf(project.configurations.shadow.get())
+    isReproducibleFileOrder = true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveClassifier = null as String?
+    archiveVersion = requireProjectInfo.versionString
     archiveBaseName = "${requireProjectInfo.name}-${project.name}"
-    destinationDirectory = rootDir.resolve("build")
-        .resolve("bukkit")
+    destinationDirectory = rootProject.layout.buildDirectory.get()
+        .asFile
+        .resolve(project.name)
         .resolve("plugins")
         .takeIf(File::exists)
-        ?: File(rootDir, "jars").also(File::mkdirs)
-
+        ?: rootDir.resolve("jars")
     dependencies {
         // Dependencies
+        exclude(dependency("org.jetbrains:annotations"))
         exclude("ch/qos/logback/**")
         exclude("com/ibm/icu/**")
         exclude("it/unimi/dsi/**")
@@ -89,15 +83,44 @@ shadowJar.configure {
         exclude("org/slf4j/**")
         exclude("org/w3c/dom/**")
         // Root
-        exclude("**LICENCE**")
-        exclude("**LICENSE**")
+        if (project.name == "forge" || project.name == "neoforge") {
+            // Use kotlin-neoforge or kotlin-forge
+            exclude("kotlin/**")
+        }
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
         exclude("jetty-dir.css")
-        exclude("LICENSE")
         exclude("license/**")
-        exclude("licenses/**")
+        exclude("**LICENCE**")
+        exclude("**LICENSE**")
+        // Other dependencies
+        exclude("club/minnced/opus/**")
+        exclude("co/touchlab/stately/**")
+        exclude("com/google/**")
+        exclude("com/ibm/icu/**")
+        exclude("com/sun/**")
+        exclude("google/protobuf/**")
+        exclude("io/github/**")
+        exclude("io/javalin/**")
+        exclude("jakarta/servlet/**")
+        exclude("javax/annotation/**")
+        exclude("javax/servlet/**")
         exclude("natives/**")
+        exclude("net/luckperms/**")
+        exclude("nl/altindag/**")
+        exclude("org/bouncycastle/**")
+        exclude("org/checkerframework/**")
+        exclude("org/conscrypt/**")
+        exclude("org/apache/batik/**")
+        exclude("org/apache/xmlgraphics/**")
+        exclude("org/apache/xmlcommons/**")
+        exclude("org/eclipse/**")
+        exclude("jdk/xml/**")
+        exclude("org/w3c/**")
+        exclude("tomp2p/opuswrapper/**")
+        exclude("org/slf4j/**")
+        exclude("javax/xml/**")
+        exclude("org/xml/**")
         // META
         exclude("META-INF/**.md")
         exclude("META-INF/**.MD")
@@ -114,56 +137,90 @@ shadowJar.configure {
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
         exclude("META-INF/services/kotlin.reflect.**")
-        exclude("META-INF/versions/**")
+        if (project.name == "forge") {
+            // Don't remove in: [forge]
+            exclude("META-INF/versions/**")
+        }
         // DEPENDENCIES
-        exclude(dependency("com.fasterxml.jackson.core:.*"))
-        exclude(dependency("com.google.code.gson:.*"))
-        exclude(dependency("com.google.crypto.tink:.*"))
-        exclude(dependency("com.google.errorprone:.*"))
-        exclude(dependency("com.mojang:brigadier"))
-        exclude(dependency("com.mysql:mysql-connector-j"))
-        exclude(dependency("mysql:mysql-connector-java"))
-        exclude(dependency("net.java.dev.jna:.*"))
-        exclude(dependency("net.kyori:.*"))
-        exclude(dependency("org.apache.xmlgraphics:.*"))
-        exclude(dependency("org.bouncycastle:.*"))
-        exclude(dependency("org.checkerframework:.*"))
-        exclude(dependency("org.conscrypt:.*"))
-        exclude(dependency("org.eclipse.jetty.toolchain:.*"))
-        exclude(dependency("org.eclipse.jetty:.*"))
-        exclude(dependency("org.xerial:sqlite-jdbc"))
-    }
-    relocate("org.bstats", projectInfo.group)
-    listOf(
-        "ch.qos.logback",
-        "club.minnced.discord",
-        "club.minnced.opus",
-        "co.touchlab.stately",
-        "com.charleskorn.kaml",
-        "com.ibm.icu",
-        "com.neovisionaries.ws",
-        "gnu.trove",
-        "google.protobuf",
-        "io.github.reactivecircus",
-        "it.krzeminski.snakeyaml",
-        "net.dv8tion",
-        "net.thauvin.erik",
-        "okhttp3",
-        "okio",
-        "org.apache",
-        "org.intellij",
-        "org.jetbrains.annotations",
-        "org.json",
-        "org.telegram.telegrambots",
-        "ru.astrainteractive.astralibs",
-        "ru.astrainteractive.klibs",
-        "tomp2p.opuswrapper",
-    ).forEach { pattern -> relocate(pattern, "${projectInfo.group}.$pattern") }
-    listOf(
-        "kotlinx",
-    ).forEach { pattern ->
-        relocate(pattern, "${projectInfo.group}.$pattern") {
-            exclude("kotlin/kotlin.kotlin_builtins")
+        if (project.name == "bukkit") {
+            exclude(dependency("com.fasterxml.jackson.core:.*"))
+            exclude(dependency("com.google.code.gson:.*"))
+            exclude(dependency("com.google.crypto.tink:.*"))
+            exclude(dependency("com.google.errorprone:.*"))
+            exclude(dependency("com.mojang:brigadier"))
+            exclude(dependency("com.mysql:mysql-connector-j"))
+            exclude(dependency("mysql:mysql-connector-java"))
+            exclude(dependency("net.java.dev.jna:.*"))
+            exclude(dependency("net.kyori:.*"))
+            exclude(dependency("org.apache.xmlgraphics:.*"))
+            exclude(dependency("org.bouncycastle:.*"))
+            exclude(dependency("org.checkerframework:.*"))
+            exclude(dependency("org.conscrypt:.*"))
+            exclude(dependency("org.eclipse.jetty.toolchain:.*"))
+            exclude(dependency("org.eclipse.jetty:.*"))
+            exclude(dependency("org.xerial:sqlite-jdbc"))
         }
     }
+
+    relocate("org.bstats", requireProjectInfo.group)
+    // Be sure to relocate EXACT PACKAGES!!
+    // For example, relocate org.some.package instead of org
+    // Becuase relocation org will break other non-relocated dependencies such as org.minecraft
+    // Don't relocate `org.jetbrains.exposed` and `kotlin`
+    buildList {
+        add("ch.qos.logback")
+        add("club.minnced.discord")
+        add("club.minnced.opus")
+        add("co.touchlab.stately")
+        add("com.arkivanov")
+        add("com.charleskorn.kaml")
+        if (project.name != "bukkit") {
+            // Don't relocate on: [bukkit]
+            add("com.fasterxml")
+        }
+        add("com.ibm.icu")
+        add("com.neovisionaries")
+        add("dev.icerock")
+        add("gnu.trove")
+        add("google.protobuf")
+        add("io.github.reactivecircus")
+        add("it.krzeminski")
+        add("it.krzeminski.snakeyaml")
+        // Is present on: [bukkit]
+        if (project.name != "bukkit") {
+            add("javax.xml")
+        }
+        add("kotlinx")
+        add("net.dv8tion")
+        if (project.name != "bukkit") {
+            // Don't relocate on: [bukkit]
+            add("net.kyori")
+        }
+        add("net.thauvin")
+        add("okhttp3")
+        add("okio")
+        add("org.apache")
+        if (project.name != "bukkit") {
+            // Don't relocate on: [bukkit]
+            add("org.h2")
+        }
+
+        add("org.intellij")
+        add("org.jetbrains.annotations")
+        add("org.jetbrains.exposed") // Don't relocate on: [*]
+//        "org.jetbrains.kotlin", // Don't relocate on: [*]
+        add("org.jetbrains.kotlinx")
+        add("org.json")
+        add("org.json")
+//        "org.slf4j", // Is present on: [*]
+        add("org.sqlite")
+        add("org.telegram")
+        add("org.telegram.telegrambots")
+        add("org.w3c.css")
+        add("org.w3c.dom")
+//        "org.xml.sax", // Is present on: [*]
+        add("ru.astrainteractive.astralibs")
+        add("ru.astrainteractive.klibs")
+        add("tomp2p.opuswrapper")
+    }.forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
 }

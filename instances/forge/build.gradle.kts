@@ -86,12 +86,12 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     archiveClassifier = null as String?
     archiveVersion = requireProjectInfo.versionString
     archiveBaseName = "${requireProjectInfo.name}-${project.name}"
-    destinationDirectory = rootDir
-        .resolve("build")
-        .resolve("forge")
+    destinationDirectory = rootProject.layout.buildDirectory.get()
+        .asFile
+        .resolve(project.name)
         .resolve("mods")
         .takeIf(File::exists)
-        ?: File(rootDir, "jars")
+        ?: rootDir.resolve("jars")
     dependencies {
         // Dependencies
         exclude(dependency("org.jetbrains:annotations"))
@@ -150,39 +150,6 @@ val shadowJar by tasks.getting(ShadowJar::class) {
 //        exclude("META-INF/versions/**") // Don't remove in Forge
     }
 
-    // Minimize: remove unreachable classes. Protect libraries that use reflection/SPI/dynamic loading.
-    minimize {
-        // JDBC driver loaded via ServiceLoader at runtime
-        exclude(dependency("com.h2database:h2"))
-        // Jackson deserializes Telegram API objects via reflection
-        exclude(dependency("com.fasterxml.jackson.core:jackson-databind"))
-        exclude(dependency("com.fasterxml.jackson.core:jackson-core"))
-        exclude(dependency("com.fasterxml.jackson.core:jackson-annotations"))
-        exclude(dependency("com.fasterxml.jackson.datatype:jackson-datatype-jsr310"))
-        // Telegram bots: all API method/object classes referenced by Jackson at runtime
-        exclude(dependency("org.telegram:telegrambots-meta"))
-        exclude(dependency("org.telegram:telegrambots-client"))
-        exclude(dependency("org.telegram:telegrambots-longpolling"))
-        exclude(dependency("org.telegram:telegrambots-extensions"))
-        exclude(dependency("org.telegram:telegrambots-webhook"))
-        // JDA: event dispatch and guild/message models referenced at runtime
-        exclude(dependency("net.dv8tion:JDA"))
-        // Exposed ORM: uses kotlin-reflect to map Kotlin properties to columns
-        exclude(dependency("org.jetbrains.exposed:exposed-core"))
-        exclude(dependency("org.jetbrains.exposed:exposed-dao"))
-        exclude(dependency("org.jetbrains.exposed:exposed-jdbc"))
-        exclude(dependency("org.jetbrains.exposed:exposed-java-time"))
-        // Kotlin runtime: stdlib and reflect are loaded by the JVM and Exposed
-        exclude(dependency("org.jetbrains.kotlin:kotlin-reflect"))
-        exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
-        exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib-jdk7"))
-        exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib-jdk8"))
-        exclude(dependency("org.jetbrains.kotlinx:kotlinx-coroutines-core"))
-        exclude(dependency("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm"))
-        exclude(dependency("org.jetbrains.kotlinx:kotlinx-serialization-core"))
-        exclude(dependency("org.jetbrains.kotlinx:kotlinx-serialization-json"))
-    }
-
     // Be sure to relocate EXACT PACKAGES!!
     // For example, relocate org.some.package instead of org
     // Becuase relocation org will break other non-relocated dependencies such as org.minecraft
@@ -191,13 +158,18 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "ch.qos.logback",
         "club.minnced.discord",
         "club.minnced.opus",
+        "co.touchlab.stately",
         "com.arkivanov",
         "com.charleskorn.kaml",
         "com.fasterxml",
+        "com.ibm.icu",
         "com.neovisionaries",
         "dev.icerock",
         "gnu.trove",
+        "google.protobuf",
+        "io.github.reactivecircus",
         "it.krzeminski",
+        "it.krzeminski.snakeyaml",
 //        "javax.xml", // Is present
         "kotlinx",
         "net.dv8tion",
@@ -207,18 +179,23 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         "okio",
         "org.apache",
         "org.h2",
-//        "org.jetbrains.exposed", // Don't relocate
-        "org.jetbrains.kotlin",
+        "org.intellij",
+        "org.jetbrains.annotations",
+        "org.jetbrains.exposed", // Don't relocate
+//        "org.jetbrains.kotlin", // Don't relocate
         "org.jetbrains.kotlinx",
+        "org.json",
         "org.json",
 //        "org.slf4j", // Is present
         "org.sqlite",
         "org.telegram",
+        "org.telegram.telegrambots",
         "org.w3c.css",
         "org.w3c.dom",
 //        "org.xml.sax", // Is present
         "ru.astrainteractive.astralibs",
         "ru.astrainteractive.klibs",
+        "tomp2p.opuswrapper",
     ).forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
 }
 
