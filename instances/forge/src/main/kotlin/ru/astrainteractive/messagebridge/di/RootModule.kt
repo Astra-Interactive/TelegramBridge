@@ -4,9 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.minecraftforge.fml.loading.FMLPaths
-import ru.astrainteractive.astralibs.coroutines.ForgeDispatchers
+import ru.astrainteractive.astralibs.coroutines.MinecraftDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.astralibs.server.bridge.ForgePlatformServer
+import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -29,8 +29,8 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withou
                 .toAbsolutePath()
                 .toFile()
                 .also(File::mkdirs),
-            dispatchers = ForgeDispatchers(),
-            platformServer = ForgePlatformServer
+            dispatchers = MinecraftDispatchers(),
+            platformServer = MinecraftPlatformServer
         )
     }
 

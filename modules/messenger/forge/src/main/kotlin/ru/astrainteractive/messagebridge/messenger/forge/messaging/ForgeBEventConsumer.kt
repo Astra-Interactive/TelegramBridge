@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
-import ru.astrainteractive.astralibs.server.util.ForgeUtil
+import ru.astrainteractive.astralibs.server.util.MinecraftUtil
 import ru.astrainteractive.astralibs.server.util.toNative
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -48,7 +48,7 @@ internal class ForgeBEventConsumer(
             is PlayerDeathBEvent -> null
         }?.let(KyoriComponentSerializer.Legacy::toComponent) ?: return
 
-        ForgeUtil.serverOrNull?.playerList?.players.orEmpty().forEach { player ->
+        MinecraftUtil.serverOrNull?.playerList?.players.orEmpty().forEach { player ->
             player.sendSystemMessage(component.toNative())
         }
     }
