@@ -51,6 +51,7 @@ minecraftProcessResource {
         customProperties = mapOf(
             "minecraft_version" to libs.versions.minecraft.forgeversion.get().split("-")[0],
             "forge_version" to libs.versions.minecraft.forgeversion.get().split("-")[1],
+            "mod_license" to "MIT License"
         )
     )
 }
