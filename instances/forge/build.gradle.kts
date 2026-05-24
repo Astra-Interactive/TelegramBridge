@@ -1,14 +1,15 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import ru.astrainteractive.gradleplugin.property.model.Developer
-import ru.astrainteractive.gradleplugin.property.util.requireJinfo
 import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("ru.astrainteractive.gradleplugin.detekt")
+    id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.gradle.forgegradle)
     alias(libs.plugins.gradle.forgerenamer)
     alias(libs.plugins.gradle.shadow)
+    alias(libs.plugins.klibs.minecraft.resource.processor)
 }
 
 repositories {
@@ -20,61 +21,38 @@ repositories {
 }
 
 dependencies {
-    // Kotlin
-    shadow(libs.kotlin.coroutines.core)
-    shadow(libs.kotlin.datetime)
-    shadow(libs.kotlin.serialization.kaml)
-    // AstraLibs
-    shadow(libs.minecraft.astralibs.core)
-    shadow(libs.minecraft.astralibs.command)
-    shadow(libs.minecraft.astralibs.core.forge)
-
-    shadow(libs.klibs.mikro.core)
-    shadow(libs.klibs.mikro.extensions)
-    shadow(libs.klibs.kstorage)
+    compileOnly(libs.minecraft.luckperms)
 
     shadow(libs.driver.h2)
     shadow(libs.exposed.jdbc)
-
-    shadow(libs.minecraft.kyori.plain)
-    shadow(libs.minecraft.kyori.legacy)
+    shadow(libs.klibs.kstorage)
+    shadow(libs.klibs.mikro.core)
+    shadow(libs.klibs.mikro.extensions)
+    shadow(libs.kotlin.coroutines.core)
+    shadow(libs.kotlin.datetime)
+    shadow(libs.kotlin.serialization.kaml)
+    shadow(libs.minecraft.astralibs.command)
+    shadow(libs.minecraft.astralibs.core)
+    shadow(libs.minecraft.astralibs.core.forge)
     shadow(libs.minecraft.kyori.gson)
-    // Spigot
-    compileOnly(libs.minecraft.luckperms)
-    // Local
+    shadow(libs.minecraft.kyori.legacy)
+    shadow(libs.minecraft.kyori.plain)
+    shadow(projects.modules.core.api)
+    shadow(projects.modules.core.forge)
+    shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.discord)
     shadow(projects.modules.messenger.forge)
     shadow(projects.modules.messenger.telegram)
-    shadow(projects.modules.core.api)
-    shadow(projects.modules.core.forge)
-    shadow(projects.modules.link)
 }
 
-tasks.named<ProcessResources>("processResources") {
-    filteringCharset = "UTF-8"
-    duplicatesStrategy = DuplicatesStrategy.WARN
-    val sourceSets = project.extensions.getByName("sourceSets") as SourceSetContainer
-    val resDirs = sourceSets
-        .map(SourceSet::getResources)
-        .map(SourceDirectorySet::getSrcDirs)
-    from(resDirs) {
-        include("META-INF/mods.toml")
-        expand(
-            mapOf(
-                "minecraft_version" to libs.versions.minecraft.forgeversion.get().split("-")[0],
-                "forge_version" to libs.versions.minecraft.forgeversion.get().split("-")[1],
-                "mod_id" to requireProjectInfo.name.lowercase(),
-                "mod_name" to requireProjectInfo.name,
-                "mod_license" to "mod_license",
-                "mod_version" to requireProjectInfo.versionString,
-                "mod_authors" to requireProjectInfo.developersList
-                    .map(Developer::id)
-                    .joinToString(","),
-                "mod_description" to requireProjectInfo.description
-            )
+minecraftProcessResource {
+    forge(
+        customProperties = mapOf(
+            "minecraft_version" to libs.versions.minecraft.forgeversion.get().split("-")[0],
+            "forge_version" to libs.versions.minecraft.forgeversion.get().split("-")[1],
         )
-    }
+    )
 }
 
 val shadowJar by tasks.getting(ShadowJar::class) {
@@ -229,14 +207,13 @@ val shadowJar by tasks.getting(ShadowJar::class) {
             // Don't relocate on: [bukkit]
             add("org.h2")
         }
-
         add("org.intellij")
         add("org.jetbrains.annotations")
-        add("org.jetbrains.exposed") // Don't relocate on: [*]
+//        add("org.jetbrains.exposed") // Don't relocate on: [*]
         add("org.jetbrains.kotlinx")
         add("org.json")
         add("org.json")
-        add("org.sqlite")
+//        add("org.sqlite")
         add("org.telegram")
         add("org.telegram.telegrambots")
         add("org.w3c.css")
@@ -247,19 +224,13 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     }.forEach { pattern -> relocate(pattern, "${requireProjectInfo.group}.shade.$pattern") }
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(requireJinfo.jtarget.majorVersion)
-
 minecraft {
-    mappings("official", "1.20.1")
+    mappings("official", libs.versions.minecraft.mojang.version.get())
     useDefaultAccessTransformer()
 }
 
 dependencies {
     compileOnly(minecraft.dependency(libs.minecraft.forgeversion.get()))
-}
-
-configurations.runtimeElements {
-    setExtendsFrom(emptySet())
 }
 
 renamer {

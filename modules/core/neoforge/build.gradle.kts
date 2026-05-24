@@ -1,6 +1,8 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("ru.astrainteractive.gradleplugin.detekt")
+    id("ru.astrainteractive.gradleplugin.java.version")
 }
 
 dependencies {
@@ -30,9 +32,9 @@ dependencies {
                 .resolve("neoforge-${libs.versions.minecraft.neoforgeversion.get()}.jar")
         )
     )
-    compileOnly(libs.minecraft.neoforgeversion)
     compileOnly(libs.joml)
-    compileOnly(libs.minecraft.datafixerupper)
     compileOnly(libs.minecraft.brigadier)
+    compileOnly(libs.minecraft.datafixerupper)
     compileOnly(libs.minecraft.neoforged.bus)
+    compileOnly(libs.minecraft.neoforgeversion)
 }

@@ -3,8 +3,10 @@ import org.gradle.kotlin.dsl.named
 import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("ru.astrainteractive.gradleplugin.detekt")
+    id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.klibs.minecraft.resource.processor)
     alias(libs.plugins.gradle.shadow)
 }
@@ -64,7 +66,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     destinationDirectory = rootProject.layout.buildDirectory.get()
         .asFile
         .resolve(project.name)
-        .resolve("mods")
+        .resolve("plugins")
         .takeIf(File::exists)
         ?: rootDir.resolve("jars")
     dependencies {
@@ -207,11 +209,11 @@ val shadowJar by tasks.getting(ShadowJar::class) {
 
         add("org.intellij")
         add("org.jetbrains.annotations")
-        add("org.jetbrains.exposed") // Don't relocate on: [*]
+//        add("org.jetbrains.exposed") // Don't relocate on: [*]
         add("org.jetbrains.kotlinx")
         add("org.json")
         add("org.json")
-        add("org.sqlite")
+//        add("org.sqlite") // Don't relocate on: [*]
         add("org.telegram")
         add("org.telegram.telegrambots")
         add("org.w3c.css")
