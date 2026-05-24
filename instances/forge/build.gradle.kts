@@ -1,4 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecraftforge.jarjar.gradle.JarJar
+import net.minecraftforge.jarjar.gradle.JarJarDependencyMethods
 import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 
 plugins {
@@ -10,6 +12,7 @@ plugins {
     alias(libs.plugins.gradle.forgerenamer)
     alias(libs.plugins.gradle.shadow)
     alias(libs.plugins.klibs.minecraft.resource.processor)
+    alias(libs.plugins.gradle.forge.jarjar)
 }
 
 repositories {
@@ -56,9 +59,21 @@ minecraftProcessResource {
     )
 }
 
+jarJar {
+    register()
+}
+
 val shadowJar by tasks.getting(ShadowJar::class) {
     mergeServiceFiles()
     dependsOn(tasks.named<ProcessResources>("processResources"))
+    dependsOn(tasks.withType<JarJar>())
+    from(
+        tasks.withType<JarJar>()
+            .map { task -> task.archiveFile }
+            .map { archiveFile -> project.zipTree(archiveFile) },
+        { include("META-INF/jarjar/**") }
+    )
+
     configurations = listOf(project.configurations.shadow.get())
     isReproducibleFileOrder = true
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -86,6 +101,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("org/jetbrains/annotations/**")
         exclude("org/slf4j/**")
         exclude("org/w3c/dom/**")
+        exclude("org/jspecify/annotations/**")
         // Root
         if (project.name == "forge" || project.name == "neoforge") {
             // Use kotlin-neoforge or kotlin-forge
@@ -125,6 +141,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("org/slf4j/**")
         exclude("javax/xml/**")
         exclude("org/xml/**")
+        exclude("org/sqlite/**")
         // META
         exclude("META-INF/**.md")
         exclude("META-INF/**.MD")
@@ -210,11 +227,10 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         }
         add("org.intellij")
         add("org.jetbrains.annotations")
-//        add("org.jetbrains.exposed") // Don't relocate on: [*]
+        add("org.jetbrains.exposed") // Don't relocate on: [*]
         add("org.jetbrains.kotlinx")
         add("org.json")
         add("org.json")
-//        add("org.sqlite")
         add("org.telegram")
         add("org.telegram.telegrambots")
         add("org.w3c.css")
@@ -232,6 +248,9 @@ minecraft {
 
 dependencies {
     compileOnly(minecraft.dependency(libs.minecraft.forgeversion.get()))
+    "jarJar"(libs.driver.jdbc) {
+        JarJarDependencyMethods.getJarJar(this).setVersion(libs.versions.driver.jdbc)
+    }
 }
 
 renamer {

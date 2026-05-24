@@ -41,6 +41,7 @@ minecraft-fabric-loom = "1.16.1"
 minecraft-fabric-yarn = "1.20.1+build.10"
 minecraft-forge-bus="6.0.5"
 minecraft-forgegradle = "7.0.25"
+minecraft-forge-jarjar = "0.2.3"
 minecraft-forgerenamer = "1.0.14"
 minecraft-forgeversion = "1.20.1-47.4.12"
 minecraft-kyori = "5.0.1"
@@ -159,6 +160,7 @@ tests-turbine = { module = "app.cash.turbine:turbine", version.ref = "tests-turb
 gradle-buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
 gradle-fabric-loom = { id = "fabric-loom", version.ref = "minecraft-fabric-loom" }
 gradle-forgegradle = { id = "net.minecraftforge.gradle", version.ref = "minecraft-forgegradle" }
+gradle-forge-jarjar = { id = "net.minecraftforge.jarjar", version.ref = "minecraft-forge-jarjar" }
 gradle-forgerenamer = { id = "net.minecraftforge.renamer", version.ref = "minecraft-forgerenamer" }
 gradle-ftp = { id = "ru.astrainteractive.ftpplugin.gradleftp", version.ref = "gradle-ftp" }
 gradle-neoforgegradle = { id = "net.neoforged.gradle.userdev", version.ref = "minecraft-neoforgegradle" }
