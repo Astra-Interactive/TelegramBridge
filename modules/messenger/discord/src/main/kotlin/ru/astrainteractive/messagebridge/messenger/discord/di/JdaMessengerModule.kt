@@ -93,7 +93,10 @@ class JdaMessengerModule(
 
     private val webhookClient = jdaFlow
         .filterNotNull()
-        .mapCached<JDA, WebhookClient>(coreModule.ioScope) { jda, old ->
+        .mapCached<JDA, WebhookClient>(
+            coreModule.ioScope,
+            dispatcher = coreModule.dispatchers.IO
+        ) { jda, old ->
             old?.close()
             val channel = coreModule.configKrate.cachedValue.jdaConfig.channelId
             WebHookClientFactory(jda).create(channel).first()

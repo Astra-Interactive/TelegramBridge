@@ -12,6 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.coroutines.mapCached
+import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connect
 import ru.astrainteractive.messagebridge.link.database.table.LinkedPlayerTable
@@ -23,11 +24,12 @@ interface LinkDatabaseModule {
 
     class Default(
         ioScope: CoroutineScope,
-        dataFolder: File
+        dataFolder: File,
+        dispatchers: KotlinDispatchers
     ) : LinkDatabaseModule {
         override val databaseFlow: Flow<Database> = flowOf(
             value = DatabaseConfiguration.H2(dataFolder.resolve("linking").absolutePath)
-        ).mapCached(ioScope) { dbConfig, previous ->
+        ).mapCached(ioScope, dispatcher = dispatchers.IO) { dbConfig, previous ->
             previous?.connector?.invoke()?.close()
             previous?.run(TransactionManager::closeAndUnregister)
             val database = dbConfig.connect()
