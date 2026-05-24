@@ -8,6 +8,8 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.messagebridge.commands.link.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.commands.link.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.commands.reload.ReloadLiteralArgumentBuilder
+import ru.astrainteractive.messagebridge.commands.unlink.UnlinkCommandExecutor
+import ru.astrainteractive.messagebridge.commands.unlink.UnlinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 
@@ -30,6 +32,16 @@ class CommandModule(
             executor = LinkCommandExecutor(
                 ioScope = coreModule.ioScope,
                 codeApi = linkModule.codeApi,
+                linkingDao = linkModule.linkingDao,
+                translationKrate = coreModule.translationKrate,
+                kyoriKrate = kyoriKrate
+            ),
+            multiplatformCommand = multiplatformCommand,
+            platformServer = coreModule.platformServer
+        ).create(),
+        UnlinkLiteralArgumentBuilder(
+            executor = UnlinkCommandExecutor(
+                ioScope = coreModule.ioScope,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate,
                 kyoriKrate = kyoriKrate

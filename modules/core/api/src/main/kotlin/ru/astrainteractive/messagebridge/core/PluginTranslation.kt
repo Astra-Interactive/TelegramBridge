@@ -34,8 +34,22 @@ data class PluginTranslation(
     @SerialName("messaging.message.server_closed")
     val serverClosedMessage: StringDesc.Raw = StringDesc.Raw("\uD83D\uDED1 Сервер остановлен"),
     @SerialName("link")
-    val link: Link = Link()
+    val link: Link = Link(),
+    @SerialName("unlink")
+    val unlink: Unlink = Unlink()
 ) {
+    @Serializable
+    data class Unlink(
+        @SerialName("success")
+        val success: StringDesc.Raw = StringDesc.Raw("&#42f596Привязка успешно удалена"),
+        @SerialName("not_linked")
+        val notLinked: StringDesc.Raw = StringDesc.Raw("Ваш аккаунт не привязан"),
+        @SerialName("player_not_linked")
+        val playerNotLinked: StringDesc.Raw = StringDesc.Raw("Аккаунт игрока не привязан"),
+        @SerialName("player_unlink_success")
+        val playerUnlinkSuccess: StringDesc.Raw = StringDesc.Raw("&#42f596Привязка игрока успешно удалена"),
+    )
+
     @Serializable
     data class Link(
         @SerialName("code_created")
