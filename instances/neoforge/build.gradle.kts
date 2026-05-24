@@ -48,7 +48,6 @@ minecraftProcessResource {
             "minecraft_version" to libs.versions.minecraft.mojang.version.get(),
             "minecraft_version_range" to listOf(libs.versions.minecraft.mojang.version.get())
                 .joinToString(","),
-            "neo_version" to "neo_version",
             "neo_version_range" to "[${libs.versions.minecraft.neoforgeversion.get()},)",
         )
     )
