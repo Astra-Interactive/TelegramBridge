@@ -109,6 +109,24 @@ internal class TelegramChatConsumer(
                 telegramClientOrNull()?.execute(deleteMessage)
                 return@launch
             }
+            val hasUsername = update.message?.senderChat?.userName != null ||
+                update.message?.from?.userName != null
+            if (!hasUsername) {
+                val nameRegex = tgConfig.displayNameRegex.toRegex()
+                if (!nameRegex.matches(author)) {
+                    info { "#consume display name '$author' rejected by regex '${tgConfig.displayNameRegex}'" }
+                    val replyText = translation.illegalDisplayName.raw
+                    val replyMessage = SendMessage(update.message.chatId.toString(), replyText).apply {
+                        replyToMessageId = update.message.messageId
+                    }
+                    flow { emit(telegramClientOrNull()?.execute(replyMessage)) }
+                        .withRetry()
+                        .catch { error(it) { "#consume could not send illegal display name reply" } }
+                        .collect()
+                    telegramClientOrNull()?.execute(deleteMessage)
+                    return@launch
+                }
+            }
             val text = update.message.text
             if (text.isNullOrBlank()) {
                 telegramClientOrNull()?.execute(deleteMessage)

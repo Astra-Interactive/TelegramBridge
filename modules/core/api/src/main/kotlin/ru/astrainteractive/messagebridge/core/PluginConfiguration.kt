@@ -44,6 +44,8 @@ data class PluginConfiguration(
         val topicID: String = "",
         @SerialName("max_telegram_message_length")
         val maxTelegramMessageLength: Int = 90,
+        @SerialName("display_name_regex")
+        val displayNameRegex: String = ".*",
         @SerialName("proxy")
         val proxy: Proxy? = null
     )

@@ -33,6 +33,10 @@ data class PluginTranslation(
     val serverOpenMessage: StringDesc.Raw = StringDesc.Raw("✅ Сервер успешно запущен"),
     @SerialName("messaging.message.server_closed")
     val serverClosedMessage: StringDesc.Raw = StringDesc.Raw("\uD83D\uDED1 Сервер остановлен"),
+    @SerialName("messaging.illegal_display_name")
+    val illegalDisplayName: StringDesc.Raw = StringDesc.Raw(
+        "Ваше имя содержит недопустимые символы. Установите @username в настройках профиля Telegram."
+    ),
     @SerialName("link")
     val link: Link = Link(),
     @SerialName("unlink")
