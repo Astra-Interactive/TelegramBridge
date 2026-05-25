@@ -42,6 +42,7 @@ class LinkApiImpl(
     }
 
     override suspend fun linkTelegram(code: Int, tgUser: User): Response {
+        val username = tgUser.userName ?: return Response.NoUsername
         val codeUser = codeApi.findUserByCode(code)
         if (codeUser == null) return Response.NoCode
         codeApi.clearCode(code)
@@ -53,7 +54,7 @@ class LinkApiImpl(
         val updatedUser = user.copy(
             telegramLink = LinkedPlayerModel.TelegramLink(
                 telegramId = tgUser.id,
-                telegramUsername = tgUser.userName
+                telegramUsername = username
             )
         )
         linkingDao.upsert(updatedUser)

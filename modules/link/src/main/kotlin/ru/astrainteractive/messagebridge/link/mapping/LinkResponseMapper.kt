@@ -8,6 +8,7 @@ fun LinkApi.Response.asMessage(translation: PluginTranslation.Link): StringDesc.
     return when (this) {
         LinkApi.Response.AlreadyLinked -> translation.alreadyLinked
         LinkApi.Response.NoCode -> translation.noCodeFound
+        LinkApi.Response.NoUsername -> translation.noUsername
         LinkApi.Response.UnknownError -> translation.unknownError
         is LinkApi.Response.Linked -> translation.linkSuccess
     }

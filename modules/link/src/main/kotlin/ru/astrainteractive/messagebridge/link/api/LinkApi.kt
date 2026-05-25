@@ -8,6 +8,7 @@ interface LinkApi {
     sealed interface Response {
         data object AlreadyLinked : Response
         data object NoCode : Response
+        data object NoUsername : Response
         data object UnknownError : Response
         data class Linked(val user: LinkedPlayerModel) : Response
     }

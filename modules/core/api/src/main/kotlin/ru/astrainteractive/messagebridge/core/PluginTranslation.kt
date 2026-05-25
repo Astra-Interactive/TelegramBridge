@@ -60,6 +60,10 @@ data class PluginTranslation(
         val alreadyLinked: StringDesc.Raw = StringDesc.Raw("Вы уже привязали аккаунт этим способом"),
         @SerialName("no_code_found")
         val noCodeFound: StringDesc.Raw = StringDesc.Raw("Код не найден. Используйте /link в игре для создания кода"),
+        @SerialName("no_username")
+        val noUsername: StringDesc.Raw = StringDesc.Raw(
+            "У вас не задан username в Telegram. Установите @username в настройках профиля и попробуйте снова."
+        ),
         @SerialName("unknown_error")
         val unknownError: StringDesc.Raw = StringDesc.Raw("Произошла неизвестная ошибка"),
         @SerialName("link_success")
