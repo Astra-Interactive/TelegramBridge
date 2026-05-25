@@ -29,6 +29,8 @@ data class PluginTranslation(
     private val telegramMessageFormat: StringDesc.Raw = StringDesc.Raw("[%from%] %player%:\n%message%"),
     @SerialName("messaging.message.to_minecraft")
     private val minecraftMessageFormat: StringDesc.Raw = StringDesc.Raw("[%from%] &#27A1E0%player%: &#FFFFFF%message%"),
+    @SerialName("messaging.online_players")
+    private val onlinePlayersMessage: StringDesc.Raw = StringDesc.Raw("Сейчас онлайн %count% игроков\n%players%"),
     @SerialName("messaging.message.server_open")
     val serverOpenMessage: StringDesc.Raw = StringDesc.Raw("✅ Сервер успешно запущен"),
     @SerialName("messaging.message.server_closed")
@@ -93,6 +95,10 @@ data class PluginTranslation(
         .replace("%player%", playerName)
         .replace("%message%", message)
         .replace("%from%", from)
+
+    fun onlinePlayersMessage(count: Int, players: String) = onlinePlayersMessage
+        .replace("%count%", "$count")
+        .replace("%players%", players)
 
     fun playerDiedMessage(name: String, cause: String?) = playerDiedMessage
         .replace("%player%", name)

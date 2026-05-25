@@ -1,202 +1,95 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.events
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
-import ru.astrainteractive.messagebridge.link.api.LinkApi
-import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import ru.astrainteractive.messagebridge.messaging.withRetry
-import kotlin.time.Duration.Companion.seconds
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 
-@Suppress("LongParameterList")
+/**
+ * Entry point for Telegram long-polling updates. Pure orchestration: it wires the relevance check,
+ * content validation, command dispatch and relaying together, delegating every decision and
+ * side effect to a dedicated collaborator.
+ */
 internal class TelegramChatConsumer(
-    configKrate: CachedKrate<PluginConfiguration>,
-    translationKrate: CachedKrate<PluginTranslation>,
-    private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val onlinePlayersProvider: OnlinePlayersProvider,
-    private val linkApi: LinkApi
+    translationKrate: CachedKrate<PluginTranslation>,
+    private val relevanceChecker: TelegramMessageRelevanceMapper,
+    private val validator: TelegramMessageValidatorMapper,
+    private val commandParser: TelegramCommandMapper,
+    private val commandHandler: TelegramCommandHandler,
+    private val messageSender: TelegramMessageSender,
 ) : LongPollingSingleThreadUpdateConsumer,
     Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
-    private val config by configKrate
     private val translation by translationKrate
-    private val tgConfig: PluginConfiguration.TelegramConfig
-        get() = config.tgConfig
-
-    @Suppress("MagicNumber")
-    private fun String.toFixedName(): String {
-        val name = this
-            .trim()
-            .replace("\n", "")
-            .replace("\t", "")
-        return if (name.length > 16) {
-            name.substring(0, 16)
-        } else {
-            name
-        }
-    }
-
-    private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
-        return kotlin.runCatching {
-            telegramClientFlow.firstOrNull()
-        }.onFailure { error { "#onDisable could not get telegramClient: ${it.message} ${it.cause?.message}" } }
-            .getOrNull()
-    }
-
-    fun Update.name(): String? {
-        message.senderChat?.let {
-            return it.userName ?: "${it.firstName ?: "Анонимус"} ${it.lastName ?: ""}"
-        }
-        message.from?.let {
-            return it.userName ?: "${it.firstName ?: "Анонимус"} ${it.lastName ?: ""}"
-        }
-        return null
-    }
 
     override fun consume(update: Update?) {
         update ?: return
-        onInfoCommand(update)
-        if (tgConfig.chatID != update.message?.chatId?.toString()) {
-            info { "#consume configChatId!=message ${tgConfig.chatID}!=${update.message?.chatId?.toString()}" }
-            return
-        }
-        val replyMessageId = update.message?.replyToMessage?.messageId?.toString()
-        val messageThreadId = update.message?.messageThreadId?.toString()
-        val date = update.message?.date?.toLong() ?: run {
-            info { "#consume the date of message is null" }
-            return
-        }
-
-        val triggerTime = kotlinx.datetime.Instant.fromEpochSeconds(date)
-        val now = Clock.System.now()
-        val diff = now.minus(triggerTime)
-        if (diff > 10.seconds) {
-            info { "#consume message is too old: $triggerTime vs $now ->  $diff" }
-            return
-        }
-
-        if (tgConfig.topicID != (messageThreadId ?: replyMessageId)) {
-            return
-        }
-        ioScope.launch(dispatchers.IO) {
-            val deleteMessage = DeleteMessage(
-                update.message.chatId.toString(),
-                update.message.messageId
-            )
-            val author = update.name()?.toFixedName() ?: run {
-                info { "#consume author name is null" }
-                telegramClientOrNull()?.execute(deleteMessage)
-                return@launch
-            }
-            val hasUsername = update.message?.senderChat?.userName != null ||
-                update.message?.from?.userName != null
-            if (!hasUsername) {
-                val nameRegex = tgConfig.displayNameRegex.toRegex()
-                if (!nameRegex.matches(author)) {
-                    info { "#consume display name '$author' rejected by regex '${tgConfig.displayNameRegex}'" }
-                    val replyText = translation.illegalDisplayName.raw
-                    val replyMessage = SendMessage(update.message.chatId.toString(), replyText).apply {
-                        replyToMessageId = update.message.messageId
-                    }
-                    flow { emit(telegramClientOrNull()?.execute(replyMessage)) }
-                        .withRetry()
-                        .catch { error(it) { "#consume could not send illegal display name reply" } }
-                        .collect()
-                    telegramClientOrNull()?.execute(deleteMessage)
-                    return@launch
-                }
-            }
-            val text = update.message.text
-            if (text.isNullOrBlank()) {
-                telegramClientOrNull()?.execute(deleteMessage)
-                info { "#consume text is null" }
-                return@launch
-            }
-            if (text.length > tgConfig.maxTelegramMessageLength) {
-                telegramClientOrNull()?.execute(deleteMessage)
-                info { "#consume detect message with max chars limit" }
-                return@launch
-            }
-            if (onCommand(update)) return@launch
-            val serverEvent = Text.Telegram(
-                author = author,
-                text = text,
-                authorId = update.message.from.id
-            )
-            BEventChannel.consume(serverEvent)
+        commandHandler.logChatInfo(update)
+        when (relevanceChecker.map(update)) {
+            MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { process(update) }
+            MessageRelevance.WrongChat -> info { "#consume update is not from the configured chat" }
+            MessageRelevance.NoDate -> info { "#consume message date is null" }
+            MessageRelevance.TooOld -> info { "#consume message is too old" }
+            MessageRelevance.WrongTopic -> Unit
         }
     }
 
-    private fun onInfoCommand(update: Update?) {
-        val text = update?.message?.text ?: return
-        val chatId = update.message?.chatId.toString()
-        val originalMessageId = update.message?.replyToMessage?.messageId
-        when {
-            text == "/minfo" -> {
-                val message = "chatID is $chatId; originalMessageId: $originalMessageId"
-                info { "#onInfoCommand -> $message" }
+    private suspend fun process(update: Update) {
+        when (val validation = validator.map(update)) {
+            is TelegramMessageValidation.Valid -> relay(update, validation)
+            TelegramMessageValidation.NoAuthor -> reject(update) { "#consume author name is null" }
+            TelegramMessageValidation.NoText -> reject(update) { "#consume text is null" }
+            TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
+            TelegramMessageValidation.IllegalDisplayName -> {
+                info { "#consume display name rejected by regex" }
+                reply(update, translation.illegalDisplayName.raw)
+                delete(update)
             }
         }
     }
 
-    private suspend fun onCommand(update: Update): Boolean {
-        val text = update.message.text ?: return false
-        val chatId = update.message.chatId.toString()
-        val originalMessageId = update.message?.replyToMessage?.messageId
-        when {
-            text == "/vanilla" -> {
-                val players = onlinePlayersProvider.provide()
-                val message = players.joinToString(
-                    ", ",
-                    prefix = "Сейчас онлайн ${players.size} игроков\n"
-                )
-                val sendMessage = SendMessage(chatId, message).apply {
-                    replyToMessageId = originalMessageId
-                }
-                flow { emit(telegramClientOrNull()?.execute(sendMessage)) }
-                    .withRetry()
-                    .catch { error(it) { "#tryConsume could not send /vanilla" } }
-                    .collect()
-                return true
-            }
-
-            text.startsWith("/link") -> {
-                val code = text.replace("/link ", "").toIntOrNull() ?: -1
-                val user = update.message?.from ?: return true
-                val response = linkApi.linkTelegram(code, user)
-                val message = response.asMessage(translation.link).raw
-
-                val sendMessage = SendMessage(chatId, message).apply {
-                    replyToMessageId = originalMessageId
-                }
-                flow { emit(telegramClientOrNull()?.execute(sendMessage)) }
-                    .withRetry()
-                    .catch { error(it) { "#tryConsume could not send /link" } }
-                    .collect()
-                return true
-            }
+    private suspend fun relay(update: Update, valid: TelegramMessageValidation.Valid) {
+        val command = commandParser.map(valid.text)
+        if (command != null) {
+            commandHandler.handle(command, update)
+            return
         }
-        return false
+        BEventChannel.consume(
+            Text.Telegram(
+                author = valid.author,
+                text = valid.text,
+                authorId = valid.authorId,
+            )
+        )
+    }
+
+    private suspend fun reject(update: Update, reason: () -> String) {
+        info(reason)
+        delete(update)
+    }
+
+    private suspend fun reply(update: Update, text: String) {
+        val message = update.message ?: return
+        messageSender.send(message.chatId.toString(), text, replyToMessageId = message.messageId)
+    }
+
+    private suspend fun delete(update: Update) {
+        val message = update.message ?: return
+        messageSender.delete(message.chatId.toString(), message.messageId)
     }
 }

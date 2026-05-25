@@ -21,8 +21,14 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
@@ -81,14 +87,39 @@ class TelegramMessengerModule(
         telegramClientFlow = telegramClientFlow,
     )
 
-    private val consumer = TelegramChatConsumer(
+    private val authorMapper = TelegramAuthorMapper()
+
+    private val relevanceChecker = TelegramMessageRelevanceMapper(
         configKrate = coreModule.configKrate,
+    )
+
+    private val messageValidator = TelegramMessageValidatorMapper(
+        configKrate = coreModule.configKrate,
+        authorMapper = authorMapper,
+    )
+
+    private val commandParser = TelegramCommandMapper()
+
+    private val messageSender = TelegramMessageSender(
         telegramClientFlow = telegramClientFlow,
+    )
+
+    private val commandHandler = TelegramCommandHandler(
+        messageSender = messageSender,
+        onlinePlayersProvider = onlinePlayersProvider,
+        linkApi = linkModule.linkApi,
+        translationKrate = coreModule.translationKrate,
+    )
+
+    private val consumer = TelegramChatConsumer(
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
-        onlinePlayersProvider = onlinePlayersProvider,
         translationKrate = coreModule.translationKrate,
-        linkApi = linkModule.linkApi
+        relevanceChecker = relevanceChecker,
+        validator = messageValidator,
+        commandParser = commandParser,
+        commandHandler = commandHandler,
+        messageSender = messageSender,
     )
 
     private val bridgeBotFlow = coreModule.configKrate
