@@ -3,9 +3,6 @@ package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
 
-/**
- * Extracts and sanitizes the [ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor] of a message.
- */
 internal class TelegramAuthorMapper {
 
     fun map(update: Update): TelegramAuthor? {

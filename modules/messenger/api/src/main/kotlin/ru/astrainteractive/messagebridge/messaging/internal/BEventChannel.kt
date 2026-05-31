@@ -24,7 +24,8 @@ object BEventChannel :
         .transform { event ->
             emit(event)
             kotlinx.coroutines.delay(DELAY_MILLIS)
-        }.shareIn(scope, SharingStarted.Lazily)
+        }
+        .shareIn(scope, SharingStarted.Lazily)
 
     override suspend fun consume(bEvent: BEvent) {
         channel.emit(bEvent)

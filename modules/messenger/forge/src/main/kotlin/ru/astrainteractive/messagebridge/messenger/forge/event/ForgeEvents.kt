@@ -95,12 +95,12 @@ class ForgeEvents(
 
     val serverChatEvent = flowEvent<ServerChatEvent>()
         .onEach { info { "#serverChatEvent" } }
-        .onEach {
+        .onEach { event ->
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = Text.Minecraft(
-                    author = it.player.name.string,
-                    text = it.message.toPlain(),
-                    uuid = it.player.uuid.toString()
+                    author = event.player.name.string,
+                    text = event.message.toPlain(),
+                    uuid = event.player.uuid.toString()
                 )
                 BEventChannel.consume(serverEvent)
             }

@@ -14,7 +14,7 @@ class ForgeEntryPoint :
     ForgeLifecycleServer(),
     Logger by JUtiltLogger("ForgeEntryPoint"),
     Lifecycle {
-    private val rootModule by lazy { RootModule() }
+    private val rootModule = RootModule(this)
 
     override fun onEnable() {
         rootModule.lifecycle.onEnable()

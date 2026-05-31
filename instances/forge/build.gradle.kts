@@ -47,6 +47,7 @@ dependencies {
     shadow(projects.modules.messenger.discord)
     shadow(projects.modules.messenger.forge)
     shadow(projects.modules.messenger.telegram)
+    shadow(projects.modules.command)
 }
 
 minecraftProcessResource {

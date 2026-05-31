@@ -14,7 +14,7 @@ class NeoForgeEntryPoint :
     ForgeLifecycleServer(),
     Logger by JUtiltLogger("NeoForgeEntryPoint"),
     Lifecycle {
-    private val rootModule by lazy { RootModule() }
+    private val rootModule = RootModule(this)
 
     override fun onEnable() {
         rootModule.lifecycle.onEnable()

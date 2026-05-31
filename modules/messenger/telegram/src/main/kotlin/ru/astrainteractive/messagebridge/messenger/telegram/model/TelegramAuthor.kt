@@ -1,9 +1,5 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.model
 
-/**
- * The author of a Telegram message. Whether the author has a public `@username` changes how the
- * display name is validated, so the distinction is modeled in the type rather than a boolean flag.
- */
 internal sealed interface TelegramAuthor {
     val name: String
 

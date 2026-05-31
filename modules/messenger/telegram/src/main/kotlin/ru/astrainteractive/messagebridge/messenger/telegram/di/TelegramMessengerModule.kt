@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -21,9 +22,9 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
@@ -40,46 +41,55 @@ class TelegramMessengerModule(
     linkModule: LinkModule,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
 
-    private val okHttpClient = coreModule.configKrate.cachedStateFlow
+    private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.tgConfig.proxy }
         .distinctUntilChanged()
-        .map { proxy ->
-            if (proxy == null) {
-                OkHttpClient.Builder().build()
-            } else {
-                @Suppress("MagicNumber")
-                OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .callTimeout(75, TimeUnit.SECONDS)
-                    .pingInterval(15, TimeUnit.SECONDS)
-                    .retryOnConnectionFailure(true)
-                    .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                    .proxyAuthenticator { route, response ->
-                        var builder = response.request.newBuilder()
-                        if (route?.socketAddress?.hostString == proxy.host) {
-                            val credential: String = Credentials.basic(proxy.username, proxy.password)
-                            builder.header("Proxy-Authorization", credential)
+        .flatMapLatest { proxy ->
+            callbackFlow {
+                val okHttpClient = if (proxy == null) {
+                    OkHttpClient.Builder().build()
+                } else {
+                    @Suppress("MagicNumber")
+                    OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS)
+                        .callTimeout(75, TimeUnit.SECONDS)
+                        .pingInterval(15, TimeUnit.SECONDS)
+                        .retryOnConnectionFailure(true)
+                        .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                        .proxyAuthenticator { route, response ->
+                            var builder = response.request.newBuilder()
+                            if (route?.socketAddress?.hostString == proxy.host) {
+                                val credential: String = Credentials.basic(proxy.username, proxy.password)
+                                builder.header("Proxy-Authorization", credential)
+                            }
+                            builder.build()
                         }
-                        builder.build()
-                    }
-                    .build()
+                        .build()
+                }
+                send(okHttpClient)
+
+                awaitClose {
+                    okHttpClient.dispatcher.executorService.shutdown()
+                    okHttpClient.connectionPool.evictAll()
+                    okHttpClient.cache?.close()
+                }
             }
         }
         .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
 
-    private val telegramClientFlow = coreModule.configKrate
-        .cachedStateFlow
-        .map { tgConfig -> tgConfig.tgConfig }
-        .distinctUntilChanged()
-        .combine(okHttpClient) { tgConfig, okHttpClient ->
-            OkHttpTelegramClient(
+    private val telegramClientFlow = combine(
+        flow = coreModule.configKrate.cachedStateFlow.map { it.tgConfig }.distinctUntilChanged(),
+        flow2 = okHttpClientFlow,
+        transform = { tgConfig, okHttpClient ->
+            val client = OkHttpTelegramClient(
                 okHttpClient,
                 tgConfig.token
             )
+            client
         }
-        .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
+    ).shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     private val telegramMessageController = TelegramBEventConsumer(
         configKrate = coreModule.configKrate,
@@ -126,7 +136,7 @@ class TelegramMessengerModule(
         .cachedStateFlow
         .map { tgConfig -> tgConfig.tgConfig }
         .distinctUntilChanged()
-        .combine(okHttpClient) { tgConfig, okHttpClient ->
+        .combine(okHttpClientFlow) { tgConfig, okHttpClient ->
             channelFlow {
                 val tgLpApplication = TelegramBotsLongPollingApplication(
                     Supplier(::ObjectMapper),

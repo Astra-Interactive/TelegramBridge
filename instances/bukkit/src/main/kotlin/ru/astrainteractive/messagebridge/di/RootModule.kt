@@ -1,17 +1,13 @@
 package ru.astrainteractive.messagebridge.di
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.brigadier.command.PaperMultiplatformCommands
 import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
-import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
@@ -37,20 +33,21 @@ class RootModule(
     val coreModule = CoreModule(
         dataFolder = bukkitCoreModule.plugin.dataFolder,
         dispatchers = DefaultBukkitDispatchers(bukkitCoreModule.plugin),
-        platformServer = BukkitPlatformServer()
+        platformServer = BukkitPlatformServer(),
+        commandRegistrarContextFactory = { mainScope ->
+            PaperCommandRegistrarContext(
+                mainScope = mainScope,
+                plugin = plugin
+            )
+        }
     )
 
     val linkModule = LinkModule.Default(coreModule, BukkitLuckPermsProvider)
 
-    val kyoriKrate = DefaultMutableKrate<KyoriComponentSerializer>(
-        factory = { KyoriComponentSerializer.Legacy },
-        loader = { null }
-    ).asCachedKrate()
-
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        kyoriKrate = kyoriKrate,
+        kyoriKrate = coreModule.kyoriKrate,
         linkingDao = linkModule.linkingDao
     )
 
@@ -70,12 +67,8 @@ class RootModule(
         CommandModule(
             coreModule = coreModule,
             linkModule = linkModule,
-            kyoriKrate = kyoriKrate,
             lifecyclePlugin = plugin,
-            commandRegistrarContext = PaperCommandRegistrarContext(
-                mainScope = coreModule.mainScope,
-                plugin = plugin
-            ),
+            commandRegistrarContext = coreModule.commandRegistrarContext,
             multiplatformCommand = MultiplatformCommand(PaperMultiplatformCommands())
         )
     }
@@ -91,7 +84,7 @@ class RootModule(
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch(coreModule.dispatchers.IO) {
                 BEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
@@ -100,7 +93,7 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch(coreModule.dispatchers.IO) {
                 BEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.forEach(Lifecycle::onDisable)

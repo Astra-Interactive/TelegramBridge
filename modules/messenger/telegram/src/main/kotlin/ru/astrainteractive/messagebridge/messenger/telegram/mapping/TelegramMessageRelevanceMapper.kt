@@ -6,13 +6,9 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import kotlin.time.Duration.Companion.seconds
 import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
+import kotlin.time.Duration.Companion.seconds
 
-/**
- * Routes incoming updates: decides whether one targets the configured bridge chat/topic and is
- * recent enough to act on. It does not inspect the message content — that is validation's concern.
- */
 internal class TelegramMessageRelevanceMapper(
     configKrate: CachedKrate<PluginConfiguration>,
     private val clock: Clock = Clock.System,

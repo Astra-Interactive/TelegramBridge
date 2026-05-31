@@ -1,14 +1,18 @@
 package ru.astrainteractive.messagebridge.di
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.neoforged.fml.loading.FMLPaths
+import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
+import ru.astrainteractive.astralibs.command.brigadier.command.MinecraftMultiplatformCommands
+import ru.astrainteractive.astralibs.command.registrar.NeoForgeCommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.MinecraftDispatchers
+import ru.astrainteractive.astralibs.lifecycle.ForgeLifecycleServer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.forge.core.api.NeoForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.forge.core.api.NeoForgeOnlinePlayersProvider
@@ -21,7 +25,9 @@ import ru.astrainteractive.messagebridge.messenger.forge.di.NeoForgeMessengerMod
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import java.io.File
 
-class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
+class RootModule(
+    forgeLifecycleServer: ForgeLifecycleServer
+) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
     val coreModule by lazy {
         CoreModule(
             dataFolder = FMLPaths.CONFIGDIR.get()
@@ -30,7 +36,8 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withou
                 .toFile()
                 .also(File::mkdirs),
             dispatchers = MinecraftDispatchers(),
-            platformServer = MinecraftPlatformServer
+            platformServer = MinecraftPlatformServer,
+            commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
         )
     }
 
@@ -45,6 +52,15 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withou
     val neoForgeMessengerModule by lazy {
         NeoForgeMessengerModule(
             coreModule = coreModule,
+        )
+    }
+    val commandModule by lazy {
+        CommandModule(
+            coreModule = coreModule,
+            linkModule = linkModule,
+            lifecyclePlugin = forgeLifecycleServer,
+            commandRegistrarContext = coreModule.commandRegistrarContext,
+            multiplatformCommand = MultiplatformCommand(MinecraftMultiplatformCommands())
         )
     }
 
@@ -67,7 +83,7 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withou
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
-            // event
+            commandModule.lifecycle,
             jdaEventModule.lifecycle,
             tgEventModule.lifecycle,
             neoForgeMessengerModule.lifecycle
@@ -75,7 +91,7 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withou
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch(coreModule.dispatchers.IO) {
                 BEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
@@ -84,7 +100,7 @@ class RootModule : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withou
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            GlobalScope.launch(Dispatchers.IO) {
+            GlobalScope.launch(coreModule.dispatchers.IO) {
                 BEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.forEach(Lifecycle::onDisable)

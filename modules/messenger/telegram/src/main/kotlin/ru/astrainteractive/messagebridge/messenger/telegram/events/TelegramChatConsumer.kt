@@ -13,17 +13,12 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 
-/**
- * Entry point for Telegram long-polling updates. Pure orchestration: it wires the relevance check,
- * content validation, command dispatch and relaying together, delegating every decision and
- * side effect to a dedicated collaborator.
- */
 internal class TelegramChatConsumer(
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,

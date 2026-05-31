@@ -1,7 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.events
 
-import org.telegram.telegrambots.meta.api.objects.User
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.meta.api.objects.User
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -13,9 +13,6 @@ import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
 
-/**
- * Executes [ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand]s, replying into the chat they originated from.
- */
 internal class TelegramCommandHandler(
     private val messageSender: TelegramMessageSender,
     private val onlinePlayersProvider: OnlinePlayersProvider,

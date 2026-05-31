@@ -2,9 +2,7 @@ package ru.astrainteractive.messagebridge.commands.di
 
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.messagebridge.commands.link.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.commands.link.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.commands.reload.ReloadLiteralArgumentBuilder
@@ -17,7 +15,6 @@ class CommandModule(
     lifecyclePlugin: Lifecycle,
     coreModule: CoreModule,
     linkModule: LinkModule,
-    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
     private val commandRegistrarContext: CommandRegistrarContext,
     private val multiplatformCommand: MultiplatformCommand
 ) {
@@ -25,7 +22,7 @@ class CommandModule(
         ReloadLiteralArgumentBuilder(
             plugin = lifecyclePlugin,
             translationKrate = coreModule.translationKrate,
-            kyoriKrate = kyoriKrate,
+            kyoriKrate = coreModule.kyoriKrate,
             multiplatformCommand = multiplatformCommand
         ).create(),
         LinkLiteralArgumentBuilder(
@@ -34,7 +31,7 @@ class CommandModule(
                 codeApi = linkModule.codeApi,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate,
-                kyoriKrate = kyoriKrate
+                kyoriKrate = coreModule.kyoriKrate
             ),
             multiplatformCommand = multiplatformCommand,
             platformServer = coreModule.platformServer
@@ -44,7 +41,7 @@ class CommandModule(
                 ioScope = coreModule.ioScope,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate,
-                kyoriKrate = kyoriKrate
+                kyoriKrate = coreModule.kyoriKrate
             ),
             multiplatformCommand = multiplatformCommand,
             platformServer = coreModule.platformServer

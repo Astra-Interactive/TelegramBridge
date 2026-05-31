@@ -14,10 +14,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.withRetry
 import java.io.Serializable
 
-/**
- * Gateway to outgoing Telegram operations. Owns client resolution and retry/error handling so the
- * rest of the module speaks in plain chat ids and text instead of telegram api method objects.
- */
 internal class TelegramMessageSender(
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramMessageSender").withoutParentHandlers() {

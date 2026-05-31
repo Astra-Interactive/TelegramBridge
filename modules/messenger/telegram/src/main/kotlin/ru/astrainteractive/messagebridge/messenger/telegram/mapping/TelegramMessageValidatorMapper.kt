@@ -7,10 +7,6 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 
-/**
- * Validates the content of an already-relevant message: author identity, display-name policy and
- * text constraints. Routing/freshness is [TelegramMessageRelevanceMapper]'s concern, not this one's.
- */
 internal class TelegramMessageValidatorMapper(
     configKrate: CachedKrate<PluginConfiguration>,
     private val authorMapper: TelegramAuthorMapper,
