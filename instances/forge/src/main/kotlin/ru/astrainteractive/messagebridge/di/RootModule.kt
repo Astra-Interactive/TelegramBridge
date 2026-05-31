@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.di
 
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.minecraftforge.fml.loading.FMLPaths
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
@@ -90,7 +89,7 @@ class RootModule(
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            GlobalScope.launch(coreModule.dispatchers.IO) {
+            coreModule.ioScope.launch {
                 BEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
@@ -99,10 +98,10 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            GlobalScope.launch(coreModule.dispatchers.IO) {
+            coreModule.ioScope.launch {
                 BEventChannel.consume(ServerClosedBEvent)
             }
-            lifecycles.forEach(Lifecycle::onDisable)
+            lifecycles.reversed().forEach(Lifecycle::onDisable)
         }
     )
 }

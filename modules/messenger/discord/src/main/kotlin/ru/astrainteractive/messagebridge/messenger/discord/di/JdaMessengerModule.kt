@@ -1,13 +1,14 @@
 package ru.astrainteractive.messagebridge.messenger.discord.di
 
 import com.neovisionaries.ws.client.WebSocketFactory
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -45,6 +46,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMess
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopicUpdater
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 class JdaMessengerModule(
@@ -53,9 +55,49 @@ class JdaMessengerModule(
     onlinePlayersProvider: OnlinePlayersProvider
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
-    private val jdaFlow = coreModule.configKrate.cachedStateFlow
-        .map { pluginConfiguration -> pluginConfiguration.jdaConfig }
-        .flatMapLatest { config ->
+    private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
+        .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
+        .distinctUntilChanged()
+        .flatMapLatest { proxy ->
+            callbackFlow {
+                val okHttpClient = if (proxy == null) {
+                    OkHttpClient.Builder().build()
+                } else {
+                    @Suppress("MagicNumber")
+                    OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS)
+                        .callTimeout(75, TimeUnit.SECONDS)
+                        .pingInterval(15, TimeUnit.SECONDS)
+                        .retryOnConnectionFailure(true)
+                        .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                        .proxyAuthenticator { route, response ->
+                            var builder = response.request.newBuilder()
+                            if (route?.socketAddress?.hostString == proxy.host) {
+                                val credential: String = Credentials.basic(proxy.username, proxy.password)
+                                builder.header("Proxy-Authorization", credential)
+                            }
+                            builder.build()
+                        }
+                        .build()
+                }
+                send(okHttpClient)
+
+                awaitClose {
+                    okHttpClient.dispatcher.executorService.shutdown()
+                    okHttpClient.connectionPool.evictAll()
+                    okHttpClient.cache?.close()
+                }
+            }
+        }
+        .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
+
+    private val jdaFlow = combine(
+        flow = okHttpClientFlow,
+        flow2 = coreModule.configKrate.cachedStateFlow
+            .map { pluginConfiguration -> pluginConfiguration.jdaConfig },
+        transform = { okHttpClient, config ->
             callbackFlow {
                 val builder = JDABuilder.createLight(config.token).apply {
                     enableIntents(GatewayIntent.MESSAGE_CONTENT)
@@ -63,38 +105,20 @@ class JdaMessengerModule(
                     enableIntents(GatewayIntent.GUILD_MESSAGES)
                     setActivity(Activity.playing(config.activity))
                     config.proxy?.let { proxy ->
-                        val credential: String = Credentials.basic(proxy.username, proxy.password)
                         setWebsocketFactory(
                             WebSocketFactory()
                                 .setVerifyHostname(false)
-                                .also {
-                                    it.proxySettings.setHost(proxy.host)
-                                    it.proxySettings.setPort(proxy.port)
-                                    it.proxySettings.setCredentials(proxy.username, proxy.password)
+                                .also { webSocketFactory ->
+                                    webSocketFactory.proxySettings.setHost(proxy.host)
+                                    webSocketFactory.proxySettings.setPort(proxy.port)
+                                    webSocketFactory.proxySettings.setCredentials(proxy.username, proxy.password)
                                 }
                         )
-                        setHttpClientBuilder(
-                            OkHttpClient.Builder()
-                                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                                .proxyAuthenticator { route, response ->
-                                    var builder = response.request.newBuilder()
-                                    if (route?.socketAddress?.hostString == proxy.host) {
-                                        builder = builder.header("Proxy-Authorization", credential)
-                                    }
-                                    builder.build()
-                                }
-                        )
+                        setHttpClient(okHttpClient)
                     }
                 }
 
-                val jda = flow { emit(builder.build().awaitReady()) }
-                    .retryWhen { t, _ ->
-                        error { "#jdaFlow could not create JDA: ${t.localizedMessage}" }
-                        delay(5.seconds)
-                        true
-                    }
-                    .first()
-
+                val jda = builder.build().awaitReady()
                 send(jda)
 
                 awaitClose {
@@ -102,8 +126,14 @@ class JdaMessengerModule(
                     jda.awaitShutdown()
                     jda.registeredListeners.forEach(jda::removeEventListener)
                 }
+            }.retryWhen { t, _ ->
+                error { "#jdaFlow could not create JDA: ${t.localizedMessage}" }
+                delay(5.seconds)
+                val shouldRetry = t !is CancellationException
+                shouldRetry
             }
         }
+    ).flattenConcat().shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
 
     private val webhookClient = combine(
         flow = jdaFlow,
@@ -165,12 +195,9 @@ class JdaMessengerModule(
         onDisable = {
             discordMessageController.cancel()
             messageEventListener.cancel()
-            GlobalScope.launch(coreModule.dispatchers.IO) {
+            coreModule.ioScope.launch {
                 jdaFlow.firstOrNull()?.let { jda ->
                     messageEventListener.onDisable(jda)
-                    jda.registeredListeners.forEach(jda::removeEventListener)
-                    jda.shutdownNow()
-                    jda.awaitShutdown()
                 }
             }
         }
