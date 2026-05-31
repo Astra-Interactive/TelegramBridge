@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.runInterruptible
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
@@ -71,6 +72,7 @@ class TelegramMessengerModule(
                 send(okHttpClient)
 
                 awaitClose {
+                    okHttpClient.dispatcher.cancelAll()
                     okHttpClient.dispatcher.executorService.shutdown()
                     okHttpClient.connectionPool.evictAll()
                     okHttpClient.cache?.close()
@@ -143,7 +145,7 @@ class TelegramMessengerModule(
                     Supplier { okHttpClient }
                 )
                 try {
-                    tgLpApplication.registerBot(tgConfig.token, consumer)
+                    runInterruptible { tgLpApplication.registerBot(tgConfig.token, consumer) }
                     info { "#bridgeBotFlow loaded!" }
                     send(tgLpApplication)
                 } catch (e: TelegramApiErrorResponseException) {
@@ -151,6 +153,7 @@ class TelegramMessengerModule(
                 }
                 awaitClose {
                     info { "#bridgeBotFlow closing TelegramBotsLongPollingApplication..." }
+                    okHttpClient.dispatcher.cancelAll()
                     tgLpApplication.unregisterBot(tgConfig.token)
                     tgLpApplication.stop()
                     tgLpApplication.close()

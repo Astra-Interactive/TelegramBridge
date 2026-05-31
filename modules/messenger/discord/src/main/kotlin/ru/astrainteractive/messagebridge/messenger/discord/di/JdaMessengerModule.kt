@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runInterruptible
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -118,7 +119,7 @@ class JdaMessengerModule(
                     }
                 }
 
-                val jda = builder.build().awaitReady()
+                val jda = runInterruptible { builder.build().awaitReady() }
                 send(jda)
 
                 awaitClose {
@@ -140,7 +141,7 @@ class JdaMessengerModule(
         flow2 = coreModule.configKrate.cachedStateFlow.map { it.jdaConfig.channelId },
         transform = { jda, channelId ->
             callbackFlow {
-                val webhookClient = WebHookClientFactory(jda).create(channelId).first()
+                val webhookClient = runInterruptible { WebHookClientFactory(jda).create(channelId) }.first()
                 send(webhookClient)
                 awaitClose {
                     webhookClient.close()
