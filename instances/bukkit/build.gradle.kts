@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.ShadowBasePlugin.Companion.shadow
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.kotlin.dsl.named
 import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
@@ -84,10 +85,10 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("org/jetbrains/annotations/**")
         exclude("org/slf4j/**")
         exclude("org/w3c/dom/**")
+        exclude("org/jspecify/annotations/**")
         // Root
         if (project.name == "forge" || project.name == "neoforge") {
-            // Use kotlin-neoforge or kotlin-forge
-            exclude("kotlin/**")
+            exclude("kotlin/**") // Use kotlin-neoforge or kotlin-forge
         }
         exclude("_COROUTINE/**")
         exclude("DebugProbesKt.bin")
@@ -97,12 +98,10 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("**LICENSE**")
         // Other dependencies
         exclude("club/minnced/opus/**")
-        exclude("co/touchlab/stately/**")
         exclude("com/google/**")
         exclude("com/ibm/icu/**")
         exclude("com/sun/**")
         exclude("google/protobuf/**")
-        exclude("io/github/**")
         exclude("io/javalin/**")
         exclude("jakarta/servlet/**")
         exclude("javax/annotation/**")
@@ -131,21 +130,24 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("META-INF/com.android.tools/**")
         exclude("META-INF/gradle-plugins/**")
         exclude("META-INF/imports/**")
-        exclude("META-INF/kotlin-reflection.kotlin_module")
+        if (project.name == "forge") {
+            exclude("META-INF/kotlin-reflection.kotlin_module") // Don't exclude on: forge]
+        }
         exclude("META-INF/license/**")
         exclude("META-INF/maven/**")
         exclude("META-INF/native-image/**")
         exclude("META-INF/native/**")
         exclude("META-INF/proguard/**")
         exclude("META-INF/rewrite/**")
-        exclude("META-INF/services/kotlin.reflect.**")
+        if (project.name == "forge") {
+            exclude("META-INF/services/kotlin.reflect.**") // Don't exclude on: [*]
+        }
         if (project.name != "forge") {
-            // Don't remove in: [forge]
-            exclude("META-INF/versions/**")
+            exclude("META-INF/versions/**") // Don't remove in: [forge]
         }
         // DEPENDENCIES
         if (project.name == "bukkit") {
-            exclude(dependency("com.fasterxml.jackson.core:.*"))
+//            exclude(dependency("com.fasterxml.jackson.core:.*"))
             exclude(dependency("com.google.code.gson:.*"))
             exclude(dependency("com.google.crypto.tink:.*"))
             exclude(dependency("com.google.errorprone:.*"))
@@ -177,8 +179,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         add("com.arkivanov")
         add("com.charleskorn.kaml")
         if (project.name != "bukkit") {
-            // Don't relocate on: [bukkit]
-            add("com.fasterxml")
+            add("com.fasterxml") // Don't relocate on: [bukkit]
         }
         add("com.ibm.icu")
         add("com.neovisionaries")
@@ -189,22 +190,19 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         add("it.krzeminski")
         add("it.krzeminski.snakeyaml")
         if (project.name != "bukkit") {
-            // Is present on: [bukkit]
-            add("javax.xml")
+            add("javax.xml") // Is present on: [bukkit]
         }
         add("kotlinx")
         add("net.dv8tion")
         if (project.name != "bukkit") {
-            // Don't relocate on: [bukkit]
-            add("net.kyori")
+            add("net.kyori") // Don't relocate on: [bukkit]
         }
         add("net.thauvin")
         add("okhttp3")
         add("okio")
         add("org.apache")
         if (project.name != "bukkit") {
-            // Don't relocate on: [bukkit]
-            add("org.h2")
+            add("org.h2") // Don't relocate on: [bukkit]
         }
 
         add("org.intellij")
