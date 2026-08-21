@@ -2,11 +2,15 @@ name: "gradle-wrapper-validation"
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
-  validation:
-    name: "Gradle Wrapper Validation"
+  gradle_wrapper_validation:
+    name: Validate Gradle wrapper
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v6
+      - name: Checkout Git repo
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
