@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
@@ -37,4 +39,8 @@ dependencies {
     compileOnly(libs.minecraft.datafixerupper)
     compileOnly(libs.minecraft.neoforged.bus)
     compileOnly(libs.minecraft.neoforgeversion)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    dependsOn(":instances:neoforge:generateNeoforgeJar")
 }

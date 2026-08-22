@@ -1,46 +1,45 @@
-name: "Upload GitHub release"
+name: "upload-github-release"
 on:
   workflow_call:
     secrets:
       ACTIONS_TOKEN:
-        required: true
+        description: "Optional personal access token used to create the release. Falls back to the default GITHUB_TOKEN when not provided."
+        required: false
+
+# `contents: write` is required to create a release with the default
+# GITHUB_TOKEN. The caller job must grant the same permission.
+permissions:
+  contents: write
+
 jobs:
   upload_github_release:
     name: Upload GitHub release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: christian-draeger/read-properties@1.1.1
+      - name: Read project properties
         id: properties
+        uses: christian-draeger/read-properties@908f99d3334be3802ec7cb528395a69d19914e7b # 1.1.1
         with:
           path: './gradle.properties'
           properties: 'klibs.project.name klibs.project.version.string'
-      - uses: actions/download-artifact@d0ce8fd1167ed839810201de977912a090ab10a7
-        name: "Download neoforge"
+      - name: Download dists
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
-          name: neoforge
-          path: ./jars
-      - uses: actions/download-artifact@d0ce8fd1167ed839810201de977912a090ab10a7
-        name: "Download bukkit"
-        with:
-          name: bukkit
-          path: ./jars
-      - uses: actions/download-artifact@d0ce8fd1167ed839810201de977912a090ab10a7
-        name: "Download forge"
-        with:
-          name: forge
-          path: ./jars
+          pattern: dist-*
+          path: ./dist
+          merge-multiple: true
 
-      - name: Create release
-        id: create_internal_release
-        uses: softprops/action-gh-release@v2
+      - name: Create GitHub release
+        id: create_github_release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN || github.token }}
         with:
           files: |
-            ./jars/*.jar
+            ./dist/*.jar
           tag_name: ${{ steps.properties.outputs.klibs-project-version-string }}
           name: ${{ steps.properties.outputs.klibs-project-name }} - ${{ steps.properties.outputs.klibs-project-version-string }}
           draft: false
