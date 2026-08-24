@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenLocal()
         maven("https://maven.neoforged.net/releases")
         maven("https://files.minecraftforge.net/maven")
         maven("https://maven.minecraftforge.net")
