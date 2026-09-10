@@ -20,6 +20,7 @@ import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponse
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
@@ -42,33 +43,35 @@ class TelegramMessengerModule(
     linkModule: LinkModule,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
 
+    @Suppress("MagicNumber")
+    private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+            .connectTimeout(75, TimeUnit.SECONDS)
+            .writeTimeout(70, TimeUnit.SECONDS)
+            .readTimeout(100, TimeUnit.SECONDS)
+            .pingInterval(15, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+        if (proxy != null) {
+            builder
+                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                .proxyAuthenticator { route, response ->
+                    val requestBuilder = response.request.newBuilder()
+                    if (route?.socketAddress?.hostString == proxy.host) {
+                        val credential: String = Credentials.basic(proxy.username, proxy.password)
+                        requestBuilder.header("Proxy-Authorization", credential)
+                    }
+                    requestBuilder.build()
+                }
+        }
+        return builder.build()
+    }
+
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.tgConfig.proxy }
         .distinctUntilChanged()
         .flatMapLatest { proxy ->
             callbackFlow {
-                val okHttpClient = if (proxy == null) {
-                    OkHttpClient.Builder().build()
-                } else {
-                    @Suppress("MagicNumber")
-                    OkHttpClient.Builder()
-                        .connectTimeout(10, TimeUnit.SECONDS)
-                        .writeTimeout(10, TimeUnit.SECONDS)
-                        .readTimeout(60, TimeUnit.SECONDS)
-                        .callTimeout(75, TimeUnit.SECONDS)
-                        .pingInterval(15, TimeUnit.SECONDS)
-                        .retryOnConnectionFailure(true)
-                        .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                        .proxyAuthenticator { route, response ->
-                            var builder = response.request.newBuilder()
-                            if (route?.socketAddress?.hostString == proxy.host) {
-                                val credential: String = Credentials.basic(proxy.username, proxy.password)
-                                builder.header("Proxy-Authorization", credential)
-                            }
-                            builder.build()
-                        }
-                        .build()
-                }
+                val okHttpClient = createOkHttpClient(proxy)
                 send(okHttpClient)
 
                 awaitClose {
