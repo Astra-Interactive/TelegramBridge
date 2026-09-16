@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.runInterruptible
 import okhttp3.Credentials
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
@@ -32,10 +33,15 @@ import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMess
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.util.CappedBackOff
+import java.net.Inet4Address
+import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Proxy
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.Executors
 import java.util.function.Supplier
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
@@ -43,14 +49,21 @@ class TelegramMessengerModule(
     linkModule: LinkModule,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
 
-    @Suppress("MagicNumber")
+    private val ipv4FirstDns = object : Dns {
+        override fun lookup(hostname: String): List<InetAddress> {
+            val resolved = Dns.SYSTEM.lookup(hostname)
+            return resolved.filterIsInstance<Inet4Address>().ifEmpty { resolved }
+        }
+    }
+
     private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
         val builder = OkHttpClient.Builder()
-            .connectTimeout(75, TimeUnit.SECONDS)
-            .writeTimeout(70, TimeUnit.SECONDS)
-            .readTimeout(100, TimeUnit.SECONDS)
-            .pingInterval(15, TimeUnit.SECONDS)
+            .connectTimeout(CONNECT_TIMEOUT.toJavaDuration())
+            .writeTimeout(WRITE_TIMEOUT.toJavaDuration())
+            .readTimeout(READ_TIMEOUT.toJavaDuration())
+            .pingInterval(PING_INTERVAL.toJavaDuration())
             .retryOnConnectionFailure(true)
+            .dns(ipv4FirstDns)
         if (proxy != null) {
             builder
                 .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
@@ -145,7 +158,9 @@ class TelegramMessengerModule(
             channelFlow {
                 val tgLpApplication = TelegramBotsLongPollingApplication(
                     Supplier(::ObjectMapper),
-                    Supplier { okHttpClient }
+                    Supplier { okHttpClient },
+                    Executors::newSingleThreadScheduledExecutor,
+                    Supplier { CappedBackOff() }
                 )
                 try {
                     runInterruptible { tgLpApplication.registerBot(tgConfig.token, consumer) }
@@ -171,4 +186,16 @@ class TelegramMessengerModule(
             telegramMessageController.cancel()
         }
     )
+
+    private companion object {
+        /** Spent on every unreachable address before the next one is tried. */
+        val CONNECT_TIMEOUT = 10.seconds
+
+        val WRITE_TIMEOUT = 70.seconds
+
+        /** Must exceed the getUpdates timeout, which holds the connection open. */
+        val READ_TIMEOUT = 100.seconds
+
+        val PING_INTERVAL = 15.seconds
+    }
 }
