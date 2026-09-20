@@ -27,18 +27,16 @@ import java.io.File
 class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
-    val coreModule by lazy {
-        CoreModule(
-            dataFolder = FMLPaths.CONFIGDIR.get()
-                .resolve("MessageBridge")
-                .toAbsolutePath()
-                .toFile()
-                .also(File::mkdirs),
-            dispatchers = MinecraftDispatchers(),
-            platformServer = MinecraftPlatformServer,
-            commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
-        )
-    }
+    val coreModule = CoreModule(
+        dataFolder = FMLPaths.CONFIGDIR.get()
+            .resolve("MessageBridge")
+            .toAbsolutePath()
+            .toFile()
+            .also(File::mkdirs),
+        dispatchers = MinecraftDispatchers(),
+        platformServer = MinecraftPlatformServer,
+        commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
+    )
 
     val onlinePlayersProvider by lazy {
         NeoForgeOnlinePlayersProvider()

@@ -232,6 +232,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         add("org.jetbrains.kotlinx")
         add("org.json")
         add("org.json")
+        // Forge boots asm as a named module, so an unrelocated copy splits the package and the mod is rejected
+        add("org.objectweb.asm")
 //        add("org.sqlite") // Don't relocate on: [*]
         add("org.telegram")
         add("org.telegram.telegrambots")
