@@ -11,6 +11,3 @@ softdepend: [ "luckperms" ]
 depend: [ ]
 loadbefore: [ ]
 libraries: ${libraries}
-commands:
-  mbreload:
-  link:
