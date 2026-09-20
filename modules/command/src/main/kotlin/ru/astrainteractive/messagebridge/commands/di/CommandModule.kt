@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.commands.di
 
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
+import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.commands.link.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.commands.link.LinkLiteralArgumentBuilder
@@ -13,7 +14,7 @@ import ru.astrainteractive.messagebridge.link.di.LinkModule
 
 class CommandModule(
     lifecyclePlugin: Lifecycle,
-    coreModule: CoreModule,
+    private val coreModule: CoreModule,
     linkModule: LinkModule,
     private val commandRegistrarContext: CommandRegistrarContext,
     private val multiplatformCommand: MultiplatformCommand
@@ -49,7 +50,7 @@ class CommandModule(
     )
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            nodes.forEach(commandRegistrarContext::registerWhenReady)
+            commandRegistrarContext.registerWhenReady(nodes, coreModule.unconfinedScope)
         }
     )
 }

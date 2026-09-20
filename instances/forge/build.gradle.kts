@@ -9,7 +9,6 @@ plugins {
     id("ru.astrainteractive.gradleplugin.detekt")
     id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.gradle.forgegradle)
-    alias(libs.plugins.gradle.forgerenamer)
     alias(libs.plugins.gradle.shadow)
     alias(libs.plugins.klibs.minecraft.resource.processor)
     alias(libs.plugins.gradle.forge.jarjar)
@@ -233,6 +232,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         add("org.jetbrains.kotlinx")
         add("org.json")
         add("org.json")
+        // Forge boots asm as a named module, so an unrelocated copy splits the package and the mod is rejected
+        add("org.objectweb.asm")
 //        add("org.sqlite") // Don't relocate on: [*]
         add("org.telegram")
         add("org.telegram.telegrambots")
@@ -255,14 +256,3 @@ dependencies {
         JarJarDependencyMethods.getJarJar(this).setVersion(libs.versions.driver.jdbc)
     }
 }
-
-renamer {
-    mappings.from(minecraft.dependency.toSrgFile)
-}
-
-val reobfShadowJar by renamer.classes(tasks.named<Jar>("shadowJar")) {
-    output = input
-}
-
-shadowJar.finalizedBy(reobfShadowJar)
-reobfShadowJar.mustRunAfter(shadowJar)
