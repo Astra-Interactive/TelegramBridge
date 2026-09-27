@@ -2,9 +2,7 @@ package ru.astrainteractive.messagebridge.messenger.bukkit.di
 
 import kotlinx.coroutines.cancel
 import org.bukkit.event.HandlerList
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
@@ -14,11 +12,9 @@ import ru.astrainteractive.messagebridge.messenger.bukkit.messaging.MinecraftBEv
 class BukkitMessengerModule(
     coreModule: CoreModule,
     bukkitCoreModule: BukkitCoreModule,
-    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
     linkingDao: LinkingDao
 ) {
     private val minecraftBEventConsumer = MinecraftBEventConsumer(
-        kyoriKrate = kyoriKrate,
         translationKrate = coreModule.translationKrate,
         linkingDao = linkingDao,
         dispatchers = coreModule.dispatchers

@@ -3,9 +3,9 @@ package ru.astrainteractive.messagebridge.messenger.forge.messaging
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.astrainteractive.astralibs.coroutines.withTimings
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
+import ru.astrainteractive.astralibs.server.sendMessage
 import ru.astrainteractive.astralibs.server.util.MinecraftUtil
-import ru.astrainteractive.astralibs.server.util.toNative
+import ru.astrainteractive.astralibs.server.util.asKAudience
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
@@ -24,17 +24,15 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class ForgeBEventConsumer(
-    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer").withoutParentHandlers() {
-    private val kyori by kyoriKrate
     private val translation by translationKrate
 
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.MINECRAFT) return
-        val component = when (bEvent) {
+        val text = when (bEvent) {
             is Text -> {
                 translation.minecraftMessageFormat(
                     playerName = bEvent.author,
@@ -48,11 +46,11 @@ internal class ForgeBEventConsumer(
             is PlayerLeaveBEvent,
             is PlayerJoinedBEvent,
             is PlayerDeathBEvent -> null
-        }?.let(kyori::toComponent) ?: return
+        } ?: return
 
-        MinecraftUtil.serverOrNull?.playerList?.players.orEmpty().forEach { player ->
-            player.sendSystemMessage(component.toNative())
-        }
+        MinecraftUtil.serverOrNull?.playerList?.players.orEmpty()
+            .map { player -> player.asKAudience() }
+            .sendMessage(text)
     }
 
     init {

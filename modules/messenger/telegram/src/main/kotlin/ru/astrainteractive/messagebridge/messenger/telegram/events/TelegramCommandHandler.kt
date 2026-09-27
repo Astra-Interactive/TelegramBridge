@@ -8,6 +8,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
@@ -48,14 +49,14 @@ internal class TelegramCommandHandler(
         val text = translation.onlinePlayersMessage(
             count = players.size,
             players = players.joinToString(separator = ", "),
-        ).raw
+        ).toMessengerText()
         messageSender.send(chatId, text, originalMessageId)
     }
 
     private suspend fun sendLink(code: Int, user: User?, chatId: String, originalMessageId: Int?) {
         user ?: return
         val response = linkApi.linkTelegram(code, user)
-        val text = response.asMessage(translation.link).raw
+        val text = response.asMessage(translation.link).toMessengerText()
         messageSender.send(chatId, text, originalMessageId)
     }
 

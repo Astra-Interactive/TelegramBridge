@@ -3,7 +3,6 @@ package ru.astrainteractive.messagebridge.commands.link
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -17,10 +16,8 @@ internal class LinkCommandExecutor(
     private val ioScope: CoroutineScope,
     private val codeApi: CodeApi,
     private val linkingDao: LinkingDao,
-    translationKrate: CachedKrate<PluginTranslation>,
-    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
+    translationKrate: CachedKrate<PluginTranslation>
 ) {
-    private val kyori by kyoriKrate
     private val translation by translationKrate
 
     sealed interface Intent {
@@ -41,9 +38,7 @@ internal class LinkCommandExecutor(
                         uuid = player.uuid
                     )
                     val code = codeApi.generateCodeForPlayer(codeUser)
-                    with(kyori) {
-                        player.sendMessage(translation.link.codeCreated(code).component)
-                    }
+                    player.sendMessage(translation.link.codeCreated(code))
                 }
             }
 

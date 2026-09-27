@@ -16,6 +16,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
@@ -89,7 +90,7 @@ internal class TelegramBEventConsumer(
             ServerOpenBEvent -> {
                 translation.serverOpenMessage
             }
-        }.raw
+        }.toMessengerText()
         val sendMessage = SendMessage(tgConfig.chatID, text).apply {
             replyToMessageId = tgConfig.topicID.toIntOrNull()
         }

@@ -10,6 +10,7 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
@@ -52,7 +53,7 @@ internal class TelegramChatConsumer(
             TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
             TelegramMessageValidation.IllegalDisplayName -> {
                 info { "#consume display name rejected by regex" }
-                reply(update, translation.illegalDisplayName.raw)
+                reply(update, translation.illegalDisplayName.toMessengerText())
                 delete(update)
             }
         }

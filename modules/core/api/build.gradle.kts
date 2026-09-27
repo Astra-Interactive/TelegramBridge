@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.minecraft.kyori.minimessage)
+    compileOnly(libs.minecraft.kyori.plain)
     compileOnly(libs.minecraft.luckperms)
 
     implementation(libs.klibs.kstorage)

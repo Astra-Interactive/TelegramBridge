@@ -16,7 +16,6 @@ class NeoForgeMessengerModule(
         dispatchers = coreModule.dispatchers
     )
     private val minecraftMessageController = NeoForgeBEventConsumer(
-        kyoriKrate = coreModule.kyoriKrate,
         translationKrate = coreModule.translationKrate,
     )
 
