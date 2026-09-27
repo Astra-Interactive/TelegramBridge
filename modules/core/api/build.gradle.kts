@@ -6,6 +6,7 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.minecraft.kyori.minimessage)
     compileOnly(libs.minecraft.luckperms)
 
     implementation(libs.klibs.kstorage)
@@ -15,4 +16,9 @@ dependencies {
     implementation(libs.kotlin.serialization.kaml)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.command)
+
+    testImplementation(libs.minecraft.kyori.legacy)
+    testImplementation(libs.minecraft.kyori.minimessage)
+    testImplementation(libs.minecraft.kyori.plain)
+    testImplementation(libs.tests.kotlin.test)
 }

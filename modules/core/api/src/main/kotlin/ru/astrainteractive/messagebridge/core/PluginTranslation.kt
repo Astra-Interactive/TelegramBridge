@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.core
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import net.kyori.adventure.text.minimessage.MiniMessage
 import ru.astrainteractive.astralibs.string.StringDesc
 import ru.astrainteractive.astralibs.string.replace
 
@@ -78,13 +79,17 @@ data class PluginTranslation(
         fun codeCreated(code: Int) = codeCreated.replace("%code%", "$code")
     }
 
+    /**
+     * [playerName] and [message] come from Telegram or Discord users, so their MiniMessage tags are escaped:
+     * otherwise anyone in the chat could broadcast a `<click:run_command:…>` to every player.
+     */
     fun minecraftMessageFormat(
         playerName: String,
         message: String,
         from: String
     ) = minecraftMessageFormat
-        .replace("%player%", playerName)
-        .replace("%message%", message)
+        .replace("%player%", MiniMessage.miniMessage().escapeTags(playerName))
+        .replace("%message%", MiniMessage.miniMessage().escapeTags(message))
         .replace("%from%", from)
 
     fun telegramMessageFormat(
