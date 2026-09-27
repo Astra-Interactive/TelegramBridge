@@ -9,110 +9,160 @@ import ru.astrainteractive.astralibs.localization.component.replaceAll
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
 
+/**
+ * Texts of the plugin, grouped by the feature that sends them. Every text has a default, so the plugin works
+ * without `translations.yml` and a missing key keeps its default.
+ */
 @Serializable
 data class PluginTranslation(
-    @SerialName("general.prefix")
-    val prefix: LocalizedText = LocalizedText.shared("&#18dbd1[EmpireItems]"),
-    @SerialName("general.reload")
-    val reload: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "&#dbbb18Перезагрузка плагина")
-        translation(MinecraftLocales.EN_US, "&#dbbb18Reloading the plugin")
-    },
-    @SerialName("general.reload_complete")
-    val reloadComplete: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "&#42f596Перезагрузка успешно завершена")
-        translation(MinecraftLocales.EN_US, "&#42f596Reload complete")
-    },
-    @SerialName("general.no_permission")
-    val noPermission: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "&#db2c18У вас нет прав!")
-        translation(MinecraftLocales.EN_US, "&#db2c18You don't have permission!")
-    },
-    @SerialName("messaging.player_join")
-    private val playerJoinMessage: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "Игрок %player% присоединился")
-        translation(MinecraftLocales.EN_US, "Player %player% joined")
-    },
-    @SerialName("messaging.player_join_first_time")
-    private val playerJoinMessageFirstTime: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "🥳 Игрок %player% присоединился впервые!")
-        translation(MinecraftLocales.EN_US, "🥳 Player %player% joined for the first time!")
-    },
-    @SerialName("messaging.player_leave")
-    private val playerLeaveMessage: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "Игрок %player% покинул нас")
-        translation(MinecraftLocales.EN_US, "Player %player% left")
-    },
-    @SerialName("messaging.player_died")
-    private val playerDiedMessage: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "Игрок %player% сдох от %cause%")
-        translation(MinecraftLocales.EN_US, "Player %player% died: %cause%")
-    },
-    @SerialName("messaging.player_died_unknown_cause")
-    private val unknownDeathCause: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "Просто так")
-        translation(MinecraftLocales.EN_US, "unknown cause")
-    },
-    @SerialName("messaging.message.to_telegram")
-    private val telegramMessageFormat: LocalizedText = LocalizedText.shared("[%from%] %player%:\n%message%"),
-    @SerialName("messaging.message.to_minecraft")
-    private val minecraftMessageFormat: LocalizedText = LocalizedText.shared(
-        "[%from%] &#27A1E0%player%: &#FFFFFF%message%"
-    ),
-    @SerialName("messaging.online_players")
-    private val onlinePlayersMessage: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "Сейчас онлайн %count% игроков\n%players%")
-        translation(MinecraftLocales.EN_US, "%count% players online now\n%players%")
-    },
-    @SerialName("messaging.message.server_open")
-    val serverOpenMessage: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "✅ Сервер успешно запущен")
-        translation(MinecraftLocales.EN_US, "✅ The server has started")
-    },
-    @SerialName("messaging.message.server_closed")
-    val serverClosedMessage: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "🛑 Сервер остановлен")
-        translation(MinecraftLocales.EN_US, "🛑 The server has stopped")
-    },
-    @SerialName("messaging.illegal_display_name")
-    val illegalDisplayName: LocalizedText = LocalizedText.build {
-        translation(
-            MinecraftLocales.RU_RU,
-            "Ваше имя содержит недопустимые символы. Установите @username в настройках профиля Telegram."
-        )
-        translation(
-            MinecraftLocales.EN_US,
-            "Your name contains characters that are not allowed. Set a @username in your Telegram profile settings."
-        )
-    },
+    @SerialName("reload")
+    val reload: Reload = Reload(),
+    @SerialName("chat")
+    val chat: Chat = Chat(),
+    @SerialName("player")
+    val player: Player = Player(),
+    @SerialName("server")
+    val server: Server = Server(),
+    @SerialName("online_players")
+    val onlinePlayers: OnlinePlayers = OnlinePlayers(),
     @SerialName("link")
     val link: Link = Link(),
     @SerialName("unlink")
     val unlink: Unlink = Unlink()
 ) {
     @Serializable
-    data class Unlink(
-        @SerialName("success")
-        val success: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#42f596Привязка успешно удалена")
-            translation(MinecraftLocales.EN_US, "&#42f596Your account is unlinked")
+    data class Reload(
+        @SerialName("started")
+        val started: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "&#dbbb18Перезагрузка плагина")
+            translation(MinecraftLocales.EN_US, "&#dbbb18Reloading the plugin")
         },
-        @SerialName("not_linked")
-        val notLinked: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Ваш аккаунт не привязан")
-            translation(MinecraftLocales.EN_US, "Your account is not linked")
-        },
-        @SerialName("player_not_linked")
-        val playerNotLinked: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Аккаунт игрока не привязан")
-            translation(MinecraftLocales.EN_US, "The player's account is not linked")
-        },
-        @SerialName("player_unlink_success")
-        val playerUnlinkSuccess: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#42f596Привязка игрока успешно удалена")
-            translation(MinecraftLocales.EN_US, "&#42f596The player's account is unlinked")
-        },
+        @SerialName("completed")
+        val completed: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "&#42f596Перезагрузка успешно завершена")
+            translation(MinecraftLocales.EN_US, "&#42f596Reload complete")
+        }
     )
+
+    /** Messages relayed between Minecraft and the Telegram or Discord chat. */
+    @Serializable
+    data class Chat(
+        @SerialName("to_minecraft")
+        private val toMinecraft: LocalizedText = LocalizedText.shared("[%from%] &#27A1E0%player%: &#FFFFFF%message%"),
+        @SerialName("to_telegram")
+        private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %player%:\n%message%"),
+        @SerialName("illegal_display_name")
+        val illegalDisplayName: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.RU_RU,
+                "Ваше имя содержит недопустимые символы. Установите @username в настройках профиля Telegram."
+            )
+            translation(
+                MinecraftLocales.EN_US,
+                "Your name contains characters that are not allowed. Set a @username in your Telegram profile settings."
+            )
+        }
+    ) {
+        /**
+         * [playerName] and [message] come from Telegram or Discord users, so they are inserted as plain text:
+         * otherwise anyone in the chat could broadcast a `<click:run_command:…>` to every player.
+         */
+        fun toMinecraft(
+            playerName: String,
+            message: String,
+            from: String
+        ): LocalizableComponent = toMinecraft.replaceAll(
+            PlaceholderReplacement.plain("%player%", playerName),
+            PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%from%", from)
+        )
+
+        fun toTelegram(
+            playerName: String,
+            message: String,
+            from: String
+        ): LocalizableComponent = toTelegram.replaceAll(
+            PlaceholderReplacement.plain("%player%", playerName),
+            PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%from%", from)
+        )
+    }
+
+    /** Announcements of players joining, leaving and dying, for the Telegram chat. */
+    @Serializable
+    data class Player(
+        @SerialName("joined")
+        private val joined: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Игрок %player% присоединился")
+            translation(MinecraftLocales.EN_US, "Player %player% joined")
+        },
+        @SerialName("joined_first_time")
+        private val joinedFirstTime: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "🥳 Игрок %player% присоединился впервые!")
+            translation(MinecraftLocales.EN_US, "🥳 Player %player% joined for the first time!")
+        },
+        @SerialName("left")
+        private val left: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Игрок %player% покинул нас")
+            translation(MinecraftLocales.EN_US, "Player %player% left")
+        },
+        @SerialName("died")
+        private val died: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Игрок %player% сдох от %cause%")
+            translation(MinecraftLocales.EN_US, "Player %player% died: %cause%")
+        },
+        @SerialName("unknown_death_cause")
+        private val unknownDeathCause: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Просто так")
+            translation(MinecraftLocales.EN_US, "unknown cause")
+        }
+    ) {
+        fun joined(name: String): LocalizableComponent = joined.replace("%player%", name)
+
+        fun joinedFirstTime(name: String): LocalizableComponent = joinedFirstTime.replace("%player%", name)
+
+        fun left(name: String): LocalizableComponent = left.replace("%player%", name)
+
+        /** A death without a known [cause] reads [unknownDeathCause] in the same language. */
+        fun died(name: String, cause: String?): LocalizableComponent {
+            val causeReplacement = if (cause == null) {
+                PlaceholderReplacement(placeholder = "%cause%", value = unknownDeathCause)
+            } else {
+                PlaceholderReplacement.plain("%cause%", cause)
+            }
+            return died.replaceAll(PlaceholderReplacement.plain("%player%", name), causeReplacement)
+        }
+    }
+
+    /** Announcements of the server starting and stopping, for the Telegram chat. */
+    @Serializable
+    data class Server(
+        @SerialName("started")
+        val started: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "✅ Сервер успешно запущен")
+            translation(MinecraftLocales.EN_US, "✅ The server has started")
+        },
+        @SerialName("stopped")
+        val stopped: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "🛑 Сервер остановлен")
+            translation(MinecraftLocales.EN_US, "🛑 The server has stopped")
+        }
+    )
+
+    /** Reply to the online-players command in Telegram and Discord. */
+    @Serializable
+    data class OnlinePlayers(
+        @SerialName("message")
+        private val message: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Сейчас онлайн %count% игроков\n%players%")
+            translation(MinecraftLocales.EN_US, "%count% players online now\n%players%")
+        }
+    ) {
+        fun message(count: Int, players: String): LocalizableComponent = message.replaceAll(
+            PlaceholderReplacement.plain("%count%", "$count"),
+            PlaceholderReplacement.plain("%players%", players)
+        )
+    }
 
     @Serializable
     data class Link(
@@ -147,58 +197,36 @@ data class PluginTranslation(
             translation(MinecraftLocales.RU_RU, "Произошла неизвестная ошибка")
             translation(MinecraftLocales.EN_US, "An unknown error occurred")
         },
-        @SerialName("link_success")
-        val linkSuccess: LocalizedText = LocalizedText.build {
+        @SerialName("success")
+        val success: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.RU_RU, "Привязка прошла успешно")
             translation(MinecraftLocales.EN_US, "Your account is linked")
-        },
+        }
     ) {
         fun codeCreated(code: Int): LocalizableComponent = codeCreated.replace("%code%", "$code")
     }
 
-    /**
-     * [playerName] and [message] come from Telegram or Discord users, so they are inserted as plain text:
-     * otherwise anyone in the chat could broadcast a `<click:run_command:…>` to every player.
-     */
-    fun minecraftMessageFormat(
-        playerName: String,
-        message: String,
-        from: String
-    ): LocalizableComponent = minecraftMessageFormat.replaceAll(
-        PlaceholderReplacement.plain("%player%", playerName),
-        PlaceholderReplacement.plain("%message%", message),
-        PlaceholderReplacement.plain("%from%", from)
-    )
-
-    fun telegramMessageFormat(
-        playerName: String,
-        message: String,
-        from: String
-    ): LocalizableComponent = telegramMessageFormat.replaceAll(
-        PlaceholderReplacement.plain("%player%", playerName),
-        PlaceholderReplacement.plain("%message%", message),
-        PlaceholderReplacement.plain("%from%", from)
-    )
-
-    fun onlinePlayersMessage(count: Int, players: String): LocalizableComponent = onlinePlayersMessage.replaceAll(
-        PlaceholderReplacement.plain("%count%", "$count"),
-        PlaceholderReplacement.plain("%players%", players)
-    )
-
-    /** A death without a known [cause] reads [unknownDeathCause] in the same language. */
-    fun playerDiedMessage(name: String, cause: String?): LocalizableComponent {
-        val causeReplacement = if (cause == null) {
-            PlaceholderReplacement(placeholder = "%cause%", value = unknownDeathCause)
-        } else {
-            PlaceholderReplacement.plain("%cause%", cause)
+    @Serializable
+    data class Unlink(
+        @SerialName("success")
+        val success: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "&#42f596Привязка успешно удалена")
+            translation(MinecraftLocales.EN_US, "&#42f596Your account is unlinked")
+        },
+        @SerialName("not_linked")
+        val notLinked: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Ваш аккаунт не привязан")
+            translation(MinecraftLocales.EN_US, "Your account is not linked")
+        },
+        @SerialName("player_not_linked")
+        val playerNotLinked: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Аккаунт игрока не привязан")
+            translation(MinecraftLocales.EN_US, "The player's account is not linked")
+        },
+        @SerialName("player_success")
+        val playerSuccess: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "&#42f596Привязка игрока успешно удалена")
+            translation(MinecraftLocales.EN_US, "&#42f596The player's account is unlinked")
         }
-        return playerDiedMessage.replaceAll(PlaceholderReplacement.plain("%player%", name), causeReplacement)
-    }
-
-    fun playerLeaveMessage(name: String): LocalizableComponent = playerLeaveMessage.replace("%player%", name)
-
-    fun playerJoinMessage(name: String): LocalizableComponent = playerJoinMessage.replace("%player%", name)
-
-    fun playerJoinMessageFirstTime(name: String): LocalizableComponent = playerJoinMessageFirstTime
-        .replace("%player%", name)
+    )
 }

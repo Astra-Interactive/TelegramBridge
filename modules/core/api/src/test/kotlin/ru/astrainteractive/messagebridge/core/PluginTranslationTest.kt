@@ -34,28 +34,28 @@ class PluginTranslationTest {
 
     @Test
     fun GIVEN_message_with_click_tag_WHEN_formatted_for_minecraft_THEN_message_has_no_click() {
-        val message = translation.minecraftMessageFormat(playerName = "user", message = clickText, from = "TG")
+        val message = translation.chat.toMinecraft(playerName = "user", message = clickText, from = "TG")
 
         assertEquals(emptyList(), clickEventsOf(message))
     }
 
     @Test
     fun GIVEN_author_with_click_tag_WHEN_formatted_for_minecraft_THEN_message_has_no_click() {
-        val message = translation.minecraftMessageFormat(playerName = clickText, message = "привет", from = "DS")
+        val message = translation.chat.toMinecraft(playerName = clickText, message = "привет", from = "DS")
 
         assertEquals(emptyList(), clickEventsOf(message))
     }
 
     @Test
     fun GIVEN_message_with_color_tag_WHEN_formatted_for_minecraft_THEN_tag_is_shown_as_text() {
-        val message = translation.minecraftMessageFormat(playerName = "user", message = "<red>привет", from = "TG")
+        val message = translation.chat.toMinecraft(playerName = "user", message = "<red>привет", from = "TG")
 
         assertTrue("<red>привет" in plainText(message), plainText(message))
     }
 
     @Test
     fun GIVEN_author_named_like_placeholder_WHEN_formatted_for_telegram_THEN_name_is_not_replaced_again() {
-        val message = translation.telegramMessageFormat(playerName = "%message%", message = "hi", from = "MC")
+        val message = translation.chat.toTelegram(playerName = "%message%", message = "hi", from = "MC")
 
         assertEquals("[MC] %message%:\nhi", plainText(message))
     }
@@ -69,14 +69,14 @@ class PluginTranslationTest {
 
     @Test
     fun GIVEN_death_without_cause_WHEN_rendered_THEN_unknown_cause_is_in_the_same_language() {
-        val message = translation.playerDiedMessage(name = "Steve", cause = null)
+        val message = translation.player.died(name = "Steve", cause = null)
 
         assertEquals("Player Steve died: unknown cause", plainText(message))
     }
 
     @Test
     fun GIVEN_death_with_cause_WHEN_rendered_THEN_cause_is_shown_as_text() {
-        val message = translation.playerDiedMessage(name = "Steve", cause = "<red>lava")
+        val message = translation.player.died(name = "Steve", cause = "<red>lava")
 
         assertEquals("Player Steve died: <red>lava", plainText(message))
     }

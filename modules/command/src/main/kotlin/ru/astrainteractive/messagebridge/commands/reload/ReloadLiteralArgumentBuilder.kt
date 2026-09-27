@@ -20,9 +20,9 @@ internal class ReloadLiteralArgumentBuilder(
             command("mbreload") {
                 runs { ctx ->
                     ctx.requirePermission(PluginPermission.Reload)
-                    ctx.getSender().sendMessage(translation.reload)
+                    ctx.getSender().sendMessage(translation.reload.started)
                     plugin.onReload()
-                    ctx.getSender().sendMessage(translation.reloadComplete)
+                    ctx.getSender().sendMessage(translation.reload.completed)
                 }
             }
         }

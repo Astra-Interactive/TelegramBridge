@@ -46,7 +46,7 @@ internal class TelegramCommandHandler(
 
     private suspend fun sendVanilla(chatId: String, originalMessageId: Int?) {
         val players = onlinePlayersProvider.provide()
-        val text = translation.onlinePlayersMessage(
+        val text = translation.onlinePlayers.message(
             count = players.size,
             players = players.joinToString(separator = ", "),
         ).toMessengerText()

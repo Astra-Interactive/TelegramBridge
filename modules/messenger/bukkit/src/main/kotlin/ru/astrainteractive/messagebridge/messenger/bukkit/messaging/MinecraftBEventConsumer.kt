@@ -55,7 +55,7 @@ internal class MinecraftBEventConsumer(
                     }
                 }
 
-                translation.minecraftMessageFormat(
+                translation.chat.toMinecraft(
                     playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
                     message = bEvent.text,
                     from = bEvent.from.short

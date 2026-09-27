@@ -34,7 +34,7 @@ internal class NeoForgeBEventConsumer(
         if (bEvent.from == MessageFrom.MINECRAFT) return
         val text = when (bEvent) {
             is Text -> {
-                translation.minecraftMessageFormat(
+                translation.chat.toMinecraft(
                     playerName = bEvent.author,
                     message = bEvent.text,
                     from = bEvent.from.short

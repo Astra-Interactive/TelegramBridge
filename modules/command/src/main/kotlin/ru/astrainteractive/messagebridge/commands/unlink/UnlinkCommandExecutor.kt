@@ -52,7 +52,7 @@ internal class UnlinkCommandExecutor(
                     }
                     val result = linkingDao.deleteByUuid(intent.targetPlayerUuid)
                     if (result.isSuccess) {
-                        intent.sender.sendMessage(translation.unlink.playerUnlinkSuccess)
+                        intent.sender.sendMessage(translation.unlink.playerSuccess)
                     } else {
                         intent.sender.sendMessage(translation.link.unknownError)
                     }

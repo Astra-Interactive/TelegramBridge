@@ -41,7 +41,7 @@ internal class DiscordCommandHandler(
     private suspend fun sendVanilla(event: MessageReceivedEvent) {
         info { "#sendVanilla !vanilla executed" }
         val players = onlinePlayersProvider.provide()
-        val text = translation.onlinePlayersMessage(
+        val text = translation.onlinePlayers.message(
             count = players.size,
             players = players.joinToString(separator = ", "),
         ).toMessengerText()

@@ -53,7 +53,7 @@ internal class TelegramChatConsumer(
             TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
             TelegramMessageValidation.IllegalDisplayName -> {
                 info { "#consume display name rejected by regex" }
-                reply(update, translation.illegalDisplayName.toMessengerText())
+                reply(update, translation.chat.illegalDisplayName.toMessengerText())
                 delete(update)
             }
         }

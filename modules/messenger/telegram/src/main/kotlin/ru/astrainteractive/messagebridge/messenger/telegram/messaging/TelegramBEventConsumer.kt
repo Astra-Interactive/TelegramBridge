@@ -51,7 +51,7 @@ internal class TelegramBEventConsumer(
         if (bEvent.from == MessageFrom.TELEGRAM) return
         val text = when (bEvent) {
             is Text -> {
-                translation.telegramMessageFormat(
+                translation.chat.toTelegram(
                     playerName = bEvent.author,
                     message = bEvent.text,
                     from = bEvent.from.short
@@ -59,7 +59,7 @@ internal class TelegramBEventConsumer(
             }
 
             is PlayerDeathBEvent -> {
-                translation.playerDiedMessage(
+                translation.player.died(
                     name = bEvent.name,
                     cause = bEvent.cause
                 )
@@ -67,28 +67,28 @@ internal class TelegramBEventConsumer(
 
             is PlayerJoinedBEvent -> {
                 if (bEvent.hasPlayedBefore) {
-                    translation.playerJoinMessage(
+                    translation.player.joined(
                         name = bEvent.name,
                     )
                 } else {
-                    translation.playerJoinMessageFirstTime(
+                    translation.player.joinedFirstTime(
                         name = bEvent.name,
                     )
                 }
             }
 
             is PlayerLeaveBEvent -> {
-                translation.playerLeaveMessage(
+                translation.player.left(
                     name = bEvent.name,
                 )
             }
 
             ServerClosedBEvent -> {
-                translation.serverClosedMessage
+                translation.server.stopped
             }
 
             ServerOpenBEvent -> {
-                translation.serverOpenMessage
+                translation.server.started
             }
         }.toMessengerText()
         val sendMessage = SendMessage(tgConfig.chatID, text).apply {

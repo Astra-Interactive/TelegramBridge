@@ -10,6 +10,6 @@ fun LinkApi.Response.asMessage(translation: PluginTranslation.Link): Localizable
         LinkApi.Response.NoCode -> translation.noCodeFound
         LinkApi.Response.NoUsername -> translation.noUsername
         LinkApi.Response.UnknownError -> translation.unknownError
-        is LinkApi.Response.Linked -> translation.linkSuccess
+        is LinkApi.Response.Linked -> translation.success
     }
 }
