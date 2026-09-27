@@ -16,6 +16,7 @@ class ForgeMessengerModule(
         dispatchers = coreModule.dispatchers
     )
     private val minecraftMessageController = ForgeBEventConsumer(
+        kyoriKrate = coreModule.kyoriKrate,
         translationKrate = coreModule.translationKrate,
     )
 

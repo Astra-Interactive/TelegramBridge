@@ -24,10 +24,12 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class NeoForgeBEventConsumer(
+    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer").withoutParentHandlers() {
+    private val kyori by kyoriKrate
     private val translation by translationKrate
 
     override suspend fun consume(bEvent: BEvent) {
@@ -46,7 +48,7 @@ internal class NeoForgeBEventConsumer(
             is PlayerLeaveBEvent,
             is PlayerJoinedBEvent,
             is PlayerDeathBEvent -> null
-        }?.let(KyoriComponentSerializer.Legacy::toComponent) ?: return
+        }?.let(kyori::toComponent) ?: return
 
         MinecraftUtil.serverOrNull?.playerList?.players.orEmpty().forEach { player ->
             player.sendSystemMessage(component.toNative())
