@@ -7,10 +7,12 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
 
 internal class ReloadLiteralArgumentBuilder(
     private val plugin: Lifecycle,
     private val multiplatformCommand: MultiplatformCommand,
+    private val commandExceptionHandler: CommandExceptionHandler,
     translationKrate: CachedKrate<PluginTranslation>
 ) {
     val translation by translationKrate
@@ -18,7 +20,7 @@ internal class ReloadLiteralArgumentBuilder(
     fun create(): LiteralArgumentBuilder<Any> {
         return with(multiplatformCommand) {
             command("mbreload") {
-                runs { ctx ->
+                runs(commandExceptionHandler::handle) { ctx ->
                     ctx.requirePermission(PluginPermission.Reload)
                     ctx.getSender().sendMessage(translation.reload.started)
                     plugin.onReload()

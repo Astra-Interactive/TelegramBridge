@@ -21,7 +21,8 @@ class CommandModule(
         ReloadLiteralArgumentBuilder(
             plugin = lifecyclePlugin,
             translationKrate = coreModule.translationKrate,
-            multiplatformCommand = coreModule.multiplatformCommand
+            multiplatformCommand = coreModule.multiplatformCommand,
+            commandExceptionHandler = coreModule.commandExceptionHandler
         ).create(),
         LinkLiteralArgumentBuilder(
             executor = LinkCommandExecutor(
@@ -31,6 +32,7 @@ class CommandModule(
                 translationKrate = coreModule.translationKrate
             ),
             multiplatformCommand = coreModule.multiplatformCommand,
+            commandExceptionHandler = coreModule.commandExceptionHandler,
             platformServer = coreModule.platformServer
         ).create(),
         UnlinkLiteralArgumentBuilder(
@@ -40,6 +42,7 @@ class CommandModule(
                 translationKrate = coreModule.translationKrate
             ),
             multiplatformCommand = coreModule.multiplatformCommand,
+            commandExceptionHandler = coreModule.commandExceptionHandler,
             platformServer = coreModule.platformServer
         ).create()
     )

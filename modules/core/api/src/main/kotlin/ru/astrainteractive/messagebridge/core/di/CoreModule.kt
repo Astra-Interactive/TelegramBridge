@@ -19,6 +19,7 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
 import java.io.File
 
 class CoreModule(
@@ -79,6 +80,11 @@ class CoreModule(
             )
         }
     ).asStateFlowKrate()
+
+    val commandExceptionHandler = CommandExceptionHandler(
+        multiplatformCommand = multiplatformCommand,
+        translationKrate = translationKrate
+    )
 
     val lifecycle = Lifecycle.Lambda(
         onReload = {

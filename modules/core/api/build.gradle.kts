@@ -6,6 +6,7 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.minecraft.brigadier)
     compileOnly(libs.minecraft.kyori.plain)
     compileOnly(libs.minecraft.luckperms)
 
@@ -17,6 +18,7 @@ dependencies {
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.command)
 
+    testImplementation(libs.minecraft.brigadier)
     testImplementation(libs.minecraft.kyori.legacy)
     testImplementation(libs.minecraft.kyori.minimessage)
     testImplementation(libs.minecraft.kyori.plain)

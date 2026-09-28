@@ -15,6 +15,8 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
  */
 @Serializable
 data class PluginTranslation(
+    @SerialName("command_error")
+    val commandError: CommandError = CommandError(),
     @SerialName("reload")
     val reload: Reload = Reload(),
     @SerialName("chat")
@@ -30,6 +32,31 @@ data class PluginTranslation(
     @SerialName("unlink")
     val unlink: Unlink = Unlink()
 ) {
+    /** Failures any command can report. */
+    @Serializable
+    data class CommandError(
+        @SerialName("no_permission")
+        val noPermission: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "&#db2c18You don't have permission!")
+            translation(MinecraftLocales.RU_RU, "&#db2c18У вас нет прав!")
+        },
+        @SerialName("wrong_usage")
+        val wrongUsage: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "&#db2c18Wrong usage!")
+            translation(MinecraftLocales.RU_RU, "&#db2c18Неверное использование!")
+        },
+        @SerialName("only_player_command")
+        val onlyPlayerCommand: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "&#db2c18This command is for players only!")
+            translation(MinecraftLocales.RU_RU, "&#db2c18Эта команда только для игроков!")
+        },
+        @SerialName("unknown_error")
+        val unknownError: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "&#db2c18The command failed with an unknown error")
+            translation(MinecraftLocales.RU_RU, "&#db2c18Команда завершилась с неизвестной ошибкой")
+        }
+    )
+
     @Serializable
     data class Reload(
         @SerialName("started")

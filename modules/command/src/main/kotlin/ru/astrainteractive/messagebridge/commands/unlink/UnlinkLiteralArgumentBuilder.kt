@@ -7,11 +7,13 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.messagebridge.core.PluginPermission
+import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
 
 internal class UnlinkLiteralArgumentBuilder(
     private val executor: UnlinkCommandExecutor,
     private val multiplatformCommand: MultiplatformCommand,
     private val platformServer: PlatformServer,
+    private val commandExceptionHandler: CommandExceptionHandler,
 ) {
 
     fun create(): LiteralArgumentBuilder<Any> {
@@ -19,7 +21,7 @@ internal class UnlinkLiteralArgumentBuilder(
             command("unlink") {
                 argument("player", StringArgumentType.string()) { playerArg ->
                     hints { platformServer.getOnlinePlayers().map(OnlineKPlayer::name) }
-                    runs { ctx ->
+                    runs(commandExceptionHandler::handle) { ctx ->
                         ctx.requirePermission(PluginPermission.UnlinkPlayer)
                         val offlinePlayer = ctx.requireArgument(playerArg, KPlayerArgumentConverter(platformServer))
                         UnlinkCommandExecutor.Intent.AdminUnlink(
@@ -28,7 +30,7 @@ internal class UnlinkLiteralArgumentBuilder(
                         ).run(executor::onIntent)
                     }
                 }
-                runs { ctx ->
+                runs(commandExceptionHandler::handle) { ctx ->
                     val player = ctx.requirePlayer()
                     UnlinkCommandExecutor.Intent.Unlink(player).run(executor::onIntent)
                 }
