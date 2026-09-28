@@ -206,10 +206,6 @@ class JdaMessengerModule(
     )
 
     private companion object {
-        /**
-         * JDA's default of 15 minutes kept the bot offline for that long after an outage ended;
-         * JDA rejects anything below 32 seconds.
-         */
-        val MAX_RECONNECT_DELAY = 64.seconds
+        val MAX_RECONNECT_DELAY = 32.seconds
     }
 }
