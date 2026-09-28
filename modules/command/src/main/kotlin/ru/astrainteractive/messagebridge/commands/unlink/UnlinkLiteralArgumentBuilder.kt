@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.commands.unlink
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import com.mojang.brigadier.context.CommandContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.command.api.argumenttype.KPlayerArgumentConverter
@@ -19,8 +20,10 @@ internal class UnlinkLiteralArgumentBuilder(
     private val commandExceptionHandler: CommandExceptionHandler,
 ) {
 
-    private fun launchIntent(intent: UnlinkCommandExecutor.Intent) {
-        ioScope.launch { executor.onIntent(intent) }
+    private fun launchIntent(ctx: CommandContext<Any>, intent: UnlinkCommandExecutor.Intent) {
+        ioScope.launch(commandExceptionHandler.coroutineExceptionHandler(ctx)) {
+            executor.onIntent(intent)
+        }
     }
 
     fun create(): LiteralArgumentBuilder<Any> {
@@ -31,15 +34,16 @@ internal class UnlinkLiteralArgumentBuilder(
                     runs(commandExceptionHandler::handle) { ctx ->
                         ctx.requirePermission(PluginPermission.UnlinkPlayer)
                         val offlinePlayer = ctx.requireArgument(playerArg, KPlayerArgumentConverter(platformServer))
-                        UnlinkCommandExecutor.Intent.AdminUnlink(
+                        val intent = UnlinkCommandExecutor.Intent.AdminUnlink(
                             targetPlayerUuid = offlinePlayer.uuid,
                             sender = ctx.requirePlayer()
-                        ).run(::launchIntent)
+                        )
+                        launchIntent(ctx, intent)
                     }
                 }
                 runs(commandExceptionHandler::handle) { ctx ->
                     val player = ctx.requirePlayer()
-                    UnlinkCommandExecutor.Intent.Unlink(player).run(::launchIntent)
+                    launchIntent(ctx, UnlinkCommandExecutor.Intent.Unlink(player))
                 }
             }
         }

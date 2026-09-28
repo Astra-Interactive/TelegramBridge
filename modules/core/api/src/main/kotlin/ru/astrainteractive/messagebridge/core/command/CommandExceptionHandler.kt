@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.core.command
 
 import com.mojang.brigadier.context.CommandContext
+import kotlinx.coroutines.CoroutineExceptionHandler
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.exception.ArgumentConverterException
 import ru.astrainteractive.astralibs.command.api.exception.BadArgumentException
@@ -29,6 +30,8 @@ class CommandExceptionHandler(
 ) : Logger by JUtiltLogger("MessageBridge-CommandExceptionHandler") {
     private val translation by translationKrate
 
+    private fun commandNameOf(ctx: CommandContext<Any>): String = ctx.input.substringBefore(' ')
+
     private fun messageOf(throwable: Throwable, commandName: String): LocalizableComponent {
         return when (throwable) {
             is LocalizableComponentCommandException -> throwable.localizableComponent
@@ -52,7 +55,7 @@ class CommandExceptionHandler(
      * because nobody can read the message.
      */
     fun handle(ctx: CommandContext<Any>, throwable: Throwable) {
-        val commandName = ctx.input.substringBefore(' ')
+        val commandName = commandNameOf(ctx)
         val sender = runCatching { with(multiplatformCommand) { ctx.getSender() } }
             .getOrElse { senderError ->
                 error(throwable) {
@@ -61,5 +64,20 @@ class CommandExceptionHandler(
                 return
             }
         sender.sendMessage(messageOf(throwable, commandName))
+    }
+
+    /**
+     * Tells the sender why the part of a command that runs in a coroutine failed, after `runs` has returned.
+     * Cancellation is not a failure and never reaches it.
+     *
+     * @throws IllegalStateException when the platform cannot wrap the sender; called inside `runs`, that is
+     * reported by [handle].
+     */
+    fun coroutineExceptionHandler(ctx: CommandContext<Any>): CoroutineExceptionHandler {
+        val commandName = commandNameOf(ctx)
+        val sender = with(multiplatformCommand) { ctx.getSender() }
+        return CoroutineExceptionHandler { _, throwable ->
+            sender.sendMessage(messageOf(throwable, commandName))
+        }
     }
 }

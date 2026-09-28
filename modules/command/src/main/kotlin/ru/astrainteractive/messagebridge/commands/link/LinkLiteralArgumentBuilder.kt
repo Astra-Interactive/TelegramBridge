@@ -2,6 +2,7 @@ package ru.astrainteractive.messagebridge.commands.link
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import com.mojang.brigadier.context.CommandContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.command.api.argumenttype.KPlayerArgumentConverter
@@ -18,8 +19,10 @@ internal class LinkLiteralArgumentBuilder(
     private val commandExceptionHandler: CommandExceptionHandler
 ) {
 
-    private fun launchIntent(intent: LinkCommandExecutor.Intent) {
-        ioScope.launch { executor.onIntent(intent) }
+    private fun launchIntent(ctx: CommandContext<Any>, intent: LinkCommandExecutor.Intent) {
+        ioScope.launch(commandExceptionHandler.coroutineExceptionHandler(ctx)) {
+            executor.onIntent(intent)
+        }
     }
 
     fun create(): LiteralArgumentBuilder<Any> {
@@ -29,15 +32,16 @@ internal class LinkLiteralArgumentBuilder(
                     hints { platformServer.getOnlinePlayers().map(OnlineKPlayer::name) }
                     runs(commandExceptionHandler::handle) { ctx ->
                         val offlinePlayer = ctx.requireArgument(userArg, KPlayerArgumentConverter(platformServer))
-                        LinkCommandExecutor.Intent.UserInfo(
+                        val intent = LinkCommandExecutor.Intent.UserInfo(
                             targetPlayerUuid = offlinePlayer.uuid,
                             sender = ctx.requirePlayer()
-                        ).run(::launchIntent)
+                        )
+                        launchIntent(ctx, intent)
                     }
                 }
                 runs(commandExceptionHandler::handle) { ctx ->
                     val player = ctx.requirePlayer()
-                    LinkCommandExecutor.Intent.Link(player).run(::launchIntent)
+                    launchIntent(ctx, LinkCommandExecutor.Intent.Link(player))
                 }
             }
         }

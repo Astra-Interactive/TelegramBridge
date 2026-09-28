@@ -6,6 +6,11 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.command.api.argumenttype.IntArgumentConverter
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.exception.BadArgumentException
@@ -22,6 +27,7 @@ import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CommandExceptionHandlerTest {
     private val sender = RecordingConsoleKCommandSender()
@@ -35,6 +41,9 @@ class CommandExceptionHandlerTest {
         translationKrate = translationKrate
     )
     private val commandError = PluginTranslation().commandError
+
+    /** Runs a launched coroutine up to its first suspension right inside `launch`, so a test needs no waiting. */
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private fun assertSenderReadOnly(message: LocalizableComponent) {
         assertEquals(listOf(message), sender.messages)
@@ -60,6 +69,17 @@ class CommandExceptionHandlerTest {
 
     private fun executeFailing(failure: Throwable) {
         execute(failingCommand(multiplatformCommand, handler, failure), "fail")
+    }
+
+    private fun executeFailingInBackground(failure: Throwable) {
+        val command = with(multiplatformCommand) {
+            command("link") {
+                runs(handler::handle) { ctx ->
+                    backgroundScope.launch(handler.coroutineExceptionHandler(ctx)) { throw failure }
+                }
+            }
+        }
+        execute(command, "link")
     }
 
     @Test
@@ -191,5 +211,46 @@ class CommandExceptionHandlerTest {
         )
 
         assertEquals(Command.SINGLE_SUCCESS, execute(command, "fail"))
+    }
+
+    @Test
+    fun GIVEN_background_work_of_a_command_WHEN_it_throws_unexpectedly_THEN_sender_reads_unknown_error() {
+        executeFailingInBackground(IllegalStateException("Database is closed"))
+
+        assertSenderReadOnly(commandError.unknownError)
+    }
+
+    @Test
+    fun GIVEN_background_work_of_a_command_WHEN_it_fails_with_its_own_text_THEN_sender_reads_that_text() {
+        val text = LocalizedText.shared("Code expired")
+
+        executeFailingInBackground(LocalizableComponentCommandException(text))
+
+        assertSenderReadOnly(text)
+    }
+
+    @Test
+    fun GIVEN_background_work_of_a_command_WHEN_it_is_cancelled_THEN_sender_reads_nothing() {
+        executeFailingInBackground(CancellationException("Plugin is disabling"))
+
+        assertTrue(sender.messages.isEmpty())
+    }
+
+    @Test
+    fun GIVEN_sender_the_platform_can_not_wrap_WHEN_command_starts_background_work_THEN_command_still_completes() {
+        val commandBlockCommand = MultiplatformCommand(FakeMultiplatformCommands(sender = null))
+        val commandBlockHandler = CommandExceptionHandler(
+            multiplatformCommand = commandBlockCommand,
+            translationKrate = translationKrate
+        )
+        val command = with(commandBlockCommand) {
+            command("link") {
+                runs(commandBlockHandler::handle) { ctx ->
+                    backgroundScope.launch(commandBlockHandler.coroutineExceptionHandler(ctx)) { }
+                }
+            }
+        }
+
+        assertEquals(Command.SINGLE_SUCCESS, execute(command, "link"))
     }
 }
