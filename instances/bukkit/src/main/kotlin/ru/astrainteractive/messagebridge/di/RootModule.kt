@@ -46,7 +46,6 @@ class RootModule(
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        kyoriKrate = coreModule.kyoriKrate,
         linkingDao = linkModule.linkingDao
     )
 

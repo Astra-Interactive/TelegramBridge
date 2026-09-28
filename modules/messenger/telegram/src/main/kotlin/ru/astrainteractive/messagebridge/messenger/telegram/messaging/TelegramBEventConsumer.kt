@@ -16,6 +16,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messaging.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
@@ -50,7 +51,7 @@ internal class TelegramBEventConsumer(
         if (bEvent.from == MessageFrom.TELEGRAM) return
         val text = when (bEvent) {
             is Text -> {
-                translation.telegramMessageFormat(
+                translation.chat.toTelegram(
                     playerName = bEvent.author,
                     message = bEvent.text,
                     from = bEvent.from.short
@@ -58,7 +59,7 @@ internal class TelegramBEventConsumer(
             }
 
             is PlayerDeathBEvent -> {
-                translation.playerDiedMessage(
+                translation.player.died(
                     name = bEvent.name,
                     cause = bEvent.cause
                 )
@@ -66,30 +67,30 @@ internal class TelegramBEventConsumer(
 
             is PlayerJoinedBEvent -> {
                 if (bEvent.hasPlayedBefore) {
-                    translation.playerJoinMessage(
+                    translation.player.joined(
                         name = bEvent.name,
                     )
                 } else {
-                    translation.playerJoinMessageFirstTime(
+                    translation.player.joinedFirstTime(
                         name = bEvent.name,
                     )
                 }
             }
 
             is PlayerLeaveBEvent -> {
-                translation.playerLeaveMessage(
+                translation.player.left(
                     name = bEvent.name,
                 )
             }
 
             ServerClosedBEvent -> {
-                translation.serverClosedMessage
+                translation.server.stopped
             }
 
             ServerOpenBEvent -> {
-                translation.serverOpenMessage
+                translation.server.started
             }
-        }.raw
+        }.toMessengerText()
         val sendMessage = SendMessage(tgConfig.chatID, text).apply {
             replyToMessageId = tgConfig.topicID.toIntOrNull()
         }

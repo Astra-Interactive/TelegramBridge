@@ -23,7 +23,6 @@ class CommandModule(
         ReloadLiteralArgumentBuilder(
             plugin = lifecyclePlugin,
             translationKrate = coreModule.translationKrate,
-            kyoriKrate = coreModule.kyoriKrate,
             multiplatformCommand = multiplatformCommand
         ).create(),
         LinkLiteralArgumentBuilder(
@@ -31,8 +30,7 @@ class CommandModule(
                 ioScope = coreModule.ioScope,
                 codeApi = linkModule.codeApi,
                 linkingDao = linkModule.linkingDao,
-                translationKrate = coreModule.translationKrate,
-                kyoriKrate = coreModule.kyoriKrate
+                translationKrate = coreModule.translationKrate
             ),
             multiplatformCommand = multiplatformCommand,
             platformServer = coreModule.platformServer
@@ -41,8 +39,7 @@ class CommandModule(
             executor = UnlinkCommandExecutor(
                 ioScope = coreModule.ioScope,
                 linkingDao = linkModule.linkingDao,
-                translationKrate = coreModule.translationKrate,
-                kyoriKrate = coreModule.kyoriKrate
+                translationKrate = coreModule.translationKrate
             ),
             multiplatformCommand = multiplatformCommand,
             platformServer = coreModule.platformServer

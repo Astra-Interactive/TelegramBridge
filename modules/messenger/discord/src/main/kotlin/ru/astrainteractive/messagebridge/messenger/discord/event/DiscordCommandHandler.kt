@@ -8,6 +8,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
@@ -40,10 +41,10 @@ internal class DiscordCommandHandler(
     private suspend fun sendVanilla(event: MessageReceivedEvent) {
         info { "#sendVanilla !vanilla executed" }
         val players = onlinePlayersProvider.provide()
-        val text = translation.onlinePlayersMessage(
+        val text = translation.onlinePlayers.message(
             count = players.size,
             players = players.joinToString(separator = ", "),
-        ).raw
+        ).toMessengerText()
         messageSender.reply(event.message, text)
     }
 
@@ -54,7 +55,7 @@ internal class DiscordCommandHandler(
 
     private suspend fun link(code: Int, member: Member, event: MessageReceivedEvent) {
         val response = linkApi.linkDiscord(code, member)
-        val text = response.asMessage(translation.link).raw
+        val text = response.asMessage(translation.link).toMessengerText()
         messageSender.reply(event.message, text)
     }
 

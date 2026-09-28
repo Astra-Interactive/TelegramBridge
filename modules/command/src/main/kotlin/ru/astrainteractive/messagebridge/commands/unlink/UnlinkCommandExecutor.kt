@@ -2,8 +2,6 @@ package ru.astrainteractive.messagebridge.commands.unlink
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
-import ru.astrainteractive.astralibs.kyori.unwrap
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -14,9 +12,8 @@ import java.util.UUID
 internal class UnlinkCommandExecutor(
     private val ioScope: CoroutineScope,
     private val linkingDao: LinkingDao,
-    translationKrate: CachedKrate<PluginTranslation>,
-    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
-) : KyoriComponentSerializer by kyoriKrate.unwrap() {
+    translationKrate: CachedKrate<PluginTranslation>
+) {
     private val translation by translationKrate
 
     sealed interface Intent {
@@ -34,14 +31,14 @@ internal class UnlinkCommandExecutor(
                     val player = intent.player
                     val existing = linkingDao.findByUuid(player.uuid).getOrNull()
                     if (existing == null) {
-                        player.sendMessage(translation.unlink.notLinked.component)
+                        player.sendMessage(translation.unlink.notLinked)
                         return@launch
                     }
                     val result = linkingDao.deleteByUuid(player.uuid)
                     if (result.isSuccess) {
-                        player.sendMessage(translation.unlink.success.component)
+                        player.sendMessage(translation.unlink.success)
                     } else {
-                        player.sendMessage(translation.link.unknownError.component)
+                        player.sendMessage(translation.link.unknownError)
                     }
                 }
             }
@@ -50,14 +47,14 @@ internal class UnlinkCommandExecutor(
                 ioScope.launch {
                     val existing = linkingDao.findByUuid(intent.targetPlayerUuid).getOrNull()
                     if (existing == null) {
-                        intent.sender.sendMessage(translation.unlink.playerNotLinked.component)
+                        intent.sender.sendMessage(translation.unlink.playerNotLinked)
                         return@launch
                     }
                     val result = linkingDao.deleteByUuid(intent.targetPlayerUuid)
                     if (result.isSuccess) {
-                        intent.sender.sendMessage(translation.unlink.playerUnlinkSuccess.component)
+                        intent.sender.sendMessage(translation.unlink.playerSuccess)
                     } else {
-                        intent.sender.sendMessage(translation.link.unknownError.component)
+                        intent.sender.sendMessage(translation.link.unknownError)
                     }
                 }
             }

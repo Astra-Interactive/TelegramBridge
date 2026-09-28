@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import ru.astrainteractive.astralibs.coroutines.withTimings
-import ru.astrainteractive.astralibs.kyori.KyoriComponentSerializer
+import ru.astrainteractive.astralibs.server.util.asKAudience
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
@@ -28,20 +28,18 @@ import ru.astrainteractive.messagebridge.messaging.tryConsume
 import java.util.UUID
 
 internal class MinecraftBEventConsumer(
-    kyoriKrate: CachedKrate<KyoriComponentSerializer>,
     translationKrate: CachedKrate<PluginTranslation>,
     private val linkingDao: LinkingDao,
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
-    private val kyori by kyoriKrate
     private val translation by translationKrate
 
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.MINECRAFT) return
 
-        val component = when (bEvent) {
+        val text = when (bEvent) {
             is Text -> {
                 val linkedPlayerModel = when (bEvent) {
                     is Text.Discord -> {
@@ -57,7 +55,7 @@ internal class MinecraftBEventConsumer(
                     }
                 }
 
-                translation.minecraftMessageFormat(
+                translation.chat.toMinecraft(
                     playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
                     message = bEvent.text,
                     from = bEvent.from.short
@@ -69,9 +67,11 @@ internal class MinecraftBEventConsumer(
             is PlayerLeaveBEvent,
             is PlayerJoinedBEvent,
             is PlayerDeathBEvent -> null
-        }?.let(kyori::toComponent) ?: return
+        } ?: return
 
-        withContext(dispatchers.Main) { Bukkit.broadcast(component) }
+        withContext(dispatchers.Main) {
+            Bukkit.getServer().forEachAudience { audience -> audience.asKAudience().sendMessage(text) }
+        }
     }
 
     init {
