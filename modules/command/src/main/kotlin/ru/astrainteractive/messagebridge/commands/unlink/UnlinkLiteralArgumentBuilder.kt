@@ -2,6 +2,8 @@ package ru.astrainteractive.messagebridge.commands.unlink
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.command.api.argumenttype.KPlayerArgumentConverter
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
@@ -11,10 +13,15 @@ import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
 
 internal class UnlinkLiteralArgumentBuilder(
     private val executor: UnlinkCommandExecutor,
+    private val ioScope: CoroutineScope,
     private val multiplatformCommand: MultiplatformCommand,
     private val platformServer: PlatformServer,
     private val commandExceptionHandler: CommandExceptionHandler,
 ) {
+
+    private fun launchIntent(intent: UnlinkCommandExecutor.Intent) {
+        ioScope.launch { executor.onIntent(intent) }
+    }
 
     fun create(): LiteralArgumentBuilder<Any> {
         return with(multiplatformCommand) {
@@ -27,12 +34,12 @@ internal class UnlinkLiteralArgumentBuilder(
                         UnlinkCommandExecutor.Intent.AdminUnlink(
                             targetPlayerUuid = offlinePlayer.uuid,
                             sender = ctx.requirePlayer()
-                        ).run(executor::onIntent)
+                        ).run(::launchIntent)
                     }
                 }
                 runs(commandExceptionHandler::handle) { ctx ->
                     val player = ctx.requirePlayer()
-                    UnlinkCommandExecutor.Intent.Unlink(player).run(executor::onIntent)
+                    UnlinkCommandExecutor.Intent.Unlink(player).run(::launchIntent)
                 }
             }
         }

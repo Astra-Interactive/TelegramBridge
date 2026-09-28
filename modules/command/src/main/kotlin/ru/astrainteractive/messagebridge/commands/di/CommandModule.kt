@@ -26,21 +26,21 @@ class CommandModule(
         ).create(),
         LinkLiteralArgumentBuilder(
             executor = LinkCommandExecutor(
-                ioScope = coreModule.ioScope,
                 codeApi = linkModule.codeApi,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate
             ),
+            ioScope = coreModule.ioScope,
             multiplatformCommand = coreModule.multiplatformCommand,
             commandExceptionHandler = coreModule.commandExceptionHandler,
             platformServer = coreModule.platformServer
         ).create(),
         UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
-                ioScope = coreModule.ioScope,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate
             ),
+            ioScope = coreModule.ioScope,
             multiplatformCommand = coreModule.multiplatformCommand,
             commandExceptionHandler = coreModule.commandExceptionHandler,
             platformServer = coreModule.platformServer
