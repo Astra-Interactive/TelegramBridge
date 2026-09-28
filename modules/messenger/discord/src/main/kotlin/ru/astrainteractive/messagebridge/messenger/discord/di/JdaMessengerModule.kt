@@ -105,6 +105,7 @@ class JdaMessengerModule(
                     enableIntents(GatewayIntent.DIRECT_MESSAGES)
                     enableIntents(GatewayIntent.GUILD_MESSAGES)
                     setActivity(Activity.playing(config.activity))
+                    setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
                     config.proxy?.let { proxy ->
                         setWebsocketFactory(
                             WebSocketFactory()
@@ -203,4 +204,12 @@ class JdaMessengerModule(
             }
         }
     )
+
+    private companion object {
+        /**
+         * JDA's default of 15 minutes kept the bot offline for that long after an outage ended;
+         * JDA rejects anything below 32 seconds.
+         */
+        val MAX_RECONNECT_DELAY = 64.seconds
+    }
 }
