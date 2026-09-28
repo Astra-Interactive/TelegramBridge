@@ -153,10 +153,6 @@ class TelegramMessengerModule(
         messageSender = messageSender,
     )
 
-    /**
-     * Registration is retried with [CappedBackOff]: a bridge that gave up on a startup hiccup stayed
-     * deaf to Telegram until the next server restart while sending still worked.
-     */
     private val bridgeBotFlow = coreModule.configKrate
         .cachedStateFlow
         .map { tgConfig -> tgConfig.tgConfig }
@@ -164,7 +160,6 @@ class TelegramMessengerModule(
         .combine(okHttpClientFlow) { tgConfig, okHttpClient ->
             val registrationBackOff = CappedBackOff()
             channelFlow {
-                // The library never shuts the poller executor down, so it is owned here.
                 val pollerExecutor = Executors.newSingleThreadScheduledExecutor()
                 val tgLpApplication = TelegramBotsLongPollingApplication(
                     Supplier(::ObjectMapper),
