@@ -10,7 +10,6 @@ import java.net.InetSocketAddress
 import java.util.Locale
 import java.util.UUID
 
-/** An online player holding only [permissions] who keeps every message sent to them, localizable or not. */
 @OptIn(InternalPlatformApi::class)
 internal class RecordingOnlineKPlayer(
     override val uuid: UUID,

@@ -18,12 +18,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 
-/**
- * Tells the sender why their command failed. [MultiplatformCommand.runs] swallows every exception of a command,
- * so a command without this handler fails silently.
- *
- * Only the command name is logged, never its arguments: they may hold whatever the sender typed.
- */
 class CommandExceptionHandler(
     private val multiplatformCommand: MultiplatformCommand,
     translationKrate: CachedKrate<PluginTranslation>
@@ -50,10 +44,6 @@ class CommandExceptionHandler(
         }
     }
 
-    /**
-     * Never throws: when the platform cannot wrap the sender, such as a command block, the failure is only logged,
-     * because nobody can read the message.
-     */
     fun handle(ctx: CommandContext<Any>, throwable: Throwable) {
         val commandName = commandNameOf(ctx)
         val sender = runCatching { with(multiplatformCommand) { ctx.getSender() } }
@@ -66,13 +56,6 @@ class CommandExceptionHandler(
         sender.sendMessage(messageOf(throwable, commandName))
     }
 
-    /**
-     * Tells the sender why the part of a command that runs in a coroutine failed, after `runs` has returned.
-     * Cancellation is not a failure and never reaches it.
-     *
-     * @throws IllegalStateException when the platform cannot wrap the sender; called inside `runs`, that is
-     * reported by [handle].
-     */
     fun coroutineExceptionHandler(ctx: CommandContext<Any>): CoroutineExceptionHandler {
         val commandName = commandNameOf(ctx)
         val sender = with(multiplatformCommand) { ctx.getSender() }

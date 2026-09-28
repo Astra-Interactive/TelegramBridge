@@ -38,7 +38,6 @@ class UnlinkLiteralArgumentBuilderTest {
         name = "Steve"
     )
 
-    /** Runs the background part of a command right inside `launch`, so a test needs no waiting. */
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private suspend fun linkSteve() {

@@ -32,7 +32,6 @@ data class PluginTranslation(
     @SerialName("unlink")
     val unlink: Unlink = Unlink()
 ) {
-    /** Failures any command can report. */
     @Serializable
     data class CommandError(
         @SerialName("no_permission")

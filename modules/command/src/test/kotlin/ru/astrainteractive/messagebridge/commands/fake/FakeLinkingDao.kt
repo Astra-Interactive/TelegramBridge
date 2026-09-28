@@ -4,7 +4,6 @@ import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import java.util.UUID
 
-/** Keeps links in memory; [findFailure] and [deleteFailure] make the matching calls fail like a broken database. */
 internal class FakeLinkingDao : LinkingDao {
     val linkedPlayers = mutableMapOf<UUID, LinkedPlayerModel>()
     var findFailure: Throwable? = null

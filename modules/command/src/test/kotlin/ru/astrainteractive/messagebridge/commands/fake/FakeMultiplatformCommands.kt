@@ -9,7 +9,6 @@ import ru.astrainteractive.astralibs.command.api.brigadier.sender.KCommandSender
 import ru.astrainteractive.astralibs.command.api.brigadier.sender.KPlayerKCommandSender
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 
-/** Builds plain Brigadier nodes and attributes every command to [player]. */
 internal class FakeMultiplatformCommands(
     private val player: OnlineKPlayer
 ) : MultiplatformCommands {

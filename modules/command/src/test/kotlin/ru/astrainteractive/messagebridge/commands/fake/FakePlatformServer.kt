@@ -5,7 +5,6 @@ import ru.astrainteractive.astralibs.server.player.KPlayer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import java.util.UUID
 
-/** A server where exactly [onlinePlayers] have ever played. */
 internal class FakePlatformServer(
     private val onlinePlayers: List<OnlineKPlayer>
 ) : PlatformServer {

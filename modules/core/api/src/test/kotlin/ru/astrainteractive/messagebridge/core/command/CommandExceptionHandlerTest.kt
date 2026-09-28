@@ -42,7 +42,6 @@ class CommandExceptionHandlerTest {
     )
     private val commandError = PluginTranslation().commandError
 
-    /** Runs a launched coroutine up to its first suspension right inside `launch`, so a test needs no waiting. */
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private fun assertSenderReadOnly(message: LocalizableComponent) {

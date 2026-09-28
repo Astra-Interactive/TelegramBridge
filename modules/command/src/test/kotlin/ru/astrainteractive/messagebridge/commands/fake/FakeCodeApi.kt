@@ -3,10 +3,6 @@ package ru.astrainteractive.messagebridge.commands.fake
 import ru.astrainteractive.messagebridge.link.api.CodeApi
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
 
-/**
- * Hands out [code] to everyone who asks, so a test knows which code a player reads; a [failure] is thrown instead,
- * like a code service that breaks.
- */
 internal class FakeCodeApi(
     private val code: Int,
     private val failure: Throwable? = null

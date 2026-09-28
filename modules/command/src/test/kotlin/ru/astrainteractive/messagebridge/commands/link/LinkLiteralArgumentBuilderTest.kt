@@ -32,7 +32,6 @@ class LinkLiteralArgumentBuilderTest {
     )
     private val multiplatformCommand = MultiplatformCommand(FakeMultiplatformCommands(steve))
 
-    /** Runs the background part of a command right inside `launch`, so a test needs no waiting. */
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private fun plainTextOf(message: LocalizableComponent): String {
