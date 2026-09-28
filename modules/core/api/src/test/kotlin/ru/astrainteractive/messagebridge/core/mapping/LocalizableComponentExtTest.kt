@@ -10,13 +10,13 @@ import kotlin.test.assertEquals
 
 class LocalizableComponentExtTest {
     private val greeting = LocalizedText.build {
-        translation(MinecraftLocales.RU_RU, "&aПривет")
         translation(MinecraftLocales.EN_US, "&aHello")
+        translation(MinecraftLocales.RU_RU, "&aПривет")
     }
 
     @Test
     fun GIVEN_translated_text_WHEN_to_messenger_text_THEN_first_language_is_used() {
-        assertEquals("Привет", greeting.toMessengerText())
+        assertEquals("Hello", greeting.toMessengerText())
     }
 
     @Test

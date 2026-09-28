@@ -34,13 +34,13 @@ data class PluginTranslation(
     data class Reload(
         @SerialName("started")
         val started: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#dbbb18Перезагрузка плагина")
             translation(MinecraftLocales.EN_US, "&#dbbb18Reloading the plugin")
+            translation(MinecraftLocales.RU_RU, "&#dbbb18Перезагрузка плагина")
         },
         @SerialName("completed")
         val completed: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#42f596Перезагрузка успешно завершена")
             translation(MinecraftLocales.EN_US, "&#42f596Reload complete")
+            translation(MinecraftLocales.RU_RU, "&#42f596Перезагрузка успешно завершена")
         }
     )
 
@@ -54,12 +54,12 @@ data class PluginTranslation(
         @SerialName("illegal_display_name")
         val illegalDisplayName: LocalizedText = LocalizedText.build {
             translation(
-                MinecraftLocales.RU_RU,
-                "Ваше имя содержит недопустимые символы. Установите @username в настройках профиля Telegram."
-            )
-            translation(
                 MinecraftLocales.EN_US,
                 "Your name contains characters that are not allowed. Set a @username in your Telegram profile settings."
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "Ваше имя содержит недопустимые символы. Установите @username в настройках профиля Telegram."
             )
         }
     ) {
@@ -93,28 +93,28 @@ data class PluginTranslation(
     data class Player(
         @SerialName("joined")
         private val joined: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Игрок %player% присоединился")
             translation(MinecraftLocales.EN_US, "Player %player% joined")
+            translation(MinecraftLocales.RU_RU, "Игрок %player% присоединился")
         },
         @SerialName("joined_first_time")
         private val joinedFirstTime: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "🥳 Игрок %player% присоединился впервые!")
             translation(MinecraftLocales.EN_US, "🥳 Player %player% joined for the first time!")
+            translation(MinecraftLocales.RU_RU, "🥳 Игрок %player% присоединился впервые!")
         },
         @SerialName("left")
         private val left: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Игрок %player% покинул нас")
             translation(MinecraftLocales.EN_US, "Player %player% left")
+            translation(MinecraftLocales.RU_RU, "Игрок %player% покинул нас")
         },
         @SerialName("died")
         private val died: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Игрок %player% сдох от %cause%")
             translation(MinecraftLocales.EN_US, "Player %player% died: %cause%")
+            translation(MinecraftLocales.RU_RU, "Игрок %player% сдох от %cause%")
         },
         @SerialName("unknown_death_cause")
         private val unknownDeathCause: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Просто так")
             translation(MinecraftLocales.EN_US, "unknown cause")
+            translation(MinecraftLocales.RU_RU, "Просто так")
         }
     ) {
         fun joined(name: String): LocalizableComponent = joined.replace("%player%", name)
@@ -139,13 +139,13 @@ data class PluginTranslation(
     data class Server(
         @SerialName("started")
         val started: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "✅ Сервер успешно запущен")
             translation(MinecraftLocales.EN_US, "✅ The server has started")
+            translation(MinecraftLocales.RU_RU, "✅ Сервер успешно запущен")
         },
         @SerialName("stopped")
         val stopped: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "🛑 Сервер остановлен")
             translation(MinecraftLocales.EN_US, "🛑 The server has stopped")
+            translation(MinecraftLocales.RU_RU, "🛑 Сервер остановлен")
         }
     )
 
@@ -154,8 +154,8 @@ data class PluginTranslation(
     data class OnlinePlayers(
         @SerialName("message")
         private val message: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Сейчас онлайн %count% игроков\n%players%")
             translation(MinecraftLocales.EN_US, "%count% players online now\n%players%")
+            translation(MinecraftLocales.RU_RU, "Сейчас онлайн %count% игроков\n%players%")
         }
     ) {
         fun message(count: Int, players: String): LocalizableComponent = message.replaceAll(
@@ -168,39 +168,39 @@ data class PluginTranslation(
     data class Link(
         @SerialName("code_created")
         private val codeCreated: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#42f596Ваш код: %code%. Используйте /link <code> в TG или Discord.")
             translation(MinecraftLocales.EN_US, "&#42f596Your code: %code%. Use /link <code> in Telegram or Discord.")
+            translation(MinecraftLocales.RU_RU, "&#42f596Ваш код: %code%. Используйте /link <code> в TG или Discord.")
         },
         @SerialName("already_linked")
         val alreadyLinked: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Вы уже привязали аккаунт этим способом")
             translation(MinecraftLocales.EN_US, "You have already linked an account this way")
+            translation(MinecraftLocales.RU_RU, "Вы уже привязали аккаунт этим способом")
         },
         @SerialName("no_code_found")
         val noCodeFound: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Код не найден. Используйте /link в игре для создания кода")
             translation(MinecraftLocales.EN_US, "Code not found. Use /link in the game to create one")
+            translation(MinecraftLocales.RU_RU, "Код не найден. Используйте /link в игре для создания кода")
         },
         @SerialName("no_username")
         val noUsername: LocalizedText = LocalizedText.build {
             translation(
-                MinecraftLocales.RU_RU,
-                "У вас не задан username в Telegram. Установите @username в настройках профиля и попробуйте снова."
-            )
-            translation(
                 MinecraftLocales.EN_US,
                 "You have no Telegram username. Set a @username in your profile settings and try again."
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "У вас не задан username в Telegram. Установите @username в настройках профиля и попробуйте снова."
             )
         },
         @SerialName("unknown_error")
         val unknownError: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Произошла неизвестная ошибка")
             translation(MinecraftLocales.EN_US, "An unknown error occurred")
+            translation(MinecraftLocales.RU_RU, "Произошла неизвестная ошибка")
         },
         @SerialName("success")
         val success: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Привязка прошла успешно")
             translation(MinecraftLocales.EN_US, "Your account is linked")
+            translation(MinecraftLocales.RU_RU, "Привязка прошла успешно")
         }
     ) {
         fun codeCreated(code: Int): LocalizableComponent = codeCreated.replace("%code%", "$code")
@@ -210,23 +210,23 @@ data class PluginTranslation(
     data class Unlink(
         @SerialName("success")
         val success: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#42f596Привязка успешно удалена")
             translation(MinecraftLocales.EN_US, "&#42f596Your account is unlinked")
+            translation(MinecraftLocales.RU_RU, "&#42f596Привязка успешно удалена")
         },
         @SerialName("not_linked")
         val notLinked: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Ваш аккаунт не привязан")
             translation(MinecraftLocales.EN_US, "Your account is not linked")
+            translation(MinecraftLocales.RU_RU, "Ваш аккаунт не привязан")
         },
         @SerialName("player_not_linked")
         val playerNotLinked: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "Аккаунт игрока не привязан")
             translation(MinecraftLocales.EN_US, "The player's account is not linked")
+            translation(MinecraftLocales.RU_RU, "Аккаунт игрока не привязан")
         },
         @SerialName("player_success")
         val playerSuccess: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.RU_RU, "&#42f596Привязка игрока успешно удалена")
             translation(MinecraftLocales.EN_US, "&#42f596The player's account is unlinked")
+            translation(MinecraftLocales.RU_RU, "&#42f596Привязка игрока успешно удалена")
         }
     )
 }
