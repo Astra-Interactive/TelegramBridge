@@ -2,12 +2,18 @@
 
 package ru.astrainteractive.messagebridge.core.command
 
+import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import ru.astrainteractive.astralibs.command.api.argumenttype.IntArgumentConverter
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
+import ru.astrainteractive.astralibs.command.api.exception.BadArgumentException
+import ru.astrainteractive.astralibs.command.api.exception.CommandException
 import ru.astrainteractive.astralibs.command.api.exception.LocalizableComponentCommandException
+import ru.astrainteractive.astralibs.command.api.exception.NoPermissionException
+import ru.astrainteractive.astralibs.command.api.exception.NoPlayerException
+import ru.astrainteractive.astralibs.command.api.exception.NoPotionEffectTypeException
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.klibs.kstorage.api.asCachedMutableKrate
@@ -34,19 +40,26 @@ class CommandExceptionHandlerTest {
         assertEquals(listOf(message), sender.messages)
     }
 
-    private fun execute(command: LiteralArgumentBuilder<Any>, input: String) {
+    private fun execute(command: LiteralArgumentBuilder<Any>, input: String): Int {
         val dispatcher = CommandDispatcher<Any>()
         dispatcher.register(command)
-        dispatcher.execute(input, Any())
+        return dispatcher.execute(input, Any())
     }
 
-    private fun executeFailing(failure: Throwable) {
-        val command = with(multiplatformCommand) {
+    private fun failingCommand(
+        multiplatformCommand: MultiplatformCommand,
+        handler: CommandExceptionHandler,
+        failure: Throwable
+    ): LiteralArgumentBuilder<Any> {
+        return with(multiplatformCommand) {
             command("fail") {
                 runs(handler::handle) { _ -> throw failure }
             }
         }
-        execute(command, "fail")
+    }
+
+    private fun executeFailing(failure: Throwable) {
+        execute(failingCommand(multiplatformCommand, handler, failure), "fail")
     }
 
     @Test
@@ -76,7 +89,14 @@ class CommandExceptionHandlerTest {
     }
 
     @Test
-    fun GIVEN_argument_that_is_not_a_number_WHEN_command_converts_it_THEN_sender_reads_wrong_usage() {
+    fun GIVEN_unknown_player_WHEN_command_looks_them_up_THEN_sender_reads_player_not_found() {
+        executeFailing(NoPlayerException("Notch"))
+
+        assertSenderReadOnly(commandError.playerNotFound)
+    }
+
+    @Test
+    fun GIVEN_argument_that_is_not_a_number_WHEN_command_converts_it_THEN_sender_reads_invalid_argument() {
         val command = with(multiplatformCommand) {
             command("pay") {
                 argument("amount", StringArgumentType.string()) { amountArg ->
@@ -86,6 +106,27 @@ class CommandExceptionHandlerTest {
         }
 
         execute(command, "pay ten")
+
+        assertSenderReadOnly(commandError.invalidArgument)
+    }
+
+    @Test
+    fun GIVEN_argument_of_incompatible_type_WHEN_command_fails_THEN_sender_reads_invalid_argument() {
+        executeFailing(BadArgumentException(wrongArgument = "ten", type = IntArgumentConverter))
+
+        assertSenderReadOnly(commandError.invalidArgument)
+    }
+
+    @Test
+    fun GIVEN_unknown_potion_effect_WHEN_command_looks_it_up_THEN_sender_reads_invalid_argument() {
+        executeFailing(NoPotionEffectTypeException("flying"))
+
+        assertSenderReadOnly(commandError.invalidArgument)
+    }
+
+    @Test
+    fun GIVEN_generic_command_exception_WHEN_command_fails_THEN_sender_reads_wrong_usage() {
+        executeFailing(CommandException("The source is not a player"))
 
         assertSenderReadOnly(commandError.wrongUsage)
     }
@@ -107,6 +148,24 @@ class CommandExceptionHandlerTest {
     }
 
     @Test
+    fun GIVEN_argument_missing_from_the_node_WHEN_command_reads_it_THEN_sender_reads_unknown_error() {
+        val missingArgument = MultiplatformCommand.BrigadierArgument(
+            alias = "player",
+            type = StringArgumentType.string(),
+            clazz = String::class.java
+        )
+        val command = with(multiplatformCommand) {
+            command("unlink") {
+                runs(handler::handle) { ctx -> ctx.requireArgument(missingArgument) }
+            }
+        }
+
+        execute(command, "unlink")
+
+        assertSenderReadOnly(commandError.unknownError)
+    }
+
+    @Test
     fun GIVEN_translations_reloaded_WHEN_command_fails_THEN_sender_reads_reloaded_text() {
         val reloadedText = LocalizedText.shared("Reloaded unknown error")
         translationKrate.save(
@@ -116,5 +175,21 @@ class CommandExceptionHandlerTest {
         executeFailing(IllegalStateException("Database is closed"))
 
         assertSenderReadOnly(reloadedText)
+    }
+
+    @Test
+    fun GIVEN_sender_the_platform_can_not_wrap_WHEN_command_fails_THEN_command_still_completes() {
+        val commandBlockCommand = MultiplatformCommand(FakeMultiplatformCommands(sender = null))
+        val commandBlockHandler = CommandExceptionHandler(
+            multiplatformCommand = commandBlockCommand,
+            translationKrate = translationKrate
+        )
+        val command = failingCommand(
+            multiplatformCommand = commandBlockCommand,
+            handler = commandBlockHandler,
+            failure = NoPermissionException(PluginPermission.Reload)
+        )
+
+        assertEquals(Command.SINGLE_SUCCESS, execute(command, "fail"))
     }
 }
