@@ -18,4 +18,12 @@ dependencies {
     implementation(projects.modules.core.api)
     implementation(projects.modules.link)
     implementation(projects.modules.messenger.api)
+
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.minecraft.brigadier)
+    testImplementation(libs.minecraft.kyori.api)
+    testImplementation(libs.minecraft.kyori.legacy)
+    testImplementation(libs.minecraft.kyori.minimessage)
+    testImplementation(libs.minecraft.kyori.plain)
+    testImplementation(libs.tests.kotlin.test)
 }

@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.commands.di
 
-import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -16,32 +15,34 @@ class CommandModule(
     lifecyclePlugin: Lifecycle,
     private val coreModule: CoreModule,
     linkModule: LinkModule,
-    private val commandRegistrarContext: CommandRegistrarContext,
-    private val multiplatformCommand: MultiplatformCommand
+    private val commandRegistrarContext: CommandRegistrarContext
 ) {
     private val nodes = listOf(
         ReloadLiteralArgumentBuilder(
             plugin = lifecyclePlugin,
             translationKrate = coreModule.translationKrate,
-            multiplatformCommand = multiplatformCommand
+            multiplatformCommand = coreModule.multiplatformCommand,
+            commandExceptionHandler = coreModule.commandExceptionHandler
         ).create(),
         LinkLiteralArgumentBuilder(
             executor = LinkCommandExecutor(
-                ioScope = coreModule.ioScope,
                 codeApi = linkModule.codeApi,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate
             ),
-            multiplatformCommand = multiplatformCommand,
+            ioScope = coreModule.ioScope,
+            multiplatformCommand = coreModule.multiplatformCommand,
+            commandExceptionHandler = coreModule.commandExceptionHandler,
             platformServer = coreModule.platformServer
         ).create(),
         UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
-                ioScope = coreModule.ioScope,
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate
             ),
-            multiplatformCommand = multiplatformCommand,
+            ioScope = coreModule.ioScope,
+            multiplatformCommand = coreModule.multiplatformCommand,
+            commandExceptionHandler = coreModule.commandExceptionHandler,
             platformServer = coreModule.platformServer
         ).create()
     )

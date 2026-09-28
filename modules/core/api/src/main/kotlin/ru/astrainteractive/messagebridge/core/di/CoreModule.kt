@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -18,12 +19,14 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
 import java.io.File
 
 class CoreModule(
     val dataFolder: File,
     val dispatchers: KotlinDispatchers,
     val platformServer: PlatformServer,
+    val multiplatformCommand: MultiplatformCommand,
     commandRegistrarContextFactory: (mainScope: CoroutineScope) -> CommandRegistrarContext
 ) {
     private fun createCoroutineExceptionHandler() = CoroutineExceptionHandler { _, throwable ->
@@ -77,6 +80,11 @@ class CoreModule(
             )
         }
     ).asStateFlowKrate()
+
+    val commandExceptionHandler = CommandExceptionHandler(
+        multiplatformCommand = multiplatformCommand,
+        translationKrate = translationKrate
+    )
 
     val lifecycle = Lifecycle.Lambda(
         onReload = {

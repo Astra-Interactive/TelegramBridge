@@ -33,6 +33,7 @@ class RootModule(
         dataFolder = bukkitCoreModule.plugin.dataFolder,
         dispatchers = DefaultBukkitDispatchers(bukkitCoreModule.plugin),
         platformServer = BukkitPlatformServer(),
+        multiplatformCommand = MultiplatformCommand(PaperMultiplatformCommands()),
         commandRegistrarContextFactory = { mainScope ->
             PaperCommandRegistrarContext(
                 mainScope = mainScope,
@@ -66,8 +67,7 @@ class RootModule(
             coreModule = coreModule,
             linkModule = linkModule,
             lifecyclePlugin = plugin,
-            commandRegistrarContext = coreModule.commandRegistrarContext,
-            multiplatformCommand = MultiplatformCommand(PaperMultiplatformCommands())
+            commandRegistrarContext = coreModule.commandRegistrarContext
         )
     }
 

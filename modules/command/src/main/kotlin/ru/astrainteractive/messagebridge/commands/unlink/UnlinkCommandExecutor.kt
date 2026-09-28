@@ -1,19 +1,20 @@
 package ru.astrainteractive.messagebridge.commands.unlink
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
+import ru.astrainteractive.astralibs.server.KAudience
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
-    private val ioScope: CoroutineScope,
     private val linkingDao: LinkingDao,
     translationKrate: CachedKrate<PluginTranslation>
-) {
+) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
     private val translation by translationKrate
 
     sealed interface Intent {
@@ -24,40 +25,45 @@ internal class UnlinkCommandExecutor(
         ) : Intent
     }
 
-    fun onIntent(intent: Intent) {
-        when (intent) {
-            is Intent.Unlink -> {
-                ioScope.launch {
-                    val player = intent.player
-                    val existing = linkingDao.findByUuid(player.uuid).getOrNull()
-                    if (existing == null) {
-                        player.sendMessage(translation.unlink.notLinked)
-                        return@launch
-                    }
-                    val result = linkingDao.deleteByUuid(player.uuid)
-                    if (result.isSuccess) {
-                        player.sendMessage(translation.unlink.success)
-                    } else {
-                        player.sendMessage(translation.link.unknownError)
-                    }
-                }
-            }
+    private fun reportFailure(sender: KAudience, uuid: UUID, failure: Throwable) {
+        error(failure) { "#unlink could not unlink $uuid" }
+        sender.sendMessage(translation.commandError.unknownError)
+    }
 
-            is Intent.AdminUnlink -> {
-                ioScope.launch {
-                    val existing = linkingDao.findByUuid(intent.targetPlayerUuid).getOrNull()
-                    if (existing == null) {
-                        intent.sender.sendMessage(translation.unlink.playerNotLinked)
-                        return@launch
-                    }
-                    val result = linkingDao.deleteByUuid(intent.targetPlayerUuid)
-                    if (result.isSuccess) {
-                        intent.sender.sendMessage(translation.unlink.playerSuccess)
-                    } else {
-                        intent.sender.sendMessage(translation.link.unknownError)
-                    }
-                }
-            }
+    private suspend fun unlink(
+        uuid: UUID,
+        sender: KAudience,
+        notLinkedText: LocalizableComponent,
+        unlinkedText: LocalizableComponent
+    ) {
+        val existing = linkingDao.findByUuid(uuid).getOrElse { failure ->
+            reportFailure(sender, uuid, failure)
+            return
+        }
+        if (existing == null) {
+            sender.sendMessage(notLinkedText)
+            return
+        }
+        linkingDao.deleteByUuid(uuid)
+            .onSuccess { _ -> sender.sendMessage(unlinkedText) }
+            .onFailure { failure -> reportFailure(sender, uuid, failure) }
+    }
+
+    suspend fun onIntent(intent: Intent) {
+        when (intent) {
+            is Intent.Unlink -> unlink(
+                uuid = intent.player.uuid,
+                sender = intent.player,
+                notLinkedText = translation.unlink.notLinked,
+                unlinkedText = translation.unlink.success
+            )
+
+            is Intent.AdminUnlink -> unlink(
+                uuid = intent.targetPlayerUuid,
+                sender = intent.sender,
+                notLinkedText = translation.unlink.playerNotLinked,
+                unlinkedText = translation.unlink.playerSuccess
+            )
         }
     }
 }
