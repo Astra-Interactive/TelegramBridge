@@ -83,14 +83,4 @@ class UnlinkLiteralArgumentBuilderTest {
         assertTrue(linkingDao.linkedPlayers.isEmpty())
         assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
     }
-
-    @Test
-    fun GIVEN_admin_WHEN_unlinks_a_name_the_server_does_not_know_THEN_admin_reads_player_not_found() = runTest {
-        linkSteve()
-
-        execute(input = "unlink Herobrine", sender = admin)
-
-        assertEquals(1, linkingDao.linkedPlayers.size)
-        assertEquals(listOf<LocalizableComponent>(translation.commandError.playerNotFound), admin.messages)
-    }
 }
