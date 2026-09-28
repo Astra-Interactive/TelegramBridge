@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -24,6 +25,7 @@ class CoreModule(
     val dataFolder: File,
     val dispatchers: KotlinDispatchers,
     val platformServer: PlatformServer,
+    val multiplatformCommand: MultiplatformCommand,
     commandRegistrarContextFactory: (mainScope: CoroutineScope) -> CommandRegistrarContext
 ) {
     private fun createCoroutineExceptionHandler() = CoroutineExceptionHandler { _, throwable ->

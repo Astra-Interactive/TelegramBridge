@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.commands.di
 
-import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -16,14 +15,13 @@ class CommandModule(
     lifecyclePlugin: Lifecycle,
     private val coreModule: CoreModule,
     linkModule: LinkModule,
-    private val commandRegistrarContext: CommandRegistrarContext,
-    private val multiplatformCommand: MultiplatformCommand
+    private val commandRegistrarContext: CommandRegistrarContext
 ) {
     private val nodes = listOf(
         ReloadLiteralArgumentBuilder(
             plugin = lifecyclePlugin,
             translationKrate = coreModule.translationKrate,
-            multiplatformCommand = multiplatformCommand
+            multiplatformCommand = coreModule.multiplatformCommand
         ).create(),
         LinkLiteralArgumentBuilder(
             executor = LinkCommandExecutor(
@@ -32,7 +30,7 @@ class CommandModule(
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate
             ),
-            multiplatformCommand = multiplatformCommand,
+            multiplatformCommand = coreModule.multiplatformCommand,
             platformServer = coreModule.platformServer
         ).create(),
         UnlinkLiteralArgumentBuilder(
@@ -41,7 +39,7 @@ class CommandModule(
                 linkingDao = linkModule.linkingDao,
                 translationKrate = coreModule.translationKrate
             ),
-            multiplatformCommand = multiplatformCommand,
+            multiplatformCommand = coreModule.multiplatformCommand,
             platformServer = coreModule.platformServer
         ).create()
     )

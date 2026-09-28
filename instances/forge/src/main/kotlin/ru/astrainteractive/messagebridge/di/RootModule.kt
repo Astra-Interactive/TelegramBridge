@@ -35,6 +35,7 @@ class RootModule(
             .also(File::mkdirs),
         dispatchers = MinecraftDispatchers(),
         platformServer = MinecraftPlatformServer,
+        multiplatformCommand = MultiplatformCommand(MinecraftMultiplatformCommands()),
         commandRegistrarContextFactory = ::ForgeCommandRegistrarContext
     )
 
@@ -43,8 +44,7 @@ class RootModule(
             coreModule = coreModule,
             linkModule = linkModule,
             lifecyclePlugin = forgeLifecycleServer,
-            commandRegistrarContext = coreModule.commandRegistrarContext,
-            multiplatformCommand = MultiplatformCommand(MinecraftMultiplatformCommands())
+            commandRegistrarContext = coreModule.commandRegistrarContext
         )
     }
 
