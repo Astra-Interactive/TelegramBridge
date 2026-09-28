@@ -105,6 +105,7 @@ class JdaMessengerModule(
                     enableIntents(GatewayIntent.DIRECT_MESSAGES)
                     enableIntents(GatewayIntent.GUILD_MESSAGES)
                     setActivity(Activity.playing(config.activity))
+                    setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
                     config.proxy?.let { proxy ->
                         setWebsocketFactory(
                             WebSocketFactory()
@@ -203,4 +204,8 @@ class JdaMessengerModule(
             }
         }
     )
+
+    private companion object {
+        val MAX_RECONNECT_DELAY = 32.seconds
+    }
 }
