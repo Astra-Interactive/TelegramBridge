@@ -22,7 +22,7 @@ class PluginTranslationTest {
         return listOf(this) + children().flatMap { child -> child.selfAndDescendants() }
     }
 
-    private fun clickEventsOf(text: LocalizableComponent): List<ClickEvent<*>> {
+    private fun clickEventsOf(text: LocalizableComponent): List<ClickEvent> {
         return text.toComponent(MinecraftLocales.EN_US)
             .selfAndDescendants()
             .mapNotNull { node -> node.clickEvent() }
