@@ -21,8 +21,10 @@ public fun <T> Flow<T>.withRetry(
     logger: Logger,
     retries: Long = 5,
     delay: Duration = 500.milliseconds,
+    shouldRetry: (Throwable) -> Boolean = { true },
 ): Flow<T> {
     return retry(retries = retries) { throwable ->
+        if (!shouldRetry(throwable)) return@retry false
         logger.warn { "#withRetry attempt failed, retrying in $delay: ${throwable.message}" }
         delay(delay)
         true

@@ -30,7 +30,13 @@ data class PluginTranslation(
     @SerialName("link")
     val link: Link = Link(),
     @SerialName("unlink")
-    val unlink: Unlink = Unlink()
+    val unlink: Unlink = Unlink(),
+    @SerialName("setup")
+    val setup: SetupTranslation = SetupTranslation(),
+    @SerialName("telegram")
+    val telegram: TelegramTranslation = TelegramTranslation(),
+    @SerialName("discord")
+    val discord: DiscordTranslation = DiscordTranslation()
 ) {
     @Serializable
     data class CommandError(

@@ -19,6 +19,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMess
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 
 internal class TelegramChatConsumer(
@@ -37,7 +38,11 @@ internal class TelegramChatConsumer(
 
     override fun consume(update: Update?) {
         update ?: return
-        commandHandler.logChatInfo(update)
+        val setupCommand = setupCommandOrNull(update)
+        if (setupCommand != null) {
+            ioScope.launch(dispatchers.IO) { commandHandler.handle(setupCommand, update) }
+            return
+        }
         when (relevanceChecker.map(update)) {
             MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { process(update) }
             MessageRelevance.WrongChat -> verbose { "#consume update is not from the configured chat" }
@@ -45,6 +50,11 @@ internal class TelegramChatConsumer(
             MessageRelevance.TooOld -> verbose { "#consume message is too old" }
             MessageRelevance.WrongTopic -> Unit
         }
+    }
+
+    private fun setupCommandOrNull(update: Update): TelegramCommand.Setup? {
+        val text = update.message?.text ?: return null
+        return commandParser.map(text) as? TelegramCommand.Setup
     }
 
     private suspend fun process(update: Update) {

@@ -5,7 +5,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,11 +29,16 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
+import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
+import ru.astrainteractive.messagebridge.messaging.setup.DiscordSetup
+import ru.astrainteractive.messagebridge.messaging.setup.MessengerStatus
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
@@ -76,7 +83,10 @@ class JdaMessengerModule(
                         .proxyAuthenticator { route, response ->
                             var builder = response.request.newBuilder()
                             if (route?.socketAddress?.hostString == proxy.host) {
-                                val credential: String = Credentials.basic(proxy.username, proxy.password)
+                                val credential: String = Credentials.basic(
+                                    proxy.username.orEmpty(),
+                                    proxy.password.orEmpty()
+                                )
                                 builder.header("Proxy-Authorization", credential)
                             }
                             builder.build()
@@ -192,6 +202,16 @@ class JdaMessengerModule(
         replyMapper = DiscordReplyMapper(),
         linkApi = linkModule.linkApi,
     )
+
+    private val bindCodes = BindCodes()
+
+    val setup: DiscordSetup = object : DiscordSetup {
+        override val status: StateFlow<MessengerStatus> = MutableStateFlow(MessengerStatus.Connecting)
+        override val deliveryError: StateFlow<LocalizableComponent?> = MutableStateFlow(null)
+        override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): String = bindCodes.issue(onBound)
+        override suspend fun diagnose(): List<DiagnosticCheck> = emptyList()
+        override suspend fun inviteUrl(): String? = null
+    }
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {

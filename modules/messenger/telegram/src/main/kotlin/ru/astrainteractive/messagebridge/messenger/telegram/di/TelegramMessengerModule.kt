@@ -1,127 +1,125 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runInterruptible
-import okhttp3.Credentials
-import okhttp3.Dns
-import okhttp3.OkHttpClient
+import okhttp3.Dispatcher
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException
+import org.telegram.telegrambots.longpolling.util.DefaultGetUpdatesGenerator
+import org.telegram.telegrambots.meta.api.methods.GetMe
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
+import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
+import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
+import ru.astrainteractive.messagebridge.messaging.setup.MessengerSetup
+import ru.astrainteractive.messagebridge.messaging.setup.MessengerStatus
+import ru.astrainteractive.messagebridge.messenger.telegram.di.factory.TelegramConnectionFactory
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnection
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnectionSettings
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.setup.TelegramDiagnostics
 import ru.astrainteractive.messagebridge.messenger.telegram.util.CappedBackOff
-import java.net.Inet4Address
-import java.net.InetAddress
-import java.net.InetSocketAddress
-import java.net.Proxy
+import ru.astrainteractive.messagebridge.messenger.telegram.util.GetUpdatesStatusInterceptor
 import java.util.concurrent.Executors
 import java.util.function.Supplier
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
     onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
+    private val translation by coreModule.translationKrate
 
-    private val ipv4FirstDns = object : Dns {
-        override fun lookup(hostname: String): List<InetAddress> {
-            val resolved = Dns.SYSTEM.lookup(hostname)
-            return resolved.filterIsInstance<Inet4Address>().ifEmpty { resolved }
-        }
-    }
+    private val connectionState = MutableStateFlow<TelegramConnectionState>(TelegramConnectionState.Connecting)
 
-    private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-            .connectTimeout(CONNECT_TIMEOUT.toJavaDuration())
-            .writeTimeout(WRITE_TIMEOUT.toJavaDuration())
-            .readTimeout(READ_TIMEOUT.toJavaDuration())
-            .pingInterval(PING_INTERVAL.toJavaDuration())
-            .retryOnConnectionFailure(true)
-            .dns(ipv4FirstDns)
-        if (proxy != null) {
-            builder
-                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                .proxyAuthenticator { route, response ->
-                    val requestBuilder = response.request.newBuilder()
-                    if (route?.socketAddress?.hostString == proxy.host) {
-                        val credential: String = Credentials.basic(proxy.username, proxy.password)
-                        requestBuilder.header("Proxy-Authorization", credential)
-                    }
-                    requestBuilder.build()
-                }
-        }
-        return builder.build()
-    }
-
-    private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
-        .map { pluginConfiguration -> pluginConfiguration.tgConfig.proxy }
-        .distinctUntilChanged()
-        .flatMapLatest { proxy ->
-            callbackFlow {
-                val okHttpClient = createOkHttpClient(proxy)
-                send(okHttpClient)
-
-                awaitClose {
-                    okHttpClient.dispatcher.cancelAll()
-                    okHttpClient.dispatcher.executorService.shutdown()
-                    okHttpClient.connectionPool.evictAll()
-                    okHttpClient.cache?.close()
-                }
-            }
-        }
-        .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
-
-    private val telegramClientFlow = combine(
-        flow = coreModule.configKrate.cachedStateFlow.map { it.tgConfig }.distinctUntilChanged(),
-        flow2 = okHttpClientFlow,
-        transform = { tgConfig, okHttpClient ->
-            val client = OkHttpTelegramClient(
-                okHttpClient,
-                tgConfig.token
-            )
-            client
-        }
-    ).shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
+    @Volatile
+    private var botUserName: String? = null
 
     private val relayedMessageCache = TelegramRelayedMessageCache(
         capacity = RELAYED_MESSAGE_CACHE_CAPACITY
+    )
+
+    private val failureMapper = TelegramFailureMapper(
+        configKrate = coreModule.configKrate,
+    )
+
+    private val failureTextMapper = TelegramFailureTextMapper(
+        translationKrate = coreModule.translationKrate,
+    )
+
+    private val connectionFactory = TelegramConnectionFactory()
+
+    private val connectionFlow: SharedFlow<TelegramConnection> = coreModule.configKrate.cachedStateFlow
+        .map { configuration -> TelegramConnectionSettings.of(configuration.tgConfig) }
+        .distinctUntilChanged()
+        .flatMapLatest { settings ->
+            callbackFlow {
+                val connection = connectionFactory.create(settings)
+                send(connection)
+                awaitClose { (connection as? TelegramConnection.Ready)?.close() }
+            }
+        }
+        .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
+
+    /** Emits `null` right away when the settings cannot connect, e.g. the token is empty, so senders do not wait. */
+    private val telegramClientFlow: Flow<OkHttpTelegramClient?> = connectionFlow
+        .map { connection -> (connection as? TelegramConnection.Ready)?.telegramClient }
+
+    private val messageSender = TelegramMessageSender(
+        telegramClientFlow = telegramClientFlow,
+        failureMapper = failureMapper,
     )
 
     private val telegramMessageController = TelegramBEventConsumer(
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow,
+        failureMapper = failureMapper,
+        failureTextMapper = failureTextMapper,
         relayedMessageCache = relayedMessageCache,
     )
 
@@ -142,16 +140,18 @@ class TelegramMessengerModule(
         authorMapper = authorMapper,
     )
 
-    private val commandParser = TelegramCommandMapper()
-
-    private val messageSender = TelegramMessageSender(
-        telegramClientFlow = telegramClientFlow,
+    private val commandParser = TelegramCommandMapper(
+        botUserName = { botUserName },
     )
+
+    private val bindCodes = BindCodes()
 
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
         onlinePlayersProvider = onlinePlayersProvider,
         linkApi = linkModule.linkApi,
+        bindCodes = bindCodes,
+        configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
     )
 
@@ -167,61 +167,139 @@ class TelegramMessengerModule(
         messageSender = messageSender,
     )
 
-    private val bridgeBotFlow = coreModule.configKrate
-        .cachedStateFlow
-        .map { tgConfig -> tgConfig.tgConfig }
-        .distinctUntilChanged()
-        .combine(okHttpClientFlow) { tgConfig, okHttpClient ->
-            val registrationBackOff = CappedBackOff()
-            channelFlow {
-                val pollerExecutor = Executors.newSingleThreadScheduledExecutor()
-                val tgLpApplication = TelegramBotsLongPollingApplication(
-                    Supplier(::ObjectMapper),
-                    Supplier { okHttpClient },
-                    Supplier { pollerExecutor },
-                    Supplier { CappedBackOff() }
-                )
-                runCatching { runInterruptible { tgLpApplication.registerBot(tgConfig.token, consumer) } }
-                    .onFailure { pollerExecutor.shutdownNow() }
-                    .getOrThrow()
-                info { "#bridgeBotFlow loaded!" }
-                send(tgLpApplication)
-                awaitClose {
-                    info { "#bridgeBotFlow closing TelegramBotsLongPollingApplication..." }
-                    okHttpClient.dispatcher.cancelAll()
-                    tgLpApplication.unregisterBot(tgConfig.token)
-                    tgLpApplication.stop()
-                    tgLpApplication.close()
-                    pollerExecutor.shutdownNow()
+    private val diagnostics = TelegramDiagnostics(
+        configKrate = coreModule.configKrate,
+        translationKrate = coreModule.translationKrate,
+        connectionFlow = connectionFlow,
+        failureMapper = failureMapper,
+        failureTextMapper = failureTextMapper,
+    )
+
+    private val bridgeBotJob = connectionFlow
+        .flatMapLatest { connection ->
+            botUserName = null
+            when (connection) {
+                TelegramConnection.Disabled -> flow { connectionState.value = TelegramConnectionState.Disabled }
+                is TelegramConnection.Invalid -> flow {
+                    connectionState.value = TelegramConnectionState.Failed(connection.failure)
                 }
-            }.retryWhen { throwable, _ ->
-                if (throwable !is TelegramApiException) return@retryWhen false
-                val retryDelay = registrationBackOff.nextBackOffMillis().milliseconds
-                warn { "#bridgeBotFlow could not register bot, retrying in $retryDelay: ${throwable.message}" }
-                delay(retryDelay)
-                true
+
+                is TelegramConnection.Ready -> pollingFlow(connection)
+                    .onStart { connectionState.value = TelegramConnectionState.Connecting }
             }
         }
-        .flatMapLatest { tgLpApplicationFlow -> tgLpApplicationFlow }
-        .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
+        .launchIn(coreModule.ioScope)
+
+    private val connectionStateLogJob = connectionState
+        .onEach(::log)
+        .launchIn(coreModule.ioScope)
+
+    private val status: StateFlow<MessengerStatus> = connectionState
+        .map(::toMessengerStatus)
+        .stateIn(coreModule.ioScope, SharingStarted.Eagerly, MessengerStatus.Connecting)
+
+    val setup: MessengerSetup = object : MessengerSetup {
+        override val status: StateFlow<MessengerStatus> = this@TelegramMessengerModule.status
+        override val deliveryError: StateFlow<LocalizableComponent?> = telegramMessageController.deliveryError
+        override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): String = bindCodes.issue(onBound)
+        override suspend fun diagnose(): List<DiagnosticCheck> = diagnostics.diagnose()
+    }
+
+    /**
+     * Checks the token with getMe before polling, so a wrong one is reported once and waits for new settings
+     * instead of being retried forever.
+     */
+    private fun pollingFlow(connection: TelegramConnection.Ready): Flow<Unit> {
+        val backOff = CappedBackOff()
+        return flow<Unit> {
+            val bot = connection.telegramClient.executeAsync(GetMe()).await()
+            val botName = "@${bot.userName}"
+            botUserName = bot.userName
+            connectionState.value = TelegramConnectionState.Connected(botName)
+            poll(connection, botName, onRegistered = backOff::reset)
+        }.retryWhen { throwable, _ ->
+            currentCoroutineContext().ensureActive()
+            val failure = failureMapper.map(throwable)
+            connectionState.value = TelegramConnectionState.Failed(failure)
+            if (failure.needsNewSettings) return@retryWhen false
+            val retryDelay = backOff.nextBackOffMillis().milliseconds
+            verbose { "#pollingFlow could not connect, retrying in $retryDelay: ${throwable.message}" }
+            delay(retryDelay)
+            true
+        }.catch { awaitCancellation() }
+    }
+
+    /**
+     * Polls with a client of its own dispatcher: cancelling its calls on reconnect leaves the messages being sent
+     * through the shared client alone.
+     */
+    private suspend fun poll(connection: TelegramConnection.Ready, botName: String, onRegistered: () -> Unit) {
+        val statusInterceptor = GetUpdatesStatusInterceptor(
+            botName = botName,
+            failureMapper = failureMapper,
+            onState = { state -> connectionState.value = state }
+        )
+        val pollingClient = connection.okHttpClient.newBuilder()
+            .dispatcher(Dispatcher())
+            .addInterceptor(statusInterceptor)
+            .build()
+        val pollerExecutor = Executors.newSingleThreadScheduledExecutor()
+        val tgLpApplication = TelegramBotsLongPollingApplication(
+            Supplier(::ObjectMapper),
+            Supplier { pollingClient },
+            Supplier { pollerExecutor },
+            Supplier { CappedBackOff() }
+        )
+        try {
+            runInterruptible {
+                tgLpApplication.registerBot(
+                    connection.token,
+                    Supplier { connection.url },
+                    DefaultGetUpdatesGenerator(),
+                    consumer
+                )
+            }
+            onRegistered.invoke()
+            verbose { "#poll bot is registered" }
+            awaitCancellation()
+        } finally {
+            verbose { "#poll closing TelegramBotsLongPollingApplication..." }
+            statusInterceptor.deactivate()
+            pollingClient.dispatcher.cancelAll()
+            runCatching { tgLpApplication.close() }
+                .onFailure { error(it) { "#poll could not close the polling: ${it.message}" } }
+            pollerExecutor.shutdownNow()
+            pollingClient.dispatcher.executorService.shutdown()
+        }
+    }
+
+    private fun log(state: TelegramConnectionState) {
+        when (state) {
+            TelegramConnectionState.Disabled -> info { translation.telegram.guide.toMessengerText() }
+            TelegramConnectionState.Connecting -> verbose { "#connectionState connecting to Telegram" }
+            is TelegramConnectionState.Connected -> info { "Telegram bot ${state.botName} is connected" }
+            is TelegramConnectionState.Failed -> error {
+                failureTextMapper.map(state.failure).toMessengerText()
+            }
+        }
+    }
+
+    private fun toMessengerStatus(state: TelegramConnectionState): MessengerStatus = when (state) {
+        TelegramConnectionState.Disabled -> MessengerStatus.Disabled
+        TelegramConnectionState.Connecting -> MessengerStatus.Connecting
+        is TelegramConnectionState.Connected -> MessengerStatus.Connected(state.botName)
+        is TelegramConnectionState.Failed -> MessengerStatus.Failed(failureTextMapper.lazyMap(state.failure))
+    }
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
+            bridgeBotJob.cancel()
+            connectionStateLogJob.cancel()
             telegramMessageController.cancel()
         }
     )
 
     private companion object {
-        /** Spent on every unreachable address before the next one is tried. */
-        val CONNECT_TIMEOUT = 10.seconds
-
-        val WRITE_TIMEOUT = 70.seconds
-
-        /** Must exceed the getUpdates timeout, which holds the connection open. */
-        val READ_TIMEOUT = 100.seconds
-
-        val PING_INTERVAL = 15.seconds
-
         const val RELAYED_MESSAGE_CACHE_CAPACITY = 1000
     }
 }

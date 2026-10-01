@@ -1,15 +1,19 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.messaging
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.astrainteractive.astralibs.coroutines.withTimings
+import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.api.CachedMutableKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -29,11 +33,16 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFailureTextMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramFailure
 
 internal class TelegramBEventConsumer(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configKrate: CachedMutableKrate<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
-    private val telegramClientFlow: Flow<OkHttpTelegramClient>,
+    private val telegramClientFlow: Flow<OkHttpTelegramClient?>,
+    private val failureMapper: TelegramFailureMapper,
+    private val failureTextMapper: TelegramFailureTextMapper,
     private val relayedMessageCache: TelegramRelayedMessageCache,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
@@ -42,6 +51,12 @@ internal class TelegramBEventConsumer(
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
     private val translation by translationKrate
+
+    private val _deliveryError = MutableStateFlow<LocalizableComponent?>(null)
+    val deliveryError: StateFlow<LocalizableComponent?> = _deliveryError.asStateFlow()
+
+    @Volatile
+    private var lastFailure: TelegramFailure? = null
 
     private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
         return runCatching { telegramClientFlow.firstOrNull() }
@@ -93,24 +108,58 @@ internal class TelegramBEventConsumer(
                 translation.server.started
             }
         }.toMessengerText()
+        val client = telegramClientOrNull() ?: return
+        if (tgConfig.chatID.isBlank()) {
+            onFailed(TelegramFailure.ChatNotSet)
+            return
+        }
+        send(client, bEvent, text, isMigrationHandled = false)
+    }
+
+    private suspend fun send(client: OkHttpTelegramClient, bEvent: BEvent, text: String, isMigrationHandled: Boolean) {
         val sendMessage = SendMessage(tgConfig.chatID, text).apply {
             replyToMessageId = tgConfig.topicID.toIntOrNull()
         }
         try {
-            val sentMessage = telegramClientOrNull()?.execute(sendMessage)
-            if (sentMessage != null && bEvent is Text) {
+            val sentMessage = client.execute(sendMessage)
+            if (bEvent is Text) {
                 relayedMessageCache.remember(sentMessage.chatId, sentMessage.messageId, bEvent)
             }
-        } catch (e: TelegramApiRequestException) {
-            @Suppress("MagicNumber")
-            if (e.errorCode == 404) {
-                error { "#sendMessage: Wrong token, chat or topic id" }
-            } else {
-                error(e) { "#sendMessage unknown exception" }
-            }
+            onDelivered()
         } catch (e: TelegramApiException) {
-            error { "#sendMessage: Got TelegramApiException: ${e.message}. Probably fake exception." }
+            val failure = failureMapper.map(e)
+            if (failure is TelegramFailure.ChatMigrated && !isMigrationHandled) {
+                migrate(failure.newChatId)
+                send(client, bEvent, text, isMigrationHandled = true)
+            } else {
+                onFailed(failure)
+            }
         }
+    }
+
+    private fun migrate(newChatId: Long) {
+        configKrate.save { configuration ->
+            configuration.copy(tgConfig = configuration.tgConfig.copy(chatID = "$newChatId"))
+        }
+        warn { translation.telegram.errors.chatIdChanged(newChatId).toMessengerText() }
+    }
+
+    private fun onDelivered() {
+        if (lastFailure == null) return
+        lastFailure = null
+        _deliveryError.value = null
+        info { "#send messages are delivered to Telegram again" }
+    }
+
+    private fun onFailed(failure: TelegramFailure) {
+        val text = failureTextMapper.lazyMap(failure)
+        if (failure == lastFailure) {
+            verbose { "#send ${text.toMessengerText()}" }
+            return
+        }
+        lastFailure = failure
+        _deliveryError.value = text
+        error { "#send could not send the message: ${text.toMessengerText()}" }
     }
 
     init {

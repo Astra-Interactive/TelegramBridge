@@ -17,16 +17,18 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 ## Features
 
 - **Bidirectional chat** — MC ↔ Telegram ↔ Discord, messages tagged with `[MC]` / `[TG]` / `[DS]`
-- **Discord webhooks** — messages show sender avatar and name, not the bot
+- **Discord webhooks** — messages show the player's name and avatar, not the bot
+- **Telegram topics** — a whole group, one topic of a group with topics, or a reply thread
 - **Replies** — a Telegram or Discord reply reads `[TG] Alex ↪ Steve: …` in game; hover `↪ Steve` to read the
   replied message. Change the look with `chat.to_minecraft_reply` in `translations.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
-- **Account linking** — `/link` in-game → code → `/link <code>` in TG or Discord
-    - Grants a LuckPerms role and a Discord role on link
-    - Revokes the LuckPerms role when a player leaves the Discord server
-- **Online list** — `/vanilla` (Telegram) or `!vanilla` (Discord) shows current players
-- **Proxy support** — HTTP proxy with auth for both bots
-- **Hot reload** — `/mbreload` reloads config; bots reconnect automatically
+- **Setup from the console or in game** — `/mb` commands set tokens, chats and proxies;
+  a one-time bind code captures the chat, topic or channel id; `check` finds what is wrong and links to the docs
+- **Account linking** — `/link` in game → code → `/link <code>` in Telegram or Discord;
+  grants a LuckPerms group and a Discord role
+- **Online list** — `/vanilla` (Telegram) or `!vanilla` (Discord)
+- **Proxy support** — HTTP with auth for both bots, SOCKS5 for Telegram, own Bot API server for Telegram
+- **Safe reload** — a `config.yml` with an error is not applied, the working settings stay
 
 ---
 
@@ -35,52 +37,64 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 | Platform       | File                           | Minecraft |
 |----------------|--------------------------------|-----------|
 | Paper / Spigot | `MessageBridge-bukkit-*.jar`   | 1.18+     |
-| NeoForge       | `MessageBridge-neoforge-*.jar` | 1.20.1    |
-| Forge          | `MessageBridge-forge-*.jar`    | 1.20.1    |
+| NeoForge       | `MessageBridge-neoforge-*.jar` | 1.21.1    |
+| Forge          | `MessageBridge-forge-*.jar`    | 1.21.1    |
 
 ---
 
-## Installation
+## Quick Start
 
-1. Drop the jar into `plugins/` or `mods/`
-2. Start the server — `config.yml` and `translations.yml` are generated
-3. Fill in bot tokens and channel IDs
-4. `/mbreload` or restart
+1. Drop the jar into `plugins/` (Paper) or `mods/` (Forge, NeoForge) and start the server.
+2. Create a Telegram bot in [@BotFather](https://t.me/BotFather) and a Discord bot in the
+   [Developer Portal](https://discord.com/developers/applications) (turn on *Message Content Intent*).
+3. In the server console: `mb telegram token <token>` and `mb discord token <token>`.
+4. Telegram: make the bot an admin of your group, run `mb telegram bind` and send `/bind <code>` into the group.
+   Discord: run `mb discord invite` to add the bot, then `mb discord bind` and send `!bind <code>` into the channel.
+5. Run `mb telegram check` and `mb discord check`.
 
-**Discord:** enable *Message Content Intent* in the Developer Portal; bot needs `Send Messages`, `Manage Channel`, `Read Message History`, `Use Webhooks`.
+No restart is needed. In Russia and other places where Telegram or Discord is blocked, set up a [proxy](docs/en/proxy.md) first.
 
-**Telegram:** make the bot an admin in your group; use `/minfo` in the topic to get `chat_id` and `topic_id`.
+---
+
+## Documentation
+
+| Topic           | English                                          | Русский                                          |
+|-----------------|--------------------------------------------------|--------------------------------------------------|
+| Telegram setup  | [docs/en/telegram.md](docs/en/telegram.md)       | [docs/ru/telegram.md](docs/ru/telegram.md)       |
+| Discord setup   | [docs/en/discord.md](docs/en/discord.md)         | [docs/ru/discord.md](docs/ru/discord.md)         |
+| Proxy           | [docs/en/proxy.md](docs/en/proxy.md)             | [docs/ru/proxy.md](docs/ru/proxy.md)             |
+| Commands        | [docs/en/commands.md](docs/en/commands.md)       | [docs/ru/commands.md](docs/ru/commands.md)       |
+| Troubleshooting | [docs/en/troubleshooting.md](docs/en/troubleshooting.md) | [docs/ru/troubleshooting.md](docs/ru/troubleshooting.md) |
+| Limitations     | [docs/en/limitations.md](docs/en/limitations.md) | [docs/ru/limitations.md](docs/ru/limitations.md) |
 
 ---
 
 ## Configuration
 
-### `config.yml`
+`plugins/MessageBridge/config.yml` on Paper, `config/MessageBridge/config.yml` on Forge and NeoForge.
+Every setting has a comment in the file. The `/mb` commands change it for you; after editing it by hand, run `mb reload`.
 
 ```yaml
 jdaConfig:
   token: ""
   activity: "play.example.com"
-  channelId: ""
-  # proxy:          # uncomment if Discord is blocked in your region
-  #   host: "0.0.0.0"
-  #   port: 2222
-  #   username: "user"
-  #   password: "password"
+  channelId: "123456789012345678"
+  proxy: null                 # or: { type: "HTTP", host: "127.0.0.1", port: 10809 }
 
 tgConfig:
   token: ""
   chat_id: "-1001234567890"
-  topic_id: "12345"
-  max_telegram_message_length: 140
-  # proxy: ...
+  topic_id: ""                # empty: no topic or the General topic
+  max_telegram_message_length: 90
+  display_name_regex: ".*"
+  proxy: null                 # or: { type: "SOCKS5", host: "127.0.0.1", port: 10808 }
+  api_url: ""                 # empty: https://api.telegram.org
 
 displayJoinMessage: true
 displayLeaveMessage: true
 displayDeathMessage: true
 
-# Remove this block to disable account linking
-link:
+link:                         # roles given on account linking; null gives none
   linkDiscordRole: "123456789012345678"   # Discord role ID
   linkLuckPermsRole: "verified"           # LuckPerms group
 ```
@@ -89,23 +103,22 @@ link:
 
 ## Commands
 
-### In-game
+In the console, type commands without `/`. Full list: [EN](docs/en/commands.md) · [RU](docs/ru/commands.md).
 
-| Command     | Permission       |
-|-------------|------------------|
-| `/mbreload` | `tbridge.reload` |
-| `/link`     | -                |
+| Command                          | Permission              |                                              |
+|----------------------------------|-------------------------|----------------------------------------------|
+| `/mb status`                     | `tbridge.setup`         | Status of both bots and the last error       |
+| `/mb telegram`, `/mb discord`    | `tbridge.setup`         | Step-by-step guide, setup and `check`        |
+| `/mb reload`                     | `tbridge.reload`        | Reload the config                            |
+| `/link`, `/unlink`               | -                       | Link or unlink your account                  |
+| `/unlink <player>`               | `tbridge.unlink.player` | Unlink another player                        |
 
-### Bot
-
-| Command        | Platform     | Action                     |
-|----------------|--------------|----------------------------|
-| `/vanilla`     | Telegram     | List online players        |
-| `!vanilla`     | Discord      | List online players        |
-| `/link <code>` | TG & Discord | Link Minecraft account     |
-| `/minfo`       | Telegram     | Print chat ID and topic ID |
-
----
+| Bot command    | Platform          | Action                                      |
+|----------------|-------------------|---------------------------------------------|
+| `/vanilla`     | Telegram          | List online players                         |
+| `!vanilla`     | Discord           | List online players                         |
+| `/link <code>` | Telegram, Discord | Link a Minecraft account                    |
+| `/minfo`       | Telegram          | Print the chat ID, topic ID and chat type   |
 
 ---
 
