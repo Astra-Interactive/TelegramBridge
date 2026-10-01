@@ -60,8 +60,8 @@ internal class TelegramChatConsumer(
     private suspend fun process(update: Update) {
         when (val validation = validator.map(update)) {
             is TelegramMessageValidation.Valid -> relay(update, validation)
-            TelegramMessageValidation.NoAuthor -> reject(update) { "#consume author name is null" }
-            TelegramMessageValidation.NoText -> reject(update) { "#consume text is null" }
+            TelegramMessageValidation.NoAuthor -> verbose { "#consume author name is null" }
+            TelegramMessageValidation.NoText -> verbose { "#consume text is null" }
             TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
             TelegramMessageValidation.IllegalDisplayName -> {
                 verbose { "#consume display name rejected by regex" }
