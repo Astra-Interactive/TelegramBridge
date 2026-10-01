@@ -22,6 +22,7 @@ internal class MessageEventListener(
     private val commandMapper: DiscordCommandMapper,
     private val commandHandler: DiscordCommandHandler,
     private val replyMapper: DiscordReplyMapper,
+    private val bindHandler: DiscordBindHandler,
     private val linkApi: LinkApi,
 ) : ListenerAdapter(),
     DiscordEventListener,
@@ -34,6 +35,12 @@ internal class MessageEventListener(
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
+        // A channel is bound before it is the bridge channel, so the code is looked for in every channel
+        val bindCode = commandMapper.mapBindCode(event.message.contentRaw)
+        if (bindCode != null && event.isFromGuild && !event.isWebhookMessage && !event.author.isBot) {
+            launch { bindHandler.bind(bindCode, event) }
+            return
+        }
         when (relevanceMapper.map(event)) {
             DiscordMessageRelevance.Relevant -> launch { process(event) }
             DiscordMessageRelevance.PrivateMessage -> launch { commandHandler.linkFromPrivate(event) }

@@ -1,12 +1,14 @@
 package ru.astrainteractive.messagebridge.messenger.discord.messaging
 
+import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitWithTimeout
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+/** Discord allows two topic changes in ten minutes, so the message is not held back by an update that waits. */
 internal class DiscordTopicUpdater(
     private val onlinePlayersProvider: OnlinePlayersProvider,
 ) {
@@ -16,15 +18,19 @@ internal class DiscordTopicUpdater(
         val current = System.currentTimeMillis().milliseconds
         if (current.minus(lastOnlineChanged) < THROTTLE) return
         lastOnlineChanged = current
-        channel.manager
-            .setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}")
-            .awaitWithTimeout(TOPIC_TIMEOUT)
+        withTimeoutOrNull(TOPIC_TIMEOUT) {
+            channel.manager
+                .setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}")
+                .await()
+        }
     }
 
     suspend fun setStarting(channel: TextChannel) {
-        channel.manager
-            .setTopic("Сервер только запустился...")
-            .awaitWithTimeout(TOPIC_TIMEOUT)
+        withTimeoutOrNull(TOPIC_TIMEOUT) {
+            channel.manager
+                .setTopic("Сервер только запустился...")
+                .await()
+        }
     }
 
     private companion object {

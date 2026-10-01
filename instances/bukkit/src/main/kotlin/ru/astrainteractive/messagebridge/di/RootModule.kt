@@ -67,6 +67,8 @@ class RootModule(
             coreModule = coreModule,
             linkModule = linkModule,
             lifecyclePlugin = plugin,
+            telegramSetup = telegramMessengerModule.setup,
+            discordSetup = jdaMessengerModule.setup,
             commandRegistrarContext = coreModule.commandRegistrarContext
         )
     }

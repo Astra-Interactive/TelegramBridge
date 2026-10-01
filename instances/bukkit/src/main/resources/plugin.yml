@@ -11,3 +11,13 @@ softdepend: [ "luckperms" ]
 depend: [ ]
 loadbefore: [ ]
 libraries: ${libraries}
+permissions:
+  tbridge.setup:
+    description: Set up the Telegram and Discord bots with /mb
+    default: op
+  tbridge.reload:
+    description: Reload the plugin with /mb reload
+    default: op
+  tbridge.unlink.player:
+    description: Unlink the accounts of another player with /unlink <player>
+    default: op

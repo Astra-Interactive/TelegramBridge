@@ -31,6 +31,12 @@ class YamlConfigFile<T>(
 
     fun parse(): Result<T> = stringFormat.parse(serializer, file)
 
+    /** @return the error the file has now, `null` when it can be read or does not exist yet */
+    fun check(): String? {
+        if (!file.exists() || file.length() == 0L) return null
+        return parse().exceptionOrNull()?.let(::describe)
+    }
+
     fun load(): T {
         if (!file.exists() || file.length() == 0L) {
             return factory.invoke().also(::save)

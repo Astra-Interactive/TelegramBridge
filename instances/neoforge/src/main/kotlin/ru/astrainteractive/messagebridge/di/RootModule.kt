@@ -52,14 +52,6 @@ class RootModule(
             coreModule = coreModule,
         )
     }
-    val commandModule by lazy {
-        CommandModule(
-            coreModule = coreModule,
-            linkModule = linkModule,
-            lifecyclePlugin = forgeLifecycleServer,
-            commandRegistrarContext = coreModule.commandRegistrarContext
-        )
-    }
 
     val jdaEventModule by lazy {
         JdaMessengerModule(
@@ -74,6 +66,17 @@ class RootModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule
+        )
+    }
+
+    val commandModule by lazy {
+        CommandModule(
+            coreModule = coreModule,
+            linkModule = linkModule,
+            lifecyclePlugin = forgeLifecycleServer,
+            telegramSetup = tgEventModule.setup,
+            discordSetup = jdaEventModule.setup,
+            commandRegistrarContext = coreModule.commandRegistrarContext
         )
     }
 

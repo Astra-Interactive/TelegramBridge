@@ -1,10 +1,11 @@
 package ru.astrainteractive.messagebridge.messenger.discord.di
 
-import com.neovisionaries.ws.client.WebSocketFactory
+import club.minnced.discord.webhook.WebhookClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,49 +13,52 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runInterruptible
-import net.dv8tion.jda.api.JDABuilder
-import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.requests.GatewayIntent
-import okhttp3.Credentials
-import okhttp3.OkHttpClient
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import net.dv8tion.jda.api.JDA
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
+import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
 import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
 import ru.astrainteractive.messagebridge.messaging.setup.DiscordSetup
 import ru.astrainteractive.messagebridge.messaging.setup.MessengerStatus
+import ru.astrainteractive.messagebridge.messenger.discord.di.factory.JdaBuilderFactory
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
+import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordBindHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordFailureMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordChannelProvider
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordConnector
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordDeliveryError
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordDiagnostics
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopicUpdater
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.util.concurrent.TimeUnit
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordPermissions
+import ru.astrainteractive.messagebridge.messenger.discord.model.awaitJda
 import kotlin.time.Duration.Companion.seconds
 
 class JdaMessengerModule(
@@ -62,112 +66,48 @@ class JdaMessengerModule(
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule") {
+    private val translation by coreModule.translationKrate
 
-    private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
-        .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
-        .distinctUntilChanged()
-        .flatMapLatest { proxy ->
-            callbackFlow {
-                val okHttpClient = if (proxy == null) {
-                    OkHttpClient.Builder().build()
-                } else {
-                    @Suppress("MagicNumber")
-                    OkHttpClient.Builder()
-                        .connectTimeout(10, TimeUnit.SECONDS)
-                        .writeTimeout(10, TimeUnit.SECONDS)
-                        .readTimeout(60, TimeUnit.SECONDS)
-                        .callTimeout(75, TimeUnit.SECONDS)
-                        .pingInterval(15, TimeUnit.SECONDS)
-                        .retryOnConnectionFailure(true)
-                        .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                        .proxyAuthenticator { route, response ->
-                            var builder = response.request.newBuilder()
-                            if (route?.socketAddress?.hostString == proxy.host) {
-                                val credential: String = Credentials.basic(
-                                    proxy.username.orEmpty(),
-                                    proxy.password.orEmpty()
-                                )
-                                builder.header("Proxy-Authorization", credential)
-                            }
-                            builder.build()
-                        }
-                        .build()
-                }
-                send(okHttpClient)
+    private val failureMapper = DiscordFailureMapper()
 
-                awaitClose {
-                    okHttpClient.dispatcher.executorService.shutdown()
-                    okHttpClient.connectionPool.evictAll()
-                    okHttpClient.cache?.close()
-                }
-            }
-        }
-        .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
+    private val connector = DiscordConnector(
+        jdaBuilderFactory = JdaBuilderFactory(),
+        failureMapper = failureMapper,
+    )
 
-    private val jdaFlow = combine(
-        flow = okHttpClientFlow,
-        flow2 = coreModule.configKrate.cachedStateFlow
+    /** Makes the bot connect again with the same settings, e.g. after Message Content Intent is turned on. */
+    private val reconnectRequests = MutableStateFlow(0)
+
+    private val connection: StateFlow<DiscordConnection> = combine(
+        flow = coreModule.configKrate.cachedStateFlow
             .map { pluginConfiguration -> pluginConfiguration.jdaConfig.copy(channelId = "") }
             .distinctUntilChanged(),
-        transform = { okHttpClient, config ->
-            callbackFlow {
-                val builder = JDABuilder.createLight(config.token).apply {
-                    enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                    enableIntents(GatewayIntent.DIRECT_MESSAGES)
-                    enableIntents(GatewayIntent.GUILD_MESSAGES)
-                    setActivity(Activity.playing(config.activity))
-                    setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
-                    config.proxy?.let { proxy ->
-                        setWebsocketFactory(
-                            WebSocketFactory()
-                                .setVerifyHostname(false)
-                                .also { webSocketFactory ->
-                                    webSocketFactory.proxySettings.setHost(proxy.host)
-                                    webSocketFactory.proxySettings.setPort(proxy.port)
-                                    webSocketFactory.proxySettings.setCredentials(proxy.username, proxy.password)
-                                }
-                        )
-                        setHttpClient(okHttpClient)
-                    }
-                }
+        flow2 = reconnectRequests,
+        transform = { jdaConfig, _ -> jdaConfig }
+    )
+        .flatMapLatest(connector::connect)
+        .distinctUntilChanged()
+        .onEach(::logConnection)
+        .stateIn(coreModule.ioScope, SharingStarted.Eagerly, DiscordConnection.Connecting)
 
-                val jda = runInterruptible { builder.build().awaitReady() }
-                send(jda)
+    private val jdaFlow: Flow<JDA?> = connection
+        .map { connection -> (connection as? DiscordConnection.Connected)?.jda }
+        .distinctUntilChanged()
 
-                awaitClose {
-                    jda.shutdownNow()
-                    jda.awaitShutdown()
-                    jda.registeredListeners.forEach(jda::removeEventListener)
-                }
-            }.retryWhen { t, _ ->
-                error { "#jdaFlow could not create JDA: ${t.localizedMessage}" }
-                delay(5.seconds)
-                val shouldRetry = t !is CancellationException
-                shouldRetry
-            }
-        }
-    ).flatMapLatest { jdaSession -> jdaSession }.shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
+    private val deliveryError = DiscordDeliveryError(
+        failureMapper = failureMapper,
+        configKrate = coreModule.configKrate,
+        translationKrate = coreModule.translationKrate,
+    )
 
     private val webhookClient = combine(
         flow = jdaFlow,
         flow2 = coreModule.configKrate.cachedStateFlow.map { it.jdaConfig.channelId }.distinctUntilChanged(),
-        transform = { jda, channelId ->
-            callbackFlow {
-                val webhookClient = runInterruptible { WebHookClientFactory(jda).create(channelId) }.first()
-                send(webhookClient)
-                awaitClose {
-                    webhookClient.close()
-                }
-            }.retryWhen { t, _ ->
-                error { "#webhookClient could not create webhook for channel $channelId: ${t.localizedMessage}" }
-                delay(WEBHOOK_RETRY_DELAY)
-                t !is CancellationException
-            }
-        }
+        transform = ::createWebhookClient
     ).flatMapLatest { webhookClientFlow -> webhookClientFlow }.shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     private val channelProvider = DiscordChannelProvider(
-        jdaFlow = jdaFlow,
+        connection = connection,
         webHookClientFlow = webhookClient,
         configKrate = coreModule.configKrate,
     )
@@ -178,6 +118,9 @@ class JdaMessengerModule(
         embedMapper = DiscordEmbedMapper(),
         memberResolver = DiscordMemberResolver(linkModule.linkingDao),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
+        failureMapper = failureMapper,
+        delivery = deliveryError,
+        configKrate = coreModule.configKrate,
     )
 
     private val relevanceMapper = DiscordMessageRelevanceMapper(
@@ -192,6 +135,16 @@ class JdaMessengerModule(
         messageSender = messageSender,
         onlinePlayersProvider = onlinePlayersProvider,
         linkApi = linkModule.linkApi,
+        channelProvider = channelProvider,
+        translationKrate = coreModule.translationKrate,
+    )
+
+    private val bindCodes = BindCodes()
+
+    private val bindHandler = DiscordBindHandler(
+        bindCodes = bindCodes,
+        configKrate = coreModule.configKrate,
+        messageSender = messageSender,
         translationKrate = coreModule.translationKrate,
     )
 
@@ -200,17 +153,74 @@ class JdaMessengerModule(
         commandMapper = commandMapper,
         commandHandler = commandHandler,
         replyMapper = DiscordReplyMapper(),
+        bindHandler = bindHandler,
         linkApi = linkModule.linkApi,
     )
 
-    private val bindCodes = BindCodes()
+    private val diagnostics = DiscordDiagnostics(
+        connection = connection,
+        failureMapper = failureMapper,
+        configKrate = coreModule.configKrate,
+        translationKrate = coreModule.translationKrate,
+    )
 
     val setup: DiscordSetup = object : DiscordSetup {
-        override val status: StateFlow<MessengerStatus> = MutableStateFlow(MessengerStatus.Connecting)
-        override val deliveryError: StateFlow<LocalizableComponent?> = MutableStateFlow(null)
+        override val status: StateFlow<MessengerStatus> = connection
+            .map(::toStatus)
+            .stateIn(coreModule.ioScope, SharingStarted.Eagerly, MessengerStatus.Connecting)
+
+        override val deliveryError: StateFlow<LocalizableComponent?> = discordMessageController.deliveryError
+
         override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): String = bindCodes.issue(onBound)
-        override suspend fun diagnose(): List<DiagnosticCheck> = emptyList()
-        override suspend fun inviteUrl(): String? = null
+
+        override suspend fun diagnose(): List<DiagnosticCheck> = diagnostics.diagnose()
+
+        override suspend fun inviteUrl(): String? {
+            return connection.awaitJda(INVITE_CONNECTION_WAIT)?.getInviteUrl(DiscordPermissions.ALL)
+        }
+    }
+
+    private fun createWebhookClient(jda: JDA?, channelId: String): Flow<Result<WebhookClient>?> {
+        if (jda == null || channelId.isBlank()) return flowOf(null)
+        return callbackFlow<Result<WebhookClient>?> {
+            val webhookClient = WebHookClientFactory(jda).create(channelId)
+            deliveryError.clear()
+            send(Result.success(webhookClient))
+            awaitClose {
+                webhookClient.close()
+            }
+        }.retryWhen { t, _ ->
+            if (t is CancellationException) return@retryWhen false
+            deliveryError.report(t)
+            emit(Result.failure(t))
+            delay(WEBHOOK_RETRY_DELAY)
+            true
+        }.onStart { emit(null) }
+    }
+
+    private fun toStatus(connection: DiscordConnection): MessengerStatus = when (connection) {
+        DiscordConnection.Disabled -> MessengerStatus.Disabled
+        DiscordConnection.Connecting -> MessengerStatus.Connecting
+        is DiscordConnection.Connected -> MessengerStatus.Connected(connection.jda.selfUser.name)
+        is DiscordConnection.Failed -> MessengerStatus.Failed(
+            reason = failureMapper.toText(connection.failure, translation.discord)
+        )
+    }
+
+    private fun logConnection(connection: DiscordConnection) {
+        when (connection) {
+            DiscordConnection.Disabled -> {
+                info { "Discord is turned off: the bot token is empty" }
+                info { translation.discord.guide.toMessengerText() }
+            }
+
+            DiscordConnection.Connecting -> verbose { "#connection connecting to Discord" }
+            is DiscordConnection.Connected -> info { "Discord bot ${connection.jda.selfUser.name} is connected" }
+            is DiscordConnection.Failed -> error {
+                "Discord bot is not connected: " +
+                    failureMapper.toText(connection.failure, translation.discord).toMessengerText()
+            }
+        }
     }
 
     val lifecycle = Lifecycle.Lambda(
@@ -220,19 +230,18 @@ class JdaMessengerModule(
                 .onEach { jda -> messageEventListener.onEnable(jda) }
                 .launchIn(coreModule.ioScope)
         },
+        onReload = {
+            if (connection.value is DiscordConnection.Failed) reconnectRequests.update { requests -> requests + 1 }
+        },
         onDisable = {
             discordMessageController.cancel()
             messageEventListener.cancel()
-            coreModule.ioScope.launch {
-                jdaFlow.firstOrNull()?.let { jda ->
-                    messageEventListener.onDisable(jda)
-                }
-            }
+            (connection.value as? DiscordConnection.Connected)?.jda?.let(messageEventListener::onDisable)
         }
     )
 
     private companion object {
-        val MAX_RECONNECT_DELAY = 32.seconds
         val WEBHOOK_RETRY_DELAY = 30.seconds
+        val INVITE_CONNECTION_WAIT = 10.seconds
     }
 }

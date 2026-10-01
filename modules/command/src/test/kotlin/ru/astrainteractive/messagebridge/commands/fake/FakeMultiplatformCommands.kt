@@ -10,8 +10,10 @@ import ru.astrainteractive.astralibs.command.api.brigadier.sender.KPlayerKComman
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 
 internal class FakeMultiplatformCommands(
-    private val player: OnlineKPlayer
+    private val sender: KCommandSender
 ) : MultiplatformCommands {
+    constructor(player: OnlineKPlayer) : this(KPlayerKCommandSender(player))
+
     override fun literal(literal: String): LiteralArgumentBuilder<Any> {
         return LiteralArgumentBuilder.literal(literal)
     }
@@ -23,5 +25,5 @@ internal class FakeMultiplatformCommands(
         return RequiredArgumentBuilder.argument(name, argumentType)
     }
 
-    override fun getSender(context: CommandContext<*>): KCommandSender = KPlayerKCommandSender(player)
+    override fun getSender(context: CommandContext<*>): KCommandSender = sender
 }
