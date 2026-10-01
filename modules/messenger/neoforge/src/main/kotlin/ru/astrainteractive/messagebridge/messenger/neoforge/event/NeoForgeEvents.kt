@@ -29,7 +29,8 @@ import ru.astrainteractive.messagebridge.messenger.api.model.Text
 internal class NeoForgeEvents(
     private val configFlow: StateFlow<PluginConfiguration>,
     private val ioScope: CoroutineScope,
-    private val dispatchers: KotlinDispatchers
+    private val dispatchers: KotlinDispatchers,
+    private val bEventChannel: BEventChannel
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
     private val config: PluginConfiguration
         get() = configFlow.value
@@ -38,7 +39,7 @@ internal class NeoForgeEvents(
         .onEach { verbose { "#serverStartedEvent" } }
         .onEach {
             ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
         }.launchIn(ioScope)
 
@@ -46,7 +47,7 @@ internal class NeoForgeEvents(
         .onEach { verbose { "#serverStoppingEvent" } }
         .onEach {
             ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
         }.launchIn(ioScope)
 
@@ -59,7 +60,7 @@ internal class NeoForgeEvents(
                     name = it.entity.name.string,
                     uuid = it.entity.uuid.toString()
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -77,7 +78,7 @@ internal class NeoForgeEvents(
                     uuid = it.entity.uuid.toString(),
                     hasPlayedBefore = true
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -93,7 +94,7 @@ internal class NeoForgeEvents(
                     cause = deathCause,
                     uuid = it.entity.uuid.toString()
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -106,7 +107,7 @@ internal class NeoForgeEvents(
                     text = it.message.string,
                     uuid = it.player.uuid.toString()
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 }

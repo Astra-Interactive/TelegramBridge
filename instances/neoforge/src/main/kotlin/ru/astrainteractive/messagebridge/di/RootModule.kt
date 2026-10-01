@@ -47,6 +47,8 @@ internal class RootModule(
         NeoForgeOnlinePlayersProvider()
     }
 
+    private val bEventChannel = BEventChannel()
+
     private val linkModule by lazy {
         LinkModule(coreModule, NeoForgeLuckPermsProvider)
     }
@@ -54,6 +56,7 @@ internal class RootModule(
     private val neoForgeMessengerModule by lazy {
         NeoForgeMessengerModule(
             coreModule = coreModule,
+            bEventChannel = bEventChannel,
         )
     }
 
@@ -62,7 +65,8 @@ internal class RootModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule,
-            messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) }
+            messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) },
+            bEventChannel = bEventChannel
         )
     }
 
@@ -83,7 +87,8 @@ internal class RootModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule,
-            updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) }
+            updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) },
+            bEventChannel = bEventChannel
         )
     }
 
@@ -128,7 +133,7 @@ internal class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -137,7 +142,7 @@ internal class RootModule(
         },
         onDisable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }

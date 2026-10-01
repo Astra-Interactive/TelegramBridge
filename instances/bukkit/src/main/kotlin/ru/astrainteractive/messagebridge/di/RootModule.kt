@@ -46,19 +46,23 @@ internal class RootModule(
         }
     )
 
+    private val bEventChannel = BEventChannel()
+
     private val linkModule = LinkModule(coreModule, BukkitLuckPermsProvider)
 
     private val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        linkModule = linkModule
+        linkModule = linkModule,
+        bEventChannel = bEventChannel
     )
 
     private val jdaMessengerModule = JdaMessengerModule(
         coreModule = coreModule,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule,
-        messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) }
+        messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) },
+        bEventChannel = bEventChannel
     )
 
     private val onboardingTranslationModule by lazy {
@@ -77,7 +81,8 @@ internal class RootModule(
         coreModule = coreModule,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule,
-        updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) }
+        updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) },
+        bEventChannel = bEventChannel
     )
 
     private val telegramOnboardingModule: TelegramOnboardingModule by lazy {
@@ -121,7 +126,7 @@ internal class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -130,7 +135,7 @@ internal class RootModule(
         },
         onDisable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }

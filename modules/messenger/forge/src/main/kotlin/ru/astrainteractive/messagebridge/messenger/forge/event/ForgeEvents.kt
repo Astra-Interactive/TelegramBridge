@@ -31,7 +31,8 @@ import ru.astrainteractive.messagebridge.messenger.api.model.Text
 internal class ForgeEvents(
     private val configFlow: StateFlow<PluginConfiguration>,
     private val ioScope: CoroutineScope,
-    private val dispatchers: KotlinDispatchers
+    private val dispatchers: KotlinDispatchers,
+    private val bEventChannel: BEventChannel
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
     private val config: PluginConfiguration
         get() = configFlow.value
@@ -40,7 +41,7 @@ internal class ForgeEvents(
         .onEach { verbose { "#serverStartedEvent" } }
         .onEach {
             ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
         }.launchIn(ioScope)
 
@@ -48,7 +49,7 @@ internal class ForgeEvents(
         .onEach { verbose { "#serverStoppingEvent" } }
         .onEach {
             ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
         }.launchIn(ioScope)
 
@@ -61,7 +62,7 @@ internal class ForgeEvents(
                     name = it.entity.name.string,
                     uuid = it.entity.uuid.toString()
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -75,7 +76,7 @@ internal class ForgeEvents(
                     uuid = it.entity.uuid.toString(),
                     hasPlayedBefore = true
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -91,7 +92,7 @@ internal class ForgeEvents(
                     cause = deathCause,
                     uuid = it.entity.uuid.toString()
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -104,7 +105,7 @@ internal class ForgeEvents(
                     text = event.message.toPlain(),
                     uuid = event.player.uuid.toString()
                 )
-                BEventChannel.consume(serverEvent)
+                bEventChannel.consume(serverEvent)
             }
         }.launchIn(ioScope)
 }

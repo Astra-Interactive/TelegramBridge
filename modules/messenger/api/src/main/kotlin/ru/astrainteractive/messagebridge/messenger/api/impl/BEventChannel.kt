@@ -12,7 +12,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
-object BEventChannel :
+class BEventChannel :
     BEventConsumer,
     Logger by JUtiltLogger("MessageBridge-BEventChannel") {
     private val channel = MutableSharedFlow<BEvent>(1)
@@ -29,9 +29,11 @@ object BEventChannel :
         channel.emit(bEvent)
     }
 
-    /**
-     * When people write a lot of messages at one time - we can
-     * encounter timeout for discord/tg api, so we need to wait a little
-     */
-    private const val DELAY_MILLIS = 500L
+    private companion object {
+        /**
+         * When people write a lot of messages at one time - we can
+         * encounter timeout for discord/tg api, so we need to wait a little
+         */
+        const val DELAY_MILLIS = 500L
+    }
 }

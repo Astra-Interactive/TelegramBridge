@@ -20,10 +20,11 @@ internal class DiscordMessageListener(
     private val replyMapper: DiscordReplyMapper,
     private val messageInterceptors: () -> List<DiscordMessageInterceptor>,
     private val scope: CoroutineScope,
+    private val bEventChannel: BEventChannel,
 ) : ListenerAdapter() {
 
     private suspend fun relay(event: MessageReceivedEvent) {
-        BEventChannel.consume(
+        bEventChannel.consume(
             Text.Discord(
                 author = event.member?.nickname ?: event.author.name,
                 text = event.message.contentRaw,

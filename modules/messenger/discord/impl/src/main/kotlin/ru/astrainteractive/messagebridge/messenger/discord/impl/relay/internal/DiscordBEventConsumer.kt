@@ -46,6 +46,7 @@ internal class DiscordBEventConsumer(
     private val configFlow: StateFlow<PluginConfiguration>,
     private val scope: CoroutineScope,
     translationKrate: CachedKrate<PluginTranslation>,
+    private val bEventChannel: BEventChannel,
 ) : Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
     private val config: PluginConfiguration
         get() = configFlow.value
@@ -127,7 +128,7 @@ internal class DiscordBEventConsumer(
     }
 
     fun start() {
-        BEventChannel
+        bEventChannel
             .bEvents(scope)
             .onEach { bEvent -> verbose { "#start receive event $bEvent" } }
             .onEach { bEvent -> deliver(bEvent) }

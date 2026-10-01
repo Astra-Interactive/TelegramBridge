@@ -17,6 +17,7 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageSender
@@ -53,7 +54,8 @@ class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider,
-    messageInterceptors: () -> List<DiscordMessageInterceptor>
+    messageInterceptors: () -> List<DiscordMessageInterceptor>,
+    bEventChannel: BEventChannel
 ) : DiscordBotModule {
 
     private val scope = CoroutineScope(
@@ -109,6 +111,7 @@ class JdaMessengerModule(
         configFlow = coreModule.config,
         scope = scope,
         translationKrate = coreModule.translationKrate,
+        bEventChannel = bEventChannel,
     )
 
     override val connection: StateFlow<DiscordConnection> = session.connection
@@ -136,6 +139,7 @@ class JdaMessengerModule(
         replyMapper = DiscordReplyMapper(),
         messageInterceptors = messageInterceptors,
         scope = scope,
+        bEventChannel = bEventChannel,
     )
 
     private val memberLeaveListener = DiscordMemberLeaveListener(

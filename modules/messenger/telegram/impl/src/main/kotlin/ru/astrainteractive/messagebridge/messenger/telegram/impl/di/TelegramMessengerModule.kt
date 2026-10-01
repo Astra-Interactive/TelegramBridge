@@ -61,6 +61,7 @@ class TelegramMessengerModule(
     onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
     updateInterceptors: () -> List<TelegramUpdateInterceptor>,
+    bEventChannel: BEventChannel,
 ) : TelegramBotModule {
     private val scope = CoroutineScope(
         coreModule.ioScope.coroutineContext + SupervisorJob(coreModule.ioScope.coroutineContext[Job])
@@ -144,7 +145,7 @@ class TelegramMessengerModule(
         commandParser = TelegramCommandParser(botUserName = { connector.botUserName }),
         commandHandler = commandHandler,
         messageSender = messageSender,
-        eventChannel = BEventChannel,
+        eventChannel = bEventChannel,
         updateInterceptors = updateInterceptors,
         logger = JUtiltLogger("MessageBridge-TelegramChatConsumer"),
     )
@@ -162,7 +163,7 @@ class TelegramMessengerModule(
     init {
         scope.launch { connector.connect(connections) }
         connector.state.onEach(statusLogger::log).launchIn(scope)
-        BEventChannel.bEvents(scope)
+        bEventChannel.bEvents(scope)
             .onEach { bEvent -> bEventConsumer.tryConsume(bEvent) }
             .launchIn(scope)
     }
