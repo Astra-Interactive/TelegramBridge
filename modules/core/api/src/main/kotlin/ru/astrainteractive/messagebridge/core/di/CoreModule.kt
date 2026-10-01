@@ -11,15 +11,13 @@ import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarConte
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
-import ru.astrainteractive.astralibs.util.parseOrWriteIntoDefault
-import ru.astrainteractive.klibs.kstorage.api.asStateFlowKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.config.YamlConfigFile
 import java.io.File
 
 class CoreModule(
@@ -59,27 +57,23 @@ class CoreModule(
     )
     val yamlStringFormat = yaml
 
-    val configKrate = DefaultMutableKrate(
-        factory = ::PluginConfiguration,
-        loader = {
-            yamlStringFormat.parseOrWriteIntoDefault(
-                file = dataFolder.resolve("config.yml"),
-                logger = JUtiltLogger("MessageBridge-config"),
-                default = ::PluginConfiguration
-            )
-        }
-    ).asStateFlowKrate()
+    val configFile = YamlConfigFile(
+        stringFormat = yamlStringFormat,
+        serializer = PluginConfiguration.serializer(),
+        file = dataFolder.resolve("config.yml"),
+        factory = ::PluginConfiguration
+    )
 
-    val translationKrate = DefaultMutableKrate(
-        factory = ::PluginTranslation,
-        loader = {
-            yamlStringFormat.parseOrWriteIntoDefault(
-                file = dataFolder.resolve("translations.yml"),
-                logger = JUtiltLogger("MessageBridge-translations"),
-                default = ::PluginTranslation
-            )
-        }
-    ).asStateFlowKrate()
+    val configKrate = configFile.krate()
+
+    val translationFile = YamlConfigFile(
+        stringFormat = yamlStringFormat,
+        serializer = PluginTranslation.serializer(),
+        file = dataFolder.resolve("translations.yml"),
+        factory = ::PluginTranslation
+    )
+
+    val translationKrate = translationFile.krate()
 
     val commandExceptionHandler = CommandExceptionHandler(
         multiplatformCommand = multiplatformCommand,
