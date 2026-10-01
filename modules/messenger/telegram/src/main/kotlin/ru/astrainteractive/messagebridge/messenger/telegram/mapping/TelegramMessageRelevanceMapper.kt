@@ -27,9 +27,12 @@ internal class TelegramMessageRelevanceMapper(
         if (age > MAX_MESSAGE_AGE) {
             return MessageRelevance.TooOld
         }
-        val replyMessageId = message.replyToMessage?.messageId?.toString()
-        val messageThreadId = message.messageThreadId?.toString()
-        if (tgConfig.topicID != (messageThreadId ?: replyMessageId)) {
+        val isConfiguredTopic = if (tgConfig.topicID.isBlank()) {
+            !message.isTopicMessage()
+        } else {
+            tgConfig.topicID == (message.messageThreadId ?: message.replyToMessage?.messageId)?.toString()
+        }
+        if (!isConfiguredTopic) {
             return MessageRelevance.WrongTopic
         }
         return MessageRelevance.Relevant
