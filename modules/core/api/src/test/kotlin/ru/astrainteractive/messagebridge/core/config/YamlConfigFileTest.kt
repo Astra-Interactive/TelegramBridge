@@ -60,6 +60,18 @@ class YamlConfigFileTest {
     }
 
     @Test
+    fun GIVEN_value_saved_by_krate_WHEN_file_breaks_and_is_reloaded_THEN_saved_value_is_kept() {
+        val krate = configFile.krate()
+        krate.save { it.copy(jdaConfig = it.jdaConfig.copy(token = "discord-token")) }
+        file.appendText("\n  broken: [\n")
+
+        val reloaded = krate.getValue()
+
+        assertEquals("discord-token", reloaded.jdaConfig.token)
+        assertNotNull(configFile.lastError)
+    }
+
+    @Test
     fun GIVEN_krate_WHEN_value_is_saved_THEN_file_has_it() {
         val krate = configFile.krate()
 

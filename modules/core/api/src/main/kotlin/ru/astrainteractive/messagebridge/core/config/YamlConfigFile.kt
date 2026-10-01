@@ -57,6 +57,7 @@ class YamlConfigFile<T>(
 
     fun save(value: T) {
         stringFormat.writeIntoFile(serializer, value, file)
+        lastValue = value
     }
 
     fun krate(): StateFlowMutableKrate<T> = DefaultMutableKrate(
