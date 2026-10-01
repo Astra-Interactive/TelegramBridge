@@ -8,11 +8,13 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
     private val linkingDao: LinkingDao,
+    private val luckPermsRoleController: LuckPermsRoleController,
     translationKrate: CachedKrate<PluginTranslation>
 ) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
     private val translation by translationKrate
@@ -45,7 +47,10 @@ internal class UnlinkCommandExecutor(
             return
         }
         linkingDao.deleteByUuid(uuid)
-            .onSuccess { _ -> sender.sendMessage(unlinkedText) }
+            .onSuccess { _ ->
+                luckPermsRoleController.removeLinkedRole(uuid)
+                sender.sendMessage(unlinkedText)
+            }
             .onFailure { failure -> reportFailure(sender, uuid, failure) }
     }
 

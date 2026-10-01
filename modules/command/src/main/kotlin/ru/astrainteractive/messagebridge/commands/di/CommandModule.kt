@@ -38,6 +38,7 @@ class CommandModule(
         UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
                 linkingDao = linkModule.linkingDao,
+                luckPermsRoleController = linkModule.luckPermsRoleController,
                 translationKrate = coreModule.translationKrate
             ),
             ioScope = coreModule.ioScope,

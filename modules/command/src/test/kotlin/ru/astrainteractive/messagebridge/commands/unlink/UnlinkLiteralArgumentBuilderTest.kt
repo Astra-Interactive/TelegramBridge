@@ -12,12 +12,15 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.commands.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.commands.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.commands.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.commands.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.commands.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import java.util.UUID
 import kotlin.test.Test
@@ -28,6 +31,10 @@ class UnlinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     private val linkingDao = FakeLinkingDao()
+    private val luckPermsRoleController = LuckPermsRoleController(
+        configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
+        luckPermsProvider = FakeLuckPermsProvider()
+    )
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
         name = "Admin",
@@ -49,6 +56,7 @@ class UnlinkLiteralArgumentBuilderTest {
         val builder = UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
                 linkingDao = linkingDao,
+                luckPermsRoleController = luckPermsRoleController,
                 translationKrate = translationKrate
             ),
             ioScope = ioScope,
