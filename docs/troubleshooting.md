@@ -1,6 +1,6 @@
 # Troubleshooting
 
-[Русская версия](../ru/troubleshooting.md) · [Telegram](telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) ·
+[Telegram](telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) ·
 [Commands](commands.md) · [Limitations](limitations.md)
 
 Search this page for the text of the error (Ctrl+F).

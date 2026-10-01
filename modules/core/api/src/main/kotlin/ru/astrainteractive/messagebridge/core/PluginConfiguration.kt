@@ -10,12 +10,12 @@ data class PluginConfiguration(
         "MessageBridge settings. Change them with the /mb commands, or edit this file and run /mb reload.",
         "The file is rewritten on every load, so comments you add here are lost.",
         "Discord bot. Run /mb discord for a step-by-step guide.",
-        "Docs: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/en/discord.md"
+        "Docs: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/discord.md"
     )
     val jdaConfig: JdaConfig = JdaConfig(),
     @YamlComment(
         "Telegram bot. Run /mb telegram for a step-by-step guide.",
-        "Docs: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/en/telegram.md"
+        "Docs: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md"
     )
     val tgConfig: TelegramConfig = TelegramConfig(),
     @YamlComment("Send a message to Telegram and Discord when a player joins the server.")

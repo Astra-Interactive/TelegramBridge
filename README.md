@@ -52,20 +52,20 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
    Discord: run `mb discord invite` to add the bot, then `mb discord bind` and send `!bind <code>` into the channel.
 5. Run `mb telegram check` and `mb discord check`.
 
-No restart is needed. In Russia and other places where Telegram or Discord is blocked, set up a [proxy](docs/en/proxy.md) first.
+No restart is needed. In Russia and other places where Telegram or Discord is blocked, set up a [proxy](docs/proxy.md) first.
 
 ---
 
 ## Documentation
 
-| Topic           | English                                          | Русский                                          |
-|-----------------|--------------------------------------------------|--------------------------------------------------|
-| Telegram setup  | [docs/en/telegram.md](docs/en/telegram.md)       | [docs/ru/telegram.md](docs/ru/telegram.md)       |
-| Discord setup   | [docs/en/discord.md](docs/en/discord.md)         | [docs/ru/discord.md](docs/ru/discord.md)         |
-| Proxy           | [docs/en/proxy.md](docs/en/proxy.md)             | [docs/ru/proxy.md](docs/ru/proxy.md)             |
-| Commands        | [docs/en/commands.md](docs/en/commands.md)       | [docs/ru/commands.md](docs/ru/commands.md)       |
-| Troubleshooting | [docs/en/troubleshooting.md](docs/en/troubleshooting.md) | [docs/ru/troubleshooting.md](docs/ru/troubleshooting.md) |
-| Limitations     | [docs/en/limitations.md](docs/en/limitations.md) | [docs/ru/limitations.md](docs/ru/limitations.md) |
+| Topic           | Page                                           |
+|-----------------|------------------------------------------------|
+| Telegram setup  | [docs/telegram.md](docs/telegram.md)           |
+| Discord setup   | [docs/discord.md](docs/discord.md)             |
+| Proxy           | [docs/proxy.md](docs/proxy.md)                 |
+| Commands        | [docs/commands.md](docs/commands.md)           |
+| Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| Limitations     | [docs/limitations.md](docs/limitations.md)     |
 
 ---
 
@@ -103,7 +103,7 @@ link:                         # roles given on account linking; null gives none
 
 ## Commands
 
-In the console, type commands without `/`. Full list: [EN](docs/en/commands.md) · [RU](docs/ru/commands.md).
+In the console, type commands without `/`. Full list: [docs/commands.md](docs/commands.md).
 
 | Command                          | Permission              |                                              |
 |----------------------------------|-------------------------|----------------------------------------------|

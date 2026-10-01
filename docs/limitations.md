@@ -1,6 +1,6 @@
 # Limitations
 
-[Русская версия](../ru/limitations.md) · [Telegram](telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) ·
+[Telegram](telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) ·
 [Commands](commands.md) · [Troubleshooting](troubleshooting.md)
 
 What MessageBridge, Telegram and Discord do not allow, and what to do about it.

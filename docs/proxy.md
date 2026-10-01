@@ -1,6 +1,6 @@
 # Proxy
 
-[Русская версия](../ru/proxy.md) · [Telegram](telegram.md) · [Discord](discord.md) · [Commands](commands.md) ·
+[Telegram](telegram.md) · [Discord](discord.md) · [Commands](commands.md) ·
 [Troubleshooting](troubleshooting.md) · [Limitations](limitations.md)
 
 Telegram and Discord are blocked in some countries, for example in Russia. Then the server cannot reach them

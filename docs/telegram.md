@@ -1,6 +1,6 @@
 # Telegram setup
 
-[Русская версия](../ru/telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) · [Commands](commands.md) ·
+[Discord](discord.md) · [Proxy](proxy.md) · [Commands](commands.md) ·
 [Troubleshooting](troubleshooting.md) · [Limitations](limitations.md)
 
 MessageBridge relays chat between Minecraft and one Telegram group, or one topic of a group with topics.

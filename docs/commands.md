@@ -1,6 +1,6 @@
 # Commands
 
-[Русская версия](../ru/commands.md) · [Telegram](telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) ·
+[Telegram](telegram.md) · [Discord](discord.md) · [Proxy](proxy.md) ·
 [Troubleshooting](troubleshooting.md) · [Limitations](limitations.md)
 
 ## Where to type them

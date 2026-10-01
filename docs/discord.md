@@ -1,6 +1,6 @@
 # Discord setup
 
-[Русская версия](../ru/discord.md) · [Telegram](telegram.md) · [Proxy](proxy.md) · [Commands](commands.md) ·
+[Telegram](telegram.md) · [Proxy](proxy.md) · [Commands](commands.md) ·
 [Troubleshooting](troubleshooting.md) · [Limitations](limitations.md)
 
 MessageBridge relays chat between Minecraft and one Discord text channel. It works through a bot that you create.
