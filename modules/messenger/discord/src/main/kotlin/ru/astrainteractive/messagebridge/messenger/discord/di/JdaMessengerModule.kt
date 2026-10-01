@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -98,7 +97,8 @@ class JdaMessengerModule(
     private val jdaFlow = combine(
         flow = okHttpClientFlow,
         flow2 = coreModule.configKrate.cachedStateFlow
-            .map { pluginConfiguration -> pluginConfiguration.jdaConfig },
+            .map { pluginConfiguration -> pluginConfiguration.jdaConfig.copy(channelId = "") }
+            .distinctUntilChanged(),
         transform = { okHttpClient, config ->
             callbackFlow {
                 val builder = JDABuilder.createLight(config.token).apply {
@@ -136,11 +136,11 @@ class JdaMessengerModule(
                 shouldRetry
             }
         }
-    ).flattenConcat().shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
+    ).flatMapLatest { jdaSession -> jdaSession }.shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
 
     private val webhookClient = combine(
         flow = jdaFlow,
-        flow2 = coreModule.configKrate.cachedStateFlow.map { it.jdaConfig.channelId },
+        flow2 = coreModule.configKrate.cachedStateFlow.map { it.jdaConfig.channelId }.distinctUntilChanged(),
         transform = { jda, channelId ->
             callbackFlow {
                 val webhookClient = runInterruptible { WebHookClientFactory(jda).create(channelId) }.first()
@@ -148,9 +148,13 @@ class JdaMessengerModule(
                 awaitClose {
                     webhookClient.close()
                 }
+            }.retryWhen { t, _ ->
+                error { "#webhookClient could not create webhook for channel $channelId: ${t.localizedMessage}" }
+                delay(WEBHOOK_RETRY_DELAY)
+                t !is CancellationException
             }
         }
-    ).flattenConcat().shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
+    ).flatMapLatest { webhookClientFlow -> webhookClientFlow }.shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     private val channelProvider = DiscordChannelProvider(
         jdaFlow = jdaFlow,
@@ -209,5 +213,6 @@ class JdaMessengerModule(
 
     private companion object {
         val MAX_RECONNECT_DELAY = 32.seconds
+        val WEBHOOK_RETRY_DELAY = 30.seconds
     }
 }
