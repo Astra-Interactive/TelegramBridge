@@ -14,12 +14,14 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordMessageRelevance
 
 internal class MessageEventListener(
     private val relevanceMapper: DiscordMessageRelevanceMapper,
     private val commandMapper: DiscordCommandMapper,
     private val commandHandler: DiscordCommandHandler,
+    private val replyMapper: DiscordReplyMapper,
     private val linkApi: LinkApi,
 ) : ListenerAdapter(),
     DiscordEventListener,
@@ -56,6 +58,7 @@ internal class MessageEventListener(
                 author = event.member?.nickname ?: event.author.name,
                 text = event.message.contentRaw,
                 authorId = event.author.idLong,
+                reply = replyMapper.map(event.message),
             )
         )
     }

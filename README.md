@@ -18,6 +18,8 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 
 - **Bidirectional chat** — MC ↔ Telegram ↔ Discord, messages tagged with `[MC]` / `[TG]` / `[DS]`
 - **Discord webhooks** — messages show sender avatar and name, not the bot
+- **Replies** — a Telegram or Discord reply reads `[TG] Alex ↪ Steve: …` in game; hover `↪ Steve` to read the
+  replied message. Change the look with `chat.to_minecraft_reply` in `translations.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Account linking** — `/link` in-game → code → `/link <code>` in TG or Discord
     - Grants a LuckPerms role and a Discord role on link

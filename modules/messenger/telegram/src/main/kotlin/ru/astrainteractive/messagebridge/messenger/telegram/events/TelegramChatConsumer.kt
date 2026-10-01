@@ -16,6 +16,7 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
@@ -26,6 +27,7 @@ internal class TelegramChatConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val relevanceChecker: TelegramMessageRelevanceMapper,
     private val validator: TelegramMessageValidatorMapper,
+    private val replyMapper: TelegramReplyMapper,
     private val commandParser: TelegramCommandMapper,
     private val commandHandler: TelegramCommandHandler,
     private val messageSender: TelegramMessageSender,
@@ -70,6 +72,7 @@ internal class TelegramChatConsumer(
                 author = valid.author,
                 text = valid.text,
                 authorId = valid.authorId,
+                reply = update.message?.let { message -> replyMapper.map(message) },
             )
         )
     }

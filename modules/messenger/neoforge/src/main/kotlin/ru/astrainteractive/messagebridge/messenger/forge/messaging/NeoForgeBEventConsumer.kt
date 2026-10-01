@@ -34,11 +34,22 @@ internal class NeoForgeBEventConsumer(
         if (bEvent.from == MessageFrom.MINECRAFT) return
         val text = when (bEvent) {
             is Text -> {
-                translation.chat.toMinecraft(
-                    playerName = bEvent.author,
-                    message = bEvent.text,
-                    from = bEvent.from.short
-                )
+                val reply = bEvent.reply
+                if (reply == null) {
+                    translation.chat.toMinecraft(
+                        playerName = bEvent.author,
+                        message = bEvent.text,
+                        from = bEvent.from.short
+                    )
+                } else {
+                    translation.chat.toMinecraftReply(
+                        playerName = bEvent.author,
+                        message = bEvent.text,
+                        from = bEvent.from.short,
+                        replyPlayerName = reply.author,
+                        replyMessage = reply.text
+                    )
+                }
             }
 
             ServerOpenBEvent,
