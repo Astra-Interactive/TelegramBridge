@@ -48,7 +48,7 @@ data class PluginConfiguration(
     @Serializable
     data class Proxy(
         @YamlComment("HTTP or SOCKS5. Discord works only through HTTP. SOCKS5 works for Telegram without a password.")
-        val type: Type = Type.HTTP,
+        val type: ProxyType = ProxyType.HTTP,
         @YamlComment("Address of the proxy, e.g. 127.0.0.1 for a proxy client on the same machine.")
         val host: String,
         @YamlComment("Port of the proxy. Local proxy clients often have separate SOCKS5 and HTTP ports.")
@@ -58,12 +58,16 @@ data class PluginConfiguration(
         @YamlComment("Password of the proxy, null when it needs none. Keep it private.")
         val password: String? = null
     ) {
-        /** Username and password, or `null` when the proxy needs no authentication. */
-        val credentials: Pair<String, String>?
-            get() = username?.takeIf(String::isNotBlank)?.let { name -> name to password.orEmpty() }
+        /** `null` when the proxy needs no authentication. */
+        val credentials: Credentials?
+            get() = username
+                ?.takeIf(String::isNotBlank)
+                ?.let { name -> Credentials(username = name, password = password.orEmpty()) }
 
-        @Serializable
-        enum class Type { HTTP, SOCKS5 }
+        data class Credentials(
+            val username: String,
+            val password: String
+        )
     }
 
     @Serializable

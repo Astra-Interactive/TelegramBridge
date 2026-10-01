@@ -21,7 +21,7 @@ class BukkitMessengerModule(
     )
 
     private val bukkitEvent = BukkitEvent(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
     )

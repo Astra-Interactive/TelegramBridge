@@ -1,17 +1,17 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.meta.api.objects.Update
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 
 internal class TelegramMessageValidatorMapper(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     private val authorMapper: TelegramAuthorMapper,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 

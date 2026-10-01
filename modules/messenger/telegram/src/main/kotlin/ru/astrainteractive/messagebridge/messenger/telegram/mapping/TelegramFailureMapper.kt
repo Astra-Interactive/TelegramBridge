@@ -1,18 +1,18 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramFailure
 import java.io.IOException
 
 internal class TelegramFailureMapper(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 

@@ -2,11 +2,10 @@
 
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.chat.Chat
 import org.telegram.telegrambots.meta.api.objects.message.Message
-import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
 import kotlin.test.Test
@@ -24,8 +23,8 @@ class TelegramMessageRelevanceMapperTest {
         val configuration = PluginConfiguration(
             tgConfig = PluginConfiguration.TelegramConfig(chatID = "$CHAT_ID", topicID = topicId)
         )
-        val configKrate = DefaultMutableKrate(factory = { configuration }, loader = { null }).asCachedKrate()
-        return TelegramMessageRelevanceMapper(configKrate = configKrate, clock = clock)
+        val configFlow = MutableStateFlow(configuration)
+        return TelegramMessageRelevanceMapper(configFlow = configFlow, clock = clock)
     }
 
     private fun updateOf(

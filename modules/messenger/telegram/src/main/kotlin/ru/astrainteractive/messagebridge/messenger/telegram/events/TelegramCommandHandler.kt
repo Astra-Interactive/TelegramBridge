@@ -5,7 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.User
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.CachedMutableKrate
+import ru.astrainteractive.klibs.kstorage.api.MutableKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
@@ -15,16 +15,16 @@ import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
-import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
+import ru.astrainteractive.messagebridge.onboarding.bind.BindCodes
 
 internal class TelegramCommandHandler(
     private val messageSender: TelegramMessageSender,
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi,
     private val bindCodes: BindCodes,
-    private val configKrate: CachedMutableKrate<PluginConfiguration>,
+    private val configKrate: MutableKrate<Result<PluginConfiguration>>,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramCommandHandler") {
     private val translation by translationKrate
@@ -91,8 +91,10 @@ internal class TelegramCommandHandler(
         }
         val chatId = message.chatId.toString()
         val topicId = message.topicIdOrNull().orEmpty()
-        configKrate.save { configuration ->
-            configuration.copy(tgConfig = configuration.tgConfig.copy(chatID = chatId, topicID = topicId))
+        configKrate.save { result ->
+            result.map { configuration ->
+                configuration.copy(tgConfig = configuration.tgConfig.copy(chatID = chatId, topicID = topicId))
+            }
         }
         info { "#bind chat_id is $chatId, topic_id is '$topicId'" }
         reply(message, bindTranslation.success.toMessengerText())

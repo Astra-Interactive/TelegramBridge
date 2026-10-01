@@ -1,18 +1,18 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.meta.api.objects.message.Message
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 
 internal class TelegramReplyMapper(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     private val authorMapper: TelegramAuthorMapper,
     private val relayedMessageCache: TelegramRelayedMessageCache,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     private fun isTopicStart(replied: Message): Boolean {
         return replied.forumTopicCreated != null || replied.messageId.toString() == config.tgConfig.topicID

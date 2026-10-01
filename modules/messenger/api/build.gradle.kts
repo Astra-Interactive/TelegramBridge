@@ -10,7 +10,4 @@ dependencies {
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.serialization.json)
     implementation(libs.minecraft.astralibs.core)
-
-    testImplementation(libs.minecraft.kyori.api)
-    testImplementation(libs.tests.kotlin.test)
 }

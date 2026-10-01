@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.forge.event
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -12,7 +13,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
 import ru.astrainteractive.astralibs.event.flowEvent
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -27,11 +27,12 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 class NeoForgeEvents(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     val serverStartedEvent = flowEvent<ServerStartedEvent>()
         .onEach { verbose { "#serverStartedEvent" } }

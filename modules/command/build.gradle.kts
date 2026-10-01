@@ -20,7 +20,6 @@ dependencies {
     implementation(projects.modules.messenger.api)
 
     testImplementation(libs.kotlin.coroutines.test)
-    testImplementation(libs.kotlin.serialization.kaml)
     testImplementation(libs.minecraft.brigadier)
     testImplementation(libs.minecraft.kyori.api)
     testImplementation(libs.minecraft.kyori.legacy)

@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.setup
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.future.await
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
@@ -22,25 +23,27 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFailureMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnection
+import ru.astrainteractive.messagebridge.onboarding.check.Check
+import ru.astrainteractive.messagebridge.onboarding.check.CheckLevel
 import java.io.Serializable
 import kotlin.coroutines.cancellation.CancellationException
 
 /** Checks the settings step by step, the way messages travel: token, chat, rights of the bot, topic, delivery. */
 internal class TelegramDiagnostics(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
     private val connectionFlow: Flow<TelegramConnection>,
     private val failureMapper: TelegramFailureMapper,
     private val failureTextMapper: TelegramFailureTextMapper,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val translation by translationKrate
 
-    suspend fun diagnose(): List<DiagnosticCheck> {
+    suspend fun diagnose(): List<Check> {
         val check = translation.telegram.check
         val client = when (val connection = connectionFlow.first()) {
             TelegramConnection.Disabled -> return listOf(error(check.tokenMissing))
@@ -52,7 +55,7 @@ internal class TelegramDiagnostics(
         return listOf(botCheck) + chatChecks(client, bot)
     }
 
-    private suspend fun chatChecks(client: OkHttpTelegramClient, bot: User): List<DiagnosticCheck> {
+    private suspend fun chatChecks(client: OkHttpTelegramClient, bot: User): List<Check> {
         val tgConfig = config.tgConfig
         if (tgConfig.chatID.isBlank()) return listOf(error(translation.telegram.errors.chatNotSet))
         val chat = client.request(GetChat(tgConfig.chatID)).getOrElse { throwable -> return listOf(failed(throwable)) }
@@ -73,7 +76,7 @@ internal class TelegramDiagnostics(
         client: OkHttpTelegramClient,
         chat: ChatFullInfo,
         bot: User
-    ): List<DiagnosticCheck> {
+    ): List<Check> {
         if (chat.isGroupChat != true && chat.isSuperGroupChat != true) return emptyList()
         val check = translation.telegram.check
         val errors = translation.telegram.errors
@@ -98,7 +101,7 @@ internal class TelegramDiagnostics(
     }
 
     /** Without admin rights and with privacy mode on, the bot receives only the commands. */
-    private fun notAdminChecks(bot: User): List<DiagnosticCheck> {
+    private fun notAdminChecks(bot: User): List<Check> {
         val check = translation.telegram.check
         return listOfNotNull(
             warning(check.botNotAdmin),
@@ -107,7 +110,7 @@ internal class TelegramDiagnostics(
     }
 
     /** A topic id in a chat without topics is the root of a reply thread, which is a mode of its own. */
-    private fun topicChecks(chat: ChatFullInfo, topicId: String): List<DiagnosticCheck> {
+    private fun topicChecks(chat: ChatFullInfo, topicId: String): List<Check> {
         val check = translation.telegram.check
         val isForum = chat.isForum == true
         return when {
@@ -120,7 +123,7 @@ internal class TelegramDiagnostics(
     private suspend fun deliveryCheck(
         client: OkHttpTelegramClient,
         tgConfig: PluginConfiguration.TelegramConfig
-    ): DiagnosticCheck {
+    ): Check {
         val check = translation.telegram.check
         val sendMessage = SendMessage(tgConfig.chatID, check.testMessage.toMessengerText()).apply {
             replyToMessageId = tgConfig.topicID.toIntOrNull()
@@ -136,13 +139,13 @@ internal class TelegramDiagnostics(
             .onFailure { throwable -> if (throwable is CancellationException) throw throwable }
     }
 
-    private fun failed(throwable: Throwable): DiagnosticCheck {
+    private fun failed(throwable: Throwable): Check {
         return error(failureTextMapper.map(failureMapper.map(throwable)))
     }
 
-    private fun ok(message: LocalizableComponent) = DiagnosticCheck(DiagnosticCheck.Level.OK, message)
+    private fun ok(message: LocalizableComponent) = Check(CheckLevel.OK, message)
 
-    private fun warning(message: LocalizableComponent) = DiagnosticCheck(DiagnosticCheck.Level.WARNING, message)
+    private fun warning(message: LocalizableComponent) = Check(CheckLevel.WARNING, message)
 
-    private fun error(message: LocalizableComponent) = DiagnosticCheck(DiagnosticCheck.Level.ERROR, message)
+    private fun error(message: LocalizableComponent) = Check(CheckLevel.ERROR, message)
 }

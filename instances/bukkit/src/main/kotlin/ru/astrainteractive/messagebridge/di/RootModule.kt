@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.BukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
+import ru.astrainteractive.messagebridge.onboarding.OnboardingModule
 
 class RootModule(
     plugin: MessageBridge
@@ -66,10 +67,16 @@ class RootModule(
         CommandModule(
             coreModule = coreModule,
             linkModule = linkModule,
-            lifecyclePlugin = plugin,
-            telegramSetup = telegramMessengerModule.setup,
-            discordSetup = jdaMessengerModule.setup,
             commandRegistrarContext = coreModule.commandRegistrarContext
+        )
+    }
+
+    val onboardingModule by lazy {
+        OnboardingModule(
+            coreModule = coreModule,
+            plugin = plugin,
+            telegramModule = telegramMessengerModule,
+            discordModule = jdaMessengerModule
         )
     }
 
@@ -79,7 +86,8 @@ class RootModule(
             bukkitMessengerModule.lifecycle,
             jdaMessengerModule.lifecycle,
             telegramMessengerModule.lifecycle,
-            commandModule.lifecycle
+            commandModule.lifecycle,
+            onboardingModule.lifecycle
         )
 
     val lifecycle = Lifecycle.Lambda(

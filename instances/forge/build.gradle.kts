@@ -47,6 +47,8 @@ dependencies {
     shadow(projects.modules.messenger.discord)
     shadow(projects.modules.messenger.forge)
     shadow(projects.modules.messenger.telegram)
+    shadow(projects.modules.onboarding)
+    shadow(projects.modules.onboarding.api)
     shadow(projects.modules.command)
 }
 

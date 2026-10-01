@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.events
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.TextComponent
 import org.bukkit.event.EventHandler
@@ -10,7 +11,6 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.astralibs.event.EventListener
 import ru.astrainteractive.astralibs.localization.markup.KyoriComponentSerializer
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -26,11 +26,12 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
  * This is a most convenient way to use bukkit events in kotlin
  */
 internal class BukkitEvent(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
 ) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent") {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     @EventHandler(ignoreCancelled = true)
     fun playerJoin(it: PlayerJoinEvent) {

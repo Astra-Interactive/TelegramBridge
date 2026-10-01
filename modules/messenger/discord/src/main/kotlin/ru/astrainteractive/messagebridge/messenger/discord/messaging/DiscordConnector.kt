@@ -15,6 +15,7 @@ import okhttp3.OkHttpClient
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.ProxyType
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.JdaBuilderFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.JdaShutdownListener
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordFailureMapper
@@ -37,7 +38,7 @@ internal class DiscordConnector(
      */
     fun connect(config: PluginConfiguration.JdaConfig): Flow<DiscordConnection> = when {
         config.token.isBlank() -> flowOf(DiscordConnection.Disabled)
-        config.proxy?.type == PluginConfiguration.Proxy.Type.SOCKS5 -> {
+        config.proxy?.type == ProxyType.SOCKS5 -> {
             flowOf(DiscordConnection.Failed(DiscordFailure.SocksNotSupported))
         }
 

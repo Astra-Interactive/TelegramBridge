@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.TelegramUrl
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.ProxyType
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnection
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnectionSettings
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramFailure
@@ -28,7 +29,7 @@ internal class TelegramConnectionFactory {
     fun create(settings: TelegramConnectionSettings): TelegramConnection {
         if (settings.token.isBlank()) return TelegramConnection.Disabled
         val proxy = settings.proxy
-        if (proxy?.type == PluginConfiguration.Proxy.Type.SOCKS5 && proxy.credentials != null) {
+        if (proxy?.type == ProxyType.SOCKS5 && proxy.credentials != null) {
             return TelegramConnection.Invalid(TelegramFailure.SocksWithPassword)
         }
         val url = telegramUrlOf(settings.apiUrl) ?: return TelegramConnection.Invalid(TelegramFailure.InvalidApiUrl)
@@ -61,8 +62,8 @@ internal class TelegramConnectionFactory {
         if (proxy == null) return builder.build()
         val address = InetSocketAddress.createUnresolved(proxy.host, proxy.port)
         when (proxy.type) {
-            PluginConfiguration.Proxy.Type.SOCKS5 -> builder.proxy(Proxy(Proxy.Type.SOCKS, address))
-            PluginConfiguration.Proxy.Type.HTTP -> builder.proxy(Proxy(Proxy.Type.HTTP, address))
+            ProxyType.SOCKS5 -> builder.proxy(Proxy(Proxy.Type.SOCKS, address))
+            ProxyType.HTTP -> builder.proxy(Proxy(Proxy.Type.HTTP, address))
         }
         val (username, password) = proxy.credentials ?: return builder.build()
         builder.proxyAuthenticator { _, response ->

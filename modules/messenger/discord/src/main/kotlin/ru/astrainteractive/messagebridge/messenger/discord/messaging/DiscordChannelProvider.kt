@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordFailure
@@ -22,9 +20,10 @@ import kotlin.time.Duration.Companion.seconds
 internal class DiscordChannelProvider(
     private val connection: StateFlow<DiscordConnection>,
     private val webHookClientFlow: Flow<Result<WebhookClient>?>,
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     /**
      * Waits for the bot while it connects, so the messages sent on startup are not lost.

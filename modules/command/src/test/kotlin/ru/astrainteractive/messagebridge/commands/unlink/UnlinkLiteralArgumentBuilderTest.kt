@@ -6,6 +6,7 @@ import com.mojang.brigadier.CommandDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -32,7 +33,7 @@ class UnlinkLiteralArgumentBuilderTest {
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     private val linkingDao = FakeLinkingDao()
     private val luckPermsRoleController = LuckPermsRoleController(
-        configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
+        configFlow = MutableStateFlow(PluginConfiguration()),
         luckPermsProvider = FakeLuckPermsProvider()
     )
     private val admin = RecordingOnlineKPlayer(

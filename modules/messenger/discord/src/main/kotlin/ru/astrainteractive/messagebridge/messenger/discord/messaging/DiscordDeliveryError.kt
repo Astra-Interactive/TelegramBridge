@@ -21,10 +21,11 @@ import java.util.concurrent.atomic.AtomicReference
  */
 internal class DiscordDeliveryError(
     private val failureMapper: DiscordFailureMapper,
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : Logger by JUtiltLogger("MessageBridge-DiscordDelivery") {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val translation by translationKrate
 
     private val lastFailure = AtomicReference<DiscordFailure?>(null)

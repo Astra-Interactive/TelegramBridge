@@ -33,10 +33,6 @@ import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
-import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
-import ru.astrainteractive.messagebridge.messaging.setup.DiscordSetup
-import ru.astrainteractive.messagebridge.messaging.setup.MessengerStatus
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.JdaBuilderFactory
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordBindHandler
@@ -59,13 +55,23 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopi
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordPermissions
 import ru.astrainteractive.messagebridge.messenger.discord.model.awaitJda
+import ru.astrainteractive.messagebridge.onboarding.DiscordOnboarding
+import ru.astrainteractive.messagebridge.onboarding.MessengerOnboardingModule
+import ru.astrainteractive.messagebridge.onboarding.bind.BindCode
+import ru.astrainteractive.messagebridge.onboarding.bind.BindCodes
+import ru.astrainteractive.messagebridge.onboarding.check.Check
+import ru.astrainteractive.messagebridge.onboarding.status.MessengerStatus
+import java.security.SecureRandom
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider
-) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule") {
+) : MessengerOnboardingModule<DiscordOnboarding>,
+    Logger by JUtiltLogger("MessageBridge-JdaMessengerModule") {
     private val translation by coreModule.translationKrate
 
     private val failureMapper = DiscordFailureMapper()
@@ -79,7 +85,7 @@ class JdaMessengerModule(
     private val reconnectRequests = MutableStateFlow(0)
 
     private val connection: StateFlow<DiscordConnection> = combine(
-        flow = coreModule.configKrate.cachedStateFlow
+        flow = coreModule.config
             .map { pluginConfiguration -> pluginConfiguration.jdaConfig.copy(channelId = "") }
             .distinctUntilChanged(),
         flow2 = reconnectRequests,
@@ -96,20 +102,20 @@ class JdaMessengerModule(
 
     private val deliveryError = DiscordDeliveryError(
         failureMapper = failureMapper,
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         translationKrate = coreModule.translationKrate,
     )
 
     private val webhookClient = combine(
         flow = jdaFlow,
-        flow2 = coreModule.configKrate.cachedStateFlow.map { it.jdaConfig.channelId }.distinctUntilChanged(),
+        flow2 = coreModule.config.map { it.jdaConfig.channelId }.distinctUntilChanged(),
         transform = ::createWebhookClient
     ).flatMapLatest { webhookClientFlow -> webhookClientFlow }.shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     private val channelProvider = DiscordChannelProvider(
         connection = connection,
         webHookClientFlow = webhookClient,
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
     )
 
     private val discordMessageController = DiscordBEventConsumer(
@@ -120,11 +126,11 @@ class JdaMessengerModule(
         webhookMessageMapper = DiscordWebhookMessageMapper(),
         failureMapper = failureMapper,
         delivery = deliveryError,
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
     )
 
     private val relevanceMapper = DiscordMessageRelevanceMapper(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
     )
 
     private val commandMapper = DiscordCommandMapper()
@@ -139,7 +145,11 @@ class JdaMessengerModule(
         translationKrate = coreModule.translationKrate,
     )
 
-    private val bindCodes = BindCodes()
+    private val bindCodes = BindCodes(
+        clock = Clock.System,
+        lifetime = BIND_CODE_LIFETIME,
+        random = SecureRandom()
+    )
 
     private val bindHandler = DiscordBindHandler(
         bindCodes = bindCodes,
@@ -160,20 +170,20 @@ class JdaMessengerModule(
     private val diagnostics = DiscordDiagnostics(
         connection = connection,
         failureMapper = failureMapper,
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         translationKrate = coreModule.translationKrate,
     )
 
-    val setup: DiscordSetup = object : DiscordSetup {
+    override val onboarding: DiscordOnboarding = object : DiscordOnboarding {
         override val status: StateFlow<MessengerStatus> = connection
             .map(::toStatus)
             .stateIn(coreModule.ioScope, SharingStarted.Eagerly, MessengerStatus.Connecting)
 
         override val deliveryError: StateFlow<LocalizableComponent?> = discordMessageController.deliveryError
 
-        override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): String = bindCodes.issue(onBound)
+        override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): BindCode = bindCodes.issue(onBound)
 
-        override suspend fun diagnose(): List<DiagnosticCheck> = diagnostics.diagnose()
+        override suspend fun check(): List<Check> = diagnostics.diagnose()
 
         override suspend fun inviteUrl(): String? {
             return connection.awaitJda(INVITE_CONNECTION_WAIT)?.getInviteUrl(DiscordPermissions.ALL)
@@ -241,6 +251,7 @@ class JdaMessengerModule(
     )
 
     private companion object {
+        val BIND_CODE_LIFETIME = 10.minutes
         val WEBHOOK_RETRY_DELAY = 30.seconds
         val INVITE_CONNECTION_WAIT = 10.seconds
     }

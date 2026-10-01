@@ -11,7 +11,7 @@ class ForgeMessengerModule(
 ) {
 
     val eventForgeMessengerModule = ForgeEvents(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers
     )

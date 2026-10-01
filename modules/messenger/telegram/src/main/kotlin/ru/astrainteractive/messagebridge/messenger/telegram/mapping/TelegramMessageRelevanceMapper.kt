@@ -1,8 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.meta.api.objects.Update
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
 import kotlin.time.Clock
@@ -10,10 +9,11 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 internal class TelegramMessageRelevanceMapper(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     private val clock: Clock = Clock.System,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 

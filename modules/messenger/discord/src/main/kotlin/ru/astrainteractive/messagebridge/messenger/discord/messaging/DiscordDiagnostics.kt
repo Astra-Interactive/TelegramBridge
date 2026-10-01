@@ -10,28 +10,30 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordFailureMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordPermissions
 import ru.astrainteractive.messagebridge.messenger.discord.model.awaitSettled
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitCatching
 import ru.astrainteractive.messagebridge.messenger.discord.util.findTextChannel
+import ru.astrainteractive.messagebridge.onboarding.check.Check
+import ru.astrainteractive.messagebridge.onboarding.check.CheckLevel
 import kotlin.time.Duration.Companion.seconds
 
 /** Checks the settings and the rights of the bot in the order an admin sets them up, and stops at the first gap. */
 internal class DiscordDiagnostics(
     private val connection: StateFlow<DiscordConnection>,
     private val failureMapper: DiscordFailureMapper,
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val translation by translationKrate
 
-    suspend fun diagnose(): List<DiagnosticCheck> = mutableListOf<DiagnosticCheck>().apply { addChecks() }
+    suspend fun diagnose(): List<Check> = mutableListOf<Check>().apply { addChecks() }
 
-    private suspend fun MutableList<DiagnosticCheck>.addChecks() {
+    private suspend fun MutableList<Check>.addChecks() {
         val check = translation.discord.check
         val jdaConfig = config.jdaConfig
         if (jdaConfig.token.isBlank()) return addError(check.tokenMissing)
@@ -48,7 +50,7 @@ internal class DiscordDiagnostics(
         addTestMessageCheck(channel)
     }
 
-    private fun MutableList<DiagnosticCheck>.findChannel(jda: JDA, channelId: String): TextChannel? {
+    private fun MutableList<Check>.findChannel(jda: JDA, channelId: String): TextChannel? {
         val discord = translation.discord
         val channel = jda.findTextChannel(channelId)
         when {
@@ -59,7 +61,7 @@ internal class DiscordDiagnostics(
         return channel
     }
 
-    private fun MutableList<DiagnosticCheck>.addPermissionCheck(channel: TextChannel) {
+    private fun MutableList<Check>.addPermissionCheck(channel: TextChannel) {
         val check = translation.discord.check
         val selfMember = channel.guild.selfMember
         val missing = DiscordPermissions.CHANNEL.filterNot { permission ->
@@ -73,7 +75,7 @@ internal class DiscordDiagnostics(
         }
     }
 
-    private fun MutableList<DiagnosticCheck>.addLinkRoleCheck(guild: Guild, link: PluginConfiguration.Link) {
+    private fun MutableList<Check>.addLinkRoleCheck(guild: Guild, link: PluginConfiguration.Link) {
         val check = translation.discord.check
         val role = link.linkDiscordRole.toLongOrNull()?.let(guild::getRoleById)
         when {
@@ -84,7 +86,7 @@ internal class DiscordDiagnostics(
         }
     }
 
-    private suspend fun MutableList<DiagnosticCheck>.addTestMessageCheck(channel: TextChannel) {
+    private suspend fun MutableList<Check>.addTestMessageCheck(channel: TextChannel) {
         val check = translation.discord.check
         channel.sendMessage(check.testMessage.toMessengerText())
             .awaitCatching()
@@ -95,16 +97,16 @@ internal class DiscordDiagnostics(
             }
     }
 
-    private fun MutableList<DiagnosticCheck>.addOk(message: LocalizableComponent) {
-        add(DiagnosticCheck(DiagnosticCheck.Level.OK, message))
+    private fun MutableList<Check>.addOk(message: LocalizableComponent) {
+        add(Check(CheckLevel.OK, message))
     }
 
-    private fun MutableList<DiagnosticCheck>.addWarning(message: LocalizableComponent) {
-        add(DiagnosticCheck(DiagnosticCheck.Level.WARNING, message))
+    private fun MutableList<Check>.addWarning(message: LocalizableComponent) {
+        add(Check(CheckLevel.WARNING, message))
     }
 
-    private fun MutableList<DiagnosticCheck>.addError(message: LocalizableComponent) {
-        add(DiagnosticCheck(DiagnosticCheck.Level.ERROR, message))
+    private fun MutableList<Check>.addError(message: LocalizableComponent) {
+        add(Check(CheckLevel.ERROR, message))
     }
 
     private companion object {

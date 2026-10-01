@@ -8,6 +8,7 @@ import ru.astrainteractive.astralibs.localization.component.replace
 import ru.astrainteractive.astralibs.localization.component.replaceAll
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
+import kotlin.time.Duration
 
 /** Replies of the /mb setup commands. */
 @Serializable
@@ -39,6 +40,7 @@ data class SetupTranslation(
             &#42f596/mb discord invite &7— link that adds the bot to your server
             &#42f596/mb discord check &7— check the bot and send a test message
             &#dbbb18In game, add --unsafe after a token or a password: game commands are written to the server log.
+            &7Every command: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/commands.md
             """.trimIndent()
         )
         translation(
@@ -66,6 +68,7 @@ data class SetupTranslation(
             &#42f596/mb discord invite &7— ссылка, чтобы добавить бота на сервер
             &#42f596/mb discord check &7— проверить бота и отправить тестовое сообщение
             &#dbbb18В игре добавляйте --unsafe после токена или пароля: команды из игры записываются в лог сервера.
+            &7Все команды (на английском): https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/commands.md
             """.trimIndent()
         )
     },
@@ -98,15 +101,15 @@ data class SetupTranslation(
                 "и повторите команду:\n%error%"
         )
     },
-    @SerialName("reload_file_error")
-    private val reloadFileError: LocalizedText = LocalizedText.build {
+    @SerialName("reload_config_error")
+    private val reloadConfigError: LocalizedText = LocalizedText.build {
         translation(
             MinecraftLocales.EN_US,
-            "&#db2c18%file% has an error and is not applied, the previous settings are kept:\n%error%"
+            "&#db2c18config.yml has an error and is not applied, the previous settings are kept:\n%error%"
         )
         translation(
             MinecraftLocales.RU_RU,
-            "&#db2c18В %file% ошибка, файл не применён и работают прежние настройки:\n%error%"
+            "&#db2c18В config.yml ошибка, файл не применён и работают прежние настройки:\n%error%"
         )
     },
     @SerialName("invalid_telegram_token")
@@ -276,20 +279,21 @@ data class SetupTranslation(
 ) {
     fun configBroken(error: String): LocalizableComponent = configBroken.replace("%error%", error)
 
-    fun reloadFileError(file: String, error: String): LocalizableComponent = reloadFileError.replaceAll(
-        PlaceholderReplacement.plain("%file%", file),
-        PlaceholderReplacement.plain("%error%", error)
-    )
+    fun reloadConfigError(error: String): LocalizableComponent = reloadConfigError.replace("%error%", error)
 
-    /** @param command the message to send, e.g. `/bind@MyBot 48213705` */
-    fun telegramBindIssued(command: String, minutes: Long): LocalizableComponent = telegramBindIssued.replaceAll(
+    /**
+     * @param command the message to send, e.g. `/bind@MyBot 48213705`
+     * @param lifetime shown in whole minutes
+     */
+    fun telegramBindIssued(command: String, lifetime: Duration): LocalizableComponent = telegramBindIssued.replaceAll(
         PlaceholderReplacement.plain("%command%", command),
-        PlaceholderReplacement.plain("%minutes%", "$minutes")
+        PlaceholderReplacement.plain("%minutes%", "${lifetime.inWholeMinutes}")
     )
 
-    fun discordBindIssued(code: String, minutes: Long): LocalizableComponent = discordBindIssued.replaceAll(
+    /** @param lifetime shown in whole minutes */
+    fun discordBindIssued(code: String, lifetime: Duration): LocalizableComponent = discordBindIssued.replaceAll(
         PlaceholderReplacement.plain("%code%", code),
-        PlaceholderReplacement.plain("%minutes%", "$minutes")
+        PlaceholderReplacement.plain("%minutes%", "${lifetime.inWholeMinutes}")
     )
 
     fun checkStarted(messenger: String): LocalizableComponent = checkStarted.replace("%messenger%", messenger)

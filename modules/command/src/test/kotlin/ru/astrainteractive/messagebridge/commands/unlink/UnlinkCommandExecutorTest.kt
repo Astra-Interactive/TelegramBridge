@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.commands.unlink
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
@@ -31,7 +32,7 @@ class UnlinkCommandExecutorTest {
     private val executor = UnlinkCommandExecutor(
         linkingDao = linkingDao,
         luckPermsRoleController = LuckPermsRoleController(
-            configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
+            configFlow = MutableStateFlow(pluginConfiguration),
             luckPermsProvider = luckPermsProvider
         ),
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()

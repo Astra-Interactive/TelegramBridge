@@ -12,8 +12,8 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
+import ru.astrainteractive.messagebridge.onboarding.bind.BindCodes
 
 /**
  * Binds the channel a `!bind <code>` is sent to. The author must be able to manage that channel, so a code seen
@@ -21,7 +21,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMess
  */
 internal class DiscordBindHandler(
     private val bindCodes: BindCodes,
-    private val configKrate: MutableKrate<PluginConfiguration>,
+    private val configKrate: MutableKrate<Result<PluginConfiguration>>,
     private val messageSender: DiscordMessageSender,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : Logger by JUtiltLogger("MessageBridge-DiscordBindHandler") {
@@ -39,7 +39,9 @@ internal class DiscordBindHandler(
         if (refusal != null) return reply(event, refusal)
         val onBound = bindCodes.consume(code) ?: return reply(event, bind.codeInvalid)
         val channel = event.channel.asTextChannel()
-        configKrate.save { config -> config.copy(jdaConfig = config.jdaConfig.copy(channelId = channel.id)) }
+        configKrate.save { result ->
+            result.map { config -> config.copy(jdaConfig = config.jdaConfig.copy(channelId = channel.id)) }
+        }
         info { "#bind channel #${channel.name} (${channel.id}) on ${channel.guild.name} is bound by ${member.id}" }
         reply(event, bind.boundChannel)
         onBound.invoke(bind.bound(channel = channel.name, guild = channel.guild.name))

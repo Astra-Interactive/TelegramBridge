@@ -11,7 +11,7 @@ class NeoForgeMessengerModule(
 ) {
 
     val eventBukkitMessengerModule = NeoForgeEvents(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers
     )

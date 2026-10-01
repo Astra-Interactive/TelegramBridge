@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.CachedMutableKrate
+import ru.astrainteractive.klibs.kstorage.api.MutableKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -38,7 +38,8 @@ import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramFail
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramFailure
 
 internal class TelegramBEventConsumer(
-    private val configKrate: CachedMutableKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
+    private val configKrate: MutableKrate<Result<PluginConfiguration>>,
     translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient?>,
     private val failureMapper: TelegramFailureMapper,
@@ -47,7 +48,8 @@ internal class TelegramBEventConsumer(
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer") {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
     private val translation by translationKrate
@@ -138,8 +140,10 @@ internal class TelegramBEventConsumer(
     }
 
     private fun migrate(newChatId: Long) {
-        configKrate.save { configuration ->
-            configuration.copy(tgConfig = configuration.tgConfig.copy(chatID = "$newChatId"))
+        configKrate.save { result ->
+            result.map { configuration ->
+                configuration.copy(tgConfig = configuration.tgConfig.copy(chatID = "$newChatId"))
+            }
         }
         warn { translation.telegram.errors.chatIdChanged(newChatId).toMessengerText() }
     }

@@ -2,12 +2,11 @@
 
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
-import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramFailure
 import java.io.IOException
@@ -32,8 +31,8 @@ class TelegramFailureMapperTest {
         val configuration = PluginConfiguration(
             tgConfig = PluginConfiguration.TelegramConfig(proxy = proxy, apiUrl = apiUrl)
         )
-        val configKrate = DefaultMutableKrate(factory = { configuration }, loader = { null }).asCachedKrate()
-        return TelegramFailureMapper(configKrate = configKrate)
+        val configFlow = MutableStateFlow(configuration)
+        return TelegramFailureMapper(configFlow = configFlow)
     }
 
     /** Parses an answer of the Bot API the way the client does, so the exception is the one it throws. */

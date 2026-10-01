@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.forge.di.ForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
+import ru.astrainteractive.messagebridge.onboarding.OnboardingModule
 import java.io.File
 
 class RootModule(
@@ -73,10 +74,16 @@ class RootModule(
         CommandModule(
             coreModule = coreModule,
             linkModule = linkModule,
-            lifecyclePlugin = forgeLifecycleServer,
-            telegramSetup = tgEventModule.setup,
-            discordSetup = jdaEventModule.setup,
             commandRegistrarContext = coreModule.commandRegistrarContext
+        )
+    }
+
+    val onboardingModule by lazy {
+        OnboardingModule(
+            coreModule = coreModule,
+            plugin = forgeLifecycleServer,
+            telegramModule = tgEventModule,
+            discordModule = jdaEventModule
         )
     }
 
@@ -84,6 +91,7 @@ class RootModule(
         get() = listOf(
             coreModule.lifecycle,
             commandModule.lifecycle,
+            onboardingModule.lifecycle,
             jdaEventModule.lifecycle,
             tgEventModule.lifecycle,
             forgeMessengerModule.lifecycle

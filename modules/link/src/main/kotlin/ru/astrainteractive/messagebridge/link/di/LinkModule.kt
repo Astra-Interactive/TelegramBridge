@@ -35,9 +35,9 @@ interface LinkModule {
 
         override val linkingDao: LinkingDao = LinkingDaoImpl(linkDatabaseModule.databaseFlow)
         override val codeApi: CodeApi = CodeApiImpl()
-        override val discordRoleController: DiscordRoleController = DiscordRoleController(coreModule.configKrate)
+        override val discordRoleController: DiscordRoleController = DiscordRoleController(coreModule.config)
         override val luckPermsRoleController = LuckPermsRoleController(
-            configKrate = coreModule.configKrate,
+            configFlow = coreModule.config,
             luckPermsProvider = luckPermsProvider
         )
         override val linkApi: LinkApi = LinkApiImpl(

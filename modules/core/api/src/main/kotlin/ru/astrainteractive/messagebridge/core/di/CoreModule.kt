@@ -6,18 +6,27 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
+import ru.astrainteractive.astralibs.util.krateOf
+import ru.astrainteractive.astralibs.util.parseOrWriteIntoDefault
+import ru.astrainteractive.klibs.kstorage.api.asStateFlowKrate
+import ru.astrainteractive.klibs.kstorage.api.asStateFlowMutableKrate
+import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.core.config.YamlConfigFile
+import ru.astrainteractive.messagebridge.core.config.describeConfigError
 import java.io.File
 
 class CoreModule(
@@ -57,32 +66,55 @@ class CoreModule(
     )
     val yamlStringFormat = yaml
 
-    val configFile = YamlConfigFile(
-        stringFormat = yamlStringFormat,
-        serializer = PluginConfiguration.serializer(),
-        file = dataFolder.resolve("config.yml"),
-        factory = ::PluginConfiguration
-    )
+    private val configLogger = JUtiltLogger("MessageBridge-config")
 
-    val configKrate = configFile.krate()
+    val configKrate = yamlStringFormat
+        .krateOf(
+            file = dataFolder.resolve("config.yml"),
+            factory = ::PluginConfiguration
+        )
+        .asStateFlowMutableKrate()
 
-    val translationFile = YamlConfigFile(
-        stringFormat = yamlStringFormat,
-        serializer = PluginTranslation.serializer(),
-        file = dataFolder.resolve("translations.yml"),
-        factory = ::PluginTranslation
-    )
+    /** The last config.yml that could be read: a file with an error leaves the previous settings in place. */
+    val config: StateFlow<PluginConfiguration> = configKrate.cachedStateFlow
+        .mapNotNull { result -> result.getOrNull() }
+        .stateIn(
+            scope = unconfinedScope,
+            started = SharingStarted.Eagerly,
+            initialValue = configKrate.cachedValue.getOrElse { _ -> PluginConfiguration() }
+        )
 
-    val translationKrate = translationFile.krate()
+    val translationKrate = DefaultMutableKrate(
+        factory = ::PluginTranslation,
+        loader = {
+            yamlStringFormat.parseOrWriteIntoDefault(
+                file = dataFolder.resolve("translations.yml"),
+                logger = JUtiltLogger("MessageBridge-translations"),
+                default = ::PluginTranslation
+            )
+        }
+    ).asStateFlowKrate()
 
     val commandExceptionHandler = CommandExceptionHandler(
         multiplatformCommand = multiplatformCommand,
         translationKrate = translationKrate
     )
 
+    private fun logConfigError(result: Result<PluginConfiguration>) {
+        result.onFailure { error ->
+            configLogger.error {
+                "config.yml has an error and is not applied, the previous settings are kept: " +
+                    describeConfigError(error)
+            }
+        }
+    }
+
     val lifecycle = Lifecycle.Lambda(
+        onEnable = {
+            logConfigError(configKrate.cachedValue)
+        },
         onReload = {
-            configKrate.getValue()
+            logConfigError(configKrate.getValue())
             translationKrate.getValue()
         },
         onDisable = {

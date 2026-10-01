@@ -2,14 +2,13 @@
 
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.telegram.telegrambots.meta.api.objects.TextQuote
 import org.telegram.telegrambots.meta.api.objects.User
 import org.telegram.telegrambots.meta.api.objects.chat.Chat
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicCreated
 import org.telegram.telegrambots.meta.api.objects.message.Message
-import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
@@ -23,7 +22,7 @@ class TelegramReplyMapperTest {
     )
     private val relayedMessageCache = TelegramRelayedMessageCache(capacity = 10)
     private val mapper = TelegramReplyMapper(
-        configKrate = DefaultMutableKrate(factory = { config }, loader = { null }).asCachedKrate(),
+        configFlow = MutableStateFlow(config),
         authorMapper = TelegramAuthorMapper(),
         relayedMessageCache = relayedMessageCache
     )

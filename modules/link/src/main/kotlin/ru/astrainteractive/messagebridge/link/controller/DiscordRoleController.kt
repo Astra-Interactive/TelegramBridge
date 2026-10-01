@@ -1,16 +1,17 @@
 package ru.astrainteractive.messagebridge.link.controller
 
+import kotlinx.coroutines.flow.StateFlow
 import net.dv8tion.jda.api.entities.Member
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 
 class DiscordRoleController(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
 ) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController") {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     fun addLinkedRole(member: Member) {
         val link = config.link ?: return

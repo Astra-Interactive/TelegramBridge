@@ -1,16 +1,16 @@
 package ru.astrainteractive.messagebridge.messenger.discord.mapping
 
+import kotlinx.coroutines.flow.StateFlow
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
-import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordMessageRelevance
 
 internal class DiscordMessageRelevanceMapper(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
 ) {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     fun map(event: MessageReceivedEvent): DiscordMessageRelevance = when {
         event.isWebhookMessage -> DiscordMessageRelevance.WebhookMessage

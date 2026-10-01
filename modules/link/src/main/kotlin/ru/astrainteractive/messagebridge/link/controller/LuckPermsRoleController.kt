@@ -1,7 +1,7 @@
 package ru.astrainteractive.messagebridge.link.controller
 
+import kotlinx.coroutines.flow.StateFlow
 import net.luckperms.api.LuckPerms
-import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
@@ -10,10 +10,11 @@ import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
 import java.util.UUID
 
 class LuckPermsRoleController(
-    configKrate: CachedKrate<PluginConfiguration>,
+    private val configFlow: StateFlow<PluginConfiguration>,
     private val luckPermsProvider: LuckPermsProvider
 ) : Logger by JUtiltLogger("MessageBridge-LuckPermsRoleController") {
-    private val config by configKrate
+    private val config: PluginConfiguration
+        get() = configFlow.value
 
     private val luckPermsOrNull: LuckPerms?
         get() = luckPermsProvider.provide()

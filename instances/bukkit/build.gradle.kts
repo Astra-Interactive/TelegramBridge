@@ -40,6 +40,8 @@ dependencies {
     shadow(projects.modules.messenger.bukkit)
     shadow(projects.modules.messenger.discord)
     shadow(projects.modules.messenger.telegram)
+    shadow(projects.modules.onboarding)
+    shadow(projects.modules.onboarding.api)
 }
 
 minecraftProcessResource {

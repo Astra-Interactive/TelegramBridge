@@ -21,7 +21,7 @@ class PluginConfigurationTest {
             token = "123456789:AAtoken",
             chatID = "-1001234567890",
             topicID = "12",
-            proxy = PluginConfiguration.Proxy(type = PluginConfiguration.Proxy.Type.SOCKS5, host = "::1", port = 1080),
+            proxy = PluginConfiguration.Proxy(type = ProxyType.SOCKS5, host = "::1", port = 1080),
             apiUrl = "https://bot-api.example.com"
         ),
         displayDeathMessage = false,

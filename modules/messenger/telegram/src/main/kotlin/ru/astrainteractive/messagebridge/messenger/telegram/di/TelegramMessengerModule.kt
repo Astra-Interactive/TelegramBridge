@@ -40,10 +40,6 @@ import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.setup.BindCodes
-import ru.astrainteractive.messagebridge.messaging.setup.DiagnosticCheck
-import ru.astrainteractive.messagebridge.messaging.setup.MessengerSetup
-import ru.astrainteractive.messagebridge.messaging.setup.MessengerStatus
 import ru.astrainteractive.messagebridge.messenger.telegram.di.factory.TelegramConnectionFactory
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
@@ -63,15 +59,25 @@ import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramConnec
 import ru.astrainteractive.messagebridge.messenger.telegram.setup.TelegramDiagnostics
 import ru.astrainteractive.messagebridge.messenger.telegram.util.CappedBackOff
 import ru.astrainteractive.messagebridge.messenger.telegram.util.GetUpdatesStatusInterceptor
+import ru.astrainteractive.messagebridge.onboarding.MessengerOnboarding
+import ru.astrainteractive.messagebridge.onboarding.MessengerOnboardingModule
+import ru.astrainteractive.messagebridge.onboarding.bind.BindCode
+import ru.astrainteractive.messagebridge.onboarding.bind.BindCodes
+import ru.astrainteractive.messagebridge.onboarding.check.Check
+import ru.astrainteractive.messagebridge.onboarding.status.MessengerStatus
+import java.security.SecureRandom
 import java.util.concurrent.Executors
 import java.util.function.Supplier
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
     onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
-) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
+) : MessengerOnboardingModule<MessengerOnboarding>,
+    Logger by JUtiltLogger("MessageBridge-TelegramModule") {
     private val translation by coreModule.translationKrate
 
     private val connectionState = MutableStateFlow<TelegramConnectionState>(TelegramConnectionState.Connecting)
@@ -84,7 +90,7 @@ class TelegramMessengerModule(
     )
 
     private val failureMapper = TelegramFailureMapper(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
     )
 
     private val failureTextMapper = TelegramFailureTextMapper(
@@ -93,7 +99,7 @@ class TelegramMessengerModule(
 
     private val connectionFactory = TelegramConnectionFactory()
 
-    private val connectionFlow: SharedFlow<TelegramConnection> = coreModule.configKrate.cachedStateFlow
+    private val connectionFlow: SharedFlow<TelegramConnection> = coreModule.config
         .map { configuration -> TelegramConnectionSettings.of(configuration.tgConfig) }
         .distinctUntilChanged()
         .flatMapLatest { settings ->
@@ -115,6 +121,7 @@ class TelegramMessengerModule(
     )
 
     private val telegramMessageController = TelegramBEventConsumer(
+        configFlow = coreModule.config,
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow,
@@ -126,17 +133,17 @@ class TelegramMessengerModule(
     private val authorMapper = TelegramAuthorMapper()
 
     private val replyMapper = TelegramReplyMapper(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         authorMapper = authorMapper,
         relayedMessageCache = relayedMessageCache,
     )
 
     private val relevanceChecker = TelegramMessageRelevanceMapper(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
     )
 
     private val messageValidator = TelegramMessageValidatorMapper(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         authorMapper = authorMapper,
     )
 
@@ -144,7 +151,11 @@ class TelegramMessengerModule(
         botUserName = { botUserName },
     )
 
-    private val bindCodes = BindCodes()
+    private val bindCodes = BindCodes(
+        clock = Clock.System,
+        lifetime = BIND_CODE_LIFETIME,
+        random = SecureRandom()
+    )
 
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
@@ -168,7 +179,7 @@ class TelegramMessengerModule(
     )
 
     private val diagnostics = TelegramDiagnostics(
-        configKrate = coreModule.configKrate,
+        configFlow = coreModule.config,
         translationKrate = coreModule.translationKrate,
         connectionFlow = connectionFlow,
         failureMapper = failureMapper,
@@ -198,11 +209,11 @@ class TelegramMessengerModule(
         .map(::toMessengerStatus)
         .stateIn(coreModule.ioScope, SharingStarted.Eagerly, MessengerStatus.Connecting)
 
-    val setup: MessengerSetup = object : MessengerSetup {
+    override val onboarding: MessengerOnboarding = object : MessengerOnboarding {
         override val status: StateFlow<MessengerStatus> = this@TelegramMessengerModule.status
         override val deliveryError: StateFlow<LocalizableComponent?> = telegramMessageController.deliveryError
-        override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): String = bindCodes.issue(onBound)
-        override suspend fun diagnose(): List<DiagnosticCheck> = diagnostics.diagnose()
+        override fun issueBindCode(onBound: (LocalizableComponent) -> Unit): BindCode = bindCodes.issue(onBound)
+        override suspend fun check(): List<Check> = diagnostics.diagnose()
     }
 
     /**
@@ -300,6 +311,8 @@ class TelegramMessengerModule(
     )
 
     private companion object {
+        val BIND_CODE_LIFETIME = 10.minutes
+
         const val RELAYED_MESSAGE_CACHE_CAPACITY = 1000
     }
 }
