@@ -1,26 +1,28 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class TelegramRelayedMessageCache(
     private val capacity: Int
 ) {
-    private val lock = Any()
+    private val mutex = Mutex()
     private val textByMessage = LinkedHashMap<MessageKey, Text>()
 
-    fun remember(chatId: Long, messageId: Int, text: Text) {
-        synchronized(lock) {
-            textByMessage[MessageKey(chatId = chatId, messageId = messageId)] = text
+    suspend fun remember(chatId: Long, messageId: Int, text: Text) {
+        val key = MessageKey(chatId = chatId, messageId = messageId)
+        mutex.withLock {
+            textByMessage[key] = text
             if (textByMessage.size > capacity) {
                 textByMessage.remove(textByMessage.keys.first())
             }
         }
     }
 
-    fun find(chatId: Long, messageId: Int): Text? {
-        return synchronized(lock) {
-            textByMessage[MessageKey(chatId = chatId, messageId = messageId)]
-        }
+    suspend fun find(chatId: Long, messageId: Int): Text? {
+        val key = MessageKey(chatId = chatId, messageId = messageId)
+        return mutex.withLock { textByMessage[key] }
     }
 
     private data class MessageKey(

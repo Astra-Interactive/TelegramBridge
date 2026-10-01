@@ -4,7 +4,8 @@ package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,7 +19,7 @@ class TelegramRelayedMessageCacheTest {
     )
 
     @Test
-    fun GIVEN_relayed_message_WHEN_found_by_its_chat_and_id_THEN_returns_its_text() {
+    fun GIVEN_relayed_message_WHEN_found_by_its_chat_and_id_THEN_returns_its_text() = runTest {
         val cache = TelegramRelayedMessageCache(capacity = 10)
 
         cache.remember(chatId = CHAT_ID, messageId = 1, text = text)
@@ -27,7 +28,7 @@ class TelegramRelayedMessageCacheTest {
     }
 
     @Test
-    fun GIVEN_relayed_message_WHEN_same_id_is_found_in_another_chat_THEN_returns_null() {
+    fun GIVEN_relayed_message_WHEN_same_id_is_found_in_another_chat_THEN_returns_null() = runTest {
         val cache = TelegramRelayedMessageCache(capacity = 10)
 
         cache.remember(chatId = CHAT_ID, messageId = 1, text = text)
@@ -36,7 +37,7 @@ class TelegramRelayedMessageCacheTest {
     }
 
     @Test
-    fun GIVEN_more_messages_than_capacity_WHEN_found_THEN_only_the_latest_are_kept() {
+    fun GIVEN_more_messages_than_capacity_WHEN_found_THEN_only_the_latest_are_kept() = runTest {
         val cache = TelegramRelayedMessageCache(capacity = 2)
 
         cache.remember(chatId = CHAT_ID, messageId = 1, text = text)
@@ -49,10 +50,10 @@ class TelegramRelayedMessageCacheTest {
     }
 
     @Test
-    fun GIVEN_messages_relayed_from_many_threads_WHEN_all_are_done_THEN_exactly_capacity_messages_are_kept() {
+    fun GIVEN_messages_relayed_from_many_threads_WHEN_all_are_done_THEN_exactly_capacity_messages_are_kept() = runTest {
         val cache = TelegramRelayedMessageCache(capacity = CAPACITY)
 
-        runBlocking(Dispatchers.Default) {
+        withContext(Dispatchers.Default) {
             repeat(THREADS) { threadIndex ->
                 launch {
                     repeat(MESSAGES_PER_THREAD) { index ->

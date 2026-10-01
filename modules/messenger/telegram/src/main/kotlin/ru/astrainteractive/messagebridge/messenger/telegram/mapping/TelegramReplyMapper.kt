@@ -18,7 +18,7 @@ internal class TelegramReplyMapper(
         return replied.forumTopicCreated != null || replied.messageId.toString() == config.tgConfig.topicID
     }
 
-    private fun relayedReply(chatId: Long, replied: Message): Text.Reply? {
+    private suspend fun relayedReply(chatId: Long, replied: Message): Text.Reply? {
         val relayed = relayedMessageCache.find(chatId = chatId, messageId = replied.messageId) ?: return null
         return Text.Reply(
             author = relayed.author,
@@ -36,7 +36,7 @@ internal class TelegramReplyMapper(
         )
     }
 
-    fun map(message: Message): Text.Reply? {
+    suspend fun map(message: Message): Text.Reply? {
         val replied = message.replyToMessage ?: return null
         if (isTopicStart(replied)) return null
         val reply = relayedReply(message.chatId, replied) ?: authoredReply(replied) ?: return null

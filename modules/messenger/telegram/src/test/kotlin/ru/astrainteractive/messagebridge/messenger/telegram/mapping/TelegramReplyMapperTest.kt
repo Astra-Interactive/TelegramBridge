@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
+import kotlinx.coroutines.test.runTest
 import org.telegram.telegrambots.meta.api.objects.TextQuote
 import org.telegram.telegrambots.meta.api.objects.User
 import org.telegram.telegrambots.meta.api.objects.chat.Chat
@@ -48,12 +49,12 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_message_that_replies_to_nothing_WHEN_mapped_THEN_returns_null() {
+    fun GIVEN_message_that_replies_to_nothing_WHEN_mapped_THEN_returns_null() = runTest {
         assertNull(mapper.map(message(id = 100, from = steve, text = "hi")))
     }
 
     @Test
-    fun GIVEN_reply_to_user_WHEN_mapped_THEN_reply_names_user_and_text() {
+    fun GIVEN_reply_to_user_WHEN_mapped_THEN_reply_names_user_and_text() = runTest {
         val replied = message(id = 10, from = steve, text = "hello")
 
         val reply = mapper.map(replyTo(replied))
@@ -62,7 +63,7 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_reply_to_photo_with_caption_WHEN_mapped_THEN_text_is_caption() {
+    fun GIVEN_reply_to_photo_with_caption_WHEN_mapped_THEN_text_is_caption() = runTest {
         val replied = message(id = 10, from = steve).apply { caption = "my base" }
 
         val reply = mapper.map(replyTo(replied))
@@ -71,7 +72,7 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_reply_to_media_without_caption_WHEN_mapped_THEN_text_is_empty() {
+    fun GIVEN_reply_to_media_without_caption_WHEN_mapped_THEN_text_is_empty() = runTest {
         val replied = message(id = 10, from = steve)
 
         val reply = mapper.map(replyTo(replied))
@@ -80,7 +81,7 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_reply_that_quotes_part_of_message_WHEN_mapped_THEN_text_is_quote() {
+    fun GIVEN_reply_that_quotes_part_of_message_WHEN_mapped_THEN_text_is_quote() = runTest {
         val replied = message(id = 10, from = steve, text = "hello, meet me at spawn")
         val message = replyTo(replied).apply { quote = TextQuote().apply { text = "at spawn" } }
 
@@ -90,7 +91,7 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_reply_to_message_bot_relayed_WHEN_mapped_THEN_reply_names_player_who_wrote_it() {
+    fun GIVEN_reply_to_message_bot_relayed_WHEN_mapped_THEN_reply_names_player_who_wrote_it() = runTest {
         val relayed = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hello")
         relayedMessageCache.remember(chatId = CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
@@ -101,7 +102,7 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_names_bot() {
+    fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_names_bot() = runTest {
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
         val reply = mapper.map(replyTo(replied))
@@ -110,7 +111,7 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_message_relayed_in_another_chat_WHEN_reply_to_same_id_is_mapped_THEN_reply_names_its_author() {
+    fun GIVEN_message_relayed_in_another_chat_WHEN_reply_to_same_id_is_mapped_THEN_reply_names_its_author() = runTest {
         val relayed = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hello")
         relayedMessageCache.remember(chatId = OTHER_CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = steve, text = "different")
@@ -121,21 +122,21 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_message_in_forum_topic_WHEN_mapped_THEN_topic_start_is_not_a_reply() {
+    fun GIVEN_message_in_forum_topic_WHEN_mapped_THEN_topic_start_is_not_a_reply() = runTest {
         val topicStart = message(id = 50, from = steve).apply { forumTopicCreated = ForumTopicCreated() }
 
         assertNull(mapper.map(replyTo(topicStart)))
     }
 
     @Test
-    fun GIVEN_message_under_configured_topic_message_WHEN_mapped_THEN_topic_message_is_not_a_reply() {
+    fun GIVEN_message_under_configured_topic_message_WHEN_mapped_THEN_topic_message_is_not_a_reply() = runTest {
         val topicMessage = message(id = TOPIC_ID, from = steve, text = "Minecraft chat")
 
         assertNull(mapper.map(replyTo(topicMessage)))
     }
 
     @Test
-    fun GIVEN_reply_to_message_without_author_WHEN_mapped_THEN_returns_null() {
+    fun GIVEN_reply_to_message_without_author_WHEN_mapped_THEN_returns_null() = runTest {
         val replied = message(id = 10, from = null, text = "hello")
 
         assertNull(mapper.map(replyTo(replied)))
