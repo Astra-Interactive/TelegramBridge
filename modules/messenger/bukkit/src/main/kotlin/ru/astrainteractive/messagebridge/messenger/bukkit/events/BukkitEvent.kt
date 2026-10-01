@@ -29,7 +29,7 @@ internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
-) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent").withoutParentHandlers() {
+) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent") {
     private val config by configKrate
 
     @EventHandler(ignoreCancelled = true)

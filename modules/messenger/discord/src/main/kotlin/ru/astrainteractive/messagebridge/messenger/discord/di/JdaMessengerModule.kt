@@ -55,7 +55,7 @@ class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     onlinePlayersProvider: OnlinePlayersProvider
-) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule") {
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }

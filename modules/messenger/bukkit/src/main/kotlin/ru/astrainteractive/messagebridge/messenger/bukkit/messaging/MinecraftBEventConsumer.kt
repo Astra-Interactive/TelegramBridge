@@ -33,7 +33,7 @@ internal class MinecraftBEventConsumer(
     private val dispatchers: KotlinDispatchers
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val translation by translationKrate
 
     private suspend fun replyPlayerName(text: Text, reply: Text.Reply): String {

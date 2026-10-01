@@ -19,7 +19,7 @@ internal class DiscordCommandHandler(
     private val onlinePlayersProvider: OnlinePlayersProvider,
     private val linkApi: LinkApi,
     translationKrate: CachedKrate<PluginTranslation>,
-) : Logger by JUtiltLogger("MessageBridge-DiscordCommandHandler").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordCommandHandler") {
     private val translation by translationKrate
 
     suspend fun handle(command: DiscordCommand, event: MessageReceivedEvent) {
@@ -39,7 +39,7 @@ internal class DiscordCommandHandler(
     }
 
     private suspend fun sendVanilla(event: MessageReceivedEvent) {
-        info { "#sendVanilla !vanilla executed" }
+        verbose { "#sendVanilla !vanilla executed" }
         val players = onlinePlayersProvider.provide()
         val text = translation.onlinePlayers.message(
             count = players.size,

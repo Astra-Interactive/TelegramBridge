@@ -9,7 +9,7 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 
 class DiscordRoleController(
     configKrate: CachedKrate<PluginConfiguration>,
-) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController") {
     private val config by configKrate
 
     fun addLinkedRole(member: Member) {

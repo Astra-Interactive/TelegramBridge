@@ -30,7 +30,7 @@ internal class DiscordBEventConsumer(
     private val webhookMessageMapper: DiscordWebhookMessageMapper,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
 
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.DISCORD) return
@@ -70,7 +70,7 @@ internal class DiscordBEventConsumer(
     init {
         BEventChannel
             .bEvents(this)
-            .onEach { info { "#init receive event $it" } }
+            .onEach { verbose { "#init receive event $it" } }
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }

@@ -10,11 +10,11 @@ import ru.astrainteractive.messagebridge.messaging.withRetry
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
 internal class DiscordMessageSender :
-    Logger by JUtiltLogger("MessageBridge-DiscordMessageSender").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-DiscordMessageSender") {
 
     suspend fun reply(message: Message, text: String) {
         flow { emit(message.reply(text).await()) }
-            .withRetry()
+            .withRetry(this)
             .catch { error(it) { "#reply could not reply to message ${message.id}" } }
             .collect()
     }

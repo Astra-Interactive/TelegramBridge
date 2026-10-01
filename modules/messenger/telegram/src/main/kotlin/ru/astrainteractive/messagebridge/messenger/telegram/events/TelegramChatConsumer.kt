@@ -32,7 +32,7 @@ internal class TelegramChatConsumer(
     private val commandHandler: TelegramCommandHandler,
     private val messageSender: TelegramMessageSender,
 ) : LongPollingSingleThreadUpdateConsumer,
-    Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val translation by translationKrate
 
     override fun consume(update: Update?) {
@@ -40,9 +40,9 @@ internal class TelegramChatConsumer(
         commandHandler.logChatInfo(update)
         when (relevanceChecker.map(update)) {
             MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { process(update) }
-            MessageRelevance.WrongChat -> info { "#consume update is not from the configured chat" }
-            MessageRelevance.NoDate -> info { "#consume message date is null" }
-            MessageRelevance.TooOld -> info { "#consume message is too old" }
+            MessageRelevance.WrongChat -> verbose { "#consume update is not from the configured chat" }
+            MessageRelevance.NoDate -> verbose { "#consume message date is null" }
+            MessageRelevance.TooOld -> verbose { "#consume message is too old" }
             MessageRelevance.WrongTopic -> Unit
         }
     }
@@ -54,7 +54,7 @@ internal class TelegramChatConsumer(
             TelegramMessageValidation.NoText -> reject(update) { "#consume text is null" }
             TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
             TelegramMessageValidation.IllegalDisplayName -> {
-                info { "#consume display name rejected by regex" }
+                verbose { "#consume display name rejected by regex" }
                 reply(update, translation.chat.illegalDisplayName.toMessengerText())
                 delete(update)
             }
@@ -78,7 +78,7 @@ internal class TelegramChatConsumer(
     }
 
     private suspend fun reject(update: Update, reason: () -> String) {
-        info(reason)
+        verbose(reason)
         delete(update)
     }
 

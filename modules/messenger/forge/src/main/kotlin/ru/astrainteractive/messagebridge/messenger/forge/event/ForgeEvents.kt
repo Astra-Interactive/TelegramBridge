@@ -32,11 +32,11 @@ class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers
-) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
     private val config by configKrate
 
     val serverStartedEvent = flowEvent<ServerStartedEvent>()
-        .onEach { info { "#serverStartedEvent" } }
+        .onEach { verbose { "#serverStartedEvent" } }
         .onEach {
             ioScope.launch {
                 BEventChannel.consume(ServerOpenBEvent)
@@ -44,7 +44,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val serverStoppingEvent = flowEvent<ServerStoppingEvent>()
-        .onEach { info { "#serverStoppingEvent" } }
+        .onEach { verbose { "#serverStoppingEvent" } }
         .onEach {
             ioScope.launch {
                 BEventChannel.consume(ServerClosedBEvent)
@@ -52,7 +52,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val playerLoggedOutEvent = flowEvent<PlayerEvent.PlayerLoggedOutEvent>()
-        .onEach { info { "#playerLoggedOutEvent" } }
+        .onEach { verbose { "#playerLoggedOutEvent" } }
         .filter { config.displayLeaveMessage }
         .onEach {
             ioScope.launch(dispatchers.IO) {
@@ -65,7 +65,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val playerLoggedInEvent = flowEvent<PlayerEvent.PlayerLoggedInEvent>()
-        .onEach { info { "#playerLoggedInEvent" } }
+        .onEach { verbose { "#playerLoggedInEvent" } }
         .filter { config.displayJoinMessage }
         .onEach {
             ioScope.launch(dispatchers.IO) {
@@ -79,7 +79,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val livingDeathEvent = flowEvent<LivingDeathEvent>()
-        .onEach { info { "#livingDeathEvent" } }
+        .onEach { verbose { "#livingDeathEvent" } }
         .filter { config.displayDeathMessage }
         .filter { event -> event.entity is Player }
         .onEach {
@@ -95,7 +95,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val serverChatEvent = flowEvent<ServerChatEvent>(EventPriority.HIGHEST)
-        .onEach { info { "#serverChatEvent" } }
+        .onEach { verbose { "#serverChatEvent" } }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = Text.Minecraft(

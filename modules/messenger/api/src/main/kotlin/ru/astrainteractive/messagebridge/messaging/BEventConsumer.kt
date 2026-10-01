@@ -18,11 +18,12 @@ interface BEventConsumer : Logger {
 }
 
 public fun <T> Flow<T>.withRetry(
+    logger: Logger,
     retries: Long = 5,
     delay: Duration = 500.milliseconds,
 ): Flow<T> {
-    return retry(retries = retries) {
-        println(it.stackTraceToString())
+    return retry(retries = retries) { throwable ->
+        logger.warn { "#withRetry attempt failed, retrying in $delay: ${throwable.message}" }
         delay(delay)
         true
     }
@@ -34,7 +35,7 @@ suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {
             flow {
                 consume(bEvent)
                 emit(Unit)
-            }.withRetry()
+            }.withRetry(this@tryConsume)
                 .catch { error(it) { "#tryConsume could not send $bEvent" } }
                 .collect()
         }

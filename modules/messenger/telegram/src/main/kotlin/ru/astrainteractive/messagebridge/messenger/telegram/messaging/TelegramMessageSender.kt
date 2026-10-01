@@ -16,7 +16,7 @@ import java.io.Serializable
 
 internal class TelegramMessageSender(
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-) : Logger by JUtiltLogger("MessageBridge-TelegramMessageSender").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-TelegramMessageSender") {
 
     suspend fun send(chatId: String, text: String, replyToMessageId: Int? = null) {
         val sendMessage = SendMessage(chatId, text).apply { this.replyToMessageId = replyToMessageId }
@@ -29,7 +29,7 @@ internal class TelegramMessageSender(
 
     private suspend fun <T : Serializable> executeWithRetry(method: BotApiMethod<T>, errorMessage: () -> String) {
         flow { emit(clientOrNull()?.execute(method)) }
-            .withRetry()
+            .withRetry(this)
             .catch { error(it) { errorMessage() } }
             .collect()
     }
