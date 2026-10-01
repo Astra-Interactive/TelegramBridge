@@ -39,6 +39,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventLis
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordChannelProvider
@@ -184,6 +185,7 @@ class JdaMessengerModule(
         relevanceMapper = relevanceMapper,
         commandMapper = commandMapper,
         commandHandler = commandHandler,
+        replyMapper = DiscordReplyMapper(),
         linkApi = linkModule.linkApi,
     )
 

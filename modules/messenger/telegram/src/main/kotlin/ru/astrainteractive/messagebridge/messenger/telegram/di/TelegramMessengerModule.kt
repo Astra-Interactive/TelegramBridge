@@ -29,10 +29,12 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.util.CappedBackOff
@@ -112,13 +114,24 @@ class TelegramMessengerModule(
         }
     ).shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
+    private val relayedMessageCache = TelegramRelayedMessageCache(
+        capacity = RELAYED_MESSAGE_CACHE_CAPACITY
+    )
+
     private val telegramMessageController = TelegramBEventConsumer(
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow,
+        relayedMessageCache = relayedMessageCache,
     )
 
     private val authorMapper = TelegramAuthorMapper()
+
+    private val replyMapper = TelegramReplyMapper(
+        configKrate = coreModule.configKrate,
+        authorMapper = authorMapper,
+        relayedMessageCache = relayedMessageCache,
+    )
 
     private val relevanceChecker = TelegramMessageRelevanceMapper(
         configKrate = coreModule.configKrate,
@@ -148,6 +161,7 @@ class TelegramMessengerModule(
         translationKrate = coreModule.translationKrate,
         relevanceChecker = relevanceChecker,
         validator = messageValidator,
+        replyMapper = replyMapper,
         commandParser = commandParser,
         commandHandler = commandHandler,
         messageSender = messageSender,
@@ -207,5 +221,7 @@ class TelegramMessengerModule(
         val READ_TIMEOUT = 100.seconds
 
         val PING_INTERVAL = 15.seconds
+
+        const val RELAYED_MESSAGE_CACHE_CAPACITY = 1000
     }
 }

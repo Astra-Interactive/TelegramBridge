@@ -18,4 +18,7 @@ dependencies {
     implementation(projects.modules.core.api)
     implementation(projects.modules.link)
     implementation(projects.modules.messenger.api)
+
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.tests.kotlin.test)
 }

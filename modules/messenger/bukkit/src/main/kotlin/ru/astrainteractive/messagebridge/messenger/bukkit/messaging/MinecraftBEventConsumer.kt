@@ -36,6 +36,16 @@ internal class MinecraftBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
     private val translation by translationKrate
 
+    private suspend fun replyPlayerName(text: Text, reply: Text.Reply): String {
+        val authorId = reply.authorId ?: return reply.author
+        val linkedPlayerModel = when (text) {
+            is Text.Discord -> linkingDao.findByDiscordId(authorId).getOrNull()
+            is Text.Telegram -> linkingDao.findByTelegramId(authorId).getOrNull()
+            is Text.Minecraft -> null
+        }
+        return linkedPlayerModel?.lastMinecraftName ?: reply.author
+    }
+
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.MINECRAFT) return
 
@@ -55,11 +65,22 @@ internal class MinecraftBEventConsumer(
                     }
                 }
 
-                translation.chat.toMinecraft(
-                    playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
-                    message = bEvent.text,
-                    from = bEvent.from.short
-                )
+                val reply = bEvent.reply
+                if (reply == null) {
+                    translation.chat.toMinecraft(
+                        playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
+                        message = bEvent.text,
+                        from = bEvent.from.short
+                    )
+                } else {
+                    translation.chat.toMinecraftReply(
+                        playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
+                        message = bEvent.text,
+                        from = bEvent.from.short,
+                        replyPlayerName = replyPlayerName(bEvent, reply),
+                        replyMessage = reply.text
+                    )
+                }
             }
 
             ServerOpenBEvent,

@@ -1,12 +1,17 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
 
 internal class TelegramAuthorMapper {
 
     fun map(update: Update): TelegramAuthor? {
         val message = update.message ?: return null
+        return map(message)
+    }
+
+    fun map(message: Message): TelegramAuthor? {
         message.senderChat?.let { chat ->
             return author(chat.userName, chat.firstName, chat.lastName)
         }

@@ -28,11 +28,13 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messaging.tryConsume
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 
 internal class TelegramBEventConsumer(
     configKrate: CachedKrate<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
+    private val relayedMessageCache: TelegramRelayedMessageCache,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer").withoutParentHandlers() {
@@ -95,7 +97,10 @@ internal class TelegramBEventConsumer(
             replyToMessageId = tgConfig.topicID.toIntOrNull()
         }
         try {
-            telegramClientOrNull()?.execute(sendMessage)
+            val sentMessage = telegramClientOrNull()?.execute(sendMessage)
+            if (sentMessage != null && bEvent is Text) {
+                relayedMessageCache.remember(sentMessage.chatId, sentMessage.messageId, bEvent)
+            }
         } catch (e: TelegramApiRequestException) {
             @Suppress("MagicNumber")
             if (e.errorCode == 404) {

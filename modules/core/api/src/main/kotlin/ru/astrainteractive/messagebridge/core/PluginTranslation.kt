@@ -85,6 +85,26 @@ data class PluginTranslation(
     data class Chat(
         @SerialName("to_minecraft")
         private val toMinecraft: LocalizedText = LocalizedText.shared("[%from%] &#27A1E0%player%: &#FFFFFF%message%"),
+        @SerialName("to_minecraft_reply")
+        private val toMinecraftReply: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.EN_US,
+                "[%from%] &#27A1E0%player% " +
+                    "<hover:show_text:'&#8A8A8AReply to &#27A1E0%reply_player%&#8A8A8A:<newline>" +
+                    "&#FFFFFF%reply_message%'>&#8A8A8A↪ %reply_player%</hover>&#27A1E0: &#FFFFFF%message%"
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "[%from%] &#27A1E0%player% " +
+                    "<hover:show_text:'&#8A8A8AОтвет на сообщение &#27A1E0%reply_player%&#8A8A8A:<newline>" +
+                    "&#FFFFFF%reply_message%'>&#8A8A8A↪ %reply_player%</hover>&#27A1E0: &#FFFFFF%message%"
+            )
+        },
+        @SerialName("reply_media")
+        private val replyMedia: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "[media]")
+            translation(MinecraftLocales.RU_RU, "[медиа]")
+        },
         @SerialName("to_telegram")
         private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %player%:\n%message%"),
         @SerialName("illegal_display_name")
@@ -122,6 +142,41 @@ data class PluginTranslation(
             PlaceholderReplacement.plain("%message%", message),
             PlaceholderReplacement.plain("%from%", from)
         )
+
+        private fun String.toReplyPreview(): String {
+            if (length <= MAX_REPLY_PREVIEW_LENGTH) return this
+            val end = if (this[MAX_REPLY_PREVIEW_LENGTH - 1].isHighSurrogate()) {
+                MAX_REPLY_PREVIEW_LENGTH - 1
+            } else {
+                MAX_REPLY_PREVIEW_LENGTH
+            }
+            return substring(0, end).trimEnd() + "…"
+        }
+
+        fun toMinecraftReply(
+            playerName: String,
+            message: String,
+            from: String,
+            replyPlayerName: String,
+            replyMessage: String
+        ): LocalizableComponent {
+            val replyMessageReplacement = if (replyMessage.isBlank()) {
+                PlaceholderReplacement(placeholder = "%reply_message%", value = replyMedia)
+            } else {
+                PlaceholderReplacement.plain("%reply_message%", replyMessage.toReplyPreview())
+            }
+            return toMinecraftReply.replaceAll(
+                PlaceholderReplacement.plain("%player%", playerName),
+                PlaceholderReplacement.plain("%message%", message),
+                PlaceholderReplacement.plain("%from%", from),
+                PlaceholderReplacement.plain("%reply_player%", replyPlayerName),
+                replyMessageReplacement
+            )
+        }
+
+        companion object {
+            private const val MAX_REPLY_PREVIEW_LENGTH = 200
+        }
     }
 
     /** Announcements of players joining, leaving and dying, for the Telegram chat. */
