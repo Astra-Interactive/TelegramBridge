@@ -8,7 +8,7 @@ import ru.astrainteractive.messagebridge.commands.link.LinkLiteralArgumentBuilde
 import ru.astrainteractive.messagebridge.commands.unlink.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.commands.unlink.UnlinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.link.LinkModule
 
 class CommandModule(
     private val coreModule: CoreModule,

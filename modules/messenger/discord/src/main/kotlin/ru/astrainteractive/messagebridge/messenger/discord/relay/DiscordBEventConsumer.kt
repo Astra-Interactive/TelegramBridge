@@ -1,0 +1,144 @@
+package ru.astrainteractive.messagebridge.messenger.discord.relay
+
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.future.await
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.core.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
+import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.discord.channel.DiscordChannelProvider
+import ru.astrainteractive.messagebridge.messenger.discord.connection.awaitRequest
+import ru.astrainteractive.messagebridge.messenger.discord.failure.DiscordDeliveryError
+import ru.astrainteractive.messagebridge.messenger.discord.failure.DiscordFailure
+import ru.astrainteractive.messagebridge.messenger.discord.failure.DiscordFailureMapper
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
+
+/** Sends what happens in the game and in Telegram into the bridge channel. */
+internal class DiscordBEventConsumer(
+    private val channelProvider: DiscordChannelProvider,
+    private val topicUpdater: DiscordTopicUpdater,
+    private val embedMapper: DiscordEmbedMapper,
+    private val memberResolver: DiscordMemberResolver,
+    private val webhookMessageMapper: DiscordWebhookMessageMapper,
+    private val failureMapper: DiscordFailureMapper,
+    private val delivery: DiscordDeliveryError,
+    private val configFlow: StateFlow<PluginConfiguration>,
+    private val scope: CoroutineScope,
+    translationKrate: CachedKrate<PluginTranslation>,
+) : Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
+    private val config: PluginConfiguration
+        get() = configFlow.value
+    private val translation by translationKrate
+    private val lastTopicFailure = AtomicReference<DiscordFailure?>(null)
+
+    /** The topic only shows the online count, so a failure to change it does not stop the message. */
+    private fun reportTopic(result: Result<Unit>) {
+        val failure = result.exceptionOrNull()?.let { error -> failureMapper.map(error, config.jdaConfig) }
+        if (lastTopicFailure.getAndSet(failure) != failure && failure != null) {
+            warn { "#reportTopic could not change the topic of the channel: $failure" }
+        }
+    }
+
+    private suspend fun sendEmbed(channel: TextChannel, embed: MessageEmbed): Result<Unit> {
+        return awaitRequest { channel.sendMessageEmbeds(embed) }.map { _ -> }
+    }
+
+    private suspend fun sendText(event: Text, channel: TextChannel): Result<Unit> {
+        val member = memberResolver.resolve(channel, event).getOrElse { failure -> return Result.failure(failure) }
+        val client = channelProvider.webhookClient().getOrElse { failure -> return Result.failure(failure) }
+        val message = webhookMessageMapper.map(event, member)
+        return runCatching { client.send(message).await() }
+            .onFailure { failure -> if (failure is CancellationException) throw failure }
+            .map { _ -> }
+    }
+
+    private suspend fun sendMessage(channel: TextChannel, text: LocalizableComponent): Result<Unit> {
+        return awaitRequest { channel.sendMessage(text.toMessengerText()) }.map { _ -> }
+    }
+
+    private suspend fun send(bEvent: BEvent, jda: JDA): Result<Unit> {
+        val channel = channelProvider.textChannel(jda).getOrElse { failure -> return Result.failure(failure) }
+        return when (bEvent) {
+            is PlayerDeathBEvent -> sendEmbed(channel, embedMapper.map(bEvent))
+            is PlayerJoinedBEvent -> {
+                reportTopic(topicUpdater.updateOnlineCount(channel))
+                sendEmbed(channel, embedMapper.map(bEvent))
+            }
+
+            is PlayerLeaveBEvent -> {
+                reportTopic(topicUpdater.updateOnlineCount(channel))
+                sendEmbed(channel, embedMapper.map(bEvent))
+            }
+
+            is Text -> sendText(bEvent, channel)
+            ServerClosedBEvent -> {
+                reportTopic(topicUpdater.setStopped(channel))
+                sendMessage(channel, translation.discord.chat.serverStopped)
+            }
+
+            ServerOpenBEvent -> {
+                reportTopic(topicUpdater.setStarting(channel))
+                sendMessage(channel, translation.discord.chat.serverStarted)
+            }
+        }
+    }
+
+    /** A failure that can pass, e.g. a network error, is tried again a few times before it is reported. */
+    private suspend fun deliver(bEvent: BEvent) {
+        if (bEvent.from == MessageFrom.DISCORD) return
+        val jda = channelProvider.jda()
+        if (jda == null) {
+            verbose { "#deliver Discord is not connected, $bEvent is not sent" }
+            return
+        }
+        var retriesLeft = DELIVERY_RETRIES
+        while (true) {
+            val failure = send(bEvent, jda).exceptionOrNull()
+            if (failure == null) {
+                delivery.clear()
+                return
+            }
+            if (retriesLeft == 0 || !failureMapper.map(failure, config.jdaConfig).isRetryable) {
+                delivery.report(failure)
+                return
+            }
+            retriesLeft--
+            delay(DELIVERY_RETRY_DELAY)
+        }
+    }
+
+    fun start() {
+        BEventChannel
+            .bEvents(scope)
+            .onEach { bEvent -> verbose { "#start receive event $bEvent" } }
+            .onEach { bEvent -> deliver(bEvent) }
+            .launchIn(scope)
+    }
+
+    private companion object {
+        const val DELIVERY_RETRIES = 3
+        val DELIVERY_RETRY_DELAY = 1.seconds
+    }
+}

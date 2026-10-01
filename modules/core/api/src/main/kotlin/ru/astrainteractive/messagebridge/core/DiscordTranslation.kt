@@ -21,12 +21,13 @@ data class DiscordTranslation(
             """
             Discord is not configured yet:
              1. Create an application at https://discord.com/developers/applications, open Bot, copy the token
-                and turn on Message Content Intent
+                and turn on Message Content Intent. When link in config.yml gives roles for linking, turn on
+                Server Members Intent too: it lets the bot take the roles back from players who leave the server
              2. In the server console run: mb discord token <token>
              3. Run mb discord invite and open the link to add the bot to your server
              4. Run mb discord bind and send the code it shows into the channel
              5. Check everything with mb discord check
-            Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/en/discord.md
+            Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/discord.md
             """.trimIndent()
         )
         translation(
@@ -34,12 +35,13 @@ data class DiscordTranslation(
             """
             Discord ещё не настроен:
              1. Создайте приложение на https://discord.com/developers/applications, откройте Bot, скопируйте токен
-                и включите Message Content Intent
+                и включите Message Content Intent. Если link в config.yml выдаёт роли за привязку, включите
+                и Server Members Intent: так бот заберёт роли у игроков, которые ушли с сервера
              2. В консоли сервера выполните: mb discord token <токен>
              3. Выполните mb discord invite и откройте ссылку, чтобы добавить бота на сервер
              4. Выполните mb discord bind и отправьте код в нужный канал
              5. Проверьте настройку: mb discord check
-            Инструкция: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/ru/discord.md
+            Инструкция на английском: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/discord.md
             """.trimIndent()
         )
     },
@@ -48,8 +50,120 @@ data class DiscordTranslation(
     @SerialName("bind")
     val bind: Bind = Bind(),
     @SerialName("check")
-    val check: Check = Check()
+    val check: Check = Check(),
+    @SerialName("chat")
+    val chat: Chat = Chat(),
+    @SerialName("console")
+    val console: Console = Console()
 ) {
+    /** What the bot posts into the bridge channel and its topic. Discord shows `**text**` in bold. */
+    @Serializable
+    data class Chat(
+        @SerialName("player_joined")
+        private val playerJoined: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%player% joined the server")
+            translation(MinecraftLocales.RU_RU, "%player% зашёл на сервер")
+        },
+        @SerialName("player_joined_first_time")
+        private val playerJoinedFirstTime: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%player% joined the server for the first time!")
+            translation(MinecraftLocales.RU_RU, "%player% впервые зашёл на сервер!")
+        },
+        @SerialName("player_left")
+        private val playerLeft: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%player% left the server")
+            translation(MinecraftLocales.RU_RU, "%player% вышел с сервера")
+        },
+        @SerialName("player_died")
+        private val playerDied: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%player% died")
+            translation(MinecraftLocales.RU_RU, "%player% погиб")
+        },
+        @SerialName("server_started")
+        val serverStarted: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "✅ **The server has started**")
+            translation(MinecraftLocales.RU_RU, "✅ **Сервер запущен**")
+        },
+        @SerialName("server_stopped")
+        val serverStopped: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "🛑 **The server has stopped**")
+            translation(MinecraftLocales.RU_RU, "🛑 **Сервер остановлен**")
+        },
+        @SerialName("topic_online")
+        private val topicOnline: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Players online: %count%")
+            translation(MinecraftLocales.RU_RU, "Игроков в сети: %count%")
+        },
+        @SerialName("topic_starting")
+        val topicStarting: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "The server has just started...")
+            translation(MinecraftLocales.RU_RU, "Сервер только что запустился...")
+        },
+        @SerialName("topic_stopped")
+        val topicStopped: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "The server is stopped")
+            translation(MinecraftLocales.RU_RU, "Сервер остановлен")
+        }
+    ) {
+        fun playerJoined(player: String): LocalizableComponent = playerJoined.replaceAll(
+            PlaceholderReplacement.plain("%player%", player)
+        )
+
+        fun playerJoinedFirstTime(player: String): LocalizableComponent = playerJoinedFirstTime.replaceAll(
+            PlaceholderReplacement.plain("%player%", player)
+        )
+
+        fun playerLeft(player: String): LocalizableComponent = playerLeft.replaceAll(
+            PlaceholderReplacement.plain("%player%", player)
+        )
+
+        /** Shown when the game gives no death message of its own. */
+        fun playerDied(player: String): LocalizableComponent = playerDied.replaceAll(
+            PlaceholderReplacement.plain("%player%", player)
+        )
+
+        fun topicOnline(count: Int): LocalizableComponent = topicOnline.replaceAll(
+            PlaceholderReplacement.plain("%count%", "$count")
+        )
+    }
+
+    /** How the bot is doing, as the server console shows it. */
+    @Serializable
+    data class Console(
+        @SerialName("disabled")
+        val disabled: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Discord is turned off: the bot token is empty")
+            translation(MinecraftLocales.RU_RU, "Discord выключен: токен бота не задан")
+        },
+        @SerialName("connected")
+        private val connected: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Discord bot %bot% is connected")
+            translation(MinecraftLocales.RU_RU, "Бот Discord %bot% подключён")
+        },
+        @SerialName("not_connected")
+        private val notConnected: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Discord bot is not connected: %reason%")
+            translation(MinecraftLocales.RU_RU, "Бот Discord не подключён: %reason%")
+        },
+        @SerialName("delivery_failed")
+        private val deliveryFailed: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Messages cannot be delivered to Discord: %reason%")
+            translation(MinecraftLocales.RU_RU, "Сообщения не доходят до Discord: %reason%")
+        }
+    ) {
+        fun connected(bot: String): LocalizableComponent = connected.replaceAll(
+            PlaceholderReplacement.plain("%bot%", bot)
+        )
+
+        fun notConnected(reason: LocalizableComponent): LocalizableComponent = notConnected.replaceAll(
+            PlaceholderReplacement(placeholder = "%reason%", value = reason)
+        )
+
+        fun deliveryFailed(reason: LocalizableComponent): LocalizableComponent = deliveryFailed.replaceAll(
+            PlaceholderReplacement(placeholder = "%reason%", value = reason)
+        )
+    }
+
     /** Why the bot could not connect or deliver a message, and what to do about it. */
     @Serializable
     data class Errors(
@@ -67,20 +181,19 @@ data class DiscordTranslation(
                     "с новым токеном"
             )
         },
-        @SerialName("missing_intent")
-        val missingIntent: LocalizedText = LocalizedText.build {
+        @SerialName("missing_intents")
+        private val missingIntents: LocalizedText = LocalizedText.build {
             translation(
                 MinecraftLocales.EN_US,
-                "Discord refused the connection because Message Content Intent is off. Open " +
+                "Discord refused the connection because an intent the bot needs is off. Open " +
                     "https://discord.com/developers/applications, choose your application, open Bot, turn on " +
-                    "Message Content Intent under Privileged Gateway Intents, save the changes and run /mb reload"
+                    "%intents% under Privileged Gateway Intents, save the changes and run /mb reload"
             )
             translation(
                 MinecraftLocales.RU_RU,
-                "Discord не пустил бота: выключен Message Content Intent. Откройте " +
+                "Discord не пустил бота: выключен нужный ему intent. Откройте " +
                     "https://discord.com/developers/applications, выберите приложение, откройте Bot, включите " +
-                    "Message Content Intent в разделе Privileged Gateway Intents, сохраните изменения " +
-                    "и выполните /mb reload"
+                    "%intents% в разделе Privileged Gateway Intents, сохраните изменения и выполните /mb reload"
             )
         },
         @SerialName("channel_not_set")
@@ -143,12 +256,15 @@ data class DiscordTranslation(
             translation(
                 MinecraftLocales.EN_US,
                 "Could not reach Discord: %error%. If Discord is blocked in your country, set an HTTP proxy " +
-                    "with /mb discord proxy http <host> <port> [username] [password]"
+                    "with /mb discord proxy http <host> <port> [username] [password]. How to get one: " +
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
             )
             translation(
                 MinecraftLocales.RU_RU,
                 "Не удалось подключиться к Discord: %error%. Если Discord заблокирован в вашей стране, " +
-                    "задайте HTTP-прокси: /mb discord proxy http <хост> <порт> [логин] [пароль]"
+                    "задайте HTTP-прокси: /mb discord proxy http <хост> <порт> [логин] [пароль]. " +
+                    "Где его взять (на английском): " +
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
             )
         },
         @SerialName("network_via_proxy")
@@ -171,15 +287,20 @@ data class DiscordTranslation(
             translation(
                 MinecraftLocales.EN_US,
                 "Discord error: %error%. Common problems and their fixes: " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/en/troubleshooting.md"
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/troubleshooting.md"
             )
             translation(
                 MinecraftLocales.RU_RU,
-                "Ошибка Discord: %error%. Частые проблемы и их решения: " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/ru/troubleshooting.md"
+                "Ошибка Discord: %error%. Частые проблемы и их решения (на английском): " +
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/troubleshooting.md"
             )
         }
     ) {
+        /** @param intents names of the intents as the Developer Portal shows them, separated by commas */
+        fun missingIntents(intents: String): LocalizableComponent = missingIntents.replaceAll(
+            PlaceholderReplacement.plain("%intents%", intents)
+        )
+
         fun channelNotFound(channelId: String): LocalizableComponent = channelNotFound.replaceAll(
             PlaceholderReplacement.plain("%channel_id%", channelId)
         )
@@ -240,6 +361,19 @@ data class DiscordTranslation(
                 "Подключить канал к серверу Minecraft может только участник с правом управлять этим каналом"
             )
         },
+        @SerialName("config_broken")
+        val configBroken: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.EN_US,
+                "config.yml of the Minecraft server has an error, so this channel is not saved. Fix the file, " +
+                    "run /mb reload and then /mb discord bind again"
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "В config.yml сервера Minecraft ошибка, поэтому канал не сохранён. Исправьте файл, выполните " +
+                    "/mb reload, а затем снова /mb discord bind"
+            )
+        },
         @SerialName("bound_channel")
         val boundChannel: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "This channel is now connected to the Minecraft server")
@@ -291,6 +425,11 @@ data class DiscordTranslation(
         private val botWorks: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "Bot %bot% is connected to Discord")
             translation(MinecraftLocales.RU_RU, "Бот %bot% подключён к Discord")
+        },
+        @SerialName("intents_ok")
+        private val intentsOk: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Discord lets the bot use %intents%")
+            translation(MinecraftLocales.RU_RU, "Discord разрешает боту %intents%")
         },
         @SerialName("no_guilds")
         val noGuilds: LocalizedText = LocalizedText.build {
@@ -384,6 +523,10 @@ data class DiscordTranslation(
     ) {
         fun botWorks(bot: String): LocalizableComponent = botWorks.replaceAll(
             PlaceholderReplacement.plain("%bot%", bot)
+        )
+
+        fun intentsOk(intents: String): LocalizableComponent = intentsOk.replaceAll(
+            PlaceholderReplacement.plain("%intents%", intents)
         )
 
         fun permissionsOk(channel: String, guild: String): LocalizableComponent = permissionsOk.replaceAll(

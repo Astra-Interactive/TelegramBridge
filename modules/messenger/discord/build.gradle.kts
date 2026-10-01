@@ -19,6 +19,7 @@ dependencies {
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.onboarding.api)
 
+    testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.minecraft.kyori.legacy)
     testImplementation(libs.minecraft.kyori.minimessage)
     testImplementation(libs.minecraft.kyori.plain)

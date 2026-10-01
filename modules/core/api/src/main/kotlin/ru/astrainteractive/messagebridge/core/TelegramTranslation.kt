@@ -7,6 +7,7 @@ import ru.astrainteractive.astralibs.localization.component.PlaceholderReplaceme
 import ru.astrainteractive.astralibs.localization.component.replaceAll
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
+import kotlin.time.Duration
 
 /** Texts about setting up the Telegram bot and the errors it runs into. */
 @Serializable
@@ -22,7 +23,7 @@ data class TelegramTranslation(
              3. Add the bot to your group and make it an admin
              4. Run mb telegram bind and send the code it shows into the group (inside the topic if you use topics)
              5. Check everything with mb telegram check
-            Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/en/telegram.md
+            Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md
             """.trimIndent()
         )
         translation(
@@ -34,10 +35,17 @@ data class TelegramTranslation(
              3. Добавьте бота в группу и сделайте его администратором
              4. Выполните mb telegram bind и отправьте код в группу (в нужный топик, если они есть)
              5. Проверьте настройку: mb telegram check
-            Инструкция: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/ru/telegram.md
+            Инструкция (на английском): https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md
             """.trimIndent()
         )
     },
+    @SerialName("anonymous_author")
+    val anonymousAuthor: LocalizedText = LocalizedText.build {
+        translation(MinecraftLocales.EN_US, "Anonymous")
+        translation(MinecraftLocales.RU_RU, "Аноним")
+    },
+    @SerialName("status")
+    val status: Status = Status(),
     @SerialName("errors")
     val errors: Errors = Errors(),
     @SerialName("check")
@@ -47,6 +55,35 @@ data class TelegramTranslation(
     @SerialName("bind")
     val bind: Bind = Bind()
 ) {
+    /** Console lines about the connection of the bot and the delivery of messages. */
+    @Serializable
+    data class Status(
+        @SerialName("connected")
+        private val connected: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Telegram bot %bot% is connected")
+            translation(MinecraftLocales.RU_RU, "Бот Telegram %bot% подключён")
+        },
+        @SerialName("delivery_failed")
+        private val deliveryFailed: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Could not send a message to Telegram: %reason%")
+            translation(MinecraftLocales.RU_RU, "Не удалось отправить сообщение в Telegram: %reason%")
+        },
+        @SerialName("delivery_restored")
+        val deliveryRestored: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Messages are delivered to Telegram again")
+            translation(MinecraftLocales.RU_RU, "Сообщения снова доставляются в Telegram")
+        }
+    ) {
+        /** @param botName name of the bot as Telegram shows it, e.g. `@MyServerBot` */
+        fun connected(botName: String): LocalizableComponent = connected.replaceAll(
+            PlaceholderReplacement.plain("%bot%", botName)
+        )
+
+        fun deliveryFailed(reason: LocalizableComponent): LocalizableComponent = deliveryFailed.replaceAll(
+            PlaceholderReplacement(placeholder = "%reason%", value = reason)
+        )
+    }
+
     /** What went wrong with the bot and what to do about it, for the console and the game. */
     @Serializable
     data class Errors(
@@ -192,12 +229,14 @@ data class TelegramTranslation(
             translation(
                 MinecraftLocales.EN_US,
                 "Can't connect to Telegram. If Telegram is blocked where the server is, " +
-                    "set a proxy: /mb telegram proxy http <host> <port>"
+                    "set a proxy: /mb telegram proxy http <host> <port>. " +
+                    "Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
             )
             translation(
                 MinecraftLocales.RU_RU,
                 "Не удаётся подключиться к Telegram. Если Telegram заблокирован там, где стоит сервер, " +
-                    "укажите прокси: /mb telegram proxy http <хост> <порт>"
+                    "укажите прокси: /mb telegram proxy http <хост> <порт>. Инструкция (на английском): " +
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
             )
         },
         @SerialName("network_proxy")
@@ -205,12 +244,30 @@ data class TelegramTranslation(
             translation(
                 MinecraftLocales.EN_US,
                 "Can't connect to Telegram through the proxy %proxy%. Check that the proxy works and set the " +
-                    "right one: /mb telegram proxy <http|socks5> <host> <port>, or turn it off: /mb telegram proxy off"
+                    "right one: /mb telegram proxy <http|socks5> <host> <port>, or turn it off: " +
+                    "/mb telegram proxy off. " +
+                    "Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
             )
             translation(
                 MinecraftLocales.RU_RU,
                 "Не удаётся подключиться к Telegram через прокси %proxy%. Проверьте, что прокси работает, и " +
                     "укажите верный: /mb telegram proxy <http|socks5> <хост> <порт> или отключите его: " +
+                    "/mb telegram proxy off. Инструкция (на английском): " +
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
+            )
+        },
+        @SerialName("invalid_proxy")
+        private val invalidProxy: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.EN_US,
+                "The proxy address %proxy% is invalid: it needs a host and a port from 1 to 65535. " +
+                    "Set the right one: /mb telegram proxy <http|socks5> <host> <port>, or turn it off: " +
+                    "/mb telegram proxy off"
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "Адрес прокси %proxy% неверный: нужны хост и порт от 1 до 65535. " +
+                    "Укажите верный: /mb telegram proxy <http|socks5> <хост> <порт> или отключите прокси: " +
                     "/mb telegram proxy off"
             )
         },
@@ -283,12 +340,12 @@ data class TelegramTranslation(
             translation(
                 MinecraftLocales.EN_US,
                 "Telegram error: %error%. See " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/en/troubleshooting.md"
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/troubleshooting.md"
             )
             translation(
                 MinecraftLocales.RU_RU,
-                "Ошибка Telegram: %error%. Подробнее: " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/ru/troubleshooting.md"
+                "Ошибка Telegram: %error%. Подробнее (на английском): " +
+                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/troubleshooting.md"
             )
         }
     ) {
@@ -300,12 +357,17 @@ data class TelegramTranslation(
             PlaceholderReplacement.plain("%chat_id%", "$chatId")
         )
 
-        fun rateLimitedFor(seconds: Int): LocalizableComponent = rateLimitedFor.replaceAll(
-            PlaceholderReplacement.plain("%seconds%", "$seconds")
+        fun rateLimitedFor(retryAfter: Duration): LocalizableComponent = rateLimitedFor.replaceAll(
+            PlaceholderReplacement.plain("%seconds%", "${retryAfter.inWholeSeconds}")
         )
 
         /** @param proxy address of the proxy as `host:port` */
         fun networkProxy(proxy: String): LocalizableComponent = networkProxy.replaceAll(
+            PlaceholderReplacement.plain("%proxy%", proxy)
+        )
+
+        /** @param proxy address of the proxy as `host:port` */
+        fun invalidProxy(proxy: String): LocalizableComponent = invalidProxy.replaceAll(
             PlaceholderReplacement.plain("%proxy%", proxy)
         )
 
@@ -437,6 +499,17 @@ data class TelegramTranslation(
         val testMessageSent: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "The test message is sent to the chat")
             translation(MinecraftLocales.RU_RU, "Тестовое сообщение отправлено в чат")
+        },
+        @SerialName("reconnecting")
+        val reconnecting: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.EN_US,
+                "The bot is reconnecting with the new settings. Run the check again in a few seconds"
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "Бот переподключается с новыми настройками. Повторите проверку через несколько секунд"
+            )
         }
     ) {
         fun botWorks(botName: String): LocalizableComponent = botWorks.replaceAll(
@@ -545,8 +618,40 @@ data class TelegramTranslation(
         private val boundTopic: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, """Telegram chat "%chat%", topic "%topic%" is connected""")
             translation(MinecraftLocales.RU_RU, "Чат Telegram «%chat%», топик «%topic%» подключён")
+        },
+        @SerialName("save_failed")
+        val saveFailed: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.EN_US,
+                "❌ The server could not save this chat: its config.yml has an error. " +
+                    "Ask the admin of the server to fix it"
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "❌ Сервер не смог сохранить этот чат: в его config.yml ошибка. " +
+                    "Попросите администратора сервера её исправить"
+            )
+        },
+        @SerialName("not_bound")
+        private val notBound: LocalizedText = LocalizedText.build {
+            translation(
+                MinecraftLocales.EN_US,
+                """Telegram chat "%chat%" is not connected: config.yml has an error (%error%). """ +
+                    "Fix the file, run /mb reload and connect the chat again: /mb telegram bind"
+            )
+            translation(
+                MinecraftLocales.RU_RU,
+                "Чат Telegram «%chat%» не подключён: в config.yml ошибка (%error%). " +
+                    "Исправьте файл, выполните /mb reload и подключите чат заново: /mb telegram bind"
+            )
         }
     ) {
+        /** @param error what is wrong with config.yml, with the line and column when they are known */
+        fun notBound(chat: String, error: String): LocalizableComponent = notBound.replaceAll(
+            PlaceholderReplacement.plain("%chat%", chat),
+            PlaceholderReplacement.plain("%error%", error)
+        )
+
         /** @param topic name or id of the topic, `null` when the chat is bound without a topic */
         fun bound(chat: String, topic: String?): LocalizableComponent {
             if (topic == null) return bound.replaceAll(PlaceholderReplacement.plain("%chat%", chat))

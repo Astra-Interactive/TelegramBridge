@@ -15,13 +15,13 @@ import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.forge.core.api.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.forge.core.api.ForgeOnlinePlayersProvider
-import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.link.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
+import ru.astrainteractive.messagebridge.messenger.discord.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.forge.di.ForgeMessengerModule
-import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
+import ru.astrainteractive.messagebridge.messenger.telegram.TelegramMessengerModule
 import ru.astrainteractive.messagebridge.onboarding.OnboardingModule
 import java.io.File
 
@@ -45,7 +45,7 @@ class RootModule(
     }
 
     val linkModule by lazy {
-        LinkModule.Default(coreModule, ForgeLuckPermsProvider)
+        LinkModule(coreModule, ForgeLuckPermsProvider)
     }
 
     val forgeMessengerModule by lazy {

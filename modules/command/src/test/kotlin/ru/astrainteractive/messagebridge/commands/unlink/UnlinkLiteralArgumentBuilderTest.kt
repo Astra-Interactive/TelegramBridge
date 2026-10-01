@@ -21,8 +21,8 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.role.LuckPermsRoleController
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -49,7 +49,14 @@ class UnlinkLiteralArgumentBuilderTest {
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private suspend fun linkSteve() {
-        linkingDao.upsert(LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve"))
+        linkingDao.upsert(
+            LinkedPlayerModel(
+                uuid = steve.uuid,
+                lastMinecraftName = "Steve",
+                discordLink = null,
+                telegramLink = null
+            )
+        )
     }
 
     private fun execute(input: String, sender: RecordingOnlineKPlayer) {

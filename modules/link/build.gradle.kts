@@ -21,4 +21,8 @@ dependencies {
     implementation(libs.telegrambots.client)
 
     implementation(projects.modules.core.api)
+
+    testImplementation(libs.driver.h2)
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.tests.kotlin.test)
 }

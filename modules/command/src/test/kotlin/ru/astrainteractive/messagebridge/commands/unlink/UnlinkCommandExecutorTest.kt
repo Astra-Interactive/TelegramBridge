@@ -12,8 +12,8 @@ import ru.astrainteractive.messagebridge.commands.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.commands.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.role.LuckPermsRoleController
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -47,7 +47,14 @@ class UnlinkCommandExecutorTest {
     )
 
     private suspend fun linkSteve() {
-        linkingDao.upsert(LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve"))
+        linkingDao.upsert(
+            LinkedPlayerModel(
+                uuid = steve.uuid,
+                lastMinecraftName = "Steve",
+                discordLink = null,
+                telegramLink = null
+            )
+        )
     }
 
     private fun assertReadOnly(player: RecordingOnlineKPlayer, message: LocalizableComponent) {

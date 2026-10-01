@@ -8,8 +8,8 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
+import ru.astrainteractive.messagebridge.link.player.LinkingDao
+import ru.astrainteractive.messagebridge.link.role.LuckPermsRoleController
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
