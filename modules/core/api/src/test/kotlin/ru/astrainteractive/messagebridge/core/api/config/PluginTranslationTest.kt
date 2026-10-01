@@ -79,13 +79,6 @@ class PluginTranslationTest {
     }
 
     @Test
-    fun GIVEN_code_created_message_WHEN_rendered_THEN_code_hint_is_shown_as_text() {
-        val message = translation.link.codeCreated(code = 1234)
-
-        assertTrue("/link <code>" in plainText(message), plainText(message))
-    }
-
-    @Test
     fun GIVEN_death_without_cause_WHEN_rendered_THEN_unknown_cause_is_in_the_same_language() {
         val message = translation.player.died(name = "Steve", cause = null)
 

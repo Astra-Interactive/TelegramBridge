@@ -42,7 +42,10 @@ dependencies {
     shadow(libs.minecraft.kyori.plain)
     shadow(projects.modules.core.api)
     shadow(projects.modules.core.forge)
-    shadow(projects.modules.link)
+    shadow(projects.modules.link.api)
+    shadow(projects.modules.link.discord)
+    shadow(projects.modules.link.impl)
+    shadow(projects.modules.link.telegram)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.discord.api)
     shadow(projects.modules.messenger.discord.impl)
@@ -53,7 +56,6 @@ dependencies {
     shadow(projects.modules.onboarding.impl)
     shadow(projects.modules.onboarding.telegram)
     shadow(projects.modules.onboarding.api)
-    shadow(projects.modules.command)
 }
 
 minecraftProcessResource {

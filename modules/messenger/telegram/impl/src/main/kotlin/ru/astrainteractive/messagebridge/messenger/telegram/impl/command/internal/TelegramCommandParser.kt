@@ -10,14 +10,11 @@ internal class TelegramCommandParser(
         val command = TelegramBotCommand.parse(text, botUserName()) ?: return null
         return when (command.name) {
             VANILLA -> TelegramCommand.Vanilla
-            LINK -> TelegramCommand.Link(command.argument.toIntOrNull() ?: INVALID_CODE)
             else -> null
         }
     }
 
     private companion object {
         const val VANILLA = "/vanilla"
-        const val LINK = "/link"
-        const val INVALID_CODE = -1
     }
 }

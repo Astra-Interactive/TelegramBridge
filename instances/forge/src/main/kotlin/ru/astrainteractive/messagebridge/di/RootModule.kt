@@ -11,11 +11,13 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.forge.impl.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.core.forge.impl.ForgeOnlinePlayersProvider
-import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
+import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
+import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
+import ru.astrainteractive.messagebridge.link.telegram.di.TelegramLinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
@@ -49,8 +51,12 @@ internal class RootModule(
 
     private val bEventChannel = BEventChannel()
 
+    private val linkTranslationModule by lazy {
+        LinkTranslationModule(coreModule = coreModule)
+    }
+
     private val linkModule by lazy {
-        LinkModule(coreModule, ForgeLuckPermsProvider)
+        LinkModuleImpl(coreModule, ForgeLuckPermsProvider, linkTranslationModule)
     }
 
     private val forgeMessengerModule by lazy {
@@ -65,7 +71,9 @@ internal class RootModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule,
-            messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) },
+            messageInterceptors = {
+                listOf(discordOnboardingModule.messageInterceptor, discordLinkModule.messageInterceptor)
+            },
             bEventChannel = bEventChannel
         )
     }
@@ -86,8 +94,9 @@ internal class RootModule(
         TelegramMessengerModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
-            linkModule = linkModule,
-            updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) },
+            updateInterceptors = {
+                listOf(telegramOnboardingModule.updateInterceptor, telegramLinkModule.updateInterceptor)
+            },
             bEventChannel = bEventChannel
         )
     }
@@ -100,10 +109,21 @@ internal class RootModule(
         )
     }
 
-    private val commandModule by lazy {
-        CommandModule(
+    private val telegramLinkModule: TelegramLinkModule by lazy {
+        TelegramLinkModule(
             coreModule = coreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            linkTranslationModule = linkTranslationModule,
+            botModule = tgEventModule
+        )
+    }
+
+    private val discordLinkModule: DiscordLinkModule by lazy {
+        DiscordLinkModule(
+            coreModule = coreModule,
+            linkModule = linkModule,
+            linkTranslationModule = linkTranslationModule,
+            botModule = jdaEventModule
         )
     }
 
@@ -120,7 +140,10 @@ internal class RootModule(
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
-            commandModule.lifecycle,
+            linkModule.lifecycle,
+            linkTranslationModule.lifecycle,
+            telegramLinkModule.lifecycle,
+            discordLinkModule.lifecycle,
             onboardingModule.lifecycle,
             onboardingTranslationModule.lifecycle,
             telegramOnboardingModule.lifecycle,

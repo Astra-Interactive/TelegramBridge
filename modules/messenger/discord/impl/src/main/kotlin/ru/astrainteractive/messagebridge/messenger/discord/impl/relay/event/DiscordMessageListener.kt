@@ -47,7 +47,6 @@ internal class DiscordMessageListener(
         if (messageInterceptors().any { interceptor -> interceptor.intercept(event) }) return
         when (relevanceMapper.map(event)) {
             DiscordMessageRelevance.Relevant -> scope.launch { process(event) }
-            DiscordMessageRelevance.PrivateMessage -> scope.launch { commandHandler.linkFromPrivate(event) }
             DiscordMessageRelevance.WebhookMessage,
             DiscordMessageRelevance.BotAuthor,
             DiscordMessageRelevance.WrongChannel -> Unit

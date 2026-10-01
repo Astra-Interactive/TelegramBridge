@@ -26,16 +26,6 @@ class TelegramCommandParserTest {
     }
 
     @Test
-    fun GIVEN_link_with_bot_name_and_code_WHEN_mapped_THEN_code_is_parsed() {
-        assertEquals(TelegramCommand.Link(1234), mapper.map("/link@$BOT_USER_NAME 1234"))
-    }
-
-    @Test
-    fun GIVEN_link_without_code_WHEN_mapped_THEN_code_is_invalid() {
-        assertEquals(TelegramCommand.Link(-1), mapper.map("/link"))
-    }
-
-    @Test
     fun GIVEN_command_for_another_bot_WHEN_mapped_THEN_it_is_ignored() {
         assertNull(mapper.map("/vanilla@OtherBot"))
     }

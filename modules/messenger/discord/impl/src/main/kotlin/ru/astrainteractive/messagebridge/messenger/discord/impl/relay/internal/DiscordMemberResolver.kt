@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import net.dv8tion.jda.api.requests.ErrorResponse
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.api.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
 import java.util.UUID

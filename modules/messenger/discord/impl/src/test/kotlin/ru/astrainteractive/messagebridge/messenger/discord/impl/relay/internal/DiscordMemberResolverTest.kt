@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import net.dv8tion.jda.api.requests.ErrorResponse
 import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
-import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.api.player.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.api.player.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaRequest

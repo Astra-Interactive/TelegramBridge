@@ -13,7 +13,7 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.api.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.tryConsume
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel

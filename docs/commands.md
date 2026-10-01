@@ -9,7 +9,8 @@
 - **In game:** with `/`, e.g. `/mb telegram check`.
 
 Settings changed with `/mb` are saved into `config.yml` and applied right away.
-The texts of the `/mb` commands are in `translation/onboarding.yml`, the other texts in `translation/main.yml`.
+The texts of the `/mb` commands are in `translation/onboarding.yml`, the texts of linking accounts in
+`translation/link.yml`, the other texts in `translation/main.yml`.
 
 ### `--unsafe`
 

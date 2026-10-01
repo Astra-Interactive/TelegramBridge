@@ -22,6 +22,6 @@ dependencies {
 
     implementation(projects.modules.core.api)
     implementation(projects.modules.core.bukkit)
-    implementation(projects.modules.link)
+    implementation(projects.modules.link.api)
     implementation(projects.modules.messenger.api)
 }

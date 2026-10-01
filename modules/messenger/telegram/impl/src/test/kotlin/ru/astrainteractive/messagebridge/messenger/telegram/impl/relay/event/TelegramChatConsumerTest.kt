@@ -13,8 +13,6 @@ import ru.astrainteractive.messagebridge.core.api.fake.FakeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
-import ru.astrainteractive.messagebridge.link.fake.FakeLinkApi
-import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.messenger.api.fake.RecordingEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
@@ -58,7 +56,6 @@ class TelegramChatConsumerTest {
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
         onlinePlayersProvider = FakeOnlinePlayersProvider(players = listOf("Steve")),
-        linkApi = FakeLinkApi(response = LinkResponse.NoCode),
         translationKrate = translationKrate
     )
 

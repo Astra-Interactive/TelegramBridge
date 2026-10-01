@@ -10,12 +10,14 @@ import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
-import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitLuckPermsProvider
 import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitOnlinePlayersProvider
-import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
+import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
+import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
+import ru.astrainteractive.messagebridge.link.telegram.di.TelegramLinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
@@ -48,7 +50,11 @@ internal class RootModule(
 
     private val bEventChannel = BEventChannel()
 
-    private val linkModule = LinkModule(coreModule, BukkitLuckPermsProvider)
+    private val linkTranslationModule by lazy {
+        LinkTranslationModule(coreModule = coreModule)
+    }
+
+    private val linkModule = LinkModuleImpl(coreModule, BukkitLuckPermsProvider, linkTranslationModule)
 
     private val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
@@ -61,7 +67,9 @@ internal class RootModule(
         coreModule = coreModule,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule,
-        messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) },
+        messageInterceptors = {
+            listOf(discordOnboardingModule.messageInterceptor, discordLinkModule.messageInterceptor)
+        },
         bEventChannel = bEventChannel
     )
 
@@ -80,8 +88,9 @@ internal class RootModule(
     private val telegramMessengerModule = TelegramMessengerModule(
         coreModule = coreModule,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
-        linkModule = linkModule,
-        updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) },
+        updateInterceptors = {
+            listOf(telegramOnboardingModule.updateInterceptor, telegramLinkModule.updateInterceptor)
+        },
         bEventChannel = bEventChannel
     )
 
@@ -93,10 +102,21 @@ internal class RootModule(
         )
     }
 
-    private val commandModule by lazy {
-        CommandModule(
+    private val telegramLinkModule: TelegramLinkModule by lazy {
+        TelegramLinkModule(
             coreModule = coreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            linkTranslationModule = linkTranslationModule,
+            botModule = telegramMessengerModule
+        )
+    }
+
+    private val discordLinkModule: DiscordLinkModule by lazy {
+        DiscordLinkModule(
+            coreModule = coreModule,
+            linkModule = linkModule,
+            linkTranslationModule = linkTranslationModule,
+            botModule = jdaMessengerModule
         )
     }
 
@@ -116,7 +136,10 @@ internal class RootModule(
             bukkitMessengerModule.lifecycle,
             jdaMessengerModule.lifecycle,
             telegramMessengerModule.lifecycle,
-            commandModule.lifecycle,
+            linkModule.lifecycle,
+            linkTranslationModule.lifecycle,
+            telegramLinkModule.lifecycle,
+            discordLinkModule.lifecycle,
             onboardingTranslationModule.lifecycle,
             telegramOnboardingModule.lifecycle,
             discordOnboardingModule.lifecycle,

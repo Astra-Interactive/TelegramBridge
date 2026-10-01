@@ -16,7 +16,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.link.api.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
@@ -33,11 +33,9 @@ import ru.astrainteractive.messagebridge.messenger.discord.impl.connection.inter
 import ru.astrainteractive.messagebridge.messenger.discord.impl.connection.internal.ExponentialBackoff
 import ru.astrainteractive.messagebridge.messenger.discord.impl.connection.network.DiscordConnector
 import ru.astrainteractive.messagebridge.messenger.discord.impl.connection.network.JdaBuilderFactory
-import ru.astrainteractive.messagebridge.messenger.discord.impl.event.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.internal.DiscordDeliveryError
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.mapping.DiscordFailureMapper
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.mapping.DiscordFailureTextMapperImpl
-import ru.astrainteractive.messagebridge.messenger.discord.impl.internal.DiscordMemberSweep
 import ru.astrainteractive.messagebridge.messenger.discord.impl.relay.event.DiscordMessageListener
 import ru.astrainteractive.messagebridge.messenger.discord.impl.relay.internal.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.impl.relay.internal.DiscordEmbedMapper
@@ -132,8 +130,6 @@ class JdaMessengerModule(
         commandHandler = DiscordCommandHandler(
             messageSender = messageSender,
             onlinePlayersProvider = onlinePlayersProvider,
-            linkApi = linkModule.linkApi,
-            channelProvider = channelProvider,
             translationKrate = coreModule.translationKrate,
         ),
         replyMapper = DiscordReplyMapper(),
@@ -142,26 +138,12 @@ class JdaMessengerModule(
         bEventChannel = bEventChannel,
     )
 
-    private val memberLeaveListener = DiscordMemberLeaveListener(
-        channelProvider = channelProvider,
-        discordMembership = linkModule.discordMembership,
-        scope = scope,
-    )
-
-    private val memberSweep = DiscordMemberSweep(
-        channelProvider = channelProvider,
-        discordMembership = linkModule.discordMembership,
-    )
-
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             consumer.start()
             session.jda
                 .filterNotNull()
-                .onEach { jda ->
-                    jda.addEventListener(messageListener, memberLeaveListener)
-                    memberSweep.sweep(jda)
-                }
+                .onEach { jda -> jda.addEventListener(messageListener) }
                 .launchIn(scope)
         },
         onReload = {
@@ -171,7 +153,7 @@ class JdaMessengerModule(
             scope.cancel()
             (session.connection.value as? DiscordConnection.Connected)
                 ?.jda
-                ?.removeEventListener(messageListener, memberLeaveListener)
+                ?.removeEventListener(messageListener)
         }
     )
 

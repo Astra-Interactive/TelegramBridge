@@ -19,7 +19,6 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.tryConsume
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramBotApi
@@ -59,7 +58,6 @@ import kotlin.time.TimeSource
 class TelegramMessengerModule(
     coreModule: CoreModule,
     onlinePlayersProvider: OnlinePlayersProvider,
-    linkModule: LinkModule,
     updateInterceptors: () -> List<TelegramUpdateInterceptor>,
     bEventChannel: BEventChannel,
 ) : TelegramBotModule {
@@ -122,7 +120,6 @@ class TelegramMessengerModule(
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
         onlinePlayersProvider = onlinePlayersProvider,
-        linkApi = linkModule.linkApi,
         translationKrate = coreModule.translationKrate,
     )
 

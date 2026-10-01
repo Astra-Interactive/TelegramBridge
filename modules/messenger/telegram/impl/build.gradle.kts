@@ -18,7 +18,6 @@ dependencies {
     implementation(libs.telegrambots.longpolling)
 
     implementation(projects.modules.core.api)
-    implementation(projects.modules.link)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.messenger.telegram.api)
 
@@ -31,7 +30,6 @@ dependencies {
     testImplementation(libs.tests.kotlin.test)
 
     testImplementation(testFixtures(projects.modules.core.api))
-    testImplementation(testFixtures(projects.modules.link))
     testImplementation(testFixtures(projects.modules.messenger.api))
     testImplementation(testFixtures(projects.modules.messenger.telegram.api))
 }
