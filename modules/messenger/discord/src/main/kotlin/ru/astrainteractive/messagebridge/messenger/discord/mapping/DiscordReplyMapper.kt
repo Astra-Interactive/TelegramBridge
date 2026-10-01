@@ -6,7 +6,6 @@ import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class DiscordReplyMapper {
-    /** The source tag [DiscordWebhookMessageMapper] puts in front of the name of every message the bridge relays. */
     private val sourceTagRegex = MessageFrom.entries
         .joinToString(separator = "|", prefix = "^\\[(", postfix = ")] ") { from -> Regex.escape(from.short) }
         .toRegex()
@@ -18,7 +17,6 @@ internal class DiscordReplyMapper {
         return replied.member?.nickname ?: replied.author.name
     }
 
-    /** @return null for a forwarded message, or when Discord did not send the replied one, e.g. it was deleted */
     fun map(message: Message): Text.Reply? {
         if (message.type != MessageType.INLINE_REPLY) return null
         val replied = message.referencedMessage ?: return null

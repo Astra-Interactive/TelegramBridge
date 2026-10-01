@@ -15,7 +15,6 @@ import kotlin.test.assertNull
 class DiscordReplyMapperTest {
     private val mapper = DiscordReplyMapper()
 
-    /** JDA entities are interfaces with dozens of members; a test answers only the getters the mapper reads. */
     private inline fun <reified T : Any> jdaFake(answerByGetter: Map<String, Any?>): T {
         val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
             check(method.name in answerByGetter) { "${T::class.simpleName}.${method.name} is not faked" }

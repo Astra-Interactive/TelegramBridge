@@ -14,10 +14,6 @@ internal class TelegramReplyMapper(
 ) {
     private val config by configKrate
 
-    /**
-     * Telegram sets the first message of a forum topic as the replied message of every message in the topic, so
-     * replying to it, or to the configured topic message, is not a reply the author chose.
-     */
     private fun isTopicStart(replied: Message): Boolean {
         return replied.forumTopicCreated != null || replied.messageId.toString() == config.tgConfig.topicID
     }

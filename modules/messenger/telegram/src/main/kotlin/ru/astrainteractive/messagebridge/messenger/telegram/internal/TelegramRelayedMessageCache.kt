@@ -2,11 +2,6 @@ package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
-/**
- * Remembers the [Text] behind each message the bot relayed to Telegram, so a reply to it names the player who
- * wrote it instead of the bot. Keeps the [capacity] latest messages in memory only: after a restart, a reply to an
- * older message names the bot. Safe to call from any thread.
- */
 internal class TelegramRelayedMessageCache(
     private val capacity: Int
 ) {

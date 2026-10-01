@@ -36,7 +36,6 @@ internal class MinecraftBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
     private val translation by translationKrate
 
-    /** A replied author linked to a Minecraft account is named as in the game, like the author of a message. */
     private suspend fun replyPlayerName(text: Text, reply: Text.Reply): String {
         val authorId = reply.authorId ?: return reply.author
         val linkedPlayerModel = when (text) {

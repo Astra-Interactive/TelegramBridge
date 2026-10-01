@@ -9,15 +9,8 @@ sealed interface Text : BEvent {
     val author: String
     val text: String
 
-    /** The message this one answers in Telegram or Discord; null when it answers nothing. */
     val reply: Reply?
 
-    /**
-     * @property authorId id of [author] in the messenger of the enclosing [Text]; null when the bridge itself sent
-     * the replied message, so [author] is already the name of whoever wrote it
-     * @property text text of the replied message, or the part of it the user quoted; empty for media without a
-     * caption
-     */
     @Serializable
     data class Reply(
         val author: String,

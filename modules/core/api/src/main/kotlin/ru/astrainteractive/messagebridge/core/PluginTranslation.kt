@@ -153,12 +153,6 @@ data class PluginTranslation(
             return substring(0, end).trimEnd() + "…"
         }
 
-        /**
-         * Like [toMinecraft], with the author of the replied message shown in the line and its text on hover.
-         *
-         * @param replyMessage cut to [MAX_REPLY_PREVIEW_LENGTH] characters, so hovering a reply to a long text does
-         * not cover the screen; a blank one, as for media without a caption, reads [replyMedia]
-         */
         fun toMinecraftReply(
             playerName: String,
             message: String,
