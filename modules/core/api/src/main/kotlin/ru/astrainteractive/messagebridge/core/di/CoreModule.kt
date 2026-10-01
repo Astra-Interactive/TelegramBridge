@@ -16,7 +16,6 @@ import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.util.krateOf
-import ru.astrainteractive.astralibs.util.parseOrWriteIntoDefault
 import ru.astrainteractive.klibs.kstorage.api.asStateFlowKrate
 import ru.astrainteractive.klibs.kstorage.api.asStateFlowMutableKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
@@ -84,14 +83,23 @@ class CoreModule(
             initialValue = configKrate.cachedValue.getOrElse { _ -> PluginConfiguration() }
         )
 
+    private val translationLogger = JUtiltLogger("MessageBridge-translations")
+
+    private val translationFileKrate = yamlStringFormat.krateOf(
+        file = dataFolder.resolve("translations.yml"),
+        factory = ::PluginTranslation
+    )
+
     val translationKrate = DefaultMutableKrate(
         factory = ::PluginTranslation,
         loader = {
-            yamlStringFormat.parseOrWriteIntoDefault(
-                file = dataFolder.resolve("translations.yml"),
-                logger = JUtiltLogger("MessageBridge-translations"),
-                default = ::PluginTranslation
-            )
+            translationFileKrate.getValue()
+                .onFailure { error ->
+                    translationLogger.error {
+                        "translations.yml has an error, the default texts are used: ${describeConfigError(error)}"
+                    }
+                }
+                .getOrNull()
         }
     ).asStateFlowKrate()
 

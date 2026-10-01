@@ -210,6 +210,61 @@ class LinkApiImplTest {
         assertEquals(setOf(GROUP), groups.groupsOf(steve.uuid))
     }
 
+    @Test
+    fun GIVEN_linked_player_WHEN_unlinked_THEN_group_is_taken_and_every_link_is_gone() = runTest {
+        val linkingDao = FakeLinkingDao(steve.copy(telegramLink = telegramLink))
+        giveGroupTo(steve)
+
+        val response = createLinkApi(linkingDao).unlink(steve.uuid)
+
+        assertEquals(UnlinkResponse.Unlinked, response)
+        assertEquals(emptySet<String>(), groups.groupsOf(steve.uuid))
+        assertNull(linkingDao.players[steve.uuid])
+    }
+
+    @Test
+    fun GIVEN_linking_gives_no_roles_WHEN_unlinked_THEN_links_are_gone_and_groups_are_untouched() = runTest {
+        config.value = PluginConfiguration(link = null)
+        val linkingDao = FakeLinkingDao(steve)
+        giveGroupTo(steve)
+
+        val response = createLinkApi(linkingDao).unlink(steve.uuid)
+
+        assertEquals(UnlinkResponse.Unlinked, response)
+        assertEquals(setOf(GROUP), groups.groupsOf(steve.uuid))
+        assertNull(linkingDao.players[steve.uuid])
+    }
+
+    @Test
+    fun GIVEN_player_without_links_WHEN_unlinked_THEN_is_not_linked() = runTest {
+        val response = createLinkApi(FakeLinkingDao()).unlink(steve.uuid)
+
+        assertEquals(UnlinkResponse.NotLinked, response)
+    }
+
+    @Test
+    fun GIVEN_group_cannot_be_taken_WHEN_unlinked_THEN_link_stays_to_be_tried_again() = runTest {
+        val linkingDao = FakeLinkingDao(steve)
+        groups.failure = IllegalStateException("LuckPerms is not installed")
+
+        val response = createLinkApi(linkingDao).unlink(steve.uuid)
+
+        assertEquals(UnlinkResponse.UnknownError, response)
+        assertEquals(steve, linkingDao.players[steve.uuid])
+    }
+
+    @Test
+    fun GIVEN_links_cannot_be_read_WHEN_unlinked_THEN_group_is_kept() = runTest {
+        val linkingDao = FakeLinkingDao(steve)
+        giveGroupTo(steve)
+        linkingDao.failure = IllegalStateException("database is closed")
+
+        val response = createLinkApi(linkingDao).unlink(steve.uuid)
+
+        assertEquals(UnlinkResponse.UnknownError, response)
+        assertEquals(setOf(GROUP), groups.groupsOf(steve.uuid))
+    }
+
     private companion object {
         const val GROUP = "verified"
         const val DISCORD_ID = 42L

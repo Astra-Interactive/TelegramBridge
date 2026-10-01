@@ -26,6 +26,7 @@ internal class LinkApiImpl(
     private val configFlow: StateFlow<PluginConfiguration>,
 ) : LinkApi,
     DiscordMembership,
+    Unlinking,
     Logger by JUtiltLogger("MessageBridge-LinkApi") {
     private val config: PluginConfiguration
         get() = configFlow.value
@@ -80,6 +81,11 @@ internal class LinkApiImpl(
         saved
             .onSuccess { _ -> info { "#unlinkLeftDiscord $uuid left the Discord server and is unlinked from it" } }
             .onFailure { failure -> error(failure) { "#unlinkLeftDiscord could not unlink Discord of $uuid" } }
+    }
+
+    private fun unlinkFailed(uuid: UUID, failure: Throwable): UnlinkResponse {
+        error(failure) { "#unlink could not unlink $uuid" }
+        return UnlinkResponse.UnknownError
     }
 
     override suspend fun linkDiscord(code: Int, member: Member): LinkResponse {
@@ -140,6 +146,22 @@ internal class LinkApiImpl(
                     discordLink != null && discordLink.discordId !in memberIds
                 }
                 .forEach { linkedPlayer -> unlinkLeftDiscord(linkedPlayer, link) }
+        }
+    }
+
+    override suspend fun unlink(uuid: UUID): UnlinkResponse {
+        return linkMutex.withLock {
+            val linkedPlayer = linkingDao.findByUuid(uuid)
+                .getOrElse { failure -> return unlinkFailed(uuid, failure) }
+                ?: return UnlinkResponse.NotLinked
+            config.link?.let { link ->
+                permissionGroups.remove(linkedPlayer.uuid, link.linkLuckPermsRole)
+                    .onFailure { failure -> return unlinkFailed(uuid, failure) }
+            }
+            linkingDao.deleteByUuid(uuid).fold(
+                onSuccess = { _ -> UnlinkResponse.Unlinked },
+                onFailure = { failure -> unlinkFailed(uuid, failure) }
+            )
         }
     }
 }

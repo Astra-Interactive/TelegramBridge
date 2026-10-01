@@ -31,6 +31,7 @@ set up an HTTP proxy first: [proxy.md](proxy.md).
 4. Press **Reset Token**, confirm and copy the token. Discord shows it only once.
 5. On the same tab, under **Privileged Gateway Intents**, turn on **Message Content Intent** and press **Save Changes**.
    Without it Discord refuses the connection with close code 4014.
+   If you give roles on [account linking](#account-linking), turn on **Server Members Intent** too.
 
 Keep the token private. Anyone who has it controls your bot.
 If it leaked, press **Reset Token** again and set the new token. The old one stops working.
@@ -138,6 +139,9 @@ link:
 - The bot needs **Manage Roles**, and its own role must be higher in the list than the role it gives.
   Drag the bot's role above it in **Server Settings** → **Roles**.
 - `link: null` gives no roles.
+- With the `link` block set, the bot also needs **Server Members Intent** (Developer Portal → **Bot** →
+  **Privileged Gateway Intents**). It lets the plugin see a player leave the Discord server: the player loses the
+  LuckPerms group right away, and players who left while the Minecraft server was off lose it when the bot connects.
 
 A player removes the link with `/unlink`. An admin with `tbridge.unlink.player` can run `/unlink <player>`.
 

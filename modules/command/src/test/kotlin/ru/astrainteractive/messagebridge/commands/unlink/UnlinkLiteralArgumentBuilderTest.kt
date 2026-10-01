@@ -6,36 +6,27 @@ import com.mojang.brigadier.CommandDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.commands.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.commands.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.commands.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.commands.fake.FakePlatformServer
+import ru.astrainteractive.messagebridge.commands.fake.FakeUnlinking
 import ru.astrainteractive.messagebridge.commands.fake.RecordingOnlineKPlayer
-import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.player.LinkedPlayerModel
-import ru.astrainteractive.messagebridge.link.role.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.UnlinkResponse
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class UnlinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
-    private val linkingDao = FakeLinkingDao()
-    private val luckPermsRoleController = LuckPermsRoleController(
-        configFlow = MutableStateFlow(PluginConfiguration()),
-        luckPermsProvider = FakeLuckPermsProvider()
-    )
+    private val unlinking = FakeUnlinking(response = UnlinkResponse.Unlinked)
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
         name = "Admin",
@@ -48,23 +39,11 @@ class UnlinkLiteralArgumentBuilderTest {
 
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
-    private suspend fun linkSteve() {
-        linkingDao.upsert(
-            LinkedPlayerModel(
-                uuid = steve.uuid,
-                lastMinecraftName = "Steve",
-                discordLink = null,
-                telegramLink = null
-            )
-        )
-    }
-
     private fun execute(input: String, sender: RecordingOnlineKPlayer) {
         val multiplatformCommand = MultiplatformCommand(FakeMultiplatformCommands(sender))
         val builder = UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
-                linkingDao = linkingDao,
-                luckPermsRoleController = luckPermsRoleController,
+                unlinking = unlinking,
                 translationKrate = translationKrate
             ),
             ioScope = ioScope,
@@ -82,21 +61,17 @@ class UnlinkLiteralArgumentBuilderTest {
 
     @Test
     fun GIVEN_linked_player_WHEN_runs_unlink_THEN_link_is_removed_and_reads_success() = runTest {
-        linkSteve()
-
         execute(input = "unlink", sender = steve)
 
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertEquals(listOf(steve.uuid), unlinking.unlinkedPlayers)
         assertEquals(listOf<LocalizableComponent>(translation.unlink.success), steve.messages)
     }
 
     @Test
     fun GIVEN_admin_WHEN_unlinks_a_linked_player_THEN_link_is_removed_and_admin_reads_player_success() = runTest {
-        linkSteve()
-
         execute(input = "unlink Steve", sender = admin)
 
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertEquals(listOf(steve.uuid), unlinking.unlinkedPlayers)
         assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
     }
 }

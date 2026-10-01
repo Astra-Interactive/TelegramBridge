@@ -26,6 +26,8 @@ data class PluginConfiguration(
     val displayDeathMessage: Boolean = true,
     @YamlComment(
         "Roles given to a player who links an account with /link. null gives no roles.",
+        "The LuckPerms group is taken away when the player leaves the Discord server;",
+        "for that turn on Server Members Intent in the Developer Portal -> Bot.",
         "Example:",
         "link:",
         "  linkDiscordRole: \"123456789012345678\"",

@@ -9,7 +9,6 @@ import ru.astrainteractive.messagebridge.link.player.LinkingDao
 import ru.astrainteractive.messagebridge.link.player.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.role.DiscordLinkRole
 import ru.astrainteractive.messagebridge.link.role.LuckPermsGroups
-import ru.astrainteractive.messagebridge.link.role.LuckPermsRoleController
 import kotlin.random.Random
 
 class LinkModule(
@@ -27,11 +26,6 @@ class LinkModule(
 
     val codeApi: CodeApi = CodeApiImpl(random = Random.Default)
 
-    val luckPermsRoleController = LuckPermsRoleController(
-        configFlow = coreModule.config,
-        luckPermsProvider = luckPermsProvider
-    )
-
     private val linkApiImpl = LinkApiImpl(
         linkingDao = linkingDaoImpl,
         discordLinkedPlayerDao = linkingDaoImpl,
@@ -44,4 +38,6 @@ class LinkModule(
     val linkApi: LinkApi = linkApiImpl
 
     val discordMembership: DiscordMembership = linkApiImpl
+
+    val unlinking: Unlinking = linkApiImpl
 }

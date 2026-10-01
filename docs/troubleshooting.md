@@ -146,10 +146,12 @@ Take the token from the **Bot** tab, not the Client Secret from **OAuth2**.
 
 ### Disallowed intents (close code 4014): turn on Message Content Intent
 
-The bot asks Discord for message content, and Message Content Intent is off.
+The bot asks Discord for an intent that is off in the Developer Portal: always Message Content Intent, and
+Server Members Intent when the `link` block gives roles.
 
 Fix: Developer Portal → your application → **Bot** → **Privileged Gateway Intents** →
-turn on **Message Content Intent** → **Save Changes**. Then run `mb reload`.
+turn on **Message Content Intent** (and **Server Members Intent** with `link` set) → **Save Changes**.
+Then run `mb reload`.
 
 ### Cannot reach Discord: UnknownHostException, connect timed out
 

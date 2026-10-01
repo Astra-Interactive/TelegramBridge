@@ -25,7 +25,7 @@ What MessageBridge, Telegram and Discord do not allow, and what to do about it.
 
 | Limitation | What to do |
 |------------|------------|
-| Message Content Intent must be on, otherwise Discord refuses the connection (close code 4014) | Turn it on in the Developer Portal → **Bot** |
+| Message Content Intent must be on, and Server Members Intent too when `link` gives roles, otherwise Discord refuses the connection (close code 4014) | Turn them on in the Developer Portal → **Bot** |
 | Only an HTTP proxy works, not SOCKS5 | Use the HTTP port of your proxy client |
 | One normal text channel. Announcement channels, threads, forums and voice channels do not work | — |
 | Messages of bots and webhooks are not relayed | — |

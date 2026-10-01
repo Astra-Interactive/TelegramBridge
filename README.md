@@ -25,7 +25,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 - **Setup from the console or in game** — `/mb` commands set tokens, chats and proxies;
   a one-time bind code captures the chat, topic or channel id; `check` finds what is wrong and links to the docs
 - **Account linking** — `/link` in game → code → `/link <code>` in Telegram or Discord;
-  grants a LuckPerms group and a Discord role
+  grants a LuckPerms group and a Discord role, and takes the group away when the player leaves the Discord server
 - **Online list** — `/vanilla` (Telegram) or `!vanilla` (Discord)
 - **Proxy support** — HTTP with auth for both bots, SOCKS5 for Telegram, own Bot API server for Telegram
 - **Safe reload** — a `config.yml` with an error is not applied, the working settings stay

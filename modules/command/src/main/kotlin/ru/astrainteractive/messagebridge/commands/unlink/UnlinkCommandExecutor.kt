@@ -5,18 +5,15 @@ import ru.astrainteractive.astralibs.server.KAudience
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.link.player.LinkingDao
-import ru.astrainteractive.messagebridge.link.role.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.UnlinkResponse
+import ru.astrainteractive.messagebridge.link.Unlinking
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
-    private val linkingDao: LinkingDao,
-    private val luckPermsRoleController: LuckPermsRoleController,
+    private val unlinking: Unlinking,
     translationKrate: CachedKrate<PluginTranslation>
-) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
+) {
     private val translation by translationKrate
 
     sealed interface Intent {
@@ -27,31 +24,18 @@ internal class UnlinkCommandExecutor(
         ) : Intent
     }
 
-    private fun reportFailure(sender: KAudience, uuid: UUID, failure: Throwable) {
-        error(failure) { "#unlink could not unlink $uuid" }
-        sender.sendMessage(translation.commandError.unknownError)
-    }
-
     private suspend fun unlink(
         uuid: UUID,
         sender: KAudience,
         notLinkedText: LocalizableComponent,
         unlinkedText: LocalizableComponent
     ) {
-        val existing = linkingDao.findByUuid(uuid).getOrElse { failure ->
-            reportFailure(sender, uuid, failure)
-            return
+        val text = when (unlinking.unlink(uuid)) {
+            UnlinkResponse.Unlinked -> unlinkedText
+            UnlinkResponse.NotLinked -> notLinkedText
+            UnlinkResponse.UnknownError -> translation.commandError.unknownError
         }
-        if (existing == null) {
-            sender.sendMessage(notLinkedText)
-            return
-        }
-        linkingDao.deleteByUuid(uuid)
-            .onSuccess { _ ->
-                luckPermsRoleController.removeLinkedRole(uuid)
-                sender.sendMessage(unlinkedText)
-            }
-            .onFailure { failure -> reportFailure(sender, uuid, failure) }
+        sender.sendMessage(text)
     }
 
     suspend fun onIntent(intent: Intent) {
