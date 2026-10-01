@@ -9,6 +9,7 @@
 - **In game:** with `/`, e.g. `/mb telegram check`.
 
 Settings changed with `/mb` are saved into `config.yml` and applied right away.
+The texts of the `/mb` commands are in `translation/onboarding.yml`, the other texts in `translation/main.yml`.
 
 ### `--unsafe`
 
@@ -36,7 +37,7 @@ Without it the command is refused and nothing is saved. The console and RCON do 
 |---------------|---------------------------------------------------------------------------------------------|
 | `/mb`         | Help                                                                                        |
 | `/mb status`  | Status of both bots, the chat and the channel, the proxy, the last error of sending a message |
-| `/mb reload`  | Reloads `config.yml` and `translations.yml`. Tells you if `config.yml` has an error          |
+| `/mb reload`  | Reloads `config.yml` and the `translation` folder. Tells you if `config.yml` has an error    |
 
 ## `/mb telegram`
 

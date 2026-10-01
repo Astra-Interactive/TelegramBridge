@@ -11,7 +11,7 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
 
 /**
  * Texts of the plugin, grouped by the feature that sends them. Every text has a default, so the plugin works
- * without `translations.yml` and a missing key keeps its default.
+ * without `translation/main.yml` and a missing key keeps its default.
  */
 @Serializable
 data class PluginTranslation(
@@ -31,8 +31,6 @@ data class PluginTranslation(
     val link: Link = Link(),
     @SerialName("unlink")
     val unlink: Unlink = Unlink(),
-    @SerialName("setup")
-    val setup: SetupTranslation = SetupTranslation(),
     @SerialName("telegram")
     val telegram: TelegramTranslation = TelegramTranslation(),
     @SerialName("discord")

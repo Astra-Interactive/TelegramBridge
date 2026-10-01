@@ -16,16 +16,16 @@ import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.util.krateOf
-import ru.astrainteractive.klibs.kstorage.api.asStateFlowKrate
 import ru.astrainteractive.klibs.kstorage.api.asStateFlowMutableKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.config.describeConfigError
+import ru.astrainteractive.messagebridge.core.api.config.TranslationFolder
+import ru.astrainteractive.messagebridge.core.api.config.translationKrateOf
+import ru.astrainteractive.messagebridge.core.api.util.describe
 import java.io.File
 
 class CoreModule(
@@ -82,25 +82,13 @@ class CoreModule(
             initialValue = configKrate.cachedValue.getOrElse { _ -> PluginConfiguration() }
         )
 
-    private val translationLogger = JUtiltLogger("MessageBridge-translations")
+    val translationFolder = TranslationFolder(dataFolder).apply { prepare() }
 
-    private val translationFileKrate = yamlStringFormat.krateOf(
-        file = dataFolder.resolve("translations.yml"),
-        factory = ::PluginTranslation
-    )
-
-    val translationKrate = DefaultMutableKrate(
+    val translationKrate = yamlStringFormat.translationKrateOf(
+        file = translationFolder.mainFile,
         factory = ::PluginTranslation,
-        loader = {
-            translationFileKrate.getValue()
-                .onFailure { error ->
-                    translationLogger.error {
-                        "translations.yml has an error, the default texts are used: ${describeConfigError(error)}"
-                    }
-                }
-                .getOrNull()
-        }
-    ).asStateFlowKrate()
+        logger = JUtiltLogger("MessageBridge-translations")
+    )
 
     val commandExceptionHandler = CommandExceptionHandler(
         multiplatformCommand = multiplatformCommand,
@@ -126,7 +114,7 @@ class CoreModule(
         result.onFailure { error ->
             configLogger.error {
                 "config.yml has an error and is not applied, the previous settings are kept: " +
-                    describeConfigError(error)
+                    error.describe()
             }
         }
     }

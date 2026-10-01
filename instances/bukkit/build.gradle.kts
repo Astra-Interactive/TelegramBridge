@@ -38,9 +38,13 @@ dependencies {
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.bukkit)
-    shadow(projects.modules.messenger.discord)
-    shadow(projects.modules.messenger.telegram)
-    shadow(projects.modules.onboarding)
+    shadow(projects.modules.messenger.discord.api)
+    shadow(projects.modules.messenger.discord.impl)
+    shadow(projects.modules.messenger.telegram.api)
+    shadow(projects.modules.messenger.telegram.impl)
+    shadow(projects.modules.onboarding.discord)
+    shadow(projects.modules.onboarding.impl)
+    shadow(projects.modules.onboarding.telegram)
     shadow(projects.modules.onboarding.api)
 }
 

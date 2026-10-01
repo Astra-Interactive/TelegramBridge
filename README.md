@@ -20,7 +20,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 - **Discord webhooks** — messages show the player's name and avatar, not the bot
 - **Telegram topics** — a whole group, one topic of a group with topics, or a reply thread
 - **Replies** — a Telegram or Discord reply reads `[TG] Alex ↪ Steve: …` in game; hover `↪ Steve` to read the
-  replied message. Change the look with `chat.to_minecraft_reply` in `translations.yml`
+  replied message. Change the look with `chat.to_minecraft_reply` in `translation/main.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Setup from the console or in game** — `/mb` commands set tokens, chats and proxies;
   a one-time bind code captures the chat, topic or channel id; `check` finds what is wrong and links to the docs

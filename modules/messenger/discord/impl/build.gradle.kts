@@ -1,0 +1,31 @@
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("ru.astrainteractive.gradleplugin.detekt")
+    id("ru.astrainteractive.gradleplugin.java.version")
+}
+
+dependencies {
+    implementation(libs.discord.webhook)
+    implementation(libs.jda)
+    implementation(libs.klibs.kstorage)
+    implementation(libs.klibs.mikro.core)
+    implementation(libs.kotlin.coroutines.core)
+    implementation(libs.kotlin.datetime)
+    implementation(libs.minecraft.astralibs.core)
+
+    implementation(projects.modules.core.api)
+    implementation(projects.modules.link)
+    implementation(projects.modules.messenger.api)
+    implementation(projects.modules.messenger.discord.api)
+
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.minecraft.kyori.legacy)
+    testImplementation(libs.minecraft.kyori.minimessage)
+    testImplementation(libs.minecraft.kyori.plain)
+    testImplementation(libs.tests.kotlin.test)
+
+    testImplementation(testFixtures(projects.modules.core.api))
+    testImplementation(testFixtures(projects.modules.link))
+    testImplementation(testFixtures(projects.modules.messenger.discord.api))
+}

@@ -23,6 +23,8 @@ dependencies {
     testFixturesImplementation(libs.minecraft.astralibs.core)
     testFixturesImplementation(libs.minecraft.brigadier)
     testFixturesImplementation(libs.minecraft.kyori.api)
+    testFixturesImplementation(libs.klibs.kstorage)
+    testFixturesImplementation(libs.klibs.mikro.core)
 
     testImplementation(libs.minecraft.brigadier)
     testImplementation(libs.minecraft.kyori.legacy)

@@ -19,10 +19,13 @@ import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
+import ru.astrainteractive.messagebridge.messenger.discord.impl.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.neoforge.di.NeoForgeMessengerModule
-import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
-import ru.astrainteractive.messagebridge.onboarding.di.OnboardingModule
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.di.TelegramMessengerModule
+import ru.astrainteractive.messagebridge.onboarding.api.di.OnboardingTranslationModule
+import ru.astrainteractive.messagebridge.onboarding.discord.di.DiscordOnboardingModule
+import ru.astrainteractive.messagebridge.onboarding.impl.di.OnboardingModule
+import ru.astrainteractive.messagebridge.onboarding.telegram.di.TelegramOnboardingModule
 import java.io.File
 
 internal class RootModule(
@@ -58,7 +61,20 @@ internal class RootModule(
         JdaMessengerModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
-            linkModule = linkModule
+            linkModule = linkModule,
+            messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) }
+        )
+    }
+
+    val onboardingTranslationModule by lazy {
+        OnboardingTranslationModule(coreModule = coreModule)
+    }
+
+    val discordOnboardingModule: DiscordOnboardingModule by lazy {
+        DiscordOnboardingModule(
+            coreModule = coreModule,
+            onboardingTranslationModule = onboardingTranslationModule,
+            botModule = jdaEventModule
         )
     }
 
@@ -66,7 +82,16 @@ internal class RootModule(
         TelegramMessengerModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
-            linkModule = linkModule
+            linkModule = linkModule,
+            updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) }
+        )
+    }
+
+    val telegramOnboardingModule: TelegramOnboardingModule by lazy {
+        TelegramOnboardingModule(
+            coreModule = coreModule,
+            onboardingTranslationModule = onboardingTranslationModule,
+            botModule = tgEventModule
         )
     }
 
@@ -82,8 +107,9 @@ internal class RootModule(
         OnboardingModule(
             coreModule = coreModule,
             plugin = forgeLifecycleServer,
-            telegramModule = tgEventModule,
-            discordModule = jdaEventModule
+            onboardingTranslationModule = onboardingTranslationModule,
+            telegramModule = telegramOnboardingModule,
+            discordModule = discordOnboardingModule
         )
     }
 
@@ -92,6 +118,9 @@ internal class RootModule(
             coreModule.lifecycle,
             commandModule.lifecycle,
             onboardingModule.lifecycle,
+            onboardingTranslationModule.lifecycle,
+            telegramOnboardingModule.lifecycle,
+            discordOnboardingModule.lifecycle,
             jdaEventModule.lifecycle,
             tgEventModule.lifecycle,
             neoForgeMessengerModule.lifecycle
