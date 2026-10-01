@@ -6,10 +6,10 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.model.TelegramCommand
 
 internal class TelegramCommandHandler(

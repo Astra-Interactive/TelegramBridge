@@ -10,7 +10,7 @@ class ForgeMessengerModule(
     coreModule: CoreModule,
 ) {
 
-    internal val eventForgeMessengerModule = ForgeEvents(
+    private val eventForgeMessengerModule = ForgeEvents(
         configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers

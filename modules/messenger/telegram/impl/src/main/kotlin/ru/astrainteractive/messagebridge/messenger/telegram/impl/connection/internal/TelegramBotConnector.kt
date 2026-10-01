@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.network.TelegramConnection
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.failure.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
 import kotlin.time.Duration.Companion.milliseconds
 
 internal class TelegramBotConnector(

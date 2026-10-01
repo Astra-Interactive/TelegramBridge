@@ -1,34 +1,16 @@
 package ru.astrainteractive.messagebridge.messenger.api.api
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import ru.astrainteractive.messagebridge.messenger.api.util.withRetry
 
 interface BEventConsumer : Logger {
     suspend fun consume(bEvent: BEvent)
-}
-
-public fun <T> Flow<T>.withRetry(
-    logger: Logger,
-    retries: Long = 5,
-    delay: Duration = 500.milliseconds,
-    shouldRetry: (Throwable) -> Boolean = { true },
-): Flow<T> {
-    return retry(retries = retries) { throwable ->
-        if (!shouldRetry(throwable)) return@retry false
-        logger.warn { "#withRetry attempt failed, retrying in $delay: ${throwable.message}" }
-        delay(delay)
-        true
-    }
 }
 
 suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {

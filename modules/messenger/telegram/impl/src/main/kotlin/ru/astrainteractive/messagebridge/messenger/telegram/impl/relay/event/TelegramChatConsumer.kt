@@ -8,11 +8,11 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramMessageSender
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramUpdateInterceptor
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.internal.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.internal.TelegramCommandParser
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.internal.TelegramMessageRelevanceMapper

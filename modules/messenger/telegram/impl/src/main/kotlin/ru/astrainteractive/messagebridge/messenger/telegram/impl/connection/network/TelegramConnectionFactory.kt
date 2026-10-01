@@ -7,7 +7,7 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.TelegramUrl
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.ProxyType
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.model.TelegramConnectionSettings
 import java.net.InetSocketAddress
 import java.net.Proxy

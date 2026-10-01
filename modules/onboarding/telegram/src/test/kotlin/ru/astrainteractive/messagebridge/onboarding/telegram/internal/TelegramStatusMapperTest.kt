@@ -2,10 +2,10 @@
 
 package ru.astrainteractive.messagebridge.onboarding.telegram.internal
 
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramFailureTextMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
 import ru.astrainteractive.messagebridge.onboarding.api.model.MessengerStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals

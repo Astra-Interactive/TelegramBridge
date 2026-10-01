@@ -8,7 +8,7 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordConnection
 import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordFailure

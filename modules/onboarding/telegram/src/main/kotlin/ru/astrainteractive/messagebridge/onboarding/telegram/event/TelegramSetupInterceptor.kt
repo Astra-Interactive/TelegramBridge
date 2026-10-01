@@ -4,10 +4,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.message.Message
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramUpdateInterceptor
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
+import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramBindHandler
+import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramChatInfoHandler
 import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramSetupCommandParser
-import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramBindHandler
-import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramChatInfoHandler
 import ru.astrainteractive.messagebridge.onboarding.telegram.model.TelegramSetupCommand
 
 internal class TelegramSetupInterceptor(

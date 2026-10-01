@@ -1,6 +1,6 @@
 package ru.astrainteractive.messagebridge.onboarding.telegram.command
 
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramBotCommand
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramBotCommand
 import ru.astrainteractive.messagebridge.onboarding.telegram.model.TelegramSetupCommand
 
 internal class TelegramSetupCommandParser(

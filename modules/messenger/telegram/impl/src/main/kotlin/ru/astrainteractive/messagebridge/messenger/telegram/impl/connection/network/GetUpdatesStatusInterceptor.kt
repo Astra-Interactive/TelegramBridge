@@ -3,9 +3,9 @@ package ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.net
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.telegram.telegrambots.meta.api.methods.updates.GetUpdates
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.failure.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
 import java.io.IOException
 import java.net.HttpURLConnection
 import kotlin.time.Duration.Companion.minutes

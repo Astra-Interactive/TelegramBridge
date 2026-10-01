@@ -13,6 +13,7 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.mapping.TelegramAuthorMapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

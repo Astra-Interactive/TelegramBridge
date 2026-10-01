@@ -16,13 +16,13 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import ru.astrainteractive.messagebridge.core.api.fake.FakeConfigKrate
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.RecordingDiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindCommandParser
-import ru.astrainteractive.messagebridge.onboarding.discord.internal.DiscordBindHandler
+import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindHandler
 import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals

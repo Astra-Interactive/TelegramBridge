@@ -31,9 +31,9 @@ internal class RootModule(
     plugin: MessageBridge
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
 
-    val bukkitCoreModule = BukkitCoreModule(plugin)
+    private val bukkitCoreModule = BukkitCoreModule(plugin)
 
-    val coreModule = CoreModule(
+    private val coreModule = CoreModule(
         dataFolder = bukkitCoreModule.plugin.dataFolder,
         dispatchers = DefaultBukkitDispatchers(bukkitCoreModule.plugin),
         platformServer = BukkitPlatformServer(),
@@ -46,26 +46,26 @@ internal class RootModule(
         }
     )
 
-    val linkModule = LinkModule(coreModule, BukkitLuckPermsProvider)
+    private val linkModule = LinkModule(coreModule, BukkitLuckPermsProvider)
 
-    val bukkitMessengerModule = BukkitMessengerModule(
+    private val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        linkingDao = linkModule.linkingDao
+        linkModule = linkModule
     )
 
-    val jdaMessengerModule = JdaMessengerModule(
+    private val jdaMessengerModule = JdaMessengerModule(
         coreModule = coreModule,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule,
         messageInterceptors = { listOf(discordOnboardingModule.messageInterceptor) }
     )
 
-    val onboardingTranslationModule by lazy {
+    private val onboardingTranslationModule by lazy {
         OnboardingTranslationModule(coreModule = coreModule)
     }
 
-    val discordOnboardingModule: DiscordOnboardingModule by lazy {
+    private val discordOnboardingModule: DiscordOnboardingModule by lazy {
         DiscordOnboardingModule(
             coreModule = coreModule,
             onboardingTranslationModule = onboardingTranslationModule,
@@ -73,14 +73,14 @@ internal class RootModule(
         )
     }
 
-    val telegramMessengerModule = TelegramMessengerModule(
+    private val telegramMessengerModule = TelegramMessengerModule(
         coreModule = coreModule,
         onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule,
         updateInterceptors = { listOf(telegramOnboardingModule.updateInterceptor) }
     )
 
-    val telegramOnboardingModule: TelegramOnboardingModule by lazy {
+    private val telegramOnboardingModule: TelegramOnboardingModule by lazy {
         TelegramOnboardingModule(
             coreModule = coreModule,
             onboardingTranslationModule = onboardingTranslationModule,
@@ -88,15 +88,14 @@ internal class RootModule(
         )
     }
 
-    val commandModule by lazy {
+    private val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
-            linkModule = linkModule,
-            commandRegistrarContext = coreModule.commandRegistrarContext
+            linkModule = linkModule
         )
     }
 
-    val onboardingModule by lazy {
+    private val onboardingModule by lazy {
         OnboardingModule(
             coreModule = coreModule,
             plugin = plugin,

@@ -30,7 +30,7 @@ internal class TelegramStatusReport(
     private fun apiUrlOf(tgConfig: PluginConfiguration.TelegramConfig): LocalizableComponent? {
         return tgConfig.apiUrl
             .takeIf(String::isNotBlank)
-            ?.let { url -> translation.setup.status.apiUrl(withoutCredentials(url)) }
+            ?.let { url -> translation.setup.status.apiUrl(url.withoutCredentials()) }
     }
 
     override fun lines(): List<LocalizableComponent> {

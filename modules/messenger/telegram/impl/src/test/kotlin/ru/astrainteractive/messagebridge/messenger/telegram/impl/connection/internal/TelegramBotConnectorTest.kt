@@ -14,14 +14,14 @@ import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponse
 import org.telegram.telegrambots.meta.TelegramUrl
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.fake.FakeBackOff
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.fake.FakeTelegramBotSession
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.network.TelegramConnection
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.failure.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
 import java.io.IOException
 import java.net.ConnectException
 import kotlin.test.AfterTest

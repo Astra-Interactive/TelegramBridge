@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.mapping.TelegramAuthorMapper
 
 internal class TelegramReplyMapper(
     private val configFlow: StateFlow<PluginConfiguration>,

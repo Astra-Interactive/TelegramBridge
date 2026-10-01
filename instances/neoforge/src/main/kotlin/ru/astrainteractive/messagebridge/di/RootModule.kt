@@ -31,7 +31,7 @@ import java.io.File
 internal class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
-    val coreModule = CoreModule(
+    private val coreModule = CoreModule(
         dataFolder = FMLPaths.CONFIGDIR.get()
             .resolve("MessageBridge")
             .toAbsolutePath()
@@ -43,21 +43,21 @@ internal class RootModule(
         commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
     )
 
-    val onlinePlayersProvider by lazy {
+    private val onlinePlayersProvider by lazy {
         NeoForgeOnlinePlayersProvider()
     }
 
-    val linkModule by lazy {
+    private val linkModule by lazy {
         LinkModule(coreModule, NeoForgeLuckPermsProvider)
     }
 
-    val neoForgeMessengerModule by lazy {
+    private val neoForgeMessengerModule by lazy {
         NeoForgeMessengerModule(
             coreModule = coreModule,
         )
     }
 
-    val jdaEventModule by lazy {
+    private val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
@@ -66,11 +66,11 @@ internal class RootModule(
         )
     }
 
-    val onboardingTranslationModule by lazy {
+    private val onboardingTranslationModule by lazy {
         OnboardingTranslationModule(coreModule = coreModule)
     }
 
-    val discordOnboardingModule: DiscordOnboardingModule by lazy {
+    private val discordOnboardingModule: DiscordOnboardingModule by lazy {
         DiscordOnboardingModule(
             coreModule = coreModule,
             onboardingTranslationModule = onboardingTranslationModule,
@@ -78,7 +78,7 @@ internal class RootModule(
         )
     }
 
-    val tgEventModule by lazy {
+    private val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
             onlinePlayersProvider = onlinePlayersProvider,
@@ -87,7 +87,7 @@ internal class RootModule(
         )
     }
 
-    val telegramOnboardingModule: TelegramOnboardingModule by lazy {
+    private val telegramOnboardingModule: TelegramOnboardingModule by lazy {
         TelegramOnboardingModule(
             coreModule = coreModule,
             onboardingTranslationModule = onboardingTranslationModule,
@@ -95,15 +95,14 @@ internal class RootModule(
         )
     }
 
-    val commandModule by lazy {
+    private val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
-            linkModule = linkModule,
-            commandRegistrarContext = coreModule.commandRegistrarContext
+            linkModule = linkModule
         )
     }
 
-    val onboardingModule by lazy {
+    private val onboardingModule by lazy {
         OnboardingModule(
             coreModule = coreModule,
             plugin = forgeLifecycleServer,

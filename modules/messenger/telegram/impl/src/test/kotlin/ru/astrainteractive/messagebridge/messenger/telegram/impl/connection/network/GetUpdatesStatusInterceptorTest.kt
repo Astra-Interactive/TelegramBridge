@@ -11,9 +11,9 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.failure.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
 import java.io.IOException
 import java.net.ConnectException
 import java.util.concurrent.CopyOnWriteArrayList

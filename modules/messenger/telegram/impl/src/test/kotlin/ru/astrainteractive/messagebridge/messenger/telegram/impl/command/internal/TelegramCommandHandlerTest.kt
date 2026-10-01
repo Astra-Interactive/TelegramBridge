@@ -8,7 +8,7 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.fake.FakeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
@@ -18,7 +18,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.messageOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.updateOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.userOf
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.model.TelegramCommand
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.request.internal.TelegramMessageSenderImpl
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.internal.TelegramMessageSenderImpl
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

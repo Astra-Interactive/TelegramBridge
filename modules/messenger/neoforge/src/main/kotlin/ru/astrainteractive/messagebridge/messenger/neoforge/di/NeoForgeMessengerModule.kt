@@ -10,7 +10,7 @@ class NeoForgeMessengerModule(
     coreModule: CoreModule,
 ) {
 
-    internal val eventBukkitMessengerModule = NeoForgeEvents(
+    private val eventBukkitMessengerModule = NeoForgeEvents(
         configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers

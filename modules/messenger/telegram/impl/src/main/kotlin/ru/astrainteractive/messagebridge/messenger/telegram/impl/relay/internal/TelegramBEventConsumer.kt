@@ -12,7 +12,7 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
@@ -22,10 +22,10 @@ import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramBotApi
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailureTextMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramRequestResult
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramBotApi
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramFailureTextMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramRequestResult
 
 internal class TelegramBEventConsumer(
     private val configFlow: StateFlow<PluginConfiguration>,

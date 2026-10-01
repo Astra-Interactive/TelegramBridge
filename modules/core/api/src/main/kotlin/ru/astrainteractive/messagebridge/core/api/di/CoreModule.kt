@@ -16,15 +16,16 @@ import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.util.krateOf
+import ru.astrainteractive.astralibs.util.parseOrWriteIntoDefault
+import ru.astrainteractive.klibs.kstorage.api.asStateFlowKrate
 import ru.astrainteractive.klibs.kstorage.api.asStateFlowMutableKrate
+import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.config.TranslationFolder
-import ru.astrainteractive.messagebridge.core.api.config.translationKrateOf
 import ru.astrainteractive.messagebridge.core.api.util.describe
 import java.io.File
 
@@ -44,7 +45,7 @@ class CoreModule(
         .Default(dispatchers.IO + SupervisorJob() + createCoroutineExceptionHandler())
         .withTimings()
 
-    val mainScope: CoroutineScope by lazy {
+    private val mainScope: CoroutineScope by lazy {
         CoroutineFeature
             .Default(dispatchers.Main + SupervisorJob() + createCoroutineExceptionHandler())
             .withTimings()
@@ -55,7 +56,7 @@ class CoreModule(
         .withTimings()
     val commandRegistrarContext = commandRegistrarContextFactory.invoke(unconfinedScope)
 
-    val configuration: YamlConfiguration = Yaml.default.configuration.copy(
+    private val configuration: YamlConfiguration = Yaml.default.configuration.copy(
         encodeDefaults = true,
         strictMode = false
     )
@@ -82,13 +83,18 @@ class CoreModule(
             initialValue = configKrate.cachedValue.getOrElse { _ -> PluginConfiguration() }
         )
 
-    val translationFolder = TranslationFolder(dataFolder).apply { prepare() }
+    val translationFolder: File = dataFolder.resolve("translation")
 
-    val translationKrate = yamlStringFormat.translationKrateOf(
-        file = translationFolder.mainFile,
+    val translationKrate = DefaultMutableKrate(
         factory = ::PluginTranslation,
-        logger = JUtiltLogger("MessageBridge-translations")
-    )
+        loader = {
+            yamlStringFormat.parseOrWriteIntoDefault(
+                file = translationFolder.resolve("main.yml"),
+                logger = JUtiltLogger("MessageBridge-translations"),
+                default = ::PluginTranslation
+            )
+        }
+    ).asStateFlowKrate()
 
     val commandExceptionHandler = CommandExceptionHandler(
         multiplatformCommand = multiplatformCommand,

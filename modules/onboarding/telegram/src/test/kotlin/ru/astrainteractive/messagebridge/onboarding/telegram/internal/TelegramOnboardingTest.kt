@@ -7,12 +7,12 @@ import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.NOW
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.configurationOf
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 import ru.astrainteractive.messagebridge.onboarding.api.model.CheckLevel

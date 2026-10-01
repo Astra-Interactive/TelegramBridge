@@ -10,6 +10,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.configurati
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.messageOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.updateOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.userOf
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.model.TelegramMessageValidation
 import kotlin.test.Test
 import kotlin.test.assertEquals

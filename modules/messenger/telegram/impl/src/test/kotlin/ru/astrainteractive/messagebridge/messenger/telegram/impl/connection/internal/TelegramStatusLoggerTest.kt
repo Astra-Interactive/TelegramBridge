@@ -6,10 +6,10 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.LogLine
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramFailure
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.failure.mapping.TelegramFailureTextMapperImpl
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureTextMapperImpl
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

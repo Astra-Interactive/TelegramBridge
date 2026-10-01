@@ -3,6 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.internal
 import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.model.TelegramAuthor
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.model.TelegramMessageValidation
 

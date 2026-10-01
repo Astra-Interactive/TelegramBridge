@@ -2,8 +2,8 @@ package ru.astrainteractive.messagebridge.messenger.telegram.api.fake
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramBotApi
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramBotApi
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMessageSender
 
 class FakeTelegramMessageSender(
     private val botApi: TelegramBotApi

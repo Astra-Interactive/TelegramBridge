@@ -7,7 +7,7 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration.Tel
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.impl.model.refuse
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.SecretGuard
-import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.maskToken
+import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.masked
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.withoutCredentials
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.model.SecretInput
 import ru.astrainteractive.messagebridge.onboarding.impl.setting.model.Setting
@@ -21,8 +21,8 @@ private fun URI.isServerAddress(): Boolean {
     return hasHttpScheme && !host.isNullOrBlank() && hasNoPath && rawQuery == null && rawFragment == null
 }
 
-private fun isServerAddress(url: String): Boolean {
-    return runCatching { URI(url) }.fold(
+private fun String.isServerAddress(): Boolean {
+    return runCatching { URI(this) }.fold(
         onSuccess = { uri -> uri.isServerAddress() },
         onFailure = { _ -> false }
     )
@@ -39,7 +39,7 @@ internal class TelegramSettings(
             .getOrElse { error -> return Result.failure(error) }
         val token = input.words.singleOrNull()?.takeIf(TOKEN::matches)
             ?: return refuse(translation.setup.invalidTelegramToken)
-        val setting = Setting<TelegramConfig>(saved = translation.setup.saved.token(maskToken(token))) { tgConfig ->
+        val setting = Setting<TelegramConfig>(saved = translation.setup.saved.token(token.masked())) { tgConfig ->
             tgConfig.copy(token = token)
         }
         return Result.success(setting)
@@ -79,12 +79,12 @@ internal class TelegramSettings(
             "://" in typed -> typed
             else -> "$DEFAULT_SCHEME$typed"
         }
-        if (url.isNotEmpty() && !isServerAddress(url)) return refuse(translation.setup.invalidUrl)
+        if (url.isNotEmpty() && !url.isServerAddress()) return refuse(translation.setup.invalidUrl)
         val address = url.trimEnd('/')
         val saved = if (address.isEmpty()) {
             translation.setup.saved.apiUrlRemoved
         } else {
-            translation.setup.saved.apiUrl(withoutCredentials(address))
+            translation.setup.saved.apiUrl(address.withoutCredentials())
         }
         return Result.success(Setting<TelegramConfig>(saved = saved) { tgConfig -> tgConfig.copy(apiUrl = address) })
     }

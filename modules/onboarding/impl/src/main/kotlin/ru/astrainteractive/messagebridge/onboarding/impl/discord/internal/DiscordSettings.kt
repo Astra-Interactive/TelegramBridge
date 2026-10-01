@@ -7,7 +7,7 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration.Jda
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.impl.model.refuse
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.SecretGuard
-import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.maskToken
+import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.masked
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.model.SecretInput
 import ru.astrainteractive.messagebridge.onboarding.impl.setting.model.Setting
 
@@ -22,7 +22,7 @@ internal class DiscordSettings(
             .getOrElse { error -> return Result.failure(error) }
         val token = input.words.singleOrNull()?.takeIf(TOKEN::matches)
             ?: return refuse(translation.setup.invalidDiscordToken)
-        val setting = Setting<JdaConfig>(saved = translation.setup.saved.token(maskToken(token))) { jdaConfig ->
+        val setting = Setting<JdaConfig>(saved = translation.setup.saved.token(token.masked())) { jdaConfig ->
             jdaConfig.copy(token = token)
         }
         return Result.success(setting)

@@ -9,9 +9,9 @@ import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer
 import org.telegram.telegrambots.meta.api.methods.GetMe
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
-import ru.astrainteractive.messagebridge.messenger.telegram.impl.failure.mapping.TelegramFailureMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
 import java.util.concurrent.Executors
 import java.util.function.Supplier
 import kotlin.coroutines.cancellation.CancellationException

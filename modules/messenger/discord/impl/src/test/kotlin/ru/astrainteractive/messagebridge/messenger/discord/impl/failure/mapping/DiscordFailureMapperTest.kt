@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.requests.Response
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.messagebridge.core.api.config.DiscordTranslation
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordFailure
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.model.DiscordFailureError
 import java.net.ConnectException

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.flow
 import net.dv8tion.jda.api.entities.Message
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messenger.api.api.withRetry
+import ru.astrainteractive.messagebridge.messenger.api.util.withRetry
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.api.util.await
 

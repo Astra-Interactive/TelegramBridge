@@ -12,7 +12,6 @@ import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import ru.astrainteractive.messagebridge.core.api.fake.FakeConfigKrate
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramRequestResult
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.CHAT_ID
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
@@ -21,11 +20,12 @@ import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.NOW
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.configurationOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.messageOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.updateOf
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramRequestResult
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
+import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramBindHandler
+import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramChatInfoHandler
 import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramSetupCommandParser
-import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramBindHandler
-import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramChatInfoHandler
 import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals

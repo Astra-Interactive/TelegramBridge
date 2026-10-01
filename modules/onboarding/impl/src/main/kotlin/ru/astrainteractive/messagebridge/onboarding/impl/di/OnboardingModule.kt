@@ -4,7 +4,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.onboarding.api.api.DiscordOnboarding
 import ru.astrainteractive.messagebridge.onboarding.api.api.MessengerOnboarding
-import ru.astrainteractive.messagebridge.onboarding.api.api.MessengerOnboardingModule
+import ru.astrainteractive.messagebridge.onboarding.api.di.MessengerOnboardingModule
 import ru.astrainteractive.messagebridge.onboarding.api.di.OnboardingTranslationModule
 import ru.astrainteractive.messagebridge.onboarding.impl.command.BindLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.command.CheckLiteralArgumentBuilder

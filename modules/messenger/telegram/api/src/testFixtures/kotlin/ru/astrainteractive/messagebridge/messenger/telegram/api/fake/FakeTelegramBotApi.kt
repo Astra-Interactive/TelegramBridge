@@ -5,8 +5,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.chat.Chat
 import org.telegram.telegrambots.meta.api.objects.message.Message
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramBotApi
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramRequestResult
+import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramBotApi
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramRequestResult
 import java.io.Serializable
 import java.util.concurrent.CopyOnWriteArrayList
 

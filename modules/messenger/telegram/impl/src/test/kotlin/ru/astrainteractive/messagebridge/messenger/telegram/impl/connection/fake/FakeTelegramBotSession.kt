@@ -1,6 +1,6 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.fake
 
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList

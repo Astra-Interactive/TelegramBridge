@@ -3,8 +3,8 @@ package ru.astrainteractive.messagebridge.onboarding.telegram.internal
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.telegram.api.TelegramConnectionState
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 
 internal class TelegramGuideLogger(
