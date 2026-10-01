@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("ru.astrainteractive.gradleplugin.detekt")
     id("ru.astrainteractive.gradleplugin.java.version")
+    `java-test-fixtures`
 }
 
 dependencies {
@@ -17,6 +18,11 @@ dependencies {
     implementation(libs.kotlin.serialization.kaml)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.command)
+
+    testFixturesImplementation(libs.minecraft.astralibs.command)
+    testFixturesImplementation(libs.minecraft.astralibs.core)
+    testFixturesImplementation(libs.minecraft.brigadier)
+    testFixturesImplementation(libs.minecraft.kyori.api)
 
     testImplementation(libs.minecraft.brigadier)
     testImplementation(libs.minecraft.kyori.legacy)

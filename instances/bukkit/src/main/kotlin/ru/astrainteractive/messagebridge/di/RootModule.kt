@@ -10,21 +10,21 @@ import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
-import ru.astrainteractive.messagebridge.commands.di.CommandModule
-import ru.astrainteractive.messagebridge.core.api.BukkitLuckPermsProvider
-import ru.astrainteractive.messagebridge.core.api.BukkitOnlinePlayersProvider
-import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
-import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.LinkModule
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.command.di.CommandModule
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
+import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
+import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitLuckPermsProvider
+import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitOnlinePlayersProvider
+import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.BukkitMessengerModule
-import ru.astrainteractive.messagebridge.messenger.discord.JdaMessengerModule
-import ru.astrainteractive.messagebridge.messenger.telegram.TelegramMessengerModule
-import ru.astrainteractive.messagebridge.onboarding.OnboardingModule
+import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
+import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
+import ru.astrainteractive.messagebridge.onboarding.di.OnboardingModule
 
-class RootModule(
+internal class RootModule(
     plugin: MessageBridge
 ) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
 

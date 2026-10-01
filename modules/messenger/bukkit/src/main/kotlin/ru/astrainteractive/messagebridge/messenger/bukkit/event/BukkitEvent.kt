@@ -1,0 +1,91 @@
+package ru.astrainteractive.messagebridge.messenger.bukkit.event
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import net.kyori.adventure.text.TextComponent
+import org.bukkit.event.EventHandler
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import ru.astrainteractive.astralibs.event.EventListener
+import ru.astrainteractive.astralibs.localization.markup.KyoriComponentSerializer
+import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
+
+/**
+ * This is a most convenient way to use bukkit events in kotlin
+ */
+internal class BukkitEvent(
+    private val configFlow: StateFlow<PluginConfiguration>,
+    private val ioScope: CoroutineScope,
+    private val dispatchers: KotlinDispatchers
+) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent") {
+    private val config: PluginConfiguration
+        get() = configFlow.value
+
+    @EventHandler(ignoreCancelled = true)
+    fun playerJoin(it: PlayerJoinEvent) {
+        if (!config.displayJoinMessage) return
+
+        ioScope.launch(dispatchers.IO) {
+            val bEvent = PlayerJoinedBEvent(
+                name = it.player.name,
+                uuid = it.player.uniqueId.toString(),
+                hasPlayedBefore = it.player.hasPlayedBefore()
+            )
+            BEventChannel.consume(bEvent)
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun playerLeaveEvent(it: PlayerQuitEvent) {
+        if (!config.displayLeaveMessage) return
+        ioScope.launch(dispatchers.IO) {
+            val bEvent = PlayerLeaveBEvent(
+                name = it.player.name,
+                uuid = it.player.uniqueId.toString()
+            )
+            BEventChannel.consume(bEvent)
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun asyncMessageEvent(it: AsyncPlayerChatEvent) {
+        val message = KyoriComponentSerializer.Plain.toComponent(it.message)
+        val player = it.player
+
+        ioScope.launch(dispatchers.IO) {
+            val textComponent = message as TextComponent
+            val bEvent = Text.Minecraft(
+                author = player.name,
+                text = textComponent.content(),
+                uuid = player.uniqueId.toString()
+            )
+            BEventChannel.consume(bEvent)
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun deathEvent(it: PlayerDeathEvent) {
+        if (!config.displayDeathMessage) return
+        ioScope.launch(dispatchers.IO) {
+            val deathCause = it.deathMessage
+            val bEvent = PlayerDeathBEvent(
+                name = it.entity.name,
+                cause = deathCause,
+                uuid = it.entity.uniqueId.toString()
+            )
+            BEventChannel.consume(bEvent)
+        }
+    }
+}

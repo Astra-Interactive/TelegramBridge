@@ -1,0 +1,27 @@
+package ru.astrainteractive.messagebridge.messenger.neoforge.di
+
+import kotlinx.coroutines.cancel
+import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
+import ru.astrainteractive.messagebridge.messenger.neoforge.event.NeoForgeEvents
+import ru.astrainteractive.messagebridge.messenger.neoforge.internal.NeoForgeBEventConsumer
+
+class NeoForgeMessengerModule(
+    coreModule: CoreModule,
+) {
+
+    internal val eventBukkitMessengerModule = NeoForgeEvents(
+        configFlow = coreModule.config,
+        ioScope = coreModule.ioScope,
+        dispatchers = coreModule.dispatchers
+    )
+    private val minecraftMessageController = NeoForgeBEventConsumer(
+        translationKrate = coreModule.translationKrate,
+    )
+
+    val lifecycle = Lifecycle.Lambda(
+        onDisable = {
+            minecraftMessageController.cancel()
+        }
+    )
+}

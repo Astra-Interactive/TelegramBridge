@@ -19,16 +19,16 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
-class ForgeEvents(
+internal class ForgeEvents(
     private val configFlow: StateFlow<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers

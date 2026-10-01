@@ -29,4 +29,8 @@ dependencies {
     testImplementation(libs.minecraft.kyori.minimessage)
     testImplementation(libs.minecraft.kyori.plain)
     testImplementation(libs.tests.kotlin.test)
+
+    testImplementation(testFixtures(projects.modules.core.api))
+    testImplementation(testFixtures(projects.modules.link))
+    testImplementation(testFixtures(projects.modules.messenger.api))
 }

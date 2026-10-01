@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("ru.astrainteractive.gradleplugin.detekt")
     id("ru.astrainteractive.gradleplugin.java.version")
+    `java-test-fixtures`
 }
 
 dependencies {
@@ -21,6 +22,10 @@ dependencies {
     implementation(libs.telegrambots.client)
 
     implementation(projects.modules.core.api)
+
+    testFixturesImplementation(libs.jda)
+    testFixturesImplementation(libs.kotlin.coroutines.core)
+    testFixturesImplementation(libs.telegrambots.client)
 
     testImplementation(libs.driver.h2)
     testImplementation(libs.kotlin.coroutines.test)
