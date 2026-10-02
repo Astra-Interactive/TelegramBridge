@@ -1,5 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.discord.impl.relay.internal
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
@@ -8,7 +10,6 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -19,7 +20,8 @@ internal class DiscordTopicUpdater(
     translationKrate: CachedKrate<PluginTranslation>,
 ) {
     private val translation by translationKrate
-    private val lastOnlineChange = AtomicReference(clock.now())
+    private val lastOnlineChangeMutex = Mutex()
+    private var lastOnlineChange = clock.now()
 
     private suspend fun setTopic(channel: TextChannel, topic: String): Result<Unit> {
         val result = withTimeoutOrNull(TOPIC_TIMEOUT) { awaitRequest { channel.manager.setTopic(topic) } }
@@ -27,9 +29,13 @@ internal class DiscordTopicUpdater(
     }
 
     suspend fun updateOnlineCount(channel: TextChannel): Result<Unit> {
-        val now = clock.now()
-        val lastChange = lastOnlineChange.get()
-        if (now - lastChange < THROTTLE || !lastOnlineChange.compareAndSet(lastChange, now)) return Result.success(Unit)
+        val isThrottled = lastOnlineChangeMutex.withLock {
+            val now = clock.now()
+            val isThrottled = now - lastOnlineChange < THROTTLE
+            if (!isThrottled) lastOnlineChange = now
+            isThrottled
+        }
+        if (isThrottled) return Result.success(Unit)
         val topic = translation.discord.chat.topicOnline(platformServer.getOnlinePlayers().size)
         return setTopic(channel, topic.toMessengerText())
     }

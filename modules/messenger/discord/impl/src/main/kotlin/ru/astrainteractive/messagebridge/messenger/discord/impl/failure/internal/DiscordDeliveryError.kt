@@ -3,6 +3,8 @@ package ru.astrainteractive.messagebridge.messenger.discord.impl.failure.interna
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -13,7 +15,6 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordFailure
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.mapping.DiscordFailureMapper
-import java.util.concurrent.atomic.AtomicReference
 
 internal class DiscordDeliveryError(
     private val failureMapper: DiscordFailureMapper,
@@ -24,24 +25,30 @@ internal class DiscordDeliveryError(
         get() = configFlow.value
     private val translation by translationKrate
 
-    private val lastFailure = AtomicReference<DiscordFailure?>(null)
+    private val lastFailureMutex = Mutex()
+    private var lastFailure: DiscordFailure? = null
     private val mutableText = MutableStateFlow<LocalizableComponent?>(null)
     val text: StateFlow<LocalizableComponent?> = mutableText.asStateFlow()
 
-    fun report(t: Throwable) {
+    suspend fun report(t: Throwable) {
         val failure = failureMapper.map(t, config.jdaConfig)
         val text = failureMapper.toText(failure, translation.discord)
-        mutableText.value = text
-        if (lastFailure.getAndSet(failure) == failure) {
-            verbose { "#report ${text.toMessengerText()}" }
-        } else {
-            error { translation.discord.console.deliveryFailed(text).toMessengerText() }
-            verbose { "#report ${t.stackTraceToString()}" }
+        lastFailureMutex.withLock {
+            mutableText.value = text
+            if (lastFailure == failure) {
+                verbose { "#report ${text.toMessengerText()}" }
+                return
+            }
+            lastFailure = failure
         }
+        error { translation.discord.console.deliveryFailed(text).toMessengerText() }
+        verbose { "#report ${t.stackTraceToString()}" }
     }
 
-    fun clear() {
-        lastFailure.set(null)
-        mutableText.value = null
+    suspend fun clear() {
+        lastFailureMutex.withLock {
+            lastFailure = null
+            mutableText.value = null
+        }
     }
 }

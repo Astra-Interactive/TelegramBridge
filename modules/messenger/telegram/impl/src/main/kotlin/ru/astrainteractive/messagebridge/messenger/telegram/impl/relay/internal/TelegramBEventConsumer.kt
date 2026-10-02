@@ -76,8 +76,8 @@ internal class TelegramBEventConsumer(
         lastFailureMutex.withLock {
             if (lastFailure == null) return
             lastFailure = null
+            mutableDeliveryError.value = null
         }
-        mutableDeliveryError.value = null
         info { translation.telegram.status.deliveryRestored.toMessengerText() }
     }
 
@@ -89,8 +89,8 @@ internal class TelegramBEventConsumer(
                 return
             }
             lastFailure = failure
+            mutableDeliveryError.value = reason
         }
-        mutableDeliveryError.value = reason
         error { translation.telegram.status.deliveryFailed(reason).toMessengerText() }
     }
 

@@ -1,7 +1,8 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.internal
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -23,7 +24,7 @@ internal class CappedBackOff(
     private val randomizationFactor: Double,
     private val random: Random,
 ) : BackOff {
-    private val currentInterval = AtomicReference(initialInterval)
+    private val currentInterval = MutableStateFlow(initialInterval)
 
     private fun Duration.randomized(): Duration {
         val delta = this * randomizationFactor
@@ -34,7 +35,7 @@ internal class CappedBackOff(
     }
 
     override fun reset() {
-        currentInterval.set(initialInterval)
+        currentInterval.value = initialInterval
     }
 
     /**

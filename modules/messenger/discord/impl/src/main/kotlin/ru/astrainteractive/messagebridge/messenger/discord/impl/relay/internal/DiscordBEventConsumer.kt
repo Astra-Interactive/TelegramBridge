@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
@@ -32,7 +34,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
 import ru.astrainteractive.messagebridge.messenger.discord.impl.channel.internal.DiscordChannelProvider
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.internal.DiscordDeliveryError
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.mapping.DiscordFailureMapper
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordBEventConsumer(
@@ -51,11 +52,17 @@ internal class DiscordBEventConsumer(
     private val config: PluginConfiguration
         get() = configFlow.value
     private val translation by translationKrate
-    private val lastTopicFailure = AtomicReference<DiscordFailure?>(null)
+    private val lastTopicFailureMutex = Mutex()
+    private var lastTopicFailure: DiscordFailure? = null
 
-    private fun reportTopic(result: Result<Unit>) {
+    private suspend fun reportTopic(result: Result<Unit>) {
         val failure = result.exceptionOrNull()?.let { t -> failureMapper.map(t, config.jdaConfig) }
-        if (lastTopicFailure.getAndSet(failure) != failure && failure != null) {
+        val isNewFailure = lastTopicFailureMutex.withLock {
+            val isNewFailure = lastTopicFailure != failure
+            lastTopicFailure = failure
+            isNewFailure
+        }
+        if (isNewFailure && failure != null) {
             warn { "#reportTopic could not change the topic of the channel: $failure" }
         }
     }
