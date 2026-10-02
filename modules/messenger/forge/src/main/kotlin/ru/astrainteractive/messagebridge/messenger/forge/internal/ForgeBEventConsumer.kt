@@ -1,14 +1,13 @@
 package ru.astrainteractive.messagebridge.messenger.forge.internal
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.server.sendMessage
 import ru.astrainteractive.astralibs.server.util.MinecraftUtil
 import ru.astrainteractive.astralibs.server.util.asKAudience
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
@@ -26,8 +25,8 @@ import ru.astrainteractive.messagebridge.messenger.api.model.Text
 internal class ForgeBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val bEventChannel: BEventChannel,
+    private val scope: CoroutineScope,
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer") {
     private val translation by translationKrate
 
@@ -65,10 +64,10 @@ internal class ForgeBEventConsumer(
             .sendMessage(text)
     }
 
-    init {
+    fun start() {
         bEventChannel
-            .bEvents(this)
+            .bEvents(scope)
             .onEach { bEvent -> consume(bEvent) }
-            .launchIn(this)
+            .launchIn(scope)
     }
 }

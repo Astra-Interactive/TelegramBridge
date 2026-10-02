@@ -1,14 +1,13 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.internal
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
-import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.server.util.asKAudience
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
@@ -31,9 +30,9 @@ internal class MinecraftBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val linkingDao: LinkingDao,
     private val dispatchers: KotlinDispatchers,
-    private val bEventChannel: BEventChannel
+    private val bEventChannel: BEventChannel,
+    private val scope: CoroutineScope,
 ) : BEventConsumer,
-    CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val translation by translationKrate
 
@@ -96,10 +95,10 @@ internal class MinecraftBEventConsumer(
         }
     }
 
-    init {
+    fun start() {
         bEventChannel
-            .bEvents(this)
+            .bEvents(scope)
             .onEach { bEvent -> tryConsume(bEvent) }
-            .launchIn(this)
+            .launchIn(scope)
     }
 }

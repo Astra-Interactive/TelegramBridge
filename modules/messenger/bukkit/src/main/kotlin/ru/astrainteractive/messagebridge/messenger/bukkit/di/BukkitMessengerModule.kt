@@ -1,6 +1,9 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.di
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.job
 import org.bukkit.event.HandlerList
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
@@ -16,11 +19,17 @@ class BukkitMessengerModule(
     linkModule: LinkModule,
     bEventChannel: BEventChannel
 ) {
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
+
     private val minecraftBEventConsumer = MinecraftBEventConsumer(
         translationKrate = coreModule.translationKrate,
         linkingDao = linkModule.linkingDao,
         dispatchers = coreModule.dispatchers,
-        bEventChannel = bEventChannel
+        bEventChannel = bEventChannel,
+        scope = moduleIoScope,
     )
 
     private val bukkitEvent = BukkitEvent(
@@ -32,12 +41,13 @@ class BukkitMessengerModule(
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
+            minecraftBEventConsumer.start()
             bukkitEvent.onEnable(bukkitCoreModule.plugin)
         },
         onDisable = {
             HandlerList.unregisterAll(bukkitCoreModule.plugin)
             bukkitEvent.onDisable()
-            minecraftBEventConsumer.cancel()
+            moduleIoScope.cancel()
         }
     )
 }
