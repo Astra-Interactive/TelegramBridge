@@ -47,7 +47,7 @@ class TelegramChatConsumerTest {
     private val configFlow = MutableStateFlow(configuration)
     private val clock = FakeClock(now = NOW)
     private val botApi = FakeTelegramBotApi()
-    private val eventChannel = RecordingEventChannel(logger = RecordingLogger())
+    private val eventChannel = RecordingEventChannel()
     private val messageSender = TelegramMessageSenderImpl(
         botApi = botApi,
         maxRetries = 0,
@@ -93,8 +93,7 @@ class TelegramChatConsumerTest {
             commandHandler = commandHandler,
             messageSender = messageSender,
             eventChannel = eventChannel,
-            updateInterceptors = { listOf(interceptor) },
-            logger = RecordingLogger()
+            updateInterceptors = { listOf(interceptor) }
         )
         consumer.consume(update)
         advanceUntilIdle()

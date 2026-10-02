@@ -109,7 +109,6 @@ class TelegramMessengerModule(
         sessionFactory = ::createSession,
         backOffFactory = ::createBackOff,
         failureMapper = failureMapper,
-        logger = JUtiltLogger("MessageBridge-TelegramConnector"),
     )
 
     override val state: StateFlow<TelegramConnectionState> = connector.state
@@ -143,7 +142,6 @@ class TelegramMessengerModule(
         messageSender = messageSender,
         eventChannel = bEventChannel,
         updateInterceptors = updateInterceptors,
-        logger = JUtiltLogger("MessageBridge-TelegramChatConsumer"),
     )
 
     private val statusLogger = TelegramStatusLogger(
@@ -178,7 +176,6 @@ class TelegramMessengerModule(
         failureMapper = failureMapper,
         backOffFactory = ::createBackOff,
         timeSource = TimeSource.Monotonic,
-        logger = JUtiltLogger("MessageBridge-TelegramPolling"),
     )
 
     private companion object {

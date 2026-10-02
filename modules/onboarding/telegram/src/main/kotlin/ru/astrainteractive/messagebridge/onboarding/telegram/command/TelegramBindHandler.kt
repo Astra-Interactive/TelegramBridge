@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.MutableKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.util.describe
@@ -24,8 +25,7 @@ internal class TelegramBindHandler(
     private val messageSender: TelegramMessageSender,
     private val configKrate: MutableKrate<Result<PluginConfiguration>>,
     translationKrate: CachedKrate<OnboardingTranslation>,
-    logger: Logger,
-) : Logger by logger {
+) : Logger by JUtiltLogger("MessageBridge-TelegramBindHandler") {
     private val translation by translationKrate
 
     private suspend fun reply(message: Message, text: String) {

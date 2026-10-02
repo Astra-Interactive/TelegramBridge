@@ -4,7 +4,6 @@ package ru.astrainteractive.messagebridge.onboarding.telegram.command
 
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
-import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.CHAT_ID
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
@@ -20,8 +19,7 @@ class TelegramChatInfoHandlerTest {
     private val chatInfo = OnboardingTranslation().telegram.chatInfo
     private val handler = TelegramChatInfoHandler(
         messageSender = FakeTelegramMessageSender(botApi = botApi),
-        translationKrate = FakeTranslationKrate(OnboardingTranslation()),
-        logger = RecordingLogger()
+        translationKrate = FakeTranslationKrate(OnboardingTranslation())
     )
 
     @Test

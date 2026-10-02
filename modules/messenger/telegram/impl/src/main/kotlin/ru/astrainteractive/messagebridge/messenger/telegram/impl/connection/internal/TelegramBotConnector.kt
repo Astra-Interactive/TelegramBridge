@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
@@ -20,8 +21,7 @@ internal class TelegramBotConnector(
     private val sessionFactory: (TelegramConnection.Ready) -> TelegramBotSession,
     private val backOffFactory: () -> BackOff,
     private val failureMapper: TelegramFailureMapper,
-    logger: Logger,
-) : Logger by logger {
+) : Logger by JUtiltLogger("MessageBridge-TelegramConnector") {
     private val mutableState = MutableStateFlow<TelegramConnectionState>(TelegramConnectionState.Connecting)
     val state: StateFlow<TelegramConnectionState> = mutableState.asStateFlow()
 

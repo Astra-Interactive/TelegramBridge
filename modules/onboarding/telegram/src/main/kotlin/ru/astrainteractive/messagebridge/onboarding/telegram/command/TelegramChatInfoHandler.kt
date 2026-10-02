@@ -3,6 +3,7 @@ package ru.astrainteractive.messagebridge.onboarding.telegram.command
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMessageSender
@@ -12,8 +13,7 @@ import ru.astrainteractive.messagebridge.onboarding.telegram.internal.topicIdOrN
 internal class TelegramChatInfoHandler(
     private val messageSender: TelegramMessageSender,
     translationKrate: CachedKrate<OnboardingTranslation>,
-    logger: Logger,
-) : Logger by logger {
+) : Logger by JUtiltLogger("MessageBridge-TelegramChatInfoHandler") {
     private val translation by translationKrate
 
     suspend fun sendChatInfo(message: Message) {

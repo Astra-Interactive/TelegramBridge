@@ -13,7 +13,6 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import org.telegram.telegrambots.meta.TelegramUrl
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
@@ -55,8 +54,7 @@ class TelegramBotConnectorTest {
     private fun connectorOf(session: TelegramBotSession) = TelegramBotConnector(
         sessionFactory = { _ -> session },
         backOffFactory = { backOff },
-        failureMapper = TelegramFailureMapper(configFlow = MutableStateFlow(PluginConfiguration())),
-        logger = RecordingLogger()
+        failureMapper = TelegramFailureMapper(configFlow = MutableStateFlow(PluginConfiguration()))
     )
 
     private fun TestScope.connect(

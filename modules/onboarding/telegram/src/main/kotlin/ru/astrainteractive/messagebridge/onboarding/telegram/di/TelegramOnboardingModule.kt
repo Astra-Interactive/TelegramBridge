@@ -68,12 +68,10 @@ class TelegramOnboardingModule(
             messageSender = botModule.messageSender,
             configKrate = coreModule.configKrate,
             translationKrate = onboardingTranslationModule.translationKrate,
-            logger = JUtiltLogger("MessageBridge-TelegramBindHandler"),
         ),
         chatInfoHandler = TelegramChatInfoHandler(
             messageSender = botModule.messageSender,
             translationKrate = onboardingTranslationModule.translationKrate,
-            logger = JUtiltLogger("MessageBridge-TelegramChatInfoHandler"),
         ),
     )
 

@@ -8,7 +8,6 @@ import okhttp3.Dns
 import org.telegram.telegrambots.meta.api.methods.GetMe
 import org.telegram.telegrambots.meta.api.methods.updates.DeleteWebhook
 import org.telegram.telegrambots.meta.api.methods.updates.GetUpdates
-import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.configurationOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
@@ -40,8 +39,7 @@ class LongPollingBotSessionTest {
         updateConsumer = consumer,
         failureMapper = failureMapper,
         backOffFactory = { FakeBackOff(interval = 10.milliseconds) },
-        timeSource = TimeSource.Monotonic,
-        logger = RecordingLogger()
+        timeSource = TimeSource.Monotonic
     )
 
     private fun awaitUntil(condition: () -> Boolean) {

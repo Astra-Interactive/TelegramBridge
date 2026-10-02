@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministr
 import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import ru.astrainteractive.messagebridge.core.api.fake.FakeConfigKrate
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
-import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.CHAT_ID
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
@@ -49,13 +48,11 @@ class TelegramSetupInterceptorTest {
                 botApi = botApi,
                 messageSender = messageSender,
                 configKrate = configKrate,
-                translationKrate = translationKrate,
-                logger = RecordingLogger()
+                translationKrate = translationKrate
             ),
             chatInfoHandler = TelegramChatInfoHandler(
                 messageSender = messageSender,
-                translationKrate = translationKrate,
-                logger = RecordingLogger()
+                translationKrate = translationKrate
             )
         )
         val isTaken = interceptor.intercept(update)

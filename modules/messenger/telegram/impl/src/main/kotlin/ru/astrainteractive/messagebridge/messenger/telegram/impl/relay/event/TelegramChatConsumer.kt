@@ -6,6 +6,7 @@ import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateC
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
@@ -32,9 +33,8 @@ internal class TelegramChatConsumer(
     private val messageSender: TelegramMessageSender,
     private val eventChannel: BEventConsumer,
     private val updateInterceptors: () -> List<TelegramUpdateInterceptor>,
-    logger: Logger,
 ) : LongPollingSingleThreadUpdateConsumer,
-    Logger by logger {
+    Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val translation by translationKrate
 
     private suspend fun reply(update: Update, text: String) {

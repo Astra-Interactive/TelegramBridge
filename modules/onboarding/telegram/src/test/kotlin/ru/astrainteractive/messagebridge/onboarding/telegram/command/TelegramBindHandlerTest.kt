@@ -16,7 +16,6 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import ru.astrainteractive.messagebridge.core.api.fake.FakeConfigKrate
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
-import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.CHAT_ID
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
@@ -51,8 +50,7 @@ class TelegramBindHandlerTest {
         botApi = botApi,
         messageSender = FakeTelegramMessageSender(botApi = botApi),
         configKrate = configKrate,
-        translationKrate = FakeTranslationKrate(translation),
-        logger = RecordingLogger()
+        translationKrate = FakeTranslationKrate(translation)
     )
 
     private fun issueCode(): String = bindCodes.issue { text -> boundTexts += text }.value

@@ -8,7 +8,6 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer
 import org.telegram.telegrambots.meta.api.methods.GetMe
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
@@ -23,7 +22,6 @@ internal class LongPollingBotSession(
     private val failureMapper: TelegramFailureMapper,
     private val backOffFactory: () -> BackOff,
     private val timeSource: TimeSource,
-    private val logger: Logger,
 ) : TelegramBotSession {
     private fun createLongPolling(botName: String, onState: (TelegramConnectionState) -> Unit): LongPolling {
         val statusInterceptor = GetUpdatesStatusInterceptor(
@@ -47,8 +45,7 @@ internal class LongPollingBotSession(
             statusInterceptor = statusInterceptor,
             pollingClient = pollingClient,
             pollerExecutor = pollerExecutor,
-            application = application,
-            logger = logger
+            application = application
         )
     }
 
