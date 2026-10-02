@@ -43,7 +43,7 @@ class DiscordOnboardingModule(
 
     private val guideLogger = DiscordGuideLogger(
         translationKrate = onboardingTranslationModule.translationKrate,
-        logger = JUtiltLogger("MessageBridge-DiscordOnboarding"),
+        logger = JUtiltLogger("MessageBridge-DiscordGuideLogger"),
     )
 
     val messageInterceptor: DiscordMessageInterceptor = DiscordBindInterceptor(

@@ -20,7 +20,7 @@ internal class DiscordDeliveryError(
     private val failureMapper: DiscordFailureMapper,
     private val configFlow: StateFlow<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
-) : Logger by JUtiltLogger("MessageBridge-DiscordDelivery") {
+) : Logger by JUtiltLogger("MessageBridge-DiscordDeliveryError") {
     private val config: PluginConfiguration
         get() = configFlow.value
     private val translation by translationKrate

@@ -28,7 +28,7 @@ internal class LinkApiImpl(
 ) : LinkApi,
     DiscordMembership,
     Unlinking,
-    Logger by JUtiltLogger("MessageBridge-LinkApi") {
+    Logger by JUtiltLogger("MessageBridge-LinkApiImpl") {
     private val config: PluginConfiguration
         get() = configFlow.value
 

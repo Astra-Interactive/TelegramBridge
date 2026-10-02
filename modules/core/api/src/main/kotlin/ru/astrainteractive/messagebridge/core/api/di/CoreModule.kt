@@ -23,6 +23,7 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
@@ -35,10 +36,9 @@ class CoreModule(
     val platformServer: PlatformServer,
     val multiplatformCommand: MultiplatformCommand,
     commandRegistrarContextFactory: (mainScope: CoroutineScope) -> CommandRegistrarContext
-) {
+) : Logger by JUtiltLogger("MessageBridge-CoreModule") {
     private fun createCoroutineExceptionHandler() = CoroutineExceptionHandler { _, t ->
-        val logger = JUtiltLogger("CoroutineExceptionHandler-AspeKt")
-        logger.error(t) { "Error happened inside global coroutine scope!" }
+        error(t) { "Error happened inside global coroutine scope!" }
     }
 
     val ioScope = CoroutineFeature
@@ -65,8 +65,6 @@ class CoreModule(
         configuration = configuration
     )
     val yamlStringFormat = yaml
-
-    private val configLogger = JUtiltLogger("MessageBridge-config")
 
     val configKrate = yamlStringFormat
         .krateOf(
@@ -118,7 +116,7 @@ class CoreModule(
 
     private fun logConfigError(result: Result<PluginConfiguration>) {
         result.onFailure { t ->
-            configLogger.error {
+            error {
                 "config.yml has an error and is not applied, the previous settings are kept: " +
                     t.describe()
             }

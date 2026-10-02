@@ -15,7 +15,7 @@ internal class LongPolling(
     private val pollerExecutor: ExecutorService,
     private val application: TelegramBotsLongPollingApplication,
 ) : AutoCloseable,
-    Logger by JUtiltLogger("MessageBridge-TelegramPolling") {
+    Logger by JUtiltLogger("MessageBridge-LongPolling") {
     fun register(connection: TelegramConnection.Ready, updateConsumer: LongPollingUpdateConsumer) {
         application.registerBot(
             connection.token,

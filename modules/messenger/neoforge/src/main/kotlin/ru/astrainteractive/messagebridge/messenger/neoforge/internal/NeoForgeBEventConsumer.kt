@@ -27,7 +27,7 @@ internal class NeoForgeBEventConsumer(
     private val bEventChannel: BEventChannel,
     private val scope: CoroutineScope,
 ) : BEventConsumer,
-    Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer") {
+    Logger by JUtiltLogger("MessageBridge-NeoForgeBEventConsumer") {
     private val translation by translationKrate
 
     override suspend fun consume(bEvent: BEvent) {

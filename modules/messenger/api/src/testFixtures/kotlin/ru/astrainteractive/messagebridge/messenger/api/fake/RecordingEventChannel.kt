@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class RecordingEventChannel :
     BEventConsumer,
-    Logger by JUtiltLogger("RecordingEventChannel") {
+    Logger by JUtiltLogger("MessageBridge-RecordingEventChannel") {
     val events: MutableList<BEvent> = CopyOnWriteArrayList()
 
     override suspend fun consume(bEvent: BEvent) {

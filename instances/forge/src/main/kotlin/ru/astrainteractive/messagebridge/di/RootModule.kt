@@ -9,8 +9,6 @@ import ru.astrainteractive.astralibs.coroutines.MinecraftDispatchers
 import ru.astrainteractive.astralibs.lifecycle.ForgeLifecycleServer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
 import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
@@ -30,7 +28,7 @@ import java.io.File
 
 internal class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
-) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+) {
     private val coreModule = CoreModule(
         dataFolder = FMLPaths.CONFIGDIR.get()
             .resolve("MessageBridge")

@@ -31,7 +31,7 @@ internal class NeoForgeEvents(
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
     private val bEventChannel: BEventChannel
-) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
+) : Logger by JUtiltLogger("MessageBridge-NeoForgeEvents") {
     private val config: PluginConfiguration
         get() = configFlow.value
 

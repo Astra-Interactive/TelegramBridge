@@ -96,7 +96,7 @@ class TelegramMessengerModule(
         botApi = botApi,
         maxRetries = SEND_RETRIES,
         retryDelay = SEND_RETRY_DELAY,
-        logger = JUtiltLogger("MessageBridge-TelegramMessageSender"),
+        logger = JUtiltLogger("MessageBridge-TelegramMessageSenderImpl"),
     )
 
     private val bEventConsumer = TelegramBEventConsumer(
@@ -151,7 +151,7 @@ class TelegramMessengerModule(
     private val statusLogger = TelegramStatusLogger(
         translationKrate = coreModule.translationKrate,
         failureTextMapper = failureTextMapper,
-        logger = JUtiltLogger("MessageBridge-TelegramModule"),
+        logger = JUtiltLogger("MessageBridge-TelegramStatusLogger"),
     )
 
     val lifecycle = Lifecycle.Lambda(

@@ -21,7 +21,7 @@ internal class TelegramBotConnector(
     private val sessionFactory: (TelegramConnection.Ready) -> TelegramBotSession,
     private val backOffFactory: () -> BackOff,
     private val failureMapper: TelegramFailureMapper,
-) : Logger by JUtiltLogger("MessageBridge-TelegramConnector") {
+) : Logger by JUtiltLogger("MessageBridge-TelegramBotConnector") {
     private val mutableState = MutableStateFlow<TelegramConnectionState>(TelegramConnectionState.Connecting)
     val state: StateFlow<TelegramConnectionState> = mutableState.asStateFlow()
 

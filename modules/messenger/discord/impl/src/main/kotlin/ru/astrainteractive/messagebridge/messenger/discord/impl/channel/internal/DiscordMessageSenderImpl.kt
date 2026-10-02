@@ -12,7 +12,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.api.util.await
 
 internal class DiscordMessageSenderImpl :
     DiscordMessageSender,
-    Logger by JUtiltLogger("MessageBridge-DiscordMessageSender") {
+    Logger by JUtiltLogger("MessageBridge-DiscordMessageSenderImpl") {
 
     override suspend fun reply(message: Message, text: String) {
         flow { emit(message.reply(text).await()) }

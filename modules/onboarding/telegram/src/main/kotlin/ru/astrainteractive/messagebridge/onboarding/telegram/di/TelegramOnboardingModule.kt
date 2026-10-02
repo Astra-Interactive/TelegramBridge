@@ -54,7 +54,7 @@ class TelegramOnboardingModule(
 
     private val guideLogger = TelegramGuideLogger(
         translationKrate = onboardingTranslationModule.translationKrate,
-        logger = JUtiltLogger("MessageBridge-TelegramOnboarding"),
+        logger = JUtiltLogger("MessageBridge-TelegramGuideLogger"),
     )
 
     val updateInterceptor: TelegramUpdateInterceptor = TelegramSetupInterceptor(

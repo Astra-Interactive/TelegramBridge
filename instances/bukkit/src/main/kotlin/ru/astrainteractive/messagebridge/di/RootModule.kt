@@ -7,8 +7,6 @@ import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrar
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
@@ -29,7 +27,7 @@ import ru.astrainteractive.messagebridge.onboarding.telegram.di.TelegramOnboardi
 
 internal class RootModule(
     plugin: MessageBridge
-) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl") {
+) {
 
     private val bukkitCoreModule = BukkitCoreModule(plugin)
 
