@@ -5,8 +5,8 @@ import ru.astrainteractive.astralibs.command.api.brigadier.sender.KPlayerKComman
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
-import ru.astrainteractive.messagebridge.onboarding.impl.model.refuse
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.model.SecretInput
+import ru.astrainteractive.messagebridge.onboarding.impl.util.refuse
 
 internal class SecretGuard(translationKrate: CachedKrate<OnboardingTranslation>) {
     private val translation by translationKrate

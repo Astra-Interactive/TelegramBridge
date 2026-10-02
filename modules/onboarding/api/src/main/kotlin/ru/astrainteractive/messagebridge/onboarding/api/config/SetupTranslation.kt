@@ -307,27 +307,6 @@ data class SetupTranslation(
             translation(MinecraftLocales.EN_US, "&#42f596Token %token% saved, connecting…")
             translation(MinecraftLocales.RU_RU, "&#42f596Токен %token% сохранён, подключаюсь…")
         },
-        @SerialName("connected")
-        private val connected: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "&#42f596Connected as %bot%")
-            translation(MinecraftLocales.RU_RU, "&#42f596Бот подключён: %bot%")
-        },
-        @SerialName("connection_failed")
-        private val connectionFailed: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "&#db2c18Could not connect: %reason%")
-            translation(MinecraftLocales.RU_RU, "&#db2c18Не удалось подключиться: %reason%")
-        },
-        @SerialName("still_connecting")
-        val stillConnecting: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "&#dbbb18Still connecting. Check the result with /mb status in a minute."
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "&#dbbb18Подключение ещё идёт. Проверьте результат через минуту: /mb status"
-            )
-        },
         @SerialName("chat")
         private val chat: LocalizedText = LocalizedText.build {
             translation(
@@ -387,11 +366,6 @@ data class SetupTranslation(
         }
     ) {
         fun token(maskedToken: String): LocalizableComponent = token.replace("%token%", maskedToken)
-
-        fun connected(botName: String): LocalizableComponent = connected.replace("%bot%", botName)
-
-        fun connectionFailed(reason: LocalizableComponent): LocalizableComponent =
-            connectionFailed.replace("%reason%", reason)
 
         fun chat(chatId: String): LocalizableComponent = chat.replace("%chat%", chatId)
 

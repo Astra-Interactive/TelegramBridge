@@ -24,7 +24,7 @@ internal class DiscordStatusReport(
     }
 
     override fun lines(): List<LocalizableComponent> {
-        val jdaConfig = messenger.sectionOf(config.value)
+        val jdaConfig = config.value.jdaConfig
         return listOfNotNull(
             statusText.currentStateOf(messenger),
             channelOf(jdaConfig),

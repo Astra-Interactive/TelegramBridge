@@ -3,7 +3,6 @@
 package ru.astrainteractive.messagebridge.onboarding.impl.telegram.command
 
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
-import ru.astrainteractive.messagebridge.onboarding.api.model.MessengerStatus
 import ru.astrainteractive.messagebridge.onboarding.impl.fake.OnboardingFixture
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -48,16 +47,11 @@ class TelegramSettingLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_console_WHEN_sets_token_and_bot_connects_THEN_reads_bot_name_and_never_the_token() {
+    fun GIVEN_console_WHEN_sets_token_THEN_reads_the_masked_token_and_never_the_token() {
         fixture.execute("mb telegram token $token")
-        fixture.telegram.status.value = MessengerStatus.Connecting
-        fixture.telegram.status.value = MessengerStatus.Connected("@ServerBot")
 
         assertEquals(token, fixture.savedConfig.tgConfig.token)
-        assertEquals(
-            listOf(plain(setup.saved.token(maskedToken)), plain(setup.saved.connected("@ServerBot"))),
-            fixture.consoleReplies
-        )
+        assertEquals(listOf(plain(setup.saved.token(maskedToken))), fixture.consoleReplies)
         assertTrue(fixture.consoleReplies.none { reply -> "AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw1" in reply })
     }
 
@@ -92,9 +86,7 @@ class TelegramSettingLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_chat_id_WHEN_console_sets_it_THEN_it_is_saved_without_waiting_for_the_bot() {
-        fixture.editConfig { config -> config.copy(tgConfig = config.tgConfig.copy(token = token)) }
-
+    fun GIVEN_chat_id_WHEN_console_sets_it_THEN_it_is_saved() {
         fixture.execute("mb telegram chat -1001234567890")
 
         assertEquals("-1001234567890", fixture.savedConfig.tgConfig.chatID)

@@ -4,8 +4,8 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.ProxyType
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
-import ru.astrainteractive.messagebridge.onboarding.impl.model.refuse
 import ru.astrainteractive.messagebridge.onboarding.impl.proxy.api.ProxyTypes
+import ru.astrainteractive.messagebridge.onboarding.impl.util.refuse
 
 internal class AllProxyTypes(translationKrate: CachedKrate<OnboardingTranslation>) : ProxyTypes {
     private val translation by translationKrate

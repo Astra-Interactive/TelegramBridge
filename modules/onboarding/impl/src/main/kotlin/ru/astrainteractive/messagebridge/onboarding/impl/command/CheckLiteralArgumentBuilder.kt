@@ -16,7 +16,7 @@ import ru.astrainteractive.messagebridge.onboarding.api.permission.OnboardingPer
 import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
 
 internal class CheckLiteralArgumentBuilder(
-    private val messenger: Messenger<*>,
+    private val messenger: Messenger,
     private val ioScope: CoroutineScope,
     private val multiplatformCommand: MultiplatformCommand,
     private val commandExceptionHandler: CommandExceptionHandler,

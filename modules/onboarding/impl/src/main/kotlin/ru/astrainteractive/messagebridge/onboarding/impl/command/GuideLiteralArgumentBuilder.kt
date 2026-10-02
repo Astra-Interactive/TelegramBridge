@@ -10,7 +10,7 @@ import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
 import ru.astrainteractive.messagebridge.onboarding.impl.status.api.StatusReport
 
 internal class GuideLiteralArgumentBuilder(
-    private val messenger: Messenger<*>,
+    private val messenger: Messenger,
     private val guide: () -> LocalizableComponent,
     private val report: StatusReport,
     private val subcommands: List<LiteralArgumentBuilder<Any>>,

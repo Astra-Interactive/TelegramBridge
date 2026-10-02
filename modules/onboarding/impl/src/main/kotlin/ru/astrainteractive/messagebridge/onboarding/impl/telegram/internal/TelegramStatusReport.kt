@@ -34,7 +34,7 @@ internal class TelegramStatusReport(
     }
 
     override fun lines(): List<LocalizableComponent> {
-        val tgConfig = messenger.sectionOf(config.value)
+        val tgConfig = config.value.tgConfig
         return listOfNotNull(
             statusText.currentStateOf(messenger),
             chatOf(tgConfig),

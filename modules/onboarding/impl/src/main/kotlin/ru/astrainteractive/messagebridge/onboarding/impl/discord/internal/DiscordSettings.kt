@@ -3,13 +3,10 @@ package ru.astrainteractive.messagebridge.onboarding.impl.discord.internal
 import ru.astrainteractive.astralibs.command.api.brigadier.sender.KCommandSender
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration.JdaConfig
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
-import ru.astrainteractive.messagebridge.onboarding.impl.model.refuse
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.SecretGuard
-import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.masked
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.model.SecretInput
-import ru.astrainteractive.messagebridge.onboarding.impl.setting.model.Setting
+import ru.astrainteractive.messagebridge.onboarding.impl.util.refuse
 
 internal class DiscordSettings(
     private val secretGuard: SecretGuard,
@@ -17,31 +14,17 @@ internal class DiscordSettings(
 ) {
     private val translation by translationKrate
 
-    fun token(sender: KCommandSender, value: String): Result<Setting<JdaConfig>> {
+    fun token(sender: KCommandSender, value: String): Result<String> {
         val input = secretGuard.allow(sender, SecretInput.parse(value))
             .getOrElse { t -> return Result.failure(t) }
         val token = input.words.singleOrNull()?.takeIf(TOKEN::matches)
             ?: return refuse(translation.setup.invalidDiscordToken)
-        val setting = Setting<JdaConfig>(saved = translation.setup.saved.token(token.masked())) { jdaConfig ->
-            jdaConfig.copy(token = token)
-        }
-        return Result.success(setting)
+        return Result.success(token)
     }
 
-    fun channel(value: String): Result<Setting<JdaConfig>> {
+    fun channel(value: String): Result<String> {
         if (!SNOWFLAKE.matches(value)) return refuse(translation.setup.invalidChannel)
-        val setting = Setting<JdaConfig>(saved = translation.setup.saved.channel(value)) { jdaConfig ->
-            jdaConfig.copy(channelId = value)
-        }
-        return Result.success(setting)
-    }
-
-    fun activity(value: String): Result<Setting<JdaConfig>> {
-        val activity = value.trim()
-        val setting = Setting<JdaConfig>(saved = translation.setup.saved.activity(activity)) { jdaConfig ->
-            jdaConfig.copy(activity = activity)
-        }
-        return Result.success(setting)
+        return Result.success(value)
     }
 
     private companion object {

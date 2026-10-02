@@ -6,18 +6,8 @@ import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
 
 internal class DiscordMessenger(
     override val onboarding: DiscordOnboarding
-) : Messenger<PluginConfiguration.JdaConfig>(name = "Discord", command = "discord") {
-    override fun sectionOf(config: PluginConfiguration): PluginConfiguration.JdaConfig = config.jdaConfig
-
-    override fun replaceSection(
-        config: PluginConfiguration,
-        section: PluginConfiguration.JdaConfig
-    ): PluginConfiguration = config.copy(jdaConfig = section)
-
-    override fun tokenOf(section: PluginConfiguration.JdaConfig): String = section.token
-
-    override fun withProxy(
-        section: PluginConfiguration.JdaConfig,
-        proxy: PluginConfiguration.Proxy?
-    ): PluginConfiguration.JdaConfig = section.copy(proxy = proxy)
+) : Messenger(name = "Discord", command = "discord") {
+    override fun withProxy(config: PluginConfiguration, proxy: PluginConfiguration.Proxy?): PluginConfiguration {
+        return config.copy(jdaConfig = config.jdaConfig.copy(proxy = proxy))
+    }
 }

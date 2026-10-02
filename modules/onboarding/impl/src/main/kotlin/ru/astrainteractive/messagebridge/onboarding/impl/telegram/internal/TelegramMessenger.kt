@@ -6,18 +6,8 @@ import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
 
 internal class TelegramMessenger(
     override val onboarding: MessengerOnboarding
-) : Messenger<PluginConfiguration.TelegramConfig>(name = "Telegram", command = "telegram") {
-    override fun sectionOf(config: PluginConfiguration): PluginConfiguration.TelegramConfig = config.tgConfig
-
-    override fun replaceSection(
-        config: PluginConfiguration,
-        section: PluginConfiguration.TelegramConfig
-    ): PluginConfiguration = config.copy(tgConfig = section)
-
-    override fun tokenOf(section: PluginConfiguration.TelegramConfig): String = section.token
-
-    override fun withProxy(
-        section: PluginConfiguration.TelegramConfig,
-        proxy: PluginConfiguration.Proxy?
-    ): PluginConfiguration.TelegramConfig = section.copy(proxy = proxy)
+) : Messenger(name = "Telegram", command = "telegram") {
+    override fun withProxy(config: PluginConfiguration, proxy: PluginConfiguration.Proxy?): PluginConfiguration {
+        return config.copy(tgConfig = config.tgConfig.copy(proxy = proxy))
+    }
 }

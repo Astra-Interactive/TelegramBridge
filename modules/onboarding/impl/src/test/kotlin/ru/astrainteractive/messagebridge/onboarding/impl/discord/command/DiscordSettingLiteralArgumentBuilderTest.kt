@@ -3,7 +3,6 @@
 package ru.astrainteractive.messagebridge.onboarding.impl.discord.command
 
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
-import ru.astrainteractive.messagebridge.onboarding.api.model.MessengerStatus
 import ru.astrainteractive.messagebridge.onboarding.impl.fake.OnboardingFixture
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -38,15 +37,11 @@ class DiscordSettingLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_console_WHEN_sets_discord_token_and_bot_connects_THEN_reads_bot_name_and_never_the_token() {
+    fun GIVEN_console_WHEN_sets_discord_token_THEN_reads_the_masked_token_and_never_the_token() {
         fixture.execute("mb discord token $token")
-        fixture.discord.status.value = MessengerStatus.Connected("ServerBot#0001")
 
         assertEquals(token, fixture.savedConfig.jdaConfig.token)
-        assertEquals(
-            listOf(plain(setup.saved.token("MTIz…yzAB")), plain(setup.saved.connected("ServerBot#0001"))),
-            fixture.consoleReplies
-        )
+        assertEquals(listOf(plain(setup.saved.token("MTIz…yzAB"))), fixture.consoleReplies)
         assertTrue(fixture.consoleReplies.none { reply -> token in reply })
     }
 
@@ -58,9 +53,7 @@ class DiscordSettingLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_channel_id_WHEN_console_sets_it_THEN_it_is_saved_without_waiting_for_the_bot() {
-        fixture.editConfig { config -> config.copy(jdaConfig = config.jdaConfig.copy(token = token)) }
-
+    fun GIVEN_channel_id_WHEN_console_sets_it_THEN_it_is_saved() {
         fixture.execute("mb discord channel 123456789012345678")
 
         assertEquals("123456789012345678", fixture.savedConfig.jdaConfig.channelId)
@@ -78,21 +71,10 @@ class DiscordSettingLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_activity_with_spaces_WHEN_console_sets_it_THEN_whole_text_is_saved_and_the_bot_reconnects_with_it() {
-        fixture.editConfig { config -> config.copy(jdaConfig = config.jdaConfig.copy(token = token)) }
-        fixture.discord.status.value = MessengerStatus.Connected("ServerBot#0001")
-
+    fun GIVEN_activity_with_spaces_WHEN_console_sets_it_THEN_whole_text_is_saved_without_the_edge_spaces() {
         fixture.execute("mb discord activity Playing on play.example.com ")
-        fixture.discord.status.value = MessengerStatus.Connecting
-        fixture.discord.status.value = MessengerStatus.Connected("ServerBot#0001")
 
         assertEquals("Playing on play.example.com", fixture.savedConfig.jdaConfig.activity)
-        assertEquals(
-            listOf(
-                plain(setup.saved.activity("Playing on play.example.com")),
-                plain(setup.saved.connected("ServerBot#0001"))
-            ),
-            fixture.consoleReplies
-        )
+        assertEquals(listOf(plain(setup.saved.activity("Playing on play.example.com"))), fixture.consoleReplies)
     }
 }

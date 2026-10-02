@@ -11,7 +11,7 @@ import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
 import ru.astrainteractive.messagebridge.onboarding.impl.status.internal.StatusText
 
 internal class BindLiteralArgumentBuilder(
-    private val messenger: Messenger<*>,
+    private val messenger: Messenger,
     private val instruction: BindInstruction,
     private val statusText: StatusText,
     private val multiplatformCommand: MultiplatformCommand,

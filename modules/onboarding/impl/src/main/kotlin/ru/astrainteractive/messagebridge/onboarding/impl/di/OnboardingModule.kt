@@ -22,8 +22,6 @@ import ru.astrainteractive.messagebridge.onboarding.impl.proxy.command.ProxyLite
 import ru.astrainteractive.messagebridge.onboarding.impl.proxy.internal.AllProxyTypes
 import ru.astrainteractive.messagebridge.onboarding.impl.proxy.internal.ProxySettings
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.SecretGuard
-import ru.astrainteractive.messagebridge.onboarding.impl.setting.command.SettingCommand
-import ru.astrainteractive.messagebridge.onboarding.impl.setting.internal.SettingSaver
 import ru.astrainteractive.messagebridge.onboarding.impl.status.command.StatusLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.status.internal.StatusText
 import ru.astrainteractive.messagebridge.onboarding.impl.telegram.command.TelegramSettingLiteralArgumentBuilder
@@ -31,7 +29,6 @@ import ru.astrainteractive.messagebridge.onboarding.impl.telegram.internal.Teleg
 import ru.astrainteractive.messagebridge.onboarding.impl.telegram.internal.TelegramMessenger
 import ru.astrainteractive.messagebridge.onboarding.impl.telegram.internal.TelegramSettings
 import ru.astrainteractive.messagebridge.onboarding.impl.telegram.internal.TelegramStatusReport
-import kotlin.time.Duration.Companion.seconds
 
 class OnboardingModule(
     private val coreModule: CoreModule,
@@ -51,19 +48,6 @@ class OnboardingModule(
     private val proxySettings = ProxySettings(secretGuard, translationKrate)
     private val allProxyTypes = AllProxyTypes(translationKrate)
 
-    private val settingCommand = SettingCommand(
-        saver = SettingSaver(
-            configKrate = coreModule.configKrate,
-            config = coreModule.config,
-            statusText = statusText,
-            connectionTimeout = CONNECTION_TIMEOUT,
-            translationKrate = translationKrate
-        ),
-        ioScope = coreModule.ioScope,
-        multiplatformCommand = multiplatformCommand,
-        commandExceptionHandler = commandExceptionHandler
-    )
-
     private val telegramReport = TelegramStatusReport(
         messenger = telegram,
         config = coreModule.config,
@@ -79,19 +63,20 @@ class OnboardingModule(
     )
 
     private val telegramSubcommands = TelegramSettingLiteralArgumentBuilder(
-        messenger = telegram,
         settings = TelegramSettings(secretGuard, translationKrate),
-        settingCommand = settingCommand,
+        configKrate = coreModule.configKrate,
         multiplatformCommand = multiplatformCommand,
-        commandExceptionHandler = commandExceptionHandler
+        commandExceptionHandler = commandExceptionHandler,
+        translationKrate = translationKrate
     ).create() + listOf(
         ProxyLiteralArgumentBuilder(
             messenger = telegram,
             types = allProxyTypes,
             settings = proxySettings,
-            settingCommand = settingCommand,
+            configKrate = coreModule.configKrate,
             multiplatformCommand = multiplatformCommand,
-            commandExceptionHandler = commandExceptionHandler
+            commandExceptionHandler = commandExceptionHandler,
+            translationKrate = translationKrate
         ).create(),
         BindLiteralArgumentBuilder(
             messenger = telegram,
@@ -110,19 +95,20 @@ class OnboardingModule(
     )
 
     private val discordSubcommands = DiscordSettingLiteralArgumentBuilder(
-        messenger = discord,
         settings = DiscordSettings(secretGuard, translationKrate),
-        settingCommand = settingCommand,
+        configKrate = coreModule.configKrate,
         multiplatformCommand = multiplatformCommand,
-        commandExceptionHandler = commandExceptionHandler
+        commandExceptionHandler = commandExceptionHandler,
+        translationKrate = translationKrate
     ).create() + listOf(
         ProxyLiteralArgumentBuilder(
             messenger = discord,
             types = DiscordProxyTypes(allProxyTypes, translationKrate),
             settings = proxySettings,
-            settingCommand = settingCommand,
+            configKrate = coreModule.configKrate,
             multiplatformCommand = multiplatformCommand,
-            commandExceptionHandler = commandExceptionHandler
+            commandExceptionHandler = commandExceptionHandler,
+            translationKrate = translationKrate
         ).create(),
         BindLiteralArgumentBuilder(
             messenger = discord,
@@ -194,8 +180,4 @@ class OnboardingModule(
             )
         }
     )
-
-    private companion object {
-        val CONNECTION_TIMEOUT = 20.seconds
-    }
 }

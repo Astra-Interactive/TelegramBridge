@@ -10,7 +10,7 @@ import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
 internal class StatusText(translationKrate: CachedKrate<OnboardingTranslation>) {
     private val translation by translationKrate
 
-    fun stateOf(messenger: Messenger<*>, status: MessengerStatus): LocalizableComponent {
+    fun stateOf(messenger: Messenger, status: MessengerStatus): LocalizableComponent {
         return when (status) {
             MessengerStatus.Disabled -> translation.setup.status.disabled(messenger.name, messenger.command)
             MessengerStatus.Connecting -> translation.setup.status.connecting(messenger.name)
@@ -19,11 +19,11 @@ internal class StatusText(translationKrate: CachedKrate<OnboardingTranslation>) 
         }
     }
 
-    fun currentStateOf(messenger: Messenger<*>): LocalizableComponent {
+    fun currentStateOf(messenger: Messenger): LocalizableComponent {
         return stateOf(messenger, messenger.onboarding.status.value)
     }
 
-    fun deliveryErrorOf(messenger: Messenger<*>): LocalizableComponent? {
+    fun deliveryErrorOf(messenger: Messenger): LocalizableComponent? {
         return messenger.onboarding.deliveryError.value?.let(translation.setup.status::deliveryError)
     }
 }

@@ -6,12 +6,9 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.ProxyType
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
-import ru.astrainteractive.messagebridge.onboarding.impl.api.Messenger
-import ru.astrainteractive.messagebridge.onboarding.impl.model.refuse
-import ru.astrainteractive.messagebridge.onboarding.impl.proxy.mapping.proxyOf
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.internal.SecretGuard
 import ru.astrainteractive.messagebridge.onboarding.impl.secret.model.SecretInput
-import ru.astrainteractive.messagebridge.onboarding.impl.setting.model.Setting
+import ru.astrainteractive.messagebridge.onboarding.impl.util.refuse
 
 internal class ProxySettings(
     private val secretGuard: SecretGuard,
@@ -57,12 +54,6 @@ internal class ProxySettings(
             password = words.getOrNull(1)
         )
         return Result.success(proxy)
-    }
-
-    fun <C> settingOf(messenger: Messenger<C>, proxy: PluginConfiguration.Proxy?): Setting<C> {
-        return Setting<C>(saved = translation.setup.saved.proxyOf(proxy)) { section ->
-            messenger.withProxy(section, proxy)
-        }
     }
 
     private companion object {
