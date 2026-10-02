@@ -5,7 +5,7 @@ internal class SecretInput(
     val isUnsafe: Boolean
 ) {
     companion object {
-        const val UNSAFE_FLAG = "--unsafe"
+        private const val UNSAFE_FLAG = "--unsafe"
         private val whitespace = Regex("\\s+")
 
         fun parse(input: String): SecretInput {

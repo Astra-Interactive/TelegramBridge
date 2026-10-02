@@ -68,10 +68,6 @@ internal class NeoForgeEvents(
         .onEach { verbose { "#playerLoggedInEvent" } }
         .filter { config.displayJoinMessage }
         .onEach { event ->
-            // doesnt work
-//        val nbt = event.entity.persistentData
-//        val playedBefore = (nbt.getLong("lastPlayed") - nbt.getLong("firstPlayed")) > 1
-
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = PlayerJoinedBEvent(
                     name = event.entity.name.string,

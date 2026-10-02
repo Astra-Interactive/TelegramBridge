@@ -11,10 +11,8 @@ fun <T> Flow<T>.withRetry(
     logger: Logger,
     retries: Long = 5,
     delay: Duration = 500.milliseconds,
-    shouldRetry: (Throwable) -> Boolean = { true },
 ): Flow<T> {
     return retry(retries = retries) { t ->
-        if (!shouldRetry.invoke(t)) return@retry false
         logger.warn { "#withRetry attempt failed, retrying in $delay: ${t.message}" }
         delay(delay)
         true

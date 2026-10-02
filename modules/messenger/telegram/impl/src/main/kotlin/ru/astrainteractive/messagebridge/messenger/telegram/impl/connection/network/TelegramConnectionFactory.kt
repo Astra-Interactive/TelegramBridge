@@ -69,12 +69,10 @@ internal class TelegramConnectionFactory(
         const val SCHEME_DELIMITER = "://"
         val PROXY_PORTS = 1..65_535
 
-        /** Spent on every unreachable address before the next one is tried. */
         val CONNECT_TIMEOUT = 10.seconds
 
         val WRITE_TIMEOUT = 70.seconds
 
-        /** Must exceed the getUpdates timeout, which holds the connection open. */
         val READ_TIMEOUT = 100.seconds
 
         val PING_INTERVAL = 15.seconds

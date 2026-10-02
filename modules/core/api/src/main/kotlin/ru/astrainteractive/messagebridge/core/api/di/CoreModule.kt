@@ -45,12 +45,6 @@ class CoreModule(
         .Default(dispatchers.IO + SupervisorJob() + createCoroutineExceptionHandler())
         .withTimings()
 
-    private val mainScope: CoroutineScope by lazy {
-        CoroutineFeature
-            .Default(dispatchers.Main + SupervisorJob() + createCoroutineExceptionHandler())
-            .withTimings()
-    }
-
     val unconfinedScope = CoroutineFeature
         .Default(dispatchers.Unconfined + SupervisorJob() + createCoroutineExceptionHandler())
         .withTimings()
@@ -109,7 +103,6 @@ class CoreModule(
         },
         onDisable = {
             ioScope.cancel()
-            mainScope.cancel()
             unconfinedScope.cancel()
         }
     )

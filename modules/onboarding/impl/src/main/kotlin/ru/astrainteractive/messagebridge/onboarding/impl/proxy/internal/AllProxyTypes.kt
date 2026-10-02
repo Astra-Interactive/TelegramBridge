@@ -22,7 +22,7 @@ internal class AllProxyTypes(translationKrate: CachedKrate<OnboardingTranslation
 
     companion object {
         const val HTTP = "http"
-        const val SOCKS5 = "socks5"
+        private const val SOCKS5 = "socks5"
         private const val SOCKS = "socks"
     }
 }
