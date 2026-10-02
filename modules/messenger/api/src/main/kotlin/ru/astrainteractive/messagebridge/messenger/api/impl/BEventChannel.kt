@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.api.impl
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,6 +12,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import kotlin.time.Duration.Companion.milliseconds
 
 class BEventChannel :
     BEventConsumer,
@@ -21,7 +23,7 @@ class BEventChannel :
         .asSharedFlow()
         .transform { event ->
             emit(event)
-            kotlinx.coroutines.delay(DELAY_MILLIS)
+            delay(SPACING)
         }
         .shareIn(scope, SharingStarted.Lazily)
 
@@ -34,6 +36,6 @@ class BEventChannel :
          * When people write a lot of messages at one time - we can
          * encounter timeout for discord/tg api, so we need to wait a little
          */
-        const val DELAY_MILLIS = 500L
+        val SPACING = 500.milliseconds
     }
 }
