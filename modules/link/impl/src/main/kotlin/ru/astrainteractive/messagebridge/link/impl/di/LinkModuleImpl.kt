@@ -24,10 +24,7 @@ class LinkModuleImpl(
     coreModule: CoreModule,
     linkTranslationModule: LinkTranslationModule
 ) : LinkModule {
-    private val linkDatabaseModule = LinkDatabaseModule(
-        ioScope = coreModule.ioScope,
-        dataFolder = coreModule.dataFolder
-    )
+    private val linkDatabaseModule = LinkDatabaseModule(coreModule = coreModule)
 
     private val linkingDaoImpl = LinkingDaoImpl(linkDatabaseModule.databaseFlow)
 

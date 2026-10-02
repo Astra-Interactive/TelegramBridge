@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.link.impl.player.di
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
@@ -13,15 +12,16 @@ import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connectAsFlow
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.impl.player.database.LinkedPlayerTable
-import java.io.File
 import java.sql.Connection
 
 internal class LinkDatabaseModule(
-    ioScope: CoroutineScope,
-    dataFolder: File
+    coreModule: CoreModule
 ) {
-    val databaseFlow: Flow<Database> = flowOf(DatabaseConfiguration.H2(dataFolder.resolve("linking").absolutePath))
+    private val databaseConfiguration = DatabaseConfiguration.H2(coreModule.dataFolder.resolve("linking").absolutePath)
+
+    val databaseFlow: Flow<Database> = flowOf(databaseConfiguration)
         .flatMapLatest { databaseConfiguration -> databaseConfiguration.connectAsFlow() }
         .onEach { database ->
             TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
@@ -29,5 +29,5 @@ internal class LinkDatabaseModule(
                 SchemaUtils.create(LinkedPlayerTable)
             }
         }
-        .shareIn(ioScope, SharingStarted.Eagerly, 1)
+        .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 }
