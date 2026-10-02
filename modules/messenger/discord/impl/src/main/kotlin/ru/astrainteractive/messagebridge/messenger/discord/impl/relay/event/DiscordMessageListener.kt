@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.impl.command.internal.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.impl.command.internal.DiscordCommandMapper
@@ -25,7 +25,7 @@ internal class DiscordMessageListener(
 
     private suspend fun relay(event: MessageReceivedEvent) {
         bEventChannel.consume(
-            Text.Discord(
+            BEvent.Text.Discord(
                 author = event.member?.nickname ?: event.author.name,
                 text = event.message.contentRaw,
                 authorId = event.author.idLong,

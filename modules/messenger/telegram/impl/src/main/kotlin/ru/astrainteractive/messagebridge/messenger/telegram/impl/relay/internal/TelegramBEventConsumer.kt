@@ -19,12 +19,6 @@ import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramBotApi
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramFailureTextMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
@@ -51,25 +45,25 @@ internal class TelegramBEventConsumer(
     private var lastFailure: TelegramFailure? = null
 
     private fun textOf(bEvent: BEvent): LocalizableComponent = when (bEvent) {
-        is Text -> translation.chat.toTelegram(
+        is BEvent.Text -> translation.chat.toTelegram(
             playerName = bEvent.author,
             message = bEvent.text,
             from = bEvent.from.short
         )
 
-        is PlayerDeathBEvent -> translation.player.died(name = bEvent.name, cause = bEvent.cause)
+        is BEvent.PlayerDeath -> translation.player.died(name = bEvent.name, cause = bEvent.cause)
 
-        is PlayerJoinedBEvent -> if (bEvent.hasPlayedBefore) {
+        is BEvent.PlayerJoined -> if (bEvent.hasPlayedBefore) {
             translation.player.joined(name = bEvent.name)
         } else {
             translation.player.joinedFirstTime(name = bEvent.name)
         }
 
-        is PlayerLeaveBEvent -> translation.player.left(name = bEvent.name)
+        is BEvent.PlayerLeave -> translation.player.left(name = bEvent.name)
 
-        ServerClosedBEvent -> translation.server.stopped
+        BEvent.ServerClosed -> translation.server.stopped
 
-        ServerOpenBEvent -> translation.server.started
+        BEvent.ServerOpen -> translation.server.started
     }
 
     private suspend fun onDelivered() {
@@ -97,7 +91,7 @@ internal class TelegramBEventConsumer(
     private suspend fun onResult(bEvent: BEvent, result: TelegramRequestResult<Message>) {
         when (result) {
             is TelegramRequestResult.Success -> {
-                if (bEvent is Text) {
+                if (bEvent is BEvent.Text) {
                     relayedMessageCache.remember(result.value.chatId, result.value.messageId, bEvent)
                 }
                 onDelivered()

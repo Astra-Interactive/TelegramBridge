@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.messagebridge.link.api.player.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.api.player.model.LinkedPlayerModel
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaRequest
 import java.io.IOException
@@ -30,7 +30,7 @@ class DiscordMemberResolverTest {
         discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = "steve", discordId = DISCORD_ID),
         telegramLink = null
     )
-    private val message = Text.Minecraft(author = "Steve", uuid = "${steve.uuid}", text = "hi")
+    private val message = BEvent.Text.Minecraft(author = "Steve", uuid = "${steve.uuid}", text = "hi")
     private val retrievedIds = mutableListOf<Long>()
 
     private fun channel(retrieved: CacheRestAction<Member>): TextChannel {

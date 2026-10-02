@@ -19,12 +19,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
 internal class NeoForgeEvents(
     private val configFlow: StateFlow<PluginConfiguration>,
@@ -39,7 +34,7 @@ internal class NeoForgeEvents(
         .onEach { verbose { "#serverStartedEvent" } }
         .onEach {
             ioScope.launch {
-                bEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(BEvent.ServerOpen)
             }
         }.launchIn(ioScope)
 
@@ -47,7 +42,7 @@ internal class NeoForgeEvents(
         .onEach { verbose { "#serverStoppingEvent" } }
         .onEach {
             ioScope.launch {
-                bEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(BEvent.ServerClosed)
             }
         }.launchIn(ioScope)
 
@@ -56,7 +51,7 @@ internal class NeoForgeEvents(
         .filter { config.displayLeaveMessage }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
-                val serverEvent = PlayerLeaveBEvent(
+                val serverEvent = BEvent.PlayerLeave(
                     name = event.entity.name.string,
                     uuid = event.entity.uuid.toString()
                 )
@@ -69,7 +64,7 @@ internal class NeoForgeEvents(
         .filter { config.displayJoinMessage }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
-                val serverEvent = PlayerJoinedBEvent(
+                val serverEvent = BEvent.PlayerJoined(
                     name = event.entity.name.string,
                     uuid = event.entity.uuid.toString(),
                     hasPlayedBefore = true
@@ -85,7 +80,7 @@ internal class NeoForgeEvents(
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
                 val deathCause = event.source.getLocalizedDeathMessage(event.entity).string
-                val serverEvent = PlayerDeathBEvent(
+                val serverEvent = BEvent.PlayerDeath(
                     name = event.entity.name.string,
                     cause = deathCause,
                     uuid = event.entity.uuid.toString()
@@ -98,7 +93,7 @@ internal class NeoForgeEvents(
         .onEach { verbose { "#serverChatEvent" } }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
-                val serverEvent = Text.Minecraft(
+                val serverEvent = BEvent.Text.Minecraft(
                     author = event.player.name.string,
                     text = event.message.string,
                     uuid = event.player.uuid.toString()

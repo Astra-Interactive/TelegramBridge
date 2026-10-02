@@ -23,12 +23,6 @@ import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordFailure
 import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
 import ru.astrainteractive.messagebridge.messenger.discord.impl.channel.internal.DiscordChannelProvider
@@ -71,7 +65,7 @@ internal class DiscordBEventConsumer(
         return awaitRequest { channel.sendMessageEmbeds(embed) }.map { _ -> }
     }
 
-    private suspend fun sendText(event: Text, channel: TextChannel): Result<Unit> {
+    private suspend fun sendText(event: BEvent.Text, channel: TextChannel): Result<Unit> {
         val member = memberResolver.resolve(channel, event).getOrElse { t -> return Result.failure(t) }
         val client = channelProvider.webhookClient().getOrElse { t -> return Result.failure(t) }
         val message = webhookMessageMapper.map(event, member)
@@ -87,24 +81,24 @@ internal class DiscordBEventConsumer(
     private suspend fun send(bEvent: BEvent, jda: JDA): Result<Unit> {
         val channel = channelProvider.textChannel(jda).getOrElse { t -> return Result.failure(t) }
         return when (bEvent) {
-            is PlayerDeathBEvent -> sendEmbed(channel, embedMapper.map(bEvent))
-            is PlayerJoinedBEvent -> {
+            is BEvent.PlayerDeath -> sendEmbed(channel, embedMapper.map(bEvent))
+            is BEvent.PlayerJoined -> {
                 reportTopic(topicUpdater.updateOnlineCount(channel))
                 sendEmbed(channel, embedMapper.map(bEvent))
             }
 
-            is PlayerLeaveBEvent -> {
+            is BEvent.PlayerLeave -> {
                 reportTopic(topicUpdater.updateOnlineCount(channel))
                 sendEmbed(channel, embedMapper.map(bEvent))
             }
 
-            is Text -> sendText(bEvent, channel)
-            ServerClosedBEvent -> {
+            is BEvent.Text -> sendText(bEvent, channel)
+            BEvent.ServerClosed -> {
                 reportTopic(topicUpdater.setStopped(channel))
                 sendMessage(channel, translation.discord.chat.serverStopped)
             }
 
-            ServerOpenBEvent -> {
+            BEvent.ServerOpen -> {
                 reportTopic(topicUpdater.setStarting(channel))
                 sendMessage(channel, translation.discord.chat.serverStarted)
             }

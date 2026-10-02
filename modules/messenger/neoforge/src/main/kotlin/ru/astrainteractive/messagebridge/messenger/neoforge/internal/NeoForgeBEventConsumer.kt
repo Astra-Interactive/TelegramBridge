@@ -15,12 +15,6 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
 internal class NeoForgeBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
@@ -33,7 +27,7 @@ internal class NeoForgeBEventConsumer(
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.MINECRAFT) return
         val text = when (bEvent) {
-            is Text -> {
+            is BEvent.Text -> {
                 val reply = bEvent.reply
                 if (reply == null) {
                     translation.chat.toMinecraft(
@@ -52,11 +46,11 @@ internal class NeoForgeBEventConsumer(
                 }
             }
 
-            ServerOpenBEvent,
-            ServerClosedBEvent,
-            is PlayerLeaveBEvent,
-            is PlayerJoinedBEvent,
-            is PlayerDeathBEvent -> null
+            BEvent.ServerOpen,
+            BEvent.ServerClosed,
+            is BEvent.PlayerLeave,
+            is BEvent.PlayerJoined,
+            is BEvent.PlayerDeath -> null
         } ?: return
 
         MinecraftUtil.serverOrNull?.playerList?.players.orEmpty()

@@ -5,18 +5,18 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import net.dv8tion.jda.api.requests.ErrorResponse
 import ru.astrainteractive.messagebridge.link.api.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
 import java.util.UUID
 
 internal class DiscordMemberResolver(
     private val linkingDao: LinkingDao,
 ) {
-    private suspend fun linkedDiscordId(event: Text): Long? {
+    private suspend fun linkedDiscordId(event: BEvent.Text): Long? {
         val linkedPlayer = when (event) {
-            is Text.Discord -> linkingDao.findByDiscordId(event.authorId).getOrNull()
-            is Text.Minecraft -> linkingDao.findByUuid(UUID.fromString(event.uuid)).getOrNull()
-            is Text.Telegram -> linkingDao.findByTelegramId(event.authorId).getOrNull()
+            is BEvent.Text.Discord -> linkingDao.findByDiscordId(event.authorId).getOrNull()
+            is BEvent.Text.Minecraft -> linkingDao.findByUuid(UUID.fromString(event.uuid)).getOrNull()
+            is BEvent.Text.Telegram -> linkingDao.findByTelegramId(event.authorId).getOrNull()
         }
         return linkedPlayer?.discordLink?.discordId
     }
@@ -25,7 +25,7 @@ internal class DiscordMemberResolver(
         return t is ErrorResponseException && t.errorResponse in MEMBER_GONE
     }
 
-    suspend fun resolve(channel: TextChannel, event: Text): Result<Member?> {
+    suspend fun resolve(channel: TextChannel, event: BEvent.Text): Result<Member?> {
         val discordId = linkedDiscordId(event) ?: return Result.success(null)
         val cachedMember = channel.guild.getMemberById(discordId)
         if (cachedMember != null) return Result.success(cachedMember)

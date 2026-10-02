@@ -9,92 +9,94 @@ sealed interface BEvent {
 
     @Serializable
     val from: MessageFrom
-}
-
-@Serializable
-@SerialName("TextMessageEvent")
-sealed interface Text : BEvent {
-    val author: String
-    val text: String
-
-    val reply: Reply?
 
     @Serializable
-    data class Reply(
-        val author: String,
-        val authorId: Long?,
+    @SerialName("TextMessageEvent")
+    sealed interface Text : BEvent {
+        val author: String
         val text: String
-    )
 
-    @Serializable
-    @SerialName("TelegramTextMessageEvent")
-    data class Telegram(
-        override val author: String,
-        override val text: String,
-        val authorId: Long,
-        override val reply: Reply?
-    ) : Text {
-        override val from: MessageFrom = MessageFrom.TELEGRAM
+        val reply: Reply?
+
+        @Serializable
+        data class Reply(
+            val author: String,
+            val authorId: Long?,
+            val text: String
+        )
+
+        @Serializable
+        @SerialName("TelegramTextMessageEvent")
+        data class Telegram(
+            override val author: String,
+            override val text: String,
+            val authorId: Long,
+            override val reply: Reply?
+        ) : Text {
+            override val from: MessageFrom = MessageFrom.TELEGRAM
+        }
+
+        @Serializable
+        @SerialName("DiscordTextMessageEvent")
+        data class Discord(
+            override val author: String,
+            override val text: String,
+            val authorId: Long,
+            override val reply: Reply?
+        ) : Text {
+            override val from: MessageFrom = MessageFrom.DISCORD
+        }
+
+        @Serializable
+        @SerialName("MinecraftTextMessageEvent")
+        data class Minecraft(
+            override val author: String,
+            val uuid: String,
+            override val text: String
+        ) : Text {
+            override val from: MessageFrom = MessageFrom.MINECRAFT
+            override val reply: Reply? = null
+        }
     }
 
     @Serializable
-    @SerialName("DiscordTextMessageEvent")
-    data class Discord(
-        override val author: String,
-        override val text: String,
-        val authorId: Long,
-        override val reply: Reply?
-    ) : Text {
-        override val from: MessageFrom = MessageFrom.DISCORD
-    }
-
-    @Serializable
-    @SerialName("MinecraftTextMessageEvent")
-    data class Minecraft(
-        override val author: String,
+    @SerialName("PlayerJoinedMessageEvent")
+    data class PlayerJoined(
+        val name: String,
         val uuid: String,
-        override val text: String
-    ) : Text {
+        val hasPlayedBefore: Boolean
+    ) : BEvent {
         override val from: MessageFrom = MessageFrom.MINECRAFT
-        override val reply: Reply? = null
     }
-}
 
-@Serializable
-@SerialName("PlayerJoinedMessageEvent")
-data class PlayerJoinedBEvent(
-    val name: String,
-    val uuid: String,
-    val hasPlayedBefore: Boolean
-) : BEvent {
-    override val from: MessageFrom = MessageFrom.MINECRAFT
-}
+    @Serializable
+    @SerialName("PlayerLeaveMessageEvent")
+    data class PlayerLeave(
+        val name: String,
+        val uuid: String
+    ) : BEvent {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
 
-@Serializable
-@SerialName("PlayerLeaveMessageEvent")
-data class PlayerLeaveBEvent(
-    val name: String,
-    val uuid: String
-) : BEvent {
-    override val from: MessageFrom = MessageFrom.MINECRAFT
-}
+    @Serializable
+    @SerialName("PlayerDeathMessageEvent")
+    data class PlayerDeath(
+        val name: String,
+        val uuid: String,
+        val cause: String? = null
+    ) : BEvent {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
 
-@Serializable
-@SerialName("PlayerDeathMessageEvent")
-data class PlayerDeathBEvent(
-    val name: String,
-    val uuid: String,
-    val cause: String? = null
-) : BEvent {
-    override val from: MessageFrom = MessageFrom.MINECRAFT
-}
+    @Serializable
+    @SerialName("ServerOpenMessageEvent")
+    data object ServerOpen : BEvent {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
 
-@Serializable
-data object ServerOpenBEvent : BEvent {
-    override val from: MessageFrom = MessageFrom.MINECRAFT
-}
-
-@Serializable
-data object ServerClosedBEvent : BEvent {
-    override val from: MessageFrom = MessageFrom.MINECRAFT
+    @Serializable
+    @SerialName("ServerClosedMessageEvent")
+    data object ServerClosed : BEvent {
+        override val from: MessageFrom = MessageFrom.MINECRAFT
+    }
 }

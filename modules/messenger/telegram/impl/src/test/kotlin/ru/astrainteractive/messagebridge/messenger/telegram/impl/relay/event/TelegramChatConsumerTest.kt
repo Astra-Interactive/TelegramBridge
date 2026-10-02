@@ -15,7 +15,7 @@ import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.fake.RecordingEventChannel
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
@@ -103,7 +103,7 @@ class TelegramChatConsumerTest {
     fun GIVEN_message_in_the_chat_WHEN_consumed_THEN_it_goes_to_minecraft() = runTest {
         consume(updateOf(messageOf(text = "hello", from = userOf(id = 9L, userName = "steve_mc"))))
 
-        val relayed = Text.Telegram(author = "steve_mc", text = "hello", authorId = 9L, reply = null)
+        val relayed = BEvent.Text.Telegram(author = "steve_mc", text = "hello", authorId = 9L, reply = null)
         assertEquals(listOf(relayed), eventChannel.events.toList())
         assertTrue(botApi.requests.isEmpty())
     }

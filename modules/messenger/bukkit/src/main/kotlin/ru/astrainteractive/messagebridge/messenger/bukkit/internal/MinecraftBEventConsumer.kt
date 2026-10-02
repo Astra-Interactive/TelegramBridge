@@ -18,12 +18,6 @@ import ru.astrainteractive.messagebridge.messenger.api.api.tryConsume
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.UUID
 
 internal class MinecraftBEventConsumer(
@@ -36,12 +30,12 @@ internal class MinecraftBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val translation by translationKrate
 
-    private suspend fun replyPlayerName(text: Text, reply: Text.Reply): String {
+    private suspend fun replyPlayerName(text: BEvent.Text, reply: BEvent.Text.Reply): String {
         val authorId = reply.authorId ?: return reply.author
         val linkedPlayerModel = when (text) {
-            is Text.Discord -> linkingDao.findByDiscordId(authorId).getOrNull()
-            is Text.Telegram -> linkingDao.findByTelegramId(authorId).getOrNull()
-            is Text.Minecraft -> null
+            is BEvent.Text.Discord -> linkingDao.findByDiscordId(authorId).getOrNull()
+            is BEvent.Text.Telegram -> linkingDao.findByTelegramId(authorId).getOrNull()
+            is BEvent.Text.Minecraft -> null
         }
         return linkedPlayerModel?.lastMinecraftName ?: reply.author
     }
@@ -50,17 +44,17 @@ internal class MinecraftBEventConsumer(
         if (bEvent.from == MessageFrom.MINECRAFT) return
 
         val text = when (bEvent) {
-            is Text -> {
+            is BEvent.Text -> {
                 val linkedPlayerModel = when (bEvent) {
-                    is Text.Discord -> {
+                    is BEvent.Text.Discord -> {
                         linkingDao.findByDiscordId(bEvent.authorId).getOrNull()
                     }
 
-                    is Text.Minecraft -> {
+                    is BEvent.Text.Minecraft -> {
                         linkingDao.findByUuid(UUID.fromString(bEvent.uuid)).getOrNull()
                     }
 
-                    is Text.Telegram -> {
+                    is BEvent.Text.Telegram -> {
                         linkingDao.findByTelegramId(bEvent.authorId).getOrNull()
                     }
                 }
@@ -83,11 +77,11 @@ internal class MinecraftBEventConsumer(
                 }
             }
 
-            ServerOpenBEvent,
-            ServerClosedBEvent,
-            is PlayerLeaveBEvent,
-            is PlayerJoinedBEvent,
-            is PlayerDeathBEvent -> null
+            BEvent.ServerOpen,
+            BEvent.ServerClosed,
+            is BEvent.PlayerLeave,
+            is BEvent.PlayerJoined,
+            is BEvent.PlayerDeath -> null
         } ?: return
 
         withContext(dispatchers.Main) {

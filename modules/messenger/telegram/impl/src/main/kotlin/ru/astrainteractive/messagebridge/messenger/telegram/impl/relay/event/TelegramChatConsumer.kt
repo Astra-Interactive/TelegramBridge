@@ -11,7 +11,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.internal.TelegramCommandHandler
@@ -54,7 +54,7 @@ internal class TelegramChatConsumer(
             return
         }
         eventChannel.consume(
-            Text.Telegram(
+            BEvent.Text.Telegram(
                 author = valid.author,
                 text = valid.text,
                 authorId = valid.authorId,

@@ -15,8 +15,7 @@ import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
 import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
 import ru.astrainteractive.messagebridge.link.telegram.di.TelegramLinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.discord.impl.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.forge.di.ForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.di.TelegramMessengerModule
@@ -146,7 +145,7 @@ internal class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                bEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(BEvent.ServerOpen)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -155,7 +154,7 @@ internal class RootModule(
         },
         onDisable = {
             coreModule.ioScope.launch {
-                bEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(BEvent.ServerClosed)
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }

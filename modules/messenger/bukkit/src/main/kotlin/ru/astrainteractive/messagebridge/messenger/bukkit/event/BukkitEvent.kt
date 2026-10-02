@@ -17,10 +17,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
 /**
  * This is a most convenient way to use bukkit events in kotlin
@@ -39,7 +36,7 @@ internal class BukkitEvent(
         if (!config.displayJoinMessage) return
 
         ioScope.launch(dispatchers.IO) {
-            val bEvent = PlayerJoinedBEvent(
+            val bEvent = BEvent.PlayerJoined(
                 name = event.player.name,
                 uuid = event.player.uniqueId.toString(),
                 hasPlayedBefore = event.player.hasPlayedBefore()
@@ -52,7 +49,7 @@ internal class BukkitEvent(
     fun playerLeaveEvent(event: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         ioScope.launch(dispatchers.IO) {
-            val bEvent = PlayerLeaveBEvent(
+            val bEvent = BEvent.PlayerLeave(
                 name = event.player.name,
                 uuid = event.player.uniqueId.toString()
             )
@@ -67,7 +64,7 @@ internal class BukkitEvent(
 
         ioScope.launch(dispatchers.IO) {
             val textComponent = message as TextComponent
-            val bEvent = Text.Minecraft(
+            val bEvent = BEvent.Text.Minecraft(
                 author = player.name,
                 text = textComponent.content(),
                 uuid = player.uniqueId.toString()
@@ -81,7 +78,7 @@ internal class BukkitEvent(
         if (!config.displayDeathMessage) return
         ioScope.launch(dispatchers.IO) {
             val deathCause = event.deathMessage
-            val bEvent = PlayerDeathBEvent(
+            val bEvent = BEvent.PlayerDeath(
                 name = event.entity.name,
                 cause = deathCause,
                 uuid = event.entity.uniqueId.toString()

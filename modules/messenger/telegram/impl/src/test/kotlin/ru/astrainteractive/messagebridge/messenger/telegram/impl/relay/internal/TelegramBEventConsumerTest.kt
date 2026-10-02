@@ -12,12 +12,7 @@ import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.LogLine
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.CHAT_ID
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.configurationOf
@@ -35,7 +30,7 @@ class TelegramBEventConsumerTest {
     private val botApi = FakeTelegramBotApi()
     private val logger = RecordingLogger()
     private val relayedMessageCache = TelegramRelayedMessageCache(capacity = 10)
-    private val minecraftMessage = Text.Minecraft(author = "Steve", uuid = "uuid", text = "hello")
+    private val minecraftMessage = BEvent.Text.Minecraft(author = "Steve", uuid = "uuid", text = "hello")
     private val migratedChatId = -1009876543210L
 
     private fun consumerOf(
@@ -86,7 +81,7 @@ class TelegramBEventConsumerTest {
 
     @Test
     fun GIVEN_message_from_telegram_WHEN_consumed_THEN_it_is_not_echoed_back() = runTest {
-        consumerOf().consume(Text.Telegram(author = "Steve", text = "hello", authorId = 7L, reply = null))
+        consumerOf().consume(BEvent.Text.Telegram(author = "Steve", text = "hello", authorId = 7L, reply = null))
 
         assertTrue(botApi.requests.isEmpty())
     }
@@ -96,12 +91,12 @@ class TelegramBEventConsumerTest {
         val consumer = consumerOf()
         val player = translation.player
 
-        consumer.consume(PlayerJoinedBEvent(name = "Steve", uuid = "uuid", hasPlayedBefore = true))
-        consumer.consume(PlayerJoinedBEvent(name = "Alex", uuid = "uuid", hasPlayedBefore = false))
-        consumer.consume(PlayerLeaveBEvent(name = "Steve", uuid = "uuid"))
-        consumer.consume(PlayerDeathBEvent(name = "Steve", uuid = "uuid", cause = null))
-        consumer.consume(ServerOpenBEvent)
-        consumer.consume(ServerClosedBEvent)
+        consumer.consume(BEvent.PlayerJoined(name = "Steve", uuid = "uuid", hasPlayedBefore = true))
+        consumer.consume(BEvent.PlayerJoined(name = "Alex", uuid = "uuid", hasPlayedBefore = false))
+        consumer.consume(BEvent.PlayerLeave(name = "Steve", uuid = "uuid"))
+        consumer.consume(BEvent.PlayerDeath(name = "Steve", uuid = "uuid", cause = null))
+        consumer.consume(BEvent.ServerOpen)
+        consumer.consume(BEvent.ServerClosed)
 
         val expected = listOf(
             player.joined("Steve"),
@@ -227,7 +222,7 @@ class TelegramBEventConsumerTest {
 
     @Test
     fun GIVEN_join_event_WHEN_delivered_THEN_a_reply_to_it_finds_nothing() = runTest {
-        consumerOf().consume(PlayerJoinedBEvent(name = "Steve", uuid = "uuid", hasPlayedBefore = true))
+        consumerOf().consume(BEvent.PlayerJoined(name = "Steve", uuid = "uuid", hasPlayedBefore = true))
 
         assertNull(relayedMessageCache.find(chatId = CHAT_ID, messageId = FakeTelegramBotApi.DELIVERED_MESSAGE_ID))
     }

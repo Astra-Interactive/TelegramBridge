@@ -6,9 +6,7 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
 internal class DiscordEmbedMapper(
     translationKrate: CachedKrate<PluginTranslation>,
@@ -22,12 +20,12 @@ internal class DiscordEmbedMapper(
         .setAuthor(text, null, avatarUrl(uuid))
         .build()
 
-    fun map(event: PlayerDeathBEvent): MessageEmbed {
+    fun map(event: BEvent.PlayerDeath): MessageEmbed {
         val text = event.cause ?: translation.discord.chat.playerDied(event.name).toMessengerText()
         return embed(DEATH_COLOR, text, event.uuid)
     }
 
-    fun map(event: PlayerJoinedBEvent): MessageEmbed {
+    fun map(event: BEvent.PlayerJoined): MessageEmbed {
         val chat = translation.discord.chat
         return if (event.hasPlayedBefore) {
             embed(JOIN_COLOR, chat.playerJoined(event.name).toMessengerText(), event.uuid)
@@ -36,7 +34,7 @@ internal class DiscordEmbedMapper(
         }
     }
 
-    fun map(event: PlayerLeaveBEvent): MessageEmbed {
+    fun map(event: BEvent.PlayerLeave): MessageEmbed {
         return embed(LEAVE_COLOR, translation.discord.chat.playerLeft(event.name).toMessengerText(), event.uuid)
     }
 

@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.mapping.TelegramAuthorMapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -60,7 +60,7 @@ class TelegramReplyMapperTest {
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello"), reply)
+        assertEquals(BEvent.Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello"), reply)
     }
 
     @Test
@@ -88,18 +88,22 @@ class TelegramReplyMapperTest {
 
         val reply = mapper.map(message)
 
-        assertEquals(Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn"), reply)
+        assertEquals(BEvent.Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn"), reply)
     }
 
     @Test
     fun GIVEN_reply_to_message_bot_relayed_WHEN_mapped_THEN_reply_names_player_who_wrote_it() = runTest {
-        val relayed = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hello")
+        val relayed = BEvent.Text.Minecraft(
+            author = "Steve",
+            uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+            text = "hello"
+        )
         relayedMessageCache.remember(chatId = CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello"), reply)
+        assertEquals(BEvent.Text.Reply(author = "Steve", authorId = null, text = "hello"), reply)
     }
 
     @Test
@@ -108,18 +112,25 @@ class TelegramReplyMapperTest {
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "MessageBridgeBot", authorId = BOT_ID, text = "[MC] Steve:\nhello"), reply)
+        assertEquals(
+            BEvent.Text.Reply(author = "MessageBridgeBot", authorId = BOT_ID, text = "[MC] Steve:\nhello"),
+            reply
+        )
     }
 
     @Test
     fun GIVEN_message_relayed_in_another_chat_WHEN_reply_to_same_id_is_mapped_THEN_reply_names_its_author() = runTest {
-        val relayed = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hello")
+        val relayed = BEvent.Text.Minecraft(
+            author = "Steve",
+            uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+            text = "hello"
+        )
         relayedMessageCache.remember(chatId = OTHER_CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = steve, text = "different")
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different"), reply)
+        assertEquals(BEvent.Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different"), reply)
     }
 
     @Test

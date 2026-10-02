@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
-import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -56,7 +56,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "Stevie", authorId = STEVE_ID, text = "hello"), reply)
+        assertEquals(BEvent.Text.Reply(author = "Stevie", authorId = STEVE_ID, text = "hello"), reply)
     }
 
     @Test
@@ -65,7 +65,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "steve", authorId = STEVE_ID, text = "hello"), reply)
+        assertEquals(BEvent.Text.Reply(author = "steve", authorId = STEVE_ID, text = "hello"), reply)
     }
 
     @Test
@@ -74,7 +74,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello"), reply)
+        assertEquals(BEvent.Text.Reply(author = "Steve", authorId = null, text = "hello"), reply)
     }
 
     @Test
@@ -83,7 +83,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "[CI] GitHub", authorId = null, text = "hello"), reply)
+        assertEquals(BEvent.Text.Reply(author = "[CI] GitHub", authorId = null, text = "hello"), reply)
     }
 
     private companion object {
