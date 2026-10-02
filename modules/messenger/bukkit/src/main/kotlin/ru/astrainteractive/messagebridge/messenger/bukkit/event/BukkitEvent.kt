@@ -35,35 +35,35 @@ internal class BukkitEvent(
         get() = configFlow.value
 
     @EventHandler(ignoreCancelled = true)
-    fun playerJoin(it: PlayerJoinEvent) {
+    fun playerJoin(event: PlayerJoinEvent) {
         if (!config.displayJoinMessage) return
 
         ioScope.launch(dispatchers.IO) {
             val bEvent = PlayerJoinedBEvent(
-                name = it.player.name,
-                uuid = it.player.uniqueId.toString(),
-                hasPlayedBefore = it.player.hasPlayedBefore()
+                name = event.player.name,
+                uuid = event.player.uniqueId.toString(),
+                hasPlayedBefore = event.player.hasPlayedBefore()
             )
             bEventChannel.consume(bEvent)
         }
     }
 
     @EventHandler(ignoreCancelled = true)
-    fun playerLeaveEvent(it: PlayerQuitEvent) {
+    fun playerLeaveEvent(event: PlayerQuitEvent) {
         if (!config.displayLeaveMessage) return
         ioScope.launch(dispatchers.IO) {
             val bEvent = PlayerLeaveBEvent(
-                name = it.player.name,
-                uuid = it.player.uniqueId.toString()
+                name = event.player.name,
+                uuid = event.player.uniqueId.toString()
             )
             bEventChannel.consume(bEvent)
         }
     }
 
     @EventHandler(ignoreCancelled = true)
-    fun asyncMessageEvent(it: AsyncPlayerChatEvent) {
-        val message = KyoriComponentSerializer.Plain.toComponent(it.message)
-        val player = it.player
+    fun asyncMessageEvent(event: AsyncPlayerChatEvent) {
+        val message = KyoriComponentSerializer.Plain.toComponent(event.message)
+        val player = event.player
 
         ioScope.launch(dispatchers.IO) {
             val textComponent = message as TextComponent
@@ -77,14 +77,14 @@ internal class BukkitEvent(
     }
 
     @EventHandler(ignoreCancelled = true)
-    fun deathEvent(it: PlayerDeathEvent) {
+    fun deathEvent(event: PlayerDeathEvent) {
         if (!config.displayDeathMessage) return
         ioScope.launch(dispatchers.IO) {
-            val deathCause = it.deathMessage
+            val deathCause = event.deathMessage
             val bEvent = PlayerDeathBEvent(
-                name = it.entity.name,
+                name = event.entity.name,
                 cause = deathCause,
-                uuid = it.entity.uniqueId.toString()
+                uuid = event.entity.uniqueId.toString()
             )
             bEventChannel.consume(bEvent)
         }
