@@ -26,7 +26,7 @@ internal class DiscordWebhookClients(
                 onSuccess = { client -> return client },
                 onFailure = { failure ->
                     deliveryError.report(failure)
-                    onFailure(failure)
+                    onFailure.invoke(failure)
                     delay(RETRY_DELAY)
                 }
             )

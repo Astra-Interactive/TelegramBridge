@@ -47,8 +47,8 @@ internal class TelegramBotConnector(
     }
 
     private suspend fun keepRunning(connection: TelegramConnection.Ready): Nothing {
-        val session = sessionFactory(connection)
-        val backOff = backOffFactory()
+        val session = sessionFactory.invoke(connection)
+        val backOff = backOffFactory.invoke()
         mutableState.value = TelegramConnectionState.Connecting
         while (true) {
             val failure = runOnce(session, backOff)

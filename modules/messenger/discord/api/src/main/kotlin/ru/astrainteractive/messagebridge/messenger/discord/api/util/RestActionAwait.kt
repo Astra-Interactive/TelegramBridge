@@ -12,7 +12,7 @@ suspend fun <T> RestAction<T>.await(): T = suspendCancellableCoroutine { continu
 }
 
 suspend fun <T> awaitRequest(request: () -> RestAction<T>): Result<T> {
-    return runCatching { request().await() }
+    return runCatching { request.invoke().await() }
         .onFailure { error -> if (error is CancellationException) throw error }
 }
 
@@ -23,6 +23,6 @@ private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { conti
 }
 
 suspend fun <T> awaitTask(task: () -> Task<T>): Result<T> {
-    return runCatching { task().await() }
+    return runCatching { task.invoke().await() }
         .onFailure { error -> if (error is CancellationException) throw error }
 }

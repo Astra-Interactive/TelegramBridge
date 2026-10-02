@@ -44,7 +44,7 @@ internal class DiscordMessageListener(
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (messageInterceptors().any { interceptor -> interceptor.intercept(event) }) return
+        if (messageInterceptors.invoke().any { interceptor -> interceptor.intercept(event) }) return
         when (relevanceMapper.map(event)) {
             DiscordMessageRelevance.Relevant -> scope.launch { process(event) }
             DiscordMessageRelevance.WebhookMessage,

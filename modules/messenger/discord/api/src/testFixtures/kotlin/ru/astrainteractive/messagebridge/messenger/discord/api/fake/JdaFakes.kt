@@ -11,7 +11,7 @@ inline fun <reified T : Any> jdaFake(crossinline answer: (method: Method, args: 
             "hashCode" -> System.identityHashCode(proxy)
             "equals" -> proxy === args?.firstOrNull()
             "toString" -> "${T::class.java.simpleName}Fake"
-            else -> answer(method, args?.toList().orEmpty())
+            else -> answer.invoke(method, args?.toList().orEmpty())
         }
     }
     return fake as T

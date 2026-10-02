@@ -29,7 +29,7 @@ internal class LuckPermsGroups(
         return runCatching {
             luckPerms.userManager
                 .modifyUser(uuid) { user ->
-                    val result = change(user, node)
+                    val result = change.invoke(user, node)
                     info { "#modify group $group of $uuid: $result" }
                 }
                 .await()

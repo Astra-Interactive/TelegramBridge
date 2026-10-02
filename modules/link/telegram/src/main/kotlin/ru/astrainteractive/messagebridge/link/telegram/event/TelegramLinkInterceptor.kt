@@ -18,7 +18,7 @@ internal class TelegramLinkInterceptor(
 ) : TelegramUpdateInterceptor {
     private fun codeOrNull(message: Message): Int? {
         if (message.chatId?.toString() != configFlow.value.tgConfig.chatID) return null
-        val command = message.text?.let { text -> TelegramBotCommand.parse(text, botUserName()) } ?: return null
+        val command = message.text?.let { text -> TelegramBotCommand.parse(text, botUserName.invoke()) } ?: return null
         if (command.name != LINK) return null
         return command.argument.toIntOrNull() ?: INVALID_CODE
     }

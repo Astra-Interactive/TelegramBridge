@@ -23,13 +23,13 @@ class FakeConfigKrate(
     }
 
     override fun save(block: (Result<PluginConfiguration>) -> Result<PluginConfiguration>) {
-        save(block(stored))
+        save(block.invoke(stored))
     }
 
     override fun saveAndGet(
         block: (Result<PluginConfiguration>) -> Result<PluginConfiguration>
     ): Result<PluginConfiguration> {
-        val value = block(stored)
+        val value = block.invoke(stored)
         save(value)
         return value
     }

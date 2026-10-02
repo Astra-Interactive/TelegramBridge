@@ -24,7 +24,7 @@ class FakeTelegramBotApi : TelegramBotApi {
     override suspend fun <T : Serializable> execute(method: BotApiMethod<T>): TelegramRequestResult<T> {
         requests += method
         @Suppress("UNCHECKED_CAST")
-        return answer(method) as TelegramRequestResult<T>
+        return answer.invoke(method) as TelegramRequestResult<T>
     }
 
     companion object {

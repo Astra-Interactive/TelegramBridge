@@ -44,7 +44,7 @@ class LongPollingBotSessionTest {
 
     private fun awaitUntil(condition: () -> Boolean) {
         val deadline = TimeSource.Monotonic.markNow() + TIMEOUT
-        while (!condition()) {
+        while (!condition.invoke()) {
             check(deadline.hasNotPassedNow()) { "The condition is not met in $TIMEOUT" }
             Thread.sleep(POLL_INTERVAL.inWholeMilliseconds)
         }

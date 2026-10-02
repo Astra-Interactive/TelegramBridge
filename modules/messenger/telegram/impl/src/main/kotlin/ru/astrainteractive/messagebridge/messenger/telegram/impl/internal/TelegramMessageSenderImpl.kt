@@ -36,8 +36,8 @@ internal class TelegramMessageSenderImpl(
     private suspend fun <T : Serializable> executeLogged(method: BotApiMethod<T>, description: () -> String) {
         when (val result = executeWithRetry(method)) {
             is TelegramRequestResult.Success -> Unit
-            TelegramRequestResult.NotConnected -> verbose { "#executeLogged not connected, ${description()}" }
-            is TelegramRequestResult.Failed -> error { "#executeLogged ${description()}: ${result.failure}" }
+            TelegramRequestResult.NotConnected -> verbose { "#executeLogged not connected, ${description.invoke()}" }
+            is TelegramRequestResult.Failed -> error { "#executeLogged ${description.invoke()}: ${result.failure}" }
         }
     }
 

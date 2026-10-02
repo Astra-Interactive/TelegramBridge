@@ -77,7 +77,7 @@ internal class DiscordConnector(
         }
         try {
             if (jda.awaitReadyOrShutdown()) {
-                onConnected(jda)
+                onConnected.invoke(jda)
                 return failureMapper.mapShutdown(shutdownListener.awaitCloseCode(), privilegedIntents)
             }
             val closeCode = withTimeoutOrNull(SHUTDOWN_EVENT_TIMEOUT) { shutdownListener.awaitCloseCode() }

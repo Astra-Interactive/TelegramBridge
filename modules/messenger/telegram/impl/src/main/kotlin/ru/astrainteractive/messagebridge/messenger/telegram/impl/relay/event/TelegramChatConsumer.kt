@@ -83,7 +83,7 @@ internal class TelegramChatConsumer(
 
     override fun consume(update: Update?) {
         update ?: return
-        if (updateInterceptors().any { interceptor -> interceptor.intercept(update) }) return
+        if (updateInterceptors.invoke().any { interceptor -> interceptor.intercept(update) }) return
         when (relevanceMapper.map(update)) {
             MessageRelevance.Relevant -> scope.launch { process(update) }
             MessageRelevance.WrongChat -> verbose { "#consume update is not from the configured chat" }

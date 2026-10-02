@@ -43,8 +43,8 @@ internal class TelegramDiagnostics(
 
     private inline fun <T> TelegramRequestResult<T>.valueOrElse(onFailure: (Check) -> Nothing): T = when (this) {
         is TelegramRequestResult.Success -> value
-        TelegramRequestResult.NotConnected -> onFailure(errorCheck(translation.telegram.check.reconnecting))
-        is TelegramRequestResult.Failed -> onFailure(errorCheck(failureTextMapper.map(failure)))
+        TelegramRequestResult.NotConnected -> onFailure.invoke(errorCheck(translation.telegram.check.reconnecting))
+        is TelegramRequestResult.Failed -> onFailure.invoke(errorCheck(failureTextMapper.map(failure)))
     }
 
     private fun notAdminChecks(bot: User): List<Check> {

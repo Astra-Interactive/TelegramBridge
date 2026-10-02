@@ -153,7 +153,7 @@ class TelegramBotConnectorTest {
         val connector = connectorOf(session)
         connect(connector, MutableStateFlow(ready))
 
-        session.reportState(TelegramConnectionState.Failed(TelegramFailure.TokenInUse))
+        session.reportState.invoke(TelegramConnectionState.Failed(TelegramFailure.TokenInUse))
 
         assertEquals(TelegramConnectionState.Failed(TelegramFailure.TokenInUse), connector.state.value)
     }

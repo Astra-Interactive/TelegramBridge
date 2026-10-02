@@ -23,7 +23,7 @@ internal class GetUpdatesStatusInterceptor(
     private val lastConflict = MutableStateFlow<TimeMark?>(null)
 
     private fun report(state: TelegramConnectionState) {
-        if (isActive.value) onState(state)
+        if (isActive.value) onState.invoke(state)
     }
 
     private fun stateOf(code: Int): TelegramConnectionState? = when (code) {

@@ -7,7 +7,7 @@ internal class TelegramCommandParser(
     private val botUserName: suspend () -> String?,
 ) {
     suspend fun map(text: String): TelegramCommand? {
-        val command = TelegramBotCommand.parse(text, botUserName()) ?: return null
+        val command = TelegramBotCommand.parse(text, botUserName.invoke()) ?: return null
         return when (command.name) {
             VANILLA -> TelegramCommand.Vanilla
             else -> null

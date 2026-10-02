@@ -15,7 +15,7 @@ class FakeLinkingDao(
     private suspend fun <T> access(action: () -> T): Result<T> {
         yield()
         failure?.let { error -> return Result.failure(error) }
-        return Result.success(action())
+        return Result.success(action.invoke())
     }
 
     override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayerModel?> = access { players[uuid] }

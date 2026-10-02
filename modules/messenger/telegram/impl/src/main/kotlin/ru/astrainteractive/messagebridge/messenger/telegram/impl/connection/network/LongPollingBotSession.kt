@@ -39,7 +39,7 @@ internal class LongPollingBotSession(
             Supplier(::ObjectMapper),
             Supplier { pollingClient },
             Supplier { pollerExecutor },
-            Supplier { backOffFactory() }
+            Supplier { backOffFactory.invoke() }
         )
         return LongPolling(
             statusInterceptor = statusInterceptor,

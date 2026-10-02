@@ -7,7 +7,7 @@ internal class TelegramSetupCommandParser(
     private val botUserName: () -> String?,
 ) {
     fun map(text: String): TelegramSetupCommand? {
-        val command = TelegramBotCommand.parse(text, botUserName()) ?: return null
+        val command = TelegramBotCommand.parse(text, botUserName.invoke()) ?: return null
         return when (command.name) {
             BIND -> TelegramSetupCommand.Bind(command.argument)
             CHAT_INFO -> TelegramSetupCommand.ChatInfo
