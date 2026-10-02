@@ -58,6 +58,14 @@ class TelegramLinkInterceptorTest {
     }
 
     @Test
+    fun GIVEN_link_alias_in_the_bridged_chat_WHEN_intercepted_THEN_the_code_is_linked() = runTest {
+        assertTrue(intercept(linkUpdate("/linkminecraft 1234")))
+        assertTrue(intercept(linkUpdate("/linkmc 5678")))
+
+        assertEquals(listOf(1234, 5678), linkApi.telegramCodes)
+    }
+
+    @Test
     fun GIVEN_link_addressed_to_this_bot_WHEN_intercepted_THEN_the_code_is_linked() = runTest {
         assertTrue(intercept(linkUpdate("/link@$BOT_USER_NAME 1234")))
 

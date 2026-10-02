@@ -185,6 +185,7 @@ The plugin rewrites `config.yml` on every load. Comments you add are lost, only 
 | `/bind <code>` | The chat to bridge  | Binds the chat. The code comes from `mb telegram bind`          |
 
 Commands also work with the bot's name, e.g. `/vanilla@my_server_chat_bot`.
+`/linkminecraft <code>` and `/linkmc <code>` work the same as `/link <code>`.
 
 ## Account linking
 

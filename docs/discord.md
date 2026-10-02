@@ -178,6 +178,8 @@ The plugin rewrites `config.yml` on every load. Comments you add are lost, only 
 | `<code>`       | Direct message         | Links a Minecraft account                   |
 | `!bind <code>` | The channel to bridge  | Binds the channel. The code comes from `mb discord bind` |
 
+`/linkminecraft <code>` and `/linkmc <code>` work the same as `/link <code>`.
+
 ## Things to know
 
 - Messages of bots and webhooks are not relayed to Minecraft.

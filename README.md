@@ -120,6 +120,8 @@ In the console, type commands without `/`. Full list: [docs/commands.md](docs/co
 | `/link <code>` | Telegram, Discord | Link a Minecraft account                    |
 | `/minfo`       | Telegram          | Print the chat ID, topic ID and chat type   |
 
+`/linkminecraft <code>` and `/linkmc <code>` work the same as `/link <code>`.
+
 ---
 
 ## 💜 Support Us

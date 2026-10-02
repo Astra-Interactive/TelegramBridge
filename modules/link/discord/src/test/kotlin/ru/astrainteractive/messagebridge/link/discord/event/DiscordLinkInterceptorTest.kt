@@ -59,6 +59,21 @@ class DiscordLinkInterceptorTest {
     }
 
     @Test
+    fun GIVEN_link_alias_in_the_bridge_channel_WHEN_intercepted_THEN_the_code_is_linked() = runTest {
+        assertTrue(intercept(messageEventOf(text = "/linkminecraft 1234")))
+        assertTrue(intercept(messageEventOf(text = "/linkmc 5678")))
+
+        assertEquals(listOf(1234, 5678), linkApi.discordCodes)
+    }
+
+    @Test
+    fun GIVEN_word_starting_with_link_in_the_bridge_channel_WHEN_intercepted_THEN_it_is_left_to_the_relay() = runTest {
+        assertFalse(intercept(messageEventOf(text = "/linking 1234")))
+
+        assertTrue(linkApi.discordCodes.isEmpty())
+    }
+
+    @Test
     fun GIVEN_link_without_a_number_in_the_bridge_channel_WHEN_intercepted_THEN_an_invalid_code_is_tried() = runTest {
         assertTrue(intercept(messageEventOf(text = "/link abc")))
 

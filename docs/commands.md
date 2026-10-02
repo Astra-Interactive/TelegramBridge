@@ -96,6 +96,7 @@ Telegram:
 | `/bind <code>` | The chat to bridge | Binds the chat, the code comes from `/mb telegram bind`        |
 
 Telegram commands also work with the bot's name, e.g. `/vanilla@my_server_chat_bot`.
+`/linkminecraft <code>` and `/linkmc <code>` work the same as `/link <code>`.
 
 Discord:
 
@@ -105,3 +106,5 @@ Discord:
 | `/link <code>` | The bridged channel   | Links a Minecraft account                                |
 | `<code>`       | Direct message        | Links a Minecraft account                                |
 | `!bind <code>` | The channel to bridge | Binds the channel, the code comes from `/mb discord bind` |
+
+`/linkminecraft <code>` and `/linkmc <code>` work the same as `/link <code>`.

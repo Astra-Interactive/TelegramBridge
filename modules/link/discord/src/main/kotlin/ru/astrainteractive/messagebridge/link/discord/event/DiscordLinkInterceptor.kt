@@ -14,8 +14,11 @@ internal class DiscordLinkInterceptor(
     private val configFlow: StateFlow<PluginConfiguration>,
     private val linkHandler: DiscordLinkHandler,
 ) : DiscordMessageInterceptor {
+    private fun String.splitCommand(): List<String> = trim().split(WHITESPACE, limit = 2)
+
     private fun MessageReceivedEvent.isLinkInBridgeChannel(): Boolean {
-        return message.channelId == configFlow.value.jdaConfig.channelId && message.contentRaw.startsWith(LINK)
+        if (message.channelId != configFlow.value.jdaConfig.channelId) return false
+        return message.contentRaw.splitCommand().first() in LINK_COMMANDS
     }
 
     override fun intercept(event: MessageReceivedEvent): Boolean {
@@ -29,7 +32,7 @@ internal class DiscordLinkInterceptor(
             }
 
             event.isLinkInBridgeChannel() -> {
-                val code = content.replace("$LINK ", "").toIntOrNull() ?: INVALID_CODE
+                val code = content.splitCommand().getOrNull(1)?.toIntOrNull() ?: INVALID_CODE
                 scope.launch { linkHandler.linkInChannel(code, event) }
                 true
             }
@@ -39,7 +42,8 @@ internal class DiscordLinkInterceptor(
     }
 
     private companion object {
-        const val LINK = "/link"
+        val LINK_COMMANDS = setOf("/link", "/linkminecraft", "/linkmc")
+        val WHITESPACE = "\\s+".toRegex()
         const val INVALID_CODE = -1
     }
 }

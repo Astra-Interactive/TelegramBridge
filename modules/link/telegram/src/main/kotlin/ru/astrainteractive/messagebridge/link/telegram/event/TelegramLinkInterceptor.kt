@@ -19,7 +19,7 @@ internal class TelegramLinkInterceptor(
     private fun codeOrNull(message: Message): Int? {
         if (message.chatId?.toString() != configFlow.value.tgConfig.chatID) return null
         val command = message.text?.let { text -> TelegramBotCommand.parse(text, botUserName.invoke()) } ?: return null
-        if (command.name != LINK) return null
+        if (command.name !in LINK_COMMANDS) return null
         return command.argument.toIntOrNull() ?: INVALID_CODE
     }
 
@@ -31,7 +31,7 @@ internal class TelegramLinkInterceptor(
     }
 
     private companion object {
-        const val LINK = "/link"
+        val LINK_COMMANDS = setOf("/link", "/linkminecraft", "/linkmc")
         const val INVALID_CODE = -1
     }
 }
