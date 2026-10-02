@@ -1,11 +1,11 @@
 package ru.astrainteractive.messagebridge.link.impl.role.internal
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
 import net.luckperms.api.model.data.DataMutateResult
 import net.luckperms.api.model.user.User
 import net.luckperms.api.node.types.InheritanceNode
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.impl.role.api.PermissionGroups
@@ -34,7 +34,7 @@ internal class LuckPermsGroups(
                 }
                 .await()
         }
-            .onFailure { t -> if (t is CancellationException) throw t }
+            .propagateCancellationException()
             .fold(
                 onSuccess = { _ -> Result.success(Unit) },
                 onFailure = { t ->

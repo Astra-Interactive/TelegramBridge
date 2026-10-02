@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.link.impl.player.database
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import org.jetbrains.exposed.v1.core.Op
@@ -13,6 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.messagebridge.link.api.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.link.api.player.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.impl.player.api.DiscordLinkedPlayerDao
@@ -35,7 +35,7 @@ internal class LinkingDaoImpl(
     private suspend fun <T> query(action: String, statement: JdbcTransaction.() -> T): Result<T> {
         val database = databaseFlow.first()
         return runCatching { transaction(db = database, statement = statement) }
-            .onFailure { t -> if (t is CancellationException) throw t }
+            .propagateCancellationException()
             .fold(
                 onSuccess = { value -> Result.success(value) },
                 onFailure = { t -> Result.failure(LinkedPlayerStorageError("Could not $action", t)) }

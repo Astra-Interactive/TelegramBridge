@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.messenger.discord.impl.relay.internal
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +12,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
@@ -69,7 +69,7 @@ internal class DiscordBEventConsumer(
         val client = channelProvider.webhookClient().getOrElse { failure -> return Result.failure(failure) }
         val message = webhookMessageMapper.map(event, member)
         return runCatching { client.send(message).await() }
-            .onFailure { failure -> if (failure is CancellationException) throw failure }
+            .propagateCancellationException()
             .map { _ -> }
     }
 

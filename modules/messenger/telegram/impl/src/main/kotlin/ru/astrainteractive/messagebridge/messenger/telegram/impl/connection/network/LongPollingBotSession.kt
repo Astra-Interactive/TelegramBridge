@@ -8,12 +8,12 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer
 import org.telegram.telegrambots.meta.api.methods.GetMe
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.mapping.TelegramFailureMapper
 import java.util.concurrent.Executors
 import java.util.function.Supplier
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.TimeSource
 
 internal class LongPollingBotSession(
@@ -51,7 +51,7 @@ internal class LongPollingBotSession(
 
     override suspend fun fetchBotUserName(): Result<String> {
         return runCatching { connection.telegramClient.executeAsync(GetMe()).await().userName }
-            .onFailure { t -> if (t is CancellationException) throw t }
+            .propagateCancellationException()
     }
 
     override suspend fun startPolling(
@@ -63,9 +63,8 @@ internal class LongPollingBotSession(
             runInterruptible {
                 polling.register(connection, updateConsumer)
             }
-        }.onFailure { t ->
-            polling.close()
-            if (t is CancellationException) throw t
-        }.map { _ -> polling }
+        }.onFailure { _ -> polling.close() }
+            .propagateCancellationException()
+            .map { _ -> polling }
     }
 }
