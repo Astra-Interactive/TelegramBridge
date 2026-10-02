@@ -90,17 +90,16 @@ internal class TelegramBindHandler(
         }
         val chatId = message.chatId.toString()
         val topicId = message.topicIdOrNull().orEmpty()
-        save(chatId, topicId).fold(
-            onSuccess = { _ ->
+        save(chatId, topicId)
+            .onSuccess { _ ->
                 info { "#bind chat_id is $chatId, topic_id is '$topicId'" }
                 reply(message, bindTranslation.success.toMessengerText())
                 onBound.invoke(bindTranslation.bound(chat = titleOf(message), topic = topicNameOf(message)))
-            },
-            onFailure = { t ->
+            }
+            .onFailure { t ->
                 reply(message, bindTranslation.saveFailed.toMessengerText())
                 val error = t.describe()
                 onBound.invoke(bindTranslation.notBound(chat = titleOf(message), error = error))
             }
-        )
     }
 }
