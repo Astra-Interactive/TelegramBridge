@@ -26,7 +26,6 @@ dependencies {
     shadow(libs.klibs.mikro.core)
     shadow(libs.klibs.mikro.extensions)
     shadow(libs.kotlin.coroutines.core)
-    shadow(libs.kotlin.datetime)
     shadow(libs.kotlin.serialization.kaml)
     shadow(libs.minecraft.astralibs.command)
     shadow(libs.minecraft.astralibs.core)

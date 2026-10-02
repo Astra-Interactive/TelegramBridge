@@ -11,7 +11,6 @@ dependencies {
     implementation(libs.klibs.kstorage)
     implementation(libs.klibs.mikro.core)
     implementation(libs.kotlin.coroutines.core)
-    implementation(libs.kotlin.datetime)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.telegrambots.client)
     implementation(libs.telegrambots.extensions)
@@ -21,7 +20,6 @@ dependencies {
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.messenger.telegram.api)
 
-    testImplementation(libs.jda)
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.minecraft.kyori.api)
     testImplementation(libs.minecraft.kyori.legacy)

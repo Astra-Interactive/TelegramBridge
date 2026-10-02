@@ -25,7 +25,6 @@ dependencies {
     shadow(libs.klibs.kstorage)
     shadow(libs.klibs.mikro.core)
     shadow(libs.kotlin.coroutines.core)
-    shadow(libs.kotlin.datetime)
     shadow(libs.minecraft.astralibs.command)
     shadow(libs.minecraft.astralibs.command.bukkit)
     shadow(libs.minecraft.astralibs.core)

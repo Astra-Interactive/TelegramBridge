@@ -21,7 +21,6 @@ klibs-kstorage = "5.3.1" # https://github.com/makeevrserg/klibs.kstorage
 klibs-mikro = "1.28.1" # https://github.com/makeevrserg/klibs.mikro
 kotlin-benchmark = "0.4.19" # https://github.com/Kotlin/kotlinx-benchmark
 kotlin-coroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines
-kotlin-datetime = "0.8.0" # https://github.com/Kotlin/kotlinx-datetime
 kotlin-serialization = "1.11.0" # https://github.com/kotlin/kotlinx.serialization
 kotlin-serialization-kaml = "0.104.0" # https://github.com/charleskorn/kaml
 kotlin-version = "2.4.10" # https://github.com/jetbrains/kotlin
@@ -88,7 +87,6 @@ kotlin-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-r
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-coroutines-coreJvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlin-coroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime-jvm", version.ref = "kotlin-datetime" }
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-version" }
 kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin-version" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }

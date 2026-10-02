@@ -11,7 +11,6 @@ dependencies {
     implementation(libs.klibs.kstorage)
     implementation(libs.klibs.mikro.core)
     implementation(libs.kotlin.coroutines.core)
-    implementation(libs.kotlin.datetime)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.minecraft.astralibs.core.neoforge)
     implementation(libs.minecraft.kyori.gson)
