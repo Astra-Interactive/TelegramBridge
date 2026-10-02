@@ -6,5 +6,5 @@ import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordFail
 interface DiscordFailureTextMapper {
     fun map(failure: DiscordFailure): LocalizableComponent
 
-    fun mapRequestFailure(throwable: Throwable): LocalizableComponent
+    fun mapRequestFailure(t: Throwable): LocalizableComponent
 }

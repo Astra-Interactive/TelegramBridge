@@ -14,7 +14,7 @@ class FakeLinkingDao(
 
     private suspend fun <T> access(action: () -> T): Result<T> {
         yield()
-        failure?.let { error -> return Result.failure(error) }
+        failure?.let { t -> return Result.failure(t) }
         return Result.success(action.invoke())
     }
 

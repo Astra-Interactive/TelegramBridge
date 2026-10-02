@@ -58,9 +58,9 @@ internal class GetUpdatesStatusInterceptor(
         }
         val response = try {
             chain.proceed(request)
-        } catch (exception: IOException) {
-            if (!chain.call().isCanceled()) report(TelegramConnectionState.Failed(failureMapper.map(exception)))
-            throw exception
+        } catch (t: IOException) {
+            if (!chain.call().isCanceled()) report(TelegramConnectionState.Failed(failureMapper.map(t)))
+            throw t
         }
         stateOf(response.code)?.let(::report)
         return response

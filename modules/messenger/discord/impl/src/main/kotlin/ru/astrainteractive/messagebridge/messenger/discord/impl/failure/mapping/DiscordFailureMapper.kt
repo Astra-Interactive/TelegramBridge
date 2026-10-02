@@ -18,17 +18,17 @@ internal class DiscordFailureMapper {
         return listOfNotNull(this::class.java.simpleName, message?.takeIf(String::isNotBlank)).joinToString(": ")
     }
 
-    fun map(throwable: Throwable, config: PluginConfiguration.JdaConfig): DiscordFailure {
-        val causes = generateSequence(throwable, Throwable::cause).take(MAX_CAUSES).toList()
+    fun map(t: Throwable, config: PluginConfiguration.JdaConfig): DiscordFailure {
+        val causes = generateSequence(t, Throwable::cause).take(MAX_CAUSES).toList()
         val ioException = causes.filterIsInstance<IOException>().firstOrNull()
         return when {
-            throwable is DiscordFailureError -> throwable.failure
+            t is DiscordFailureError -> t.failure
             causes.any { cause -> cause is InvalidTokenException } -> DiscordFailure.InvalidToken
-            throwable is InsufficientPermissionException -> DiscordFailure.MissingPermission(
-                permission = throwable.permission.getName()
+            t is InsufficientPermissionException -> DiscordFailure.MissingPermission(
+                permission = t.permission.getName()
             )
 
-            throwable is ErrorResponseException && throwable.errorResponse == ErrorResponse.UNKNOWN_CHANNEL -> {
+            t is ErrorResponseException && t.errorResponse == ErrorResponse.UNKNOWN_CHANNEL -> {
                 DiscordFailure.ChannelNotFound(config.channelId)
             }
 
@@ -37,7 +37,7 @@ internal class DiscordFailureMapper {
                 proxy = config.proxy?.let { proxy -> "${proxy.host}:${proxy.port}" }
             )
 
-            else -> DiscordFailure.Unknown(throwable.describe())
+            else -> DiscordFailure.Unknown(t.describe())
         }
     }
 

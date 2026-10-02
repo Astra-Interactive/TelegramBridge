@@ -10,7 +10,7 @@ internal class FakeDiscordLinkedPlayerDao(
 ) : DiscordLinkedPlayerDao {
     override suspend fun findAllWithDiscordLink(): Result<List<LinkedPlayerModel>> {
         yield()
-        linkingDao.failure?.let { error -> return Result.failure(error) }
+        linkingDao.failure?.let { t -> return Result.failure(t) }
         return Result.success(linkingDao.players.values.filter { player -> player.discordLink != null })
     }
 }

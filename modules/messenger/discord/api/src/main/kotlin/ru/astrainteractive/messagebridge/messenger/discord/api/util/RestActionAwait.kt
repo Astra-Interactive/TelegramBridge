@@ -13,7 +13,7 @@ suspend fun <T> RestAction<T>.await(): T = suspendCancellableCoroutine { continu
 
 suspend fun <T> awaitRequest(request: () -> RestAction<T>): Result<T> {
     return runCatching { request.invoke().await() }
-        .onFailure { error -> if (error is CancellationException) throw error }
+        .onFailure { t -> if (t is CancellationException) throw t }
 }
 
 private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
@@ -24,5 +24,5 @@ private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { conti
 
 suspend fun <T> awaitTask(task: () -> Task<T>): Result<T> {
     return runCatching { task.invoke().await() }
-        .onFailure { error -> if (error is CancellationException) throw error }
+        .onFailure { t -> if (t is CancellationException) throw t }
 }

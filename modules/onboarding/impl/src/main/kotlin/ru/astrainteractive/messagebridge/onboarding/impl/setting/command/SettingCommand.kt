@@ -17,11 +17,11 @@ internal class SettingCommand(
     private val multiplatformCommand: MultiplatformCommand,
     private val commandExceptionHandler: CommandExceptionHandler
 ) {
-    private fun replyRefused(ctx: CommandContext<Any>, sender: KCommandSender, error: Throwable) {
-        if (error is InvalidInputError) {
-            sender.sendMessage(error.reply)
+    private fun replyRefused(ctx: CommandContext<Any>, sender: KCommandSender, t: Throwable) {
+        if (t is InvalidInputError) {
+            sender.sendMessage(t.reply)
         } else {
-            commandExceptionHandler.handle(ctx, error)
+            commandExceptionHandler.handle(ctx, t)
         }
     }
 
@@ -37,7 +37,7 @@ internal class SettingCommand(
                     block.invoke(sender, validSetting)
                 }
             }
-            .onFailure { error -> replyRefused(ctx, sender, error) }
+            .onFailure { t -> replyRefused(ctx, sender, t) }
     }
 
     fun <C> save(ctx: CommandContext<Any>, messenger: Messenger<C>, setting: Result<Setting<C>>) {

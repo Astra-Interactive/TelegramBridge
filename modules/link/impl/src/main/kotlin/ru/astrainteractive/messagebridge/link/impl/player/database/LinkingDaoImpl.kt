@@ -35,10 +35,10 @@ internal class LinkingDaoImpl(
     private suspend fun <T> query(action: String, statement: JdbcTransaction.() -> T): Result<T> {
         val database = databaseFlow.first()
         return runCatching { transaction(db = database, statement = statement) }
-            .onFailure { error -> if (error is CancellationException) throw error }
+            .onFailure { t -> if (t is CancellationException) throw t }
             .fold(
                 onSuccess = { value -> Result.success(value) },
-                onFailure = { error -> Result.failure(LinkedPlayerStorageError("Could not $action", error)) }
+                onFailure = { t -> Result.failure(LinkedPlayerStorageError("Could not $action", t)) }
             )
     }
 

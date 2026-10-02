@@ -33,8 +33,8 @@ internal class ReloadLiteralArgumentBuilder(
                     plugin.onReload()
                     configKrate.cachedValue
                         .onSuccess { _ -> sender.sendMessage(translation.reload.completed) }
-                        .onFailure { error ->
-                            sender.sendMessage(onboardingTranslation.setup.reloadConfigError(error.describe()))
+                        .onFailure { t ->
+                            sender.sendMessage(onboardingTranslation.setup.reloadConfigError(t.describe()))
                         }
                 }
             }

@@ -88,9 +88,9 @@ class DiscordFailureMapperTest {
 
     @Test
     fun GIVEN_insufficient_permission_WHEN_mapped_THEN_permission_name_is_kept() {
-        val exception = InsufficientPermissionException(guild, Permission.MANAGE_WEBHOOKS)
+        val t = InsufficientPermissionException(guild, Permission.MANAGE_WEBHOOKS)
 
-        val failure = mapper.map(exception, config)
+        val failure = mapper.map(t, config)
 
         assertEquals(DiscordFailure.MissingPermission("Manage Webhooks"), failure)
         assertFalse(failure.isRetryable)
@@ -98,19 +98,19 @@ class DiscordFailureMapperTest {
 
     @Test
     fun GIVEN_unknown_channel_response_WHEN_mapped_THEN_configured_channel_is_not_found() {
-        val exception = ErrorResponseException.create(
+        val t = ErrorResponseException.create(
             ErrorResponse.UNKNOWN_CHANNEL,
             Response(null, 404, "Not Found", -1, emptySet())
         )
 
-        assertEquals(DiscordFailure.ChannelNotFound("42"), mapper.map(exception, config))
+        assertEquals(DiscordFailure.ChannelNotFound("42"), mapper.map(t, config))
     }
 
     @Test
     fun GIVEN_failure_found_by_bridge_WHEN_mapped_THEN_failure_is_kept() {
-        val exception = DiscordFailureError(DiscordFailure.ChannelNotFound("7"))
+        val t = DiscordFailureError(DiscordFailure.ChannelNotFound("7"))
 
-        assertEquals(DiscordFailure.ChannelNotFound("7"), mapper.map(exception, config))
+        assertEquals(DiscordFailure.ChannelNotFound("7"), mapper.map(t, config))
     }
 
     @Test

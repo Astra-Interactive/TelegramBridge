@@ -20,7 +20,7 @@ suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {
                 consume(bEvent)
                 emit(Unit)
             }.withRetry(this@tryConsume)
-                .catch { throwable -> error(throwable) { "#tryConsume could not send $bEvent" } }
+                .catch { t -> error(t) { "#tryConsume could not send $bEvent" } }
                 .collect()
         }
     }

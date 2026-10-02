@@ -46,9 +46,9 @@ internal class ProxySettings(
         port: String,
         credentials: String
     ): Result<PluginConfiguration.Proxy> {
-        val words = credentialsOf(sender, credentials).getOrElse { error -> return Result.failure(error) }
-        val validHost = hostOf(host).getOrElse { error -> return Result.failure(error) }
-        val validPort = portOf(port).getOrElse { error -> return Result.failure(error) }
+        val words = credentialsOf(sender, credentials).getOrElse { t -> return Result.failure(t) }
+        val validHost = hostOf(host).getOrElse { t -> return Result.failure(t) }
+        val validPort = portOf(port).getOrElse { t -> return Result.failure(t) }
         val proxy = PluginConfiguration.Proxy(
             type = type,
             host = validHost,

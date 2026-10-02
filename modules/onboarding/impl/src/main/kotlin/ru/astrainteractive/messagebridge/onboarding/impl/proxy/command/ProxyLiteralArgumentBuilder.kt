@@ -28,7 +28,7 @@ internal class ProxyLiteralArgumentBuilder<C>(
         credentials: String
     ): Result<Setting<C>> {
         val type = with(multiplatformCommand) { types.read(ctx.requireArgument(typeArg)) }
-            .getOrElse { error -> return Result.failure(error) }
+            .getOrElse { t -> return Result.failure(t) }
         val proxy = with(multiplatformCommand) {
             settings.parse(
                 sender = ctx.getSender(),

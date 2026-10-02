@@ -36,7 +36,7 @@ internal class TelegramSettings(
 
     fun token(sender: KCommandSender, value: String): Result<Setting<TelegramConfig>> {
         val input = secretGuard.allow(sender, SecretInput.parse(value))
-            .getOrElse { error -> return Result.failure(error) }
+            .getOrElse { t -> return Result.failure(t) }
         val token = input.words.singleOrNull()?.takeIf(TOKEN::matches)
             ?: return refuse(translation.setup.invalidTelegramToken)
         val setting = Setting<TelegramConfig>(saved = translation.setup.saved.token(token.masked())) { tgConfig ->

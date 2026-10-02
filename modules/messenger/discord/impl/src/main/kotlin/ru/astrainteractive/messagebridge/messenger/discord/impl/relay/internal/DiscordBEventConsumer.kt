@@ -54,7 +54,7 @@ internal class DiscordBEventConsumer(
     private val lastTopicFailure = AtomicReference<DiscordFailure?>(null)
 
     private fun reportTopic(result: Result<Unit>) {
-        val failure = result.exceptionOrNull()?.let { error -> failureMapper.map(error, config.jdaConfig) }
+        val failure = result.exceptionOrNull()?.let { t -> failureMapper.map(t, config.jdaConfig) }
         if (lastTopicFailure.getAndSet(failure) != failure && failure != null) {
             warn { "#reportTopic could not change the topic of the channel: $failure" }
         }

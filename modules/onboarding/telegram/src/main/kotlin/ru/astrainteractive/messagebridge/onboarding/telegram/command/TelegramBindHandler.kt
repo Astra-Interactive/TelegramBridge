@@ -96,9 +96,9 @@ internal class TelegramBindHandler(
                 reply(message, bindTranslation.success.toMessengerText())
                 onBound.invoke(bindTranslation.bound(chat = titleOf(message), topic = topicNameOf(message)))
             },
-            onFailure = { throwable ->
+            onFailure = { t ->
                 reply(message, bindTranslation.saveFailed.toMessengerText())
-                val error = throwable.describe()
+                val error = t.describe()
                 onBound.invoke(bindTranslation.notBound(chat = titleOf(message), error = error))
             }
         )

@@ -30,7 +30,7 @@ internal class LongPolling(
         statusInterceptor.deactivate()
         pollingClient.dispatcher.cancelAll()
         runCatching { application.close() }
-            .onFailure { throwable -> error(throwable) { "#close could not close the polling: ${throwable.message}" } }
+            .onFailure { t -> error(t) { "#close could not close the polling: ${t.message}" } }
         pollerExecutor.shutdownNow()
         pollingClient.dispatcher.executorService.shutdown()
     }

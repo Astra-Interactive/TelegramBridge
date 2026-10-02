@@ -35,12 +35,12 @@ internal class TelegramBotConnector(
     }
 
     private suspend fun runOnce(session: TelegramBotSession, backOff: BackOff): TelegramFailure {
-        val userName = session.fetchBotUserName().getOrElse { throwable -> return failureMapper.map(throwable) }
+        val userName = session.fetchBotUserName().getOrElse { t -> return failureMapper.map(t) }
         val botName = "@$userName"
         updateBotUserName(userName)
         mutableState.value = TelegramConnectionState.Connected(botName)
         val polling = session.startPolling(botName, onState = { state -> mutableState.value = state })
-            .getOrElse { throwable -> return failureMapper.map(throwable) }
+            .getOrElse { t -> return failureMapper.map(t) }
         backOff.reset()
         verbose { "#runOnce the bot is polling" }
         polling.use { _ -> awaitCancellation() }

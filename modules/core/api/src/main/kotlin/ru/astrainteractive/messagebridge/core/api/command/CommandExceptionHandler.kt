@@ -26,9 +26,9 @@ class CommandExceptionHandler(
 
     private fun commandNameOf(ctx: CommandContext<Any>): String = ctx.input.substringBefore(' ')
 
-    private fun messageOf(throwable: Throwable, commandName: String): LocalizableComponent {
-        return when (throwable) {
-            is LocalizableComponentCommandException -> throwable.localizableComponent
+    private fun messageOf(t: Throwable, commandName: String): LocalizableComponent {
+        return when (t) {
+            is LocalizableComponentCommandException -> t.localizableComponent
             is NoPermissionException -> translation.commandError.noPermission
             is NotPlayerExecutorException -> translation.commandError.onlyPlayerCommand
             is NoPlayerException -> translation.commandError.playerNotFound
@@ -38,29 +38,29 @@ class CommandExceptionHandler(
 
             is CommandException -> translation.commandError.wrongUsage
             else -> {
-                error(throwable) { "#messageOf /$commandName failed with an unexpected exception" }
+                error(t) { "#messageOf /$commandName failed with an unexpected exception" }
                 translation.commandError.unknownError
             }
         }
     }
 
-    fun handle(ctx: CommandContext<Any>, throwable: Throwable) {
+    fun handle(ctx: CommandContext<Any>, t: Throwable) {
         val commandName = commandNameOf(ctx)
         val sender = runCatching { with(multiplatformCommand) { ctx.getSender() } }
             .getOrElse { senderError ->
-                error(throwable) {
+                error(t) {
                     "#handle /$commandName failed and its sender could not be resolved: ${senderError.message}"
                 }
                 return
             }
-        sender.sendMessage(messageOf(throwable, commandName))
+        sender.sendMessage(messageOf(t, commandName))
     }
 
     fun coroutineExceptionHandler(ctx: CommandContext<Any>): CoroutineExceptionHandler {
         val commandName = commandNameOf(ctx)
         val sender = with(multiplatformCommand) { ctx.getSender() }
-        return CoroutineExceptionHandler { _, throwable ->
-            sender.sendMessage(messageOf(throwable, commandName))
+        return CoroutineExceptionHandler { _, t ->
+            sender.sendMessage(messageOf(t, commandName))
         }
     }
 }

@@ -70,10 +70,10 @@ internal class DiscordConnector(
                     .addEventListeners(shutdownListener)
                     .build()
             }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            return failureMapper.map(e, settings.jdaConfig)
+        } catch (t: CancellationException) {
+            throw t
+        } catch (t: Exception) {
+            return failureMapper.map(t, settings.jdaConfig)
         }
         try {
             if (jda.awaitReadyOrShutdown()) {
@@ -112,7 +112,7 @@ internal class DiscordConnector(
             } finally {
                 okHttpClient?.release()
             }
-        }.catch { throwable -> emit(DiscordConnection.Failed(failureMapper.map(throwable, settings.jdaConfig))) }
+        }.catch { t -> emit(DiscordConnection.Failed(failureMapper.map(t, settings.jdaConfig))) }
     }
 
     private companion object {

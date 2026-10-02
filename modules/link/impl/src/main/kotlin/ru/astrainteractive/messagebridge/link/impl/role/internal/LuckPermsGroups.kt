@@ -22,8 +22,8 @@ internal class LuckPermsGroups(
         group: String,
         change: (User, InheritanceNode) -> DataMutateResult
     ): Result<Unit> {
-        val luckPerms = luckPermsProvider.provide().getOrElse { error ->
-            return Result.failure(PermissionGroupError("LuckPerms is not installed", error))
+        val luckPerms = luckPermsProvider.provide().getOrElse { t ->
+            return Result.failure(PermissionGroupError("LuckPerms is not installed", t))
         }
         val node = luckPerms.nodeBuilderRegistry.forInheritance().group(group).build()
         return runCatching {
@@ -34,11 +34,11 @@ internal class LuckPermsGroups(
                 }
                 .await()
         }
-            .onFailure { error -> if (error is CancellationException) throw error }
+            .onFailure { t -> if (t is CancellationException) throw t }
             .fold(
                 onSuccess = { _ -> Result.success(Unit) },
-                onFailure = { error ->
-                    Result.failure(PermissionGroupError("LuckPerms could not change the group $group of $uuid", error))
+                onFailure = { t ->
+                    Result.failure(PermissionGroupError("LuckPerms could not change the group $group of $uuid", t))
                 }
             )
     }

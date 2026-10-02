@@ -15,7 +15,7 @@ internal class DiscordLinkRole : Logger by JUtiltLogger("MessageBridge-DiscordLi
         }
         guild.addRoleToMember(member, role).queue(
             { _ -> info { "#give ${member.id} got the role ${role.name}" } },
-            { throwable -> error(throwable) { "#give could not give the role ${role.name} to ${member.id}" } }
+            { t -> error(t) { "#give could not give the role ${role.name} to ${member.id}" } }
         )
     }
 }

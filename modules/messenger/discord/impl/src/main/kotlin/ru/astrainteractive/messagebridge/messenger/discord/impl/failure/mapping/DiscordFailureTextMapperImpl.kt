@@ -18,7 +18,7 @@ internal class DiscordFailureTextMapperImpl(
 
     override fun map(failure: DiscordFailure): LocalizableComponent = failureMapper.toText(failure, translation.discord)
 
-    override fun mapRequestFailure(throwable: Throwable): LocalizableComponent {
-        return map(failureMapper.map(throwable, configFlow.value.jdaConfig))
+    override fun mapRequestFailure(t: Throwable): LocalizableComponent {
+        return map(failureMapper.map(t, configFlow.value.jdaConfig))
     }
 }

@@ -28,15 +28,15 @@ internal class DiscordDeliveryError(
     private val mutableText = MutableStateFlow<LocalizableComponent?>(null)
     val text: StateFlow<LocalizableComponent?> = mutableText.asStateFlow()
 
-    fun report(throwable: Throwable) {
-        val failure = failureMapper.map(throwable, config.jdaConfig)
+    fun report(t: Throwable) {
+        val failure = failureMapper.map(t, config.jdaConfig)
         val text = failureMapper.toText(failure, translation.discord)
         mutableText.value = text
         if (lastFailure.getAndSet(failure) == failure) {
             verbose { "#report ${text.toMessengerText()}" }
         } else {
             error { translation.discord.console.deliveryFailed(text).toMessengerText() }
-            verbose { "#report ${throwable.stackTraceToString()}" }
+            verbose { "#report ${t.stackTraceToString()}" }
         }
     }
 

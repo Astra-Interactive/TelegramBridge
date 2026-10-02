@@ -51,7 +51,7 @@ internal class LongPollingBotSession(
 
     override suspend fun fetchBotUserName(): Result<String> {
         return runCatching { connection.telegramClient.executeAsync(GetMe()).await().userName }
-            .onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+            .onFailure { t -> if (t is CancellationException) throw t }
     }
 
     override suspend fun startPolling(
@@ -63,9 +63,9 @@ internal class LongPollingBotSession(
             runInterruptible {
                 polling.register(connection, updateConsumer)
             }
-        }.onFailure { throwable ->
+        }.onFailure { t ->
             polling.close()
-            if (throwable is CancellationException) throw throwable
+            if (t is CancellationException) throw t
         }.map { _ -> polling }
     }
 }

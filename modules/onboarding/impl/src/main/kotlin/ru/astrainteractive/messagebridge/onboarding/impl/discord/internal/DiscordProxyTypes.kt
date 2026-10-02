@@ -17,7 +17,7 @@ internal class DiscordProxyTypes(
     override val keywords: List<String> = listOf(AllProxyTypes.HTTP)
 
     override fun read(keyword: String): Result<ProxyType> {
-        val type = allTypes.read(keyword).getOrElse { error -> return Result.failure(error) }
+        val type = allTypes.read(keyword).getOrElse { t -> return Result.failure(t) }
         if (type != ProxyType.HTTP) return refuse(translation.setup.socksNotSupported)
         return Result.success(type)
     }

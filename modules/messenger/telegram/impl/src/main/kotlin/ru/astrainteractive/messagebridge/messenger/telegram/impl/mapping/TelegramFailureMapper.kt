@@ -34,18 +34,18 @@ internal class TelegramFailureMapper(
         else -> null
     }
 
-    private fun mapRequest(exception: TelegramApiRequestException): TelegramFailure? {
-        val apiResponse: String? = exception.apiResponse
-        val code = exception.errorCode ?: NO_CODE
+    private fun mapRequest(t: TelegramApiRequestException): TelegramFailure? {
+        val apiResponse: String? = t.apiResponse
+        val code = t.errorCode ?: NO_CODE
         if (apiResponse == null && code == NO_CODE) {
-            val isNotBotApi = exception.cause is JsonProcessingException && tgConfig.apiUrl.isNotBlank()
+            val isNotBotApi = t.cause is JsonProcessingException && tgConfig.apiUrl.isNotBlank()
             return TelegramFailure.InvalidApiUrl.takeIf { isNotBotApi }
         }
-        exception.parameters?.migrateToChatId?.let { chatId -> return TelegramFailure.ChatMigrated(chatId) }
+        t.parameters?.migrateToChatId?.let { chatId -> return TelegramFailure.ChatMigrated(chatId) }
         return when {
             isInvalidTokenCode(code) -> TelegramFailure.InvalidToken
             code == HttpURLConnection.HTTP_CONFLICT -> TelegramFailure.TokenInUse
-            code == HTTP_TOO_MANY_REQUESTS -> TelegramFailure.RateLimited(exception.parameters?.retryAfter?.seconds)
+            code == HTTP_TOO_MANY_REQUESTS -> TelegramFailure.RateLimited(t.parameters?.retryAfter?.seconds)
             isServerErrorCode(code) -> TelegramFailure.ServerError(code)
             else -> mapDescription(apiResponse.orEmpty().lowercase())
                 ?: TelegramFailure.BotNotInChat.takeIf { code == HttpURLConnection.HTTP_FORBIDDEN }
@@ -53,23 +53,23 @@ internal class TelegramFailureMapper(
         }
     }
 
-    private fun mapResponse(exception: TelegramApiErrorResponseException): TelegramFailure? {
-        val code = exception.toString().substringBefore(':').toIntOrNull()
+    private fun mapResponse(t: TelegramApiErrorResponseException): TelegramFailure? {
+        val code = t.toString().substringBefore(':').toIntOrNull()
         return when {
             isInvalidTokenCode(code) -> TelegramFailure.InvalidToken
             code == HttpURLConnection.HTTP_CONFLICT -> TelegramFailure.TokenInUse
             code == HTTP_TOO_MANY_REQUESTS -> TelegramFailure.RateLimited(retryAfter = null)
             code != null && isServerErrorCode(code) -> TelegramFailure.ServerError(code)
-            exception.message in INVALID_TOKEN_REASONS -> TelegramFailure.InvalidToken
-            exception.message == CONFLICT_REASON -> TelegramFailure.TokenInUse
-            code != null && code > NO_CODE -> TelegramFailure.Unknown("$code ${exception.message.orEmpty()}".trim())
+            t.message in INVALID_TOKEN_REASONS -> TelegramFailure.InvalidToken
+            t.message == CONFLICT_REASON -> TelegramFailure.TokenInUse
+            code != null && code > NO_CODE -> TelegramFailure.Unknown("$code ${t.message.orEmpty()}".trim())
             else -> null
         }
     }
 
-    private fun isProxyAuthFailure(throwable: Throwable): Boolean {
-        if (throwable !is IOException) return false
-        val message = throwable.message.orEmpty()
+    private fun isProxyAuthFailure(t: Throwable): Boolean {
+        if (t !is IOException) return false
+        val message = t.message.orEmpty()
         return PROXY_AUTH_ERRORS.any(message::startsWith)
     }
 
@@ -83,8 +83,8 @@ internal class TelegramFailureMapper(
             .ifBlank { first::class.java.simpleName }
     }
 
-    fun map(throwable: Throwable): TelegramFailure {
-        val causes = generateSequence(throwable) { current -> current.cause?.takeIf { cause -> cause !== current } }
+    fun map(t: Throwable): TelegramFailure {
+        val causes = generateSequence(t) { current -> current.cause?.takeIf { cause -> cause !== current } }
             .take(MAX_CAUSES)
             .toList()
         causes.firstNotNullOfOrNull { cause -> cause.tryCast<TelegramApiRequestException>()?.let(::mapRequest) }

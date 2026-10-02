@@ -36,9 +36,9 @@ class CoreModule(
     val multiplatformCommand: MultiplatformCommand,
     commandRegistrarContextFactory: (mainScope: CoroutineScope) -> CommandRegistrarContext
 ) {
-    private fun createCoroutineExceptionHandler() = CoroutineExceptionHandler { _, throwable ->
+    private fun createCoroutineExceptionHandler() = CoroutineExceptionHandler { _, t ->
         val logger = JUtiltLogger("CoroutineExceptionHandler-AspeKt")
-        logger.error(throwable) { "Error happened inside global coroutine scope!" }
+        logger.error(t) { "Error happened inside global coroutine scope!" }
     }
 
     val ioScope = CoroutineFeature
@@ -117,10 +117,10 @@ class CoreModule(
     )
 
     private fun logConfigError(result: Result<PluginConfiguration>) {
-        result.onFailure { error ->
+        result.onFailure { t ->
             configLogger.error {
                 "config.yml has an error and is not applied, the previous settings are kept: " +
-                    error.describe()
+                    t.describe()
             }
         }
     }

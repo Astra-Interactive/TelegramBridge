@@ -18,10 +18,10 @@ internal class OkHttpTelegramBotApi(
     override suspend fun <T : Serializable> execute(method: BotApiMethod<T>): TelegramRequestResult<T> {
         val client = telegramClients.firstOrNull() ?: return TelegramRequestResult.NotConnected
         return runCatching { client.executeAsync(method).await() }
-            .onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+            .onFailure { t -> if (t is CancellationException) throw t }
             .fold(
                 onSuccess = { value -> TelegramRequestResult.Success(value) },
-                onFailure = { throwable -> TelegramRequestResult.Failed(failureMapper.map(throwable)) }
+                onFailure = { t -> TelegramRequestResult.Failed(failureMapper.map(t)) }
             )
     }
 }

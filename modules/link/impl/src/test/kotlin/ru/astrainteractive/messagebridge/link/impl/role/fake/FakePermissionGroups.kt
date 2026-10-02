@@ -10,13 +10,13 @@ internal class FakePermissionGroups : PermissionGroups {
     fun groupsOf(uuid: UUID): Set<String> = groupsByPlayer[uuid].orEmpty()
 
     override suspend fun add(uuid: UUID, group: String): Result<Unit> {
-        failure?.let { error -> return Result.failure(error) }
+        failure?.let { t -> return Result.failure(t) }
         groupsByPlayer.getOrPut(uuid) { mutableSetOf() }.add(group)
         return Result.success(Unit)
     }
 
     override suspend fun remove(uuid: UUID, group: String): Result<Unit> {
-        failure?.let { error -> return Result.failure(error) }
+        failure?.let { t -> return Result.failure(t) }
         groupsByPlayer[uuid]?.remove(group)
         return Result.success(Unit)
     }
