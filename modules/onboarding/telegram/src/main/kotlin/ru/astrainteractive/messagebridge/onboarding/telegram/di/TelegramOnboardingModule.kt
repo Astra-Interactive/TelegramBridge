@@ -38,7 +38,7 @@ class TelegramOnboardingModule(
     onboardingTranslationModule: OnboardingTranslationModule,
     botModule: TelegramBotModule,
 ) : MessengerOnboardingModule<MessengerOnboarding> {
-    private val scope = coreModule.ioScope.coroutineContext.job
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
@@ -59,7 +59,7 @@ class TelegramOnboardingModule(
     )
 
     val updateInterceptor: TelegramUpdateInterceptor = TelegramSetupInterceptor(
-        scope = scope,
+        scope = moduleIoScope,
         commandParser = TelegramSetupCommandParser(
             botUserName = {
                 botModule.state.value
@@ -84,7 +84,7 @@ class TelegramOnboardingModule(
     override val onboarding: MessengerOnboarding = TelegramOnboarding(
         status = botModule.state
             .map(statusMapper::map)
-            .stateIn(scope, SharingStarted.Eagerly, MessengerStatus.Connecting),
+            .stateIn(moduleIoScope, SharingStarted.Eagerly, MessengerStatus.Connecting),
         deliveryError = botModule.deliveryError,
         bindCodes = bindCodes,
         diagnostics = TelegramDiagnostics(
@@ -97,11 +97,11 @@ class TelegramOnboardingModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onDisable = { scope.cancel() }
+        onDisable = { moduleIoScope.cancel() }
     )
 
     init {
-        botModule.state.onEach(guideLogger::log).launchIn(scope)
+        botModule.state.onEach(guideLogger::log).launchIn(moduleIoScope)
     }
 
     private companion object {

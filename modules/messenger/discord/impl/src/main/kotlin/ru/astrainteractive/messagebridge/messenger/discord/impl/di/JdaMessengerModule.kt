@@ -55,7 +55,7 @@ class JdaMessengerModule(
     bEventChannel: BEventChannel
 ) : DiscordBotModule {
 
-    private val scope = coreModule.ioScope.coroutineContext.job
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
@@ -107,7 +107,7 @@ class JdaMessengerModule(
         failureMapper = failureMapper,
         delivery = delivery,
         configFlow = coreModule.config,
-        scope = scope,
+        scope = moduleIoScope,
         translationKrate = coreModule.translationKrate,
         bEventChannel = bEventChannel,
     )
@@ -134,7 +134,7 @@ class JdaMessengerModule(
         ),
         replyMapper = DiscordReplyMapper(),
         messageInterceptors = messageInterceptors,
-        scope = scope,
+        scope = moduleIoScope,
         bEventChannel = bEventChannel,
     )
 
@@ -144,13 +144,13 @@ class JdaMessengerModule(
             session.jda
                 .filterNotNull()
                 .onEach { jda -> jda.addEventListener(messageListener) }
-                .launchIn(scope)
+                .launchIn(moduleIoScope)
         },
         onReload = {
             session.reconnectIfFailed()
         },
         onDisable = {
-            scope.cancel()
+            moduleIoScope.cancel()
             session.connection.value.tryCast<DiscordConnection.Connected>()
                 ?.jda
                 ?.removeEventListener(messageListener)

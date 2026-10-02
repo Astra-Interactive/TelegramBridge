@@ -60,7 +60,7 @@ class TelegramMessengerModule(
     updateInterceptors: () -> List<TelegramUpdateInterceptor>,
     bEventChannel: BEventChannel,
 ) : TelegramBotModule {
-    private val scope = coreModule.ioScope.coroutineContext.job
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
@@ -82,7 +82,7 @@ class TelegramMessengerModule(
     private val connections: SharedFlow<TelegramConnection> = TelegramConnectionProvider(
         configFlow = coreModule.config,
         connectionFactory = TelegramConnectionFactory(dns = Ipv4FirstDns(delegate = Dns.SYSTEM)),
-    ).connections.shareIn(scope, SharingStarted.Eagerly, replay = 1)
+    ).connections.shareIn(moduleIoScope, SharingStarted.Eagerly, replay = 1)
 
     override val botApi: TelegramBotApi = OkHttpTelegramBotApi(
         telegramClients = connections
@@ -125,7 +125,7 @@ class TelegramMessengerModule(
     )
 
     private val chatConsumer = TelegramChatConsumer(
-        scope = scope,
+        scope = moduleIoScope,
         translationKrate = coreModule.translationKrate,
         relevanceMapper = TelegramMessageRelevanceMapper(
             configFlow = coreModule.config,
@@ -154,15 +154,15 @@ class TelegramMessengerModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onDisable = { scope.cancel() }
+        onDisable = { moduleIoScope.cancel() }
     )
 
     init {
-        scope.launch { connector.connect(connections) }
-        connector.state.onEach(statusLogger::log).launchIn(scope)
-        bEventChannel.bEvents(scope)
+        moduleIoScope.launch { connector.connect(connections) }
+        connector.state.onEach(statusLogger::log).launchIn(moduleIoScope)
+        bEventChannel.bEvents(moduleIoScope)
             .onEach { bEvent -> bEventConsumer.tryConsume(bEvent) }
-            .launchIn(scope)
+            .launchIn(moduleIoScope)
     }
 
     private fun createBackOff(): BackOff = CappedBackOff(

@@ -30,7 +30,7 @@ class DiscordOnboardingModule(
     onboardingTranslationModule: OnboardingTranslationModule,
     botModule: DiscordBotModule,
 ) : MessengerOnboardingModule<DiscordOnboarding> {
-    private val scope = coreModule.ioScope.coroutineContext.job
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
@@ -47,7 +47,7 @@ class DiscordOnboardingModule(
     )
 
     val messageInterceptor: DiscordMessageInterceptor = DiscordBindInterceptor(
-        scope = scope,
+        scope = moduleIoScope,
         commandParser = DiscordBindCommandParser(),
         bindHandler = DiscordBindHandler(
             bindCodes = bindCodes,
@@ -68,15 +68,15 @@ class DiscordOnboardingModule(
             translationKrate = onboardingTranslationModule.translationKrate,
         ),
         deliveryError = botModule.deliveryError,
-        scope = scope,
+        scope = moduleIoScope,
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onDisable = { scope.cancel() }
+        onDisable = { moduleIoScope.cancel() }
     )
 
     init {
-        botModule.connection.onEach(guideLogger::log).launchIn(scope)
+        botModule.connection.onEach(guideLogger::log).launchIn(moduleIoScope)
     }
 
     private companion object {

@@ -29,7 +29,7 @@ class DiscordLinkModule(
     linkTranslationModule: LinkTranslationModule,
     botModule: DiscordBotModule,
 ) {
-    private val scope = coreModule.ioScope.coroutineContext.job
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
@@ -37,7 +37,7 @@ class DiscordLinkModule(
     private val memberLeaveListener = DiscordMemberLeaveListener(
         configFlow = coreModule.config,
         discordMembership = linkModule.discordMembership,
-        scope = scope,
+        scope = moduleIoScope,
     )
 
     private val memberSweep = DiscordMemberSweep(
@@ -46,7 +46,7 @@ class DiscordLinkModule(
     )
 
     val messageInterceptor: DiscordMessageInterceptor = DiscordLinkInterceptor(
-        scope = scope,
+        scope = moduleIoScope,
         configFlow = coreModule.config,
         linkHandler = DiscordLinkHandler(
             linkApi = linkModule.linkApi,
@@ -67,10 +67,10 @@ class DiscordLinkModule(
                     jda.addEventListener(memberLeaveListener)
                     memberSweep.sweep(jda)
                 }
-                .launchIn(scope)
+                .launchIn(moduleIoScope)
         },
         onDisable = {
-            scope.cancel()
+            moduleIoScope.cancel()
             botModule.connection.value.tryCast<DiscordConnection.Connected>()
                 ?.jda
                 ?.removeEventListener(memberLeaveListener)

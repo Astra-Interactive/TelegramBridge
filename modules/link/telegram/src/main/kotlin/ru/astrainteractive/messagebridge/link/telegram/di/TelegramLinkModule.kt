@@ -21,13 +21,13 @@ class TelegramLinkModule(
     linkTranslationModule: LinkTranslationModule,
     botModule: TelegramBotModule,
 ) {
-    private val scope = coreModule.ioScope.coroutineContext.job
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
 
     val updateInterceptor: TelegramUpdateInterceptor = TelegramLinkInterceptor(
-        scope = scope,
+        scope = moduleIoScope,
         configFlow = coreModule.config,
         botUserName = {
             botModule.state.value
@@ -43,6 +43,6 @@ class TelegramLinkModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onDisable = { scope.cancel() }
+        onDisable = { moduleIoScope.cancel() }
     )
 }
