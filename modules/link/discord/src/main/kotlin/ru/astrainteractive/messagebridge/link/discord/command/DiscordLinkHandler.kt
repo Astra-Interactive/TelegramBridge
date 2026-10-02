@@ -39,7 +39,7 @@ internal class DiscordLinkHandler(
             return null
         }
         return awaitRequest { channel.guild.retrieveMember(event.author) }
-            .onFailure { failure -> verbose { "#linkFromPrivate the author is not on the bridge server: $failure" } }
+            .onFailure { t -> verbose { "#linkFromPrivate the author is not on the bridge server: $t" } }
             .getOrNull()
     }
 

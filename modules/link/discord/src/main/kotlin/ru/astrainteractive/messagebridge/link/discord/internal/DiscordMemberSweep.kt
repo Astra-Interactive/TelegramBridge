@@ -24,8 +24,8 @@ internal class DiscordMemberSweep(
             return
         }
         val guild = channel.guild
-        val members = awaitTask { guild.loadMembers() }.getOrElse { failure ->
-            error(failure) { "#sweep could not load the members of ${guild.name}" }
+        val members = awaitTask { guild.loadMembers() }.getOrElse { t ->
+            error(t) { "#sweep could not load the members of ${guild.name}" }
             return
         }
         verbose { "#sweep ${members.size} members are on ${guild.name}" }

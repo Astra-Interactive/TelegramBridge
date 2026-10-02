@@ -40,8 +40,8 @@ internal class LinkCommandExecutor(
     }
 
     private suspend fun showUserInfo(intent: Intent.UserInfo) {
-        val user = linkingDao.findByUuid(intent.targetPlayerUuid).getOrElse { failure ->
-            error(failure) { "#showUserInfo could not read the link of ${intent.targetPlayerUuid}" }
+        val user = linkingDao.findByUuid(intent.targetPlayerUuid).getOrElse { t ->
+            error(t) { "#showUserInfo could not read the link of ${intent.targetPlayerUuid}" }
             intent.sender.sendMessage(translation.commandError.unknownError)
             return
         }

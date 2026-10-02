@@ -43,8 +43,8 @@ internal class DiscordBindHandler(
             .saveAndGet { result ->
                 result.map { config -> config.copy(jdaConfig = config.jdaConfig.copy(channelId = channel.id)) }
             }
-            .onFailure { failure ->
-                error(failure) { "#bind config.yml cannot be read, so channel ${channel.id} is not saved" }
+            .onFailure { t ->
+                error(t) { "#bind config.yml cannot be read, so channel ${channel.id} is not saved" }
                 return reply(event, bind.configBroken)
             }
         info { "#bind channel #${channel.name} (${channel.id}) on ${channel.guild.name} is bound by ${member.id}" }

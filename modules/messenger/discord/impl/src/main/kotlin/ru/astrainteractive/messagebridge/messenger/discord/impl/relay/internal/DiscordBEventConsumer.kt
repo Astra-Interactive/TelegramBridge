@@ -65,8 +65,8 @@ internal class DiscordBEventConsumer(
     }
 
     private suspend fun sendText(event: Text, channel: TextChannel): Result<Unit> {
-        val member = memberResolver.resolve(channel, event).getOrElse { failure -> return Result.failure(failure) }
-        val client = channelProvider.webhookClient().getOrElse { failure -> return Result.failure(failure) }
+        val member = memberResolver.resolve(channel, event).getOrElse { t -> return Result.failure(t) }
+        val client = channelProvider.webhookClient().getOrElse { t -> return Result.failure(t) }
         val message = webhookMessageMapper.map(event, member)
         return runCatching { client.send(message).await() }
             .propagateCancellationException()
@@ -78,7 +78,7 @@ internal class DiscordBEventConsumer(
     }
 
     private suspend fun send(bEvent: BEvent, jda: JDA): Result<Unit> {
-        val channel = channelProvider.textChannel(jda).getOrElse { failure -> return Result.failure(failure) }
+        val channel = channelProvider.textChannel(jda).getOrElse { t -> return Result.failure(t) }
         return when (bEvent) {
             is PlayerDeathBEvent -> sendEmbed(channel, embedMapper.map(bEvent))
             is PlayerJoinedBEvent -> {

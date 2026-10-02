@@ -24,9 +24,9 @@ internal class DiscordWebhookClients(
         while (true) {
             factory.create(jda, channelId).fold(
                 onSuccess = { client -> return client },
-                onFailure = { failure ->
-                    deliveryError.report(failure)
-                    onFailure.invoke(failure)
+                onFailure = { t ->
+                    deliveryError.report(t)
+                    onFailure.invoke(t)
                     delay(RETRY_DELAY)
                 }
             )

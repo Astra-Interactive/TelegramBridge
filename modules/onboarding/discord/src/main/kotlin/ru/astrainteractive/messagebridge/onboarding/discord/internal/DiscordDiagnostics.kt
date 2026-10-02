@@ -83,8 +83,8 @@ internal class DiscordDiagnostics(
         val check = translation.discord.check
         awaitRequest { channel.sendMessage(check.testMessage.toMessengerText()) }
             .onSuccess { _ -> addOk(check.testMessageSent(channel.name)) }
-            .onFailure { failure ->
-                val reason = failureTextMapper.mapRequestFailure(failure)
+            .onFailure { t ->
+                val reason = failureTextMapper.mapRequestFailure(t)
                 addError(check.testMessageFailed(reason))
             }
     }

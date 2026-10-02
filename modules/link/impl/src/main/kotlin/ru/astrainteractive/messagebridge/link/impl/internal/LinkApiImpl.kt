@@ -59,14 +59,14 @@ internal class LinkApiImpl(
     private suspend fun giveGroup(uuid: UUID) {
         val link = config.link ?: return
         permissionGroups.add(uuid, link.linkLuckPermsRole)
-            .onFailure { failure -> error(failure) { "#giveGroup could not give ${link.linkLuckPermsRole} to $uuid" } }
+            .onFailure { t -> error(t) { "#giveGroup could not give ${link.linkLuckPermsRole} to $uuid" } }
     }
 
     private suspend fun unlinkLeftDiscord(linkedPlayer: LinkedPlayerModel, link: PluginConfiguration.Link) {
         val uuid = linkedPlayer.uuid
         if (linkedPlayer.telegramLink == null) {
-            permissionGroups.remove(uuid, link.linkLuckPermsRole).onFailure { failure ->
-                error(failure) { "#unlinkLeftDiscord could not take ${link.linkLuckPermsRole} from $uuid" }
+            permissionGroups.remove(uuid, link.linkLuckPermsRole).onFailure { t ->
+                error(t) { "#unlinkLeftDiscord could not take ${link.linkLuckPermsRole} from $uuid" }
                 return
             }
         }
@@ -78,7 +78,7 @@ internal class LinkApiImpl(
         }
         saved
             .onSuccess { _ -> info { "#unlinkLeftDiscord $uuid left the Discord server and is unlinked from it" } }
-            .onFailure { failure -> error(failure) { "#unlinkLeftDiscord could not unlink Discord of $uuid" } }
+            .onFailure { t -> error(t) { "#unlinkLeftDiscord could not unlink Discord of $uuid" } }
     }
 
     private fun unlinkFailed(uuid: UUID, failure: Throwable): UnlinkResponse {
@@ -90,10 +90,10 @@ internal class LinkApiImpl(
         return linkMutex.withLock {
             val codeUser = redeem(code) ?: return LinkResponse.NoCode
             val linkedPlayer = findOrCreate(codeUser)
-                .getOrElse { failure -> return unknownError("linkDiscord", failure) }
+                .getOrElse { t -> return unknownError("linkDiscord", t) }
             if (linkedPlayer.discordLink != null) return LinkResponse.AlreadyLinked
             val savedPlayer = linkingDao.upsert(linkedPlayer.copy(discordLink = discordLink))
-                .getOrElse { failure -> return unknownError("linkDiscord", failure) }
+                .getOrElse { t -> return unknownError("linkDiscord", t) }
             giveGroup(savedPlayer.uuid)
             LinkResponse.Linked(savedPlayer)
         }
@@ -103,10 +103,10 @@ internal class LinkApiImpl(
         return linkMutex.withLock {
             val codeUser = redeem(code) ?: return LinkResponse.NoCode
             val linkedPlayer = findOrCreate(codeUser)
-                .getOrElse { failure -> return unknownError("linkTelegram", failure) }
+                .getOrElse { t -> return unknownError("linkTelegram", t) }
             if (linkedPlayer.telegramLink != null) return LinkResponse.AlreadyLinked
             val savedPlayer = linkingDao.upsert(linkedPlayer.copy(telegramLink = telegramLink))
-                .getOrElse { failure -> return unknownError("linkTelegram", failure) }
+                .getOrElse { t -> return unknownError("linkTelegram", t) }
             giveGroup(savedPlayer.uuid)
             LinkResponse.Linked(savedPlayer)
         }
@@ -116,7 +116,7 @@ internal class LinkApiImpl(
         val link = config.link ?: return
         linkMutex.withLock {
             val linkedPlayer = linkingDao.findByDiscordId(discordId)
-                .onFailure { failure -> error(failure) { "#revokeLeftMember could not find $discordId" } }
+                .onFailure { t -> error(t) { "#revokeLeftMember could not find $discordId" } }
                 .getOrNull()
                 ?: return
             unlinkLeftDiscord(linkedPlayer, link)
@@ -128,7 +128,7 @@ internal class LinkApiImpl(
         if (memberIds.isEmpty()) return
         linkMutex.withLock {
             val linkedPlayers = discordLinkedPlayerDao.findAllWithDiscordLink()
-                .onFailure { failure -> error(failure) { "#revokeAbsentMembers could not read the linked players" } }
+                .onFailure { t -> error(t) { "#revokeAbsentMembers could not read the linked players" } }
                 .getOrNull()
                 ?: return
             linkedPlayers
@@ -143,15 +143,15 @@ internal class LinkApiImpl(
     override suspend fun unlink(uuid: UUID): UnlinkResponse {
         return linkMutex.withLock {
             val linkedPlayer = linkingDao.findByUuid(uuid)
-                .getOrElse { failure -> return unlinkFailed(uuid, failure) }
+                .getOrElse { t -> return unlinkFailed(uuid, t) }
                 ?: return UnlinkResponse.NotLinked
             config.link?.let { link ->
                 permissionGroups.remove(linkedPlayer.uuid, link.linkLuckPermsRole)
-                    .onFailure { failure -> return unlinkFailed(uuid, failure) }
+                    .onFailure { t -> return unlinkFailed(uuid, t) }
             }
             linkingDao.deleteByUuid(uuid).fold(
                 onSuccess = { _ -> UnlinkResponse.Unlinked },
-                onFailure = { failure -> unlinkFailed(uuid, failure) }
+                onFailure = { t -> unlinkFailed(uuid, t) }
             )
         }
     }

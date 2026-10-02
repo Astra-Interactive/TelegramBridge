@@ -17,10 +17,10 @@ internal class WebHookClientFactory : Logger by JUtiltLogger("MessageBridge-WebH
             ?: return Result.failure(DiscordFailureError(DiscordFailure.ChannelNotFound(channelId)))
         val webhookName = "$WEBHOOK_NAME_PREFIX$channelId"
         val webhooks = awaitRequest { channel.retrieveWebhooks() }
-            .getOrElse { failure -> return Result.failure(failure) }
+            .getOrElse { t -> return Result.failure(t) }
         val webhook = webhooks.firstOrNull { webhook -> webhook.name == webhookName }
             ?: awaitRequest { channel.createWebhook(webhookName) }
-                .getOrElse { failure -> return Result.failure(failure) }
+                .getOrElse { t -> return Result.failure(t) }
         info { "#create webhook is ready for channel $channelId" }
         val client = WebhookClientBuilder(webhook.url)
             .setHttpClient(jda.httpClient)

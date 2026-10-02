@@ -29,8 +29,8 @@ internal class DiscordMemberResolver(
         val discordId = linkedDiscordId(event) ?: return Result.success(null)
         val cachedMember = channel.guild.getMemberById(discordId)
         if (cachedMember != null) return Result.success(cachedMember)
-        val member = awaitRequest { channel.guild.retrieveMemberById(discordId) }.getOrElse { failure ->
-            return if (isNotOnServer(failure)) Result.success(null) else Result.failure(failure)
+        val member = awaitRequest { channel.guild.retrieveMemberById(discordId) }.getOrElse { t ->
+            return if (isNotOnServer(t)) Result.success(null) else Result.failure(t)
         }
         return Result.success(member)
     }
