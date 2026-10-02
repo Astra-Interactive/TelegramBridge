@@ -1,7 +1,6 @@
 package ru.astrainteractive.messagebridge.onboarding.telegram.di
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
@@ -9,6 +8,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
@@ -37,9 +37,10 @@ class TelegramOnboardingModule(
     onboardingTranslationModule: OnboardingTranslationModule,
     botModule: TelegramBotModule,
 ) : MessengerOnboardingModule<MessengerOnboarding> {
-    private val scope = CoroutineScope(
-        coreModule.ioScope.coroutineContext + SupervisorJob(coreModule.ioScope.coroutineContext[Job])
-    )
+    private val scope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
 
     private val bindCodes = BindCodes(
         clock = Clock.System,

@@ -54,9 +54,10 @@ class JdaMessengerModule(
     bEventChannel: BEventChannel
 ) : DiscordBotModule {
 
-    private val scope = CoroutineScope(
-        context = coreModule.ioScope.coroutineContext + SupervisorJob(coreModule.ioScope.coroutineContext.job)
-    )
+    private val scope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
 
     private val failureMapper = DiscordFailureMapper()
 

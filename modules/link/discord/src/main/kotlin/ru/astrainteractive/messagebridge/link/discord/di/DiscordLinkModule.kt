@@ -1,7 +1,6 @@
 package ru.astrainteractive.messagebridge.link.discord.di
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -9,6 +8,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkModule
@@ -28,9 +28,10 @@ class DiscordLinkModule(
     linkTranslationModule: LinkTranslationModule,
     botModule: DiscordBotModule,
 ) {
-    private val scope = CoroutineScope(
-        coreModule.ioScope.coroutineContext + SupervisorJob(coreModule.ioScope.coroutineContext[Job])
-    )
+    private val scope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
 
     private val memberLeaveListener = DiscordMemberLeaveListener(
         configFlow = coreModule.config,

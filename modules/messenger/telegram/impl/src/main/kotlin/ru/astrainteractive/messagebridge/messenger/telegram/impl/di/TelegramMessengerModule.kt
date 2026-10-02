@@ -1,7 +1,6 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.impl.di
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharedFlow
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import okhttp3.Dns
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
@@ -59,9 +59,10 @@ class TelegramMessengerModule(
     updateInterceptors: () -> List<TelegramUpdateInterceptor>,
     bEventChannel: BEventChannel,
 ) : TelegramBotModule {
-    private val scope = CoroutineScope(
-        coreModule.ioScope.coroutineContext + SupervisorJob(coreModule.ioScope.coroutineContext[Job])
-    )
+    private val scope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
 
     private val relayedMessageCache = TelegramRelayedMessageCache(
         capacity = RELAYED_MESSAGE_CACHE_CAPACITY

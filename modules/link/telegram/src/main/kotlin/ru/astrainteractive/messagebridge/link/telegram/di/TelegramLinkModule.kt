@@ -1,9 +1,9 @@
 package ru.astrainteractive.messagebridge.link.telegram.di
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkModule
@@ -20,9 +20,10 @@ class TelegramLinkModule(
     linkTranslationModule: LinkTranslationModule,
     botModule: TelegramBotModule,
 ) {
-    private val scope = CoroutineScope(
-        coreModule.ioScope.coroutineContext + SupervisorJob(coreModule.ioScope.coroutineContext[Job])
-    )
+    private val scope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
 
     val updateInterceptor: TelegramUpdateInterceptor = TelegramLinkInterceptor(
         scope = scope,
