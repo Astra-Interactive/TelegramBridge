@@ -1,6 +1,6 @@
 package ru.astrainteractive.messagebridge
 
-import ru.astrainteractive.messagebridge.core.bukkit.api.LifecyclePlugin
+import ru.astrainteractive.astralibs.lifecycle.LifecyclePlugin
 import ru.astrainteractive.messagebridge.di.RootModule
 
 class MessageBridge : LifecyclePlugin() {
