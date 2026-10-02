@@ -5,6 +5,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
@@ -28,7 +29,12 @@ class TelegramLinkModule(
     val updateInterceptor: TelegramUpdateInterceptor = TelegramLinkInterceptor(
         scope = scope,
         configFlow = coreModule.config,
-        botUserName = { (botModule.state.value as? TelegramConnectionState.Connected)?.botName?.removePrefix("@") },
+        botUserName = {
+            botModule.state.value
+                .tryCast<TelegramConnectionState.Connected>()
+                ?.botName
+                ?.removePrefix("@")
+        },
         linkHandler = TelegramLinkHandler(
             linkApi = linkModule.linkApi,
             messageSender = botModule.messageSender,

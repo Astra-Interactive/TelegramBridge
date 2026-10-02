@@ -7,6 +7,7 @@ import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +37,7 @@ class PluginTranslationTest {
     private fun hoverTextOf(text: LocalizableComponent, locale: Locale = MinecraftLocales.EN_US): String {
         val hoverText = text.toComponent(locale)
             .selfAndDescendants()
-            .firstNotNullOf { node -> node.hoverEvent()?.value() as? Component }
+            .firstNotNullOf { node -> node.hoverEvent()?.value()?.tryCast<Component>() }
         return PlainTextComponentSerializer.plainText().serialize(hoverText)
     }
 

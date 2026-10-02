@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.model.TelegramConnectionSettings
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.network.TelegramConnection
@@ -24,6 +25,6 @@ internal class TelegramConnectionProvider(
     private fun connectionOf(settings: TelegramConnectionSettings): Flow<TelegramConnection> = callbackFlow {
         val connection = connectionFactory.create(settings)
         send(connection)
-        awaitClose { (connection as? TelegramConnection.Ready)?.close() }
+        awaitClose { connection.tryCast<TelegramConnection.Ready>()?.close() }
     }
 }

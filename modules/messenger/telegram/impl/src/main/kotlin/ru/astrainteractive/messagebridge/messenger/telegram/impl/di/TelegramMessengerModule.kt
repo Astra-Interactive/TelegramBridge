@@ -17,6 +17,7 @@ import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.tryConsume
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
@@ -84,7 +85,9 @@ class TelegramMessengerModule(
     ).connections.shareIn(scope, SharingStarted.Eagerly, replay = 1)
 
     override val botApi: TelegramBotApi = OkHttpTelegramBotApi(
-        telegramClients = connections.map { connection -> (connection as? TelegramConnection.Ready)?.telegramClient },
+        telegramClients = connections
+            .map { connection -> connection.tryCast<TelegramConnection.Ready>() }
+            .map { ready -> ready?.telegramClient },
         failureMapper = failureMapper,
     )
 

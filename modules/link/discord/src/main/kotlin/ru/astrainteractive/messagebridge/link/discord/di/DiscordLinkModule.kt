@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
@@ -59,7 +60,7 @@ class DiscordLinkModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             botModule.connection
-                .map { connection -> (connection as? DiscordConnection.Connected)?.jda }
+                .map { connection -> connection.tryCast<DiscordConnection.Connected>()?.jda }
                 .filterNotNull()
                 .distinctUntilChanged()
                 .onEach { jda ->
@@ -70,7 +71,7 @@ class DiscordLinkModule(
         },
         onDisable = {
             scope.cancel()
-            (botModule.connection.value as? DiscordConnection.Connected)
+            botModule.connection.value.tryCast<DiscordConnection.Connected>()
                 ?.jda
                 ?.removeEventListener(memberLeaveListener)
         }

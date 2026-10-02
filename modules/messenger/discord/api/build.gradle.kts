@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     implementation(libs.jda)
+    implementation(libs.klibs.mikro.core)
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.minecraft.astralibs.core)
 

@@ -3,6 +3,7 @@ package ru.astrainteractive.messagebridge.onboarding.impl.telegram.internal
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.model.BindCode
 import ru.astrainteractive.messagebridge.onboarding.api.model.MessengerStatus
@@ -15,7 +16,7 @@ internal class TelegramBindInstruction(
     private val translation by translationKrate
 
     private fun messageOf(code: String): String {
-        val botName = (messenger.onboarding.status.value as? MessengerStatus.Connected)
+        val botName = messenger.onboarding.status.value.tryCast<MessengerStatus.Connected>()
             ?.botName
             ?.removePrefix("@")
         return if (botName.isNullOrBlank()) "$BIND_COMMAND $code" else "$BIND_COMMAND@$botName $code"

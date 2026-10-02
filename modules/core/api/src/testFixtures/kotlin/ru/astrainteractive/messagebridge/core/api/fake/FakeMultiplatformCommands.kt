@@ -8,6 +8,7 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.command.api.brigadier.sender.KCommandSender
 import ru.astrainteractive.astralibs.command.api.brigadier.sender.KPlayerKCommandSender
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 
 class FakeMultiplatformCommands(
     private val sender: KCommandSender?
@@ -26,6 +27,6 @@ class FakeMultiplatformCommands(
     }
 
     override fun getSender(context: CommandContext<*>): KCommandSender {
-        return sender ?: context.source as? KCommandSender ?: error("Could not wrap sender")
+        return sender ?: context.source?.tryCast<KCommandSender>() ?: error("Could not wrap sender")
     }
 }

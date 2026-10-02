@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.JDA
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import kotlin.time.Duration
 
 sealed interface DiscordConnection {
@@ -21,5 +22,5 @@ suspend fun StateFlow<DiscordConnection>.awaitSettled(timeout: Duration): Discor
 }
 
 suspend fun StateFlow<DiscordConnection>.awaitJda(timeout: Duration): JDA? {
-    return (awaitSettled(timeout) as? DiscordConnection.Connected)?.jda
+    return awaitSettled(timeout).tryCast<DiscordConnection.Connected>()?.jda
 }

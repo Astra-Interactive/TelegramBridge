@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
@@ -150,7 +151,7 @@ class JdaMessengerModule(
         },
         onDisable = {
             scope.cancel()
-            (session.connection.value as? DiscordConnection.Connected)
+            session.connection.value.tryCast<DiscordConnection.Connected>()
                 ?.jda
                 ?.removeEventListener(messageListener)
         }

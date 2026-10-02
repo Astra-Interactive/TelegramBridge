@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import kotlinx.coroutines.flow.StateFlow
 import org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
 import java.io.IOException
@@ -86,9 +87,9 @@ internal class TelegramFailureMapper(
         val causes = generateSequence(throwable) { current -> current.cause?.takeIf { cause -> cause !== current } }
             .take(MAX_CAUSES)
             .toList()
-        causes.firstNotNullOfOrNull { cause -> (cause as? TelegramApiRequestException)?.let(::mapRequest) }
+        causes.firstNotNullOfOrNull { cause -> cause.tryCast<TelegramApiRequestException>()?.let(::mapRequest) }
             ?.let { failure -> return failure }
-        causes.firstNotNullOfOrNull { cause -> (cause as? TelegramApiErrorResponseException)?.let(::mapResponse) }
+        causes.firstNotNullOfOrNull { cause -> cause.tryCast<TelegramApiErrorResponseException>()?.let(::mapResponse) }
             ?.let { failure -> return failure }
         if (causes.any(::isProxyAuthFailure)) return TelegramFailure.ProxyAuth
         if (causes.any { cause -> cause is IOException && cause !is JsonProcessingException }) {

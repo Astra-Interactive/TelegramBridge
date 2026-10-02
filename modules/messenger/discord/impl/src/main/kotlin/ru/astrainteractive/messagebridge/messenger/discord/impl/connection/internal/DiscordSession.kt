@@ -17,6 +17,7 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
@@ -54,7 +55,7 @@ internal class DiscordSession(
         .stateIn(scope, SharingStarted.Eagerly, DiscordConnection.Connecting)
 
     val jda: Flow<JDA?> = connection
-        .map { connection -> (connection as? DiscordConnection.Connected)?.jda }
+        .map { connection -> connection.tryCast<DiscordConnection.Connected>()?.jda }
         .distinctUntilChanged()
 
     private fun logConnection(connection: DiscordConnection) {

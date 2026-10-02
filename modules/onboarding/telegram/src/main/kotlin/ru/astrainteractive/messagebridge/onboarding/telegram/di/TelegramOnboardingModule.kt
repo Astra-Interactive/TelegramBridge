@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.api.di.TelegramBotModule
@@ -60,7 +61,12 @@ class TelegramOnboardingModule(
     val updateInterceptor: TelegramUpdateInterceptor = TelegramSetupInterceptor(
         scope = scope,
         commandParser = TelegramSetupCommandParser(
-            botUserName = { (botModule.state.value as? TelegramConnectionState.Connected)?.botName?.removePrefix("@") },
+            botUserName = {
+                botModule.state.value
+                    .tryCast<TelegramConnectionState.Connected>()
+                    ?.botName
+                    ?.removePrefix("@")
+            },
         ),
         bindHandler = TelegramBindHandler(
             bindCodes = bindCodes,

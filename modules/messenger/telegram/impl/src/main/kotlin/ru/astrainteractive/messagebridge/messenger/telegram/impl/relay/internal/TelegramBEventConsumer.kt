@@ -10,6 +10,7 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.MutableKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
@@ -120,7 +121,7 @@ internal class TelegramBEventConsumer(
 
     private suspend fun deliver(bEvent: BEvent, text: String) {
         val result = send(tgConfig.chatID, text)
-        val failure = (result as? TelegramRequestResult.Failed)?.failure
+        val failure = result.tryCast<TelegramRequestResult.Failed>()?.failure
         if (failure !is TelegramFailure.ChatMigrated || !saveMigratedChat(failure.newChatId)) {
             onResult(bEvent, result)
             return
