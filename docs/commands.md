@@ -5,8 +5,8 @@
 
 ## Where to type them
 
-- **Server console or RCON:** without `/`, e.g. `mb telegram check`. Best for tokens and passwords.
-- **In game:** with `/`, e.g. `/mb telegram check`.
+- **Server console or RCON:** without `/`, e.g. `mb status`. Best for tokens and passwords.
+- **In game:** with `/`, e.g. `/mb status`.
 
 Settings changed with `/mb` are saved into `config.yml` and applied right away.
 The texts of the `/mb` commands are in `translation/onboarding.yml`, the texts of linking accounts in
@@ -52,7 +52,6 @@ Without it the command is refused and nothing is saved. The console and RCON do 
 | `/mb telegram proxy off`                                                    | Removes the proxy                              |
 | `/mb telegram api-url <url\|default>`                                       | Sets an own Bot API server, `default` for `api.telegram.org` |
 | `/mb telegram bind`                                                         | Gives a code to bind a group, see below        |
-| `/mb telegram check`                                                        | Checks the token, the bot, privacy mode, the chat, the rights, the topic and sends a test message |
 
 `/mb telegram bind` shows a code. Send `/bind <code>` into the group, inside the topic if you use topics.
 The code is valid for 10 minutes, and the one who sends it must be an admin of the group.
@@ -70,7 +69,6 @@ Details in [telegram.md](telegram.md#4-choose-the-chat-and-the-topic).
 | `/mb discord proxy off`                                               | Removes the proxy                                     |
 | `/mb discord bind`                                                    | Gives a code to bind a channel, see below             |
 | `/mb discord invite`                                                  | Link that adds the bot to a Discord server with the permissions it needs |
-| `/mb discord check`                                                   | Checks the token, the connection, the channel, the permissions and sends a test message |
 
 `/mb discord bind` shows a code. Send `!bind <code>` into the channel.
 The code is valid for 10 minutes, and the one who sends it needs the Manage Channel permission.

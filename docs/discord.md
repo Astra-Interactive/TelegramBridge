@@ -16,11 +16,11 @@ In game, add `/` in front and `--unsafe` after the token (see [Set the token](#2
 2. Run `mb discord token <token>`
 3. Run `mb discord invite`, open the link and add the bot to your Discord server.
 4. Run `mb discord bind`. Send the `!bind <code>` it shows into the channel you want to bridge.
-5. Run `mb discord check` and fix anything it marks as an error.
+5. The console shows whether the bot connected. `mb status` shows the same at any time.
 
 `mb discord` without arguments shows these steps and the current status.
 
-Discord is blocked in some countries, for example in Russia. If `mb discord check` cannot reach Discord,
+Discord is blocked in some countries, for example in Russia. If the bot cannot reach Discord,
 set up an HTTP proxy first: [proxy.md](proxy.md).
 
 ## 1. Create the bot
@@ -99,8 +99,7 @@ The channel must be a normal text channel of a server where the bot is.
 
 ## 5. Check the setup
 
-`mb discord check` checks the token, the connection, the channel, the permissions of the bot,
-and sends a test message. Every line that failed says what to do.
+The console shows whether the bot connected and why not.
 `mb status` shows both bots, the channel, the proxy and the last error of sending a message.
 
 If something does not work, see [troubleshooting.md](troubleshooting.md).

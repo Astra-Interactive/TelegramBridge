@@ -20,7 +20,6 @@ data class TelegramSetupTranslation(
              2. In the server console run: mb telegram token <token>
              3. Add the bot to your group and make it an admin
              4. Run mb telegram bind and send the code it shows into the group (inside the topic if you use topics)
-             5. Check everything with mb telegram check
             Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md
             """.trimIndent()
         )
@@ -32,162 +31,15 @@ data class TelegramSetupTranslation(
              2. В консоли сервера выполните: mb telegram token <токен>
              3. Добавьте бота в группу и сделайте его администратором
              4. Выполните mb telegram bind и отправьте код в группу (в нужный топик, если они есть)
-             5. Проверьте настройку: mb telegram check
             Инструкция (на английском): https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md
             """.trimIndent()
         )
     },
-    @SerialName("check")
-    val check: Check = Check(),
     @SerialName("chat_info")
     val chatInfo: ChatInfo = ChatInfo(),
     @SerialName("bind")
     val bind: Bind = Bind()
 ) {
-    @Serializable
-    data class Check(
-        @SerialName("token_missing")
-        val tokenMissing: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The token is not set. Create a bot in @BotFather (/newbot) and set its token: " +
-                    "/mb telegram token <token>"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Токен не указан. Создайте бота в @BotFather (/newbot) и укажите его токен: " +
-                    "/mb telegram token <токен>"
-            )
-        },
-        @SerialName("bot_works")
-        private val botWorks: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "Bot %bot% works")
-            translation(MinecraftLocales.RU_RU, "Бот %bot% работает")
-        },
-        @SerialName("chat_found")
-        private val chatFound: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, """Chat "%chat%" is found (%type%)""")
-            translation(MinecraftLocales.RU_RU, "Чат «%chat%» найден (%type%)")
-        },
-        @SerialName("forum_found")
-        private val forumFound: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, """Chat "%chat%" is found (%type% with topics)""")
-            translation(MinecraftLocales.RU_RU, "Чат «%chat%» найден (%type% с топиками)")
-        },
-        @SerialName("bot_admin")
-        val botAdmin: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "The bot is an admin of the chat")
-            translation(MinecraftLocales.RU_RU, "Бот — администратор чата")
-        },
-        @SerialName("bot_cant_delete")
-        val botCantDelete: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The bot can't delete messages, so too long messages and names rejected by display_name_regex " +
-                    "stay in the chat. Give the bot the right to delete messages"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Бот не может удалять сообщения, поэтому слишком длинные сообщения и имена, не прошедшие " +
-                    "display_name_regex, остаются в чате. Дайте боту право удалять сообщения"
-            )
-        },
-        @SerialName("bot_not_admin")
-        val botNotAdmin: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The bot is not an admin, so it can't delete too long messages and names rejected by " +
-                    "display_name_regex. Make the bot an admin of the group"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Бот не администратор, поэтому не может удалять слишком длинные сообщения и имена, не прошедшие " +
-                    "display_name_regex. Сделайте бота администратором группы"
-            )
-        },
-        @SerialName("privacy_mode")
-        val privacyMode: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Privacy mode is on and the bot is not an admin, so it sees only commands, not the chat. " +
-                    "Make the bot an admin, or turn privacy off in @BotFather: /mybots → your bot → " +
-                    "Bot Settings → Group Privacy → Turn off, then remove the bot from the group and add it again"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Включён режим приватности, а бот не администратор, поэтому он видит только команды, а не " +
-                    "переписку. Сделайте бота администратором или отключите приватность в @BotFather: /mybots → " +
-                    "ваш бот → Bot Settings → Group Privacy → Turn off, затем удалите бота из группы и добавьте снова"
-            )
-        },
-        @SerialName("forum_without_topic")
-        val forumWithoutTopic: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The chat has topics, but topic_id is empty, so messages go to General. To use another topic, " +
-                    "run /mb telegram bind and send the code inside that topic"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "В чате есть топики, но topic_id пустой, поэтому сообщения идут в General. Чтобы использовать " +
-                    "другой топик, выполните /mb telegram bind и отправьте код внутри него"
-            )
-        },
-        @SerialName("reply_thread")
-        private val replyThread: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The chat has no topics, so topic_id %topic_id% makes a reply thread: only replies to message " +
-                    "%topic_id% are relayed. To relay the whole chat: /mb telegram topic none"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "В чате нет топиков, поэтому topic_id %topic_id% работает как ветка ответов: пересылаются только " +
-                    "ответы на сообщение %topic_id%. Чтобы пересылать весь чат: /mb telegram topic none"
-            )
-        },
-        @SerialName("test_message")
-        val testMessage: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "✅ MessageBridge check: the server can send messages to this chat")
-            translation(
-                MinecraftLocales.RU_RU,
-                "✅ Проверка MessageBridge: сервер может отправлять сообщения в этот чат"
-            )
-        },
-        @SerialName("test_message_sent")
-        val testMessageSent: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "The test message is sent to the chat")
-            translation(MinecraftLocales.RU_RU, "Тестовое сообщение отправлено в чат")
-        },
-        @SerialName("reconnecting")
-        val reconnecting: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The bot is reconnecting with the new settings. Run the check again in a few seconds"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Бот переподключается с новыми настройками. Повторите проверку через несколько секунд"
-            )
-        }
-    ) {
-        fun botWorks(botName: String): LocalizableComponent = botWorks.replaceAll(
-            PlaceholderReplacement.plain("%bot%", botName)
-        )
-
-        fun chatFound(title: String, type: String, isForum: Boolean): LocalizableComponent {
-            val text = if (isForum) forumFound else chatFound
-            return text.replaceAll(
-                PlaceholderReplacement.plain("%chat%", title),
-                PlaceholderReplacement.plain("%type%", type)
-            )
-        }
-
-        fun replyThread(topicId: String): LocalizableComponent = replyThread.replaceAll(
-            PlaceholderReplacement.plain("%topic_id%", topicId)
-        )
-    }
-
     @Serializable
     data class ChatInfo(
         @SerialName("message")

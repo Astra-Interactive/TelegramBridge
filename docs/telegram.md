@@ -16,11 +16,11 @@ In game, add `/` in front and `--unsafe` after the token (see [Set the token](#2
 3. Add the bot to your group and make it an admin with the **Delete messages** right.
 4. Run `mb telegram bind`. Send the `/bind <code>` it shows into the group.
    If the group has topics, send it inside the topic you want to bridge.
-5. Run `mb telegram check` and fix anything it marks as an error.
+5. The console shows whether the bot connected. `mb status` shows the same at any time.
 
 `mb telegram` without arguments shows these steps and the current status.
 
-Telegram is blocked in some countries, for example in Russia. If `mb telegram check` cannot reach Telegram,
+Telegram is blocked in some countries, for example in Russia. If the bot cannot reach Telegram,
 set up a proxy first: [proxy.md](proxy.md).
 
 ## 1. Create the bot
@@ -81,8 +81,6 @@ Do one of these:
 - Or turn privacy mode off: @BotFather → `/mybots` → your bot → **Bot Settings** → **Group Privacy** → **Turn off**.
   Then remove the bot from the group and add it again. Telegram applies the change only when the bot joins.
 
-`mb telegram check` tells you if the bot cannot see the messages.
-
 ## 4. Choose the chat and the topic
 
 ### With a bind code (recommended)
@@ -131,16 +129,7 @@ If it did not, for example because the server was off, run `mb telegram bind` ag
 
 ## 5. Check the setup
 
-`mb telegram check` checks:
-
-- the token and the bot,
-- privacy mode,
-- the chat: the bot is in it and can see it,
-- the rights of the bot,
-- the topic,
-- and sends a test message.
-
-Every line that failed says what to do. `mb status` shows both bots, the chat, the proxy
+The console shows whether the bot connected and why not. `mb status` shows both bots, the chat, the proxy
 and the last error of sending a message.
 
 If something does not work, see [troubleshooting.md](troubleshooting.md).

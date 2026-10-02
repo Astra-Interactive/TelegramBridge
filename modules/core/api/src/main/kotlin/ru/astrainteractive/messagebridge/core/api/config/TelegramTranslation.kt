@@ -129,12 +129,12 @@ data class TelegramTranslation(
             translation(
                 MinecraftLocales.EN_US,
                 "The bot is not in the chat: it was removed or never added. " +
-                    "Add the bot to the group, make it an admin and check: /mb telegram check"
+                    "Add the bot to the group and make it an admin"
             )
             translation(
                 MinecraftLocales.RU_RU,
                 "Бота нет в чате: его удалили или ещё не добавили. " +
-                    "Добавьте бота в группу, сделайте администратором и проверьте: /mb telegram check"
+                    "Добавьте бота в группу и сделайте администратором"
             )
         },
         @SerialName("no_rights")

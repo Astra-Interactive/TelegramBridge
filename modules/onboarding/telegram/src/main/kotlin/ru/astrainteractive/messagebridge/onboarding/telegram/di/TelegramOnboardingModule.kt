@@ -24,7 +24,6 @@ import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramBin
 import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramChatInfoHandler
 import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramSetupCommandParser
 import ru.astrainteractive.messagebridge.onboarding.telegram.event.TelegramSetupInterceptor
-import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramDiagnostics
 import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramGuideLogger
 import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramOnboarding
 import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramStatusMapper
@@ -81,13 +80,6 @@ class TelegramOnboardingModule(
             .stateIn(moduleIoScope, SharingStarted.Eagerly, MessengerStatus.Connecting),
         deliveryError = botModule.deliveryError,
         bindCodes = bindCodes,
-        diagnostics = TelegramDiagnostics(
-            configFlow = coreModule.config,
-            translationKrate = onboardingTranslationModule.translationKrate,
-            connectionState = botModule.state,
-            botApi = botModule.botApi,
-            failureTextMapper = botModule.failureTextMapper,
-        ),
     )
 
     val lifecycle = Lifecycle.Lambda(

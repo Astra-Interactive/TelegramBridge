@@ -58,7 +58,7 @@ In `config.yml` the proxy looks like this, in `tgConfig` and in `jdaConfig`:
 
 `proxy: null` means a direct connection.
 
-Then run `mb telegram check` and `mb discord check`. They show whether the bot can connect through the proxy.
+The console then shows whether the bot connected through the proxy, and so does `mb status`.
 
 ## Option 1: a proxy client on the same machine
 

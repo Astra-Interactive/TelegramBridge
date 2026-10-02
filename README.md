@@ -23,7 +23,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
   replied message. Change the look with `chat.to_minecraft_reply` in `translation/main.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Setup from the console or in game** — `/mb` commands set tokens, chats and proxies;
-  a one-time bind code captures the chat, topic or channel id; `check` finds what is wrong and links to the docs
+  a one-time bind code captures the chat, topic or channel id
 - **Account linking** — `/link` in game → code → `/link <code>` in Telegram or Discord;
   grants a LuckPerms group and a Discord role, and takes the group away when the player leaves the Discord server
 - **Online list** — `/vanilla` (Telegram) or `!vanilla` (Discord)
@@ -50,7 +50,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 3. In the server console: `mb telegram token <token>` and `mb discord token <token>`.
 4. Telegram: make the bot an admin of your group, run `mb telegram bind` and send `/bind <code>` into the group.
    Discord: run `mb discord invite` to add the bot, then `mb discord bind` and send `!bind <code>` into the channel.
-5. Run `mb telegram check` and `mb discord check`.
+5. The console shows whether each bot connected. `mb status` shows the same at any time.
 
 No restart is needed. In Russia and other places where Telegram or Discord is blocked, set up a [proxy](docs/proxy.md) first.
 
@@ -108,7 +108,7 @@ In the console, type commands without `/`. Full list: [docs/commands.md](docs/co
 | Command                          | Permission              |                                              |
 |----------------------------------|-------------------------|----------------------------------------------|
 | `/mb status`                     | `tbridge.setup`         | Status of both bots and the last error       |
-| `/mb telegram`, `/mb discord`    | `tbridge.setup`         | Step-by-step guide, setup and `check`        |
+| `/mb telegram`, `/mb discord`    | `tbridge.setup`         | Step-by-step guide and setup                 |
 | `/mb reload`                     | `tbridge.reload`        | Reload the config                            |
 | `/link`, `/unlink`               | -                       | Link or unlink your account                  |
 | `/unlink <player>`               | `tbridge.unlink.player` | Unlink another player                        |

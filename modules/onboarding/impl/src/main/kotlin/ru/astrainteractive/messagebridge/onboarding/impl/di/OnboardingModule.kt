@@ -7,7 +7,6 @@ import ru.astrainteractive.messagebridge.onboarding.api.api.MessengerOnboarding
 import ru.astrainteractive.messagebridge.onboarding.api.di.MessengerOnboardingModule
 import ru.astrainteractive.messagebridge.onboarding.api.di.OnboardingTranslationModule
 import ru.astrainteractive.messagebridge.onboarding.impl.command.BindLiteralArgumentBuilder
-import ru.astrainteractive.messagebridge.onboarding.impl.command.CheckLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.command.GuideLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.command.MbLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.command.ReloadLiteralArgumentBuilder
@@ -84,13 +83,6 @@ class OnboardingModule(
             statusText = statusText,
             multiplatformCommand = multiplatformCommand,
             commandExceptionHandler = commandExceptionHandler
-        ).create(),
-        CheckLiteralArgumentBuilder(
-            messenger = telegram,
-            ioScope = coreModule.ioScope,
-            multiplatformCommand = multiplatformCommand,
-            commandExceptionHandler = commandExceptionHandler,
-            translationKrate = translationKrate
         ).create()
     )
 
@@ -120,13 +112,6 @@ class OnboardingModule(
         InviteLiteralArgumentBuilder(
             messenger = discord,
             statusText = statusText,
-            ioScope = coreModule.ioScope,
-            multiplatformCommand = multiplatformCommand,
-            commandExceptionHandler = commandExceptionHandler,
-            translationKrate = translationKrate
-        ).create(),
-        CheckLiteralArgumentBuilder(
-            messenger = discord,
             ioScope = coreModule.ioScope,
             multiplatformCommand = multiplatformCommand,
             commandExceptionHandler = commandExceptionHandler,

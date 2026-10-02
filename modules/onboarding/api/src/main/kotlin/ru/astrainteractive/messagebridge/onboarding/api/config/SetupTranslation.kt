@@ -28,7 +28,6 @@ data class SetupTranslation(
             &#42f596/mb telegram proxy off &7— remove the proxy
             &#42f596/mb telegram api-url <url|default> &7— use a self-hosted Bot API or a mirror
             &#42f596/mb telegram bind &7— bind the chat with a one-time code
-            &#42f596/mb telegram check &7— check the bot and send a test message
             &#42f596/mb discord &7— Discord setup guide and state
             &#42f596/mb discord token <token> &7— set the bot token
             &#42f596/mb discord channel <channel_id> &7— set the channel
@@ -37,7 +36,6 @@ data class SetupTranslation(
             &#42f596/mb discord proxy off &7— remove the proxy
             &#42f596/mb discord bind &7— bind the channel with a one-time code
             &#42f596/mb discord invite &7— link that adds the bot to your server
-            &#42f596/mb discord check &7— check the bot and send a test message
             &#dbbb18In game, add --unsafe after a token or a password: game commands are written to the server log.
             &7Every command: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/commands.md
             """.trimIndent()
@@ -56,7 +54,6 @@ data class SetupTranslation(
             &#42f596/mb telegram proxy off &7— убрать прокси
             &#42f596/mb telegram api-url <url|default> &7— свой Bot API или зеркало
             &#42f596/mb telegram bind &7— привязать чат одноразовым кодом
-            &#42f596/mb telegram check &7— проверить бота и отправить тестовое сообщение
             &#42f596/mb discord &7— инструкция и состояние Discord
             &#42f596/mb discord token <токен> &7— задать токен бота
             &#42f596/mb discord channel <channel_id> &7— задать канал
@@ -65,7 +62,6 @@ data class SetupTranslation(
             &#42f596/mb discord proxy off &7— убрать прокси
             &#42f596/mb discord bind &7— привязать канал одноразовым кодом
             &#42f596/mb discord invite &7— ссылка, чтобы добавить бота на сервер
-            &#42f596/mb discord check &7— проверить бота и отправить тестовое сообщение
             &#dbbb18В игре добавляйте --unsafe после токена или пароля: команды из игры записываются в лог сервера.
             &7Все команды (на английском): https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/commands.md
             """.trimIndent()
@@ -250,17 +246,6 @@ data class SetupTranslation(
             "&#42f596Отправьте !bind %code% в нужный канал Discord. Код действует %minutes% мин."
         )
     },
-    @SerialName("check_started")
-    private val checkStarted: LocalizedText = LocalizedText.build {
-        translation(MinecraftLocales.EN_US, "&#dbbb18Checking %messenger%…")
-        translation(MinecraftLocales.RU_RU, "&#dbbb18Проверяю %messenger%…")
-    },
-    @SerialName("check_ok")
-    private val checkOk: LocalizedText = LocalizedText.shared("&#42f596✔ %check%"),
-    @SerialName("check_warning")
-    private val checkWarning: LocalizedText = LocalizedText.shared("&#dbbb18⚠ %check%"),
-    @SerialName("check_error")
-    private val checkError: LocalizedText = LocalizedText.shared("&#db2c18✖ %check%"),
     @SerialName("invite_link")
     private val inviteLink: LocalizedText = LocalizedText.build {
         translation(MinecraftLocales.EN_US, "&#42f596Open the link to add the bot to your server: %link%")
@@ -290,14 +275,6 @@ data class SetupTranslation(
         PlaceholderReplacement.plain("%minutes%", "${lifetime.inWholeMinutes}")
     )
 
-    fun checkStarted(messenger: String): LocalizableComponent = checkStarted.replace("%messenger%", messenger)
-
-    fun checkOk(check: LocalizableComponent): LocalizableComponent = checkOk.replace("%check%", check)
-
-    fun checkWarning(check: LocalizableComponent): LocalizableComponent = checkWarning.replace("%check%", check)
-
-    fun checkError(check: LocalizableComponent): LocalizableComponent = checkError.replace("%check%", check)
-
     fun inviteLink(link: LocalizableComponent): LocalizableComponent = inviteLink.replace("%link%", link)
 
     @Serializable
@@ -309,14 +286,8 @@ data class SetupTranslation(
         },
         @SerialName("chat")
         private val chat: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "&#42f596Chat %chat% saved. Send a test message with /mb telegram check"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "&#42f596Чат %chat% сохранён. Отправьте тестовое сообщение: /mb telegram check"
-            )
+            translation(MinecraftLocales.EN_US, "&#42f596Chat %chat% saved")
+            translation(MinecraftLocales.RU_RU, "&#42f596Чат %chat% сохранён")
         },
         @SerialName("topic")
         private val topic: LocalizedText = LocalizedText.build {
@@ -330,14 +301,8 @@ data class SetupTranslation(
         },
         @SerialName("channel")
         private val channel: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "&#42f596Channel %channel% saved. Send a test message with /mb discord check"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "&#42f596Канал %channel% сохранён. Отправьте тестовое сообщение: /mb discord check"
-            )
+            translation(MinecraftLocales.EN_US, "&#42f596Channel %channel% saved")
+            translation(MinecraftLocales.RU_RU, "&#42f596Канал %channel% сохранён")
         },
         @SerialName("activity")
         private val activity: LocalizedText = LocalizedText.build {

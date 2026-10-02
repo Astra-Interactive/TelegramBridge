@@ -8,8 +8,7 @@ Search this page for the text of the error (Ctrl+F).
 ## Start here
 
 1. `mb status` shows both bots, the chat and the channel, the proxy and the last error of sending a message.
-2. `mb telegram check` and `mb discord check` check every step and say what to fix.
-3. The server log is `logs/latest.log`. The lines of the plugin contain `MessageBridge`.
+2. The server log is `logs/latest.log`. The lines of the plugin contain `MessageBridge`.
 
 Commands are typed in the console without `/`. See [commands.md](commands.md).
 
@@ -62,7 +61,6 @@ If you do not know what uses the token, revoke it in @BotFather and set the new 
 The server cannot connect to `api.telegram.org`. Usually Telegram is blocked in the country or by the hosting.
 
 Fix: set up a proxy or an own Bot API server, see [proxy.md](proxy.md).
-Then run `mb telegram check`.
 
 ### 429 Too Many Requests: retry after
 
@@ -102,7 +100,7 @@ Fix: run `mb telegram bind` and send the code inside the right topic, or run `mb
 
 The bot was removed from the group.
 
-Fix: add it again, make it an admin, and run `mb telegram check`.
+Fix: add it again and make it an admin.
 
 ### Not enough rights: message can't be deleted / not enough rights to send text messages
 
@@ -131,8 +129,7 @@ Go through the list:
 ### Messages from Minecraft don't reach Telegram
 
 1. `mb status` shows the last error of sending a message. Find it on this page.
-2. Check that the bot can write into the group and the topic: `mb telegram check` sends a test message.
-3. Join, leave and death messages can be turned off with `displayJoinMessage`, `displayLeaveMessage`
+2. Join, leave and death messages can be turned off with `displayJoinMessage`, `displayLeaveMessage`
    and `displayDeathMessage` in `config.yml`.
 
 ## Discord
@@ -201,7 +198,7 @@ so the count can lag behind.
 
 ### Messages from Discord don't reach Minecraft
 
-1. `mb discord check`: the bot is connected and sees the channel.
+1. `mb status`: the bot is connected.
 2. `channelId` is the channel you write in.
 3. Message Content Intent is on.
 4. Messages of other bots and of webhooks are not relayed.

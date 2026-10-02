@@ -18,7 +18,6 @@ import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindCommandParser
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindHandler
 import ru.astrainteractive.messagebridge.onboarding.discord.event.DiscordBindInterceptor
-import ru.astrainteractive.messagebridge.onboarding.discord.internal.DiscordDiagnostics
 import ru.astrainteractive.messagebridge.onboarding.discord.internal.DiscordGuideLogger
 import ru.astrainteractive.messagebridge.onboarding.discord.internal.JdaDiscordOnboarding
 import java.security.SecureRandom
@@ -61,12 +60,6 @@ class DiscordOnboardingModule(
         connection = botModule.connection,
         failureTextMapper = botModule.failureTextMapper,
         bindCodes = bindCodes,
-        diagnostics = DiscordDiagnostics(
-            connection = botModule.connection,
-            failureTextMapper = botModule.failureTextMapper,
-            configFlow = coreModule.config,
-            translationKrate = onboardingTranslationModule.translationKrate,
-        ),
         deliveryError = botModule.deliveryError,
         scope = moduleIoScope,
     )
