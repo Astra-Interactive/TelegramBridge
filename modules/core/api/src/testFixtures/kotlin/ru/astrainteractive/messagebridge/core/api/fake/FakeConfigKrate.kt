@@ -7,7 +7,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 class FakeConfigKrate(
     initial: Result<PluginConfiguration>
 ) : MutableKrate<Result<PluginConfiguration>> {
-    @Volatile
     private var stored: Result<PluginConfiguration> = initial
 
     val saves: MutableList<PluginConfiguration> = CopyOnWriteArrayList()
@@ -17,19 +16,16 @@ class FakeConfigKrate(
 
     override fun getValue(): Result<PluginConfiguration> = stored
 
-    @Synchronized
     override fun save(value: Result<PluginConfiguration>) {
         val configuration = value.getOrNull() ?: return
         stored = value
         saves += configuration
     }
 
-    @Synchronized
     override fun save(block: (Result<PluginConfiguration>) -> Result<PluginConfiguration>) {
         save(block(stored))
     }
 
-    @Synchronized
     override fun saveAndGet(
         block: (Result<PluginConfiguration>) -> Result<PluginConfiguration>
     ): Result<PluginConfiguration> {

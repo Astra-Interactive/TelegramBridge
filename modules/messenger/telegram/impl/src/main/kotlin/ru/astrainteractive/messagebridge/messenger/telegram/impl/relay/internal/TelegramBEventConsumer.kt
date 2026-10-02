@@ -3,6 +3,8 @@ package ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.internal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -45,7 +47,7 @@ internal class TelegramBEventConsumer(
     private val mutableDeliveryError = MutableStateFlow<LocalizableComponent?>(null)
     val deliveryError: StateFlow<LocalizableComponent?> = mutableDeliveryError.asStateFlow()
 
-    @Volatile
+    private val lastFailureMutex = Mutex()
     private var lastFailure: TelegramFailure? = null
 
     private fun textOf(bEvent: BEvent): LocalizableComponent = when (bEvent) {
@@ -70,20 +72,24 @@ internal class TelegramBEventConsumer(
         ServerOpenBEvent -> translation.server.started
     }
 
-    private fun onDelivered() {
-        if (lastFailure == null) return
-        lastFailure = null
+    private suspend fun onDelivered() {
+        lastFailureMutex.withLock {
+            if (lastFailure == null) return
+            lastFailure = null
+        }
         mutableDeliveryError.value = null
         info { translation.telegram.status.deliveryRestored.toMessengerText() }
     }
 
-    private fun onFailed(failure: TelegramFailure) {
+    private suspend fun onFailed(failure: TelegramFailure) {
         val reason = failureTextMapper.lazyMap(failure)
-        if (failure == lastFailure) {
-            verbose { "#onFailed ${reason.toMessengerText()}" }
-            return
+        lastFailureMutex.withLock {
+            if (failure == lastFailure) {
+                verbose { "#onFailed ${reason.toMessengerText()}" }
+                return
+            }
+            lastFailure = failure
         }
-        lastFailure = failure
         mutableDeliveryError.value = reason
         error { translation.telegram.status.deliveryFailed(reason).toMessengerText() }
     }

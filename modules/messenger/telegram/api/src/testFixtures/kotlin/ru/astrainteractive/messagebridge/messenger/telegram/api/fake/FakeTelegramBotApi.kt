@@ -13,7 +13,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 class FakeTelegramBotApi : TelegramBotApi {
     val requests: MutableList<BotApiMethod<*>> = CopyOnWriteArrayList()
 
-    @Volatile
     var answer: suspend (BotApiMethod<*>) -> TelegramRequestResult<*> = { method -> delivered(method) }
 
     val sentMessages: List<SendMessage>

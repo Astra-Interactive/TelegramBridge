@@ -1,5 +1,6 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.network
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.telegram.telegrambots.meta.api.methods.updates.GetUpdates
@@ -18,19 +19,16 @@ internal class GetUpdatesStatusInterceptor(
     private val timeSource: TimeSource,
     private val onState: (TelegramConnectionState) -> Unit,
 ) : Interceptor {
-    @Volatile
-    private var isActive = true
-
-    @Volatile
-    private var lastConflict: TimeMark? = null
+    private val isActive = MutableStateFlow(true)
+    private val lastConflict = MutableStateFlow<TimeMark?>(null)
 
     private fun report(state: TelegramConnectionState) {
-        if (isActive) onState(state)
+        if (isActive.value) onState(state)
     }
 
     private fun stateOf(code: Int): TelegramConnectionState? = when (code) {
         HttpURLConnection.HTTP_OK -> {
-            val isAfterConflict = lastConflict?.let { mark -> mark.elapsedNow() < CONFLICT_MEMORY } == true
+            val isAfterConflict = lastConflict.value?.let { mark -> mark.elapsedNow() < CONFLICT_MEMORY } == true
             if (isAfterConflict) {
                 TelegramConnectionState.Failed(TelegramFailure.TokenInUse)
             } else {
@@ -39,7 +37,7 @@ internal class GetUpdatesStatusInterceptor(
         }
 
         HttpURLConnection.HTTP_CONFLICT -> {
-            lastConflict = timeSource.markNow()
+            lastConflict.value = timeSource.markNow()
             TelegramConnectionState.Failed(TelegramFailure.TokenInUse)
         }
 
@@ -50,7 +48,7 @@ internal class GetUpdatesStatusInterceptor(
     }
 
     fun deactivate() {
-        isActive = false
+        isActive.value = false
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {

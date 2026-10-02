@@ -49,13 +49,10 @@ class TelegramDiagnosticsTest {
         canReadAllGroupMessages = false
     }
 
-    @Volatile
     private var chat: ChatFullInfo = chatInfoOf(isForum = false)
 
-    @Volatile
     private var member: ChatMember = ChatMemberAdministrator().apply { canDeleteMessages = true }
 
-    @Volatile
     private var failingMethod: String? = null
 
     private fun chatInfoOf(type: String = "supergroup", isForum: Boolean): ChatFullInfo = ChatFullInfo.builder()

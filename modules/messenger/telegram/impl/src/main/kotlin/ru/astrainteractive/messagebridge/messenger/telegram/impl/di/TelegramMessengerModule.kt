@@ -140,7 +140,7 @@ class TelegramMessengerModule(
             authorMapper = authorMapper,
             relayedMessageCache = relayedMessageCache,
         ),
-        commandParser = TelegramCommandParser(botUserName = { connector.botUserName }),
+        commandParser = TelegramCommandParser(botUserName = { connector.botUserName() }),
         commandHandler = commandHandler,
         messageSender = messageSender,
         eventChannel = bEventChannel,

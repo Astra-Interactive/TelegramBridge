@@ -35,10 +35,8 @@ class GetUpdatesStatusInterceptorTest {
         onState = { state -> states += state }
     )
 
-    @Volatile
     private var answerCode = OK
 
-    @Volatile
     private var isOffline = false
 
     private val client = OkHttpClient.Builder()

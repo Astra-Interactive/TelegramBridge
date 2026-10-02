@@ -17,7 +17,6 @@ internal class FakeTelegramBotSession(
     val fetches = AtomicInteger()
     val pollings: MutableList<FakePolling> = CopyOnWriteArrayList()
 
-    @Volatile
     var reportState: (TelegramConnectionState) -> Unit = { _ -> }
         private set
 

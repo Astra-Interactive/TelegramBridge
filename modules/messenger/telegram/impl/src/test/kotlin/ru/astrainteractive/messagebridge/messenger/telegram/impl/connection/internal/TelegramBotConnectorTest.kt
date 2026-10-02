@@ -77,7 +77,7 @@ class TelegramBotConnectorTest {
         connect(connector, MutableStateFlow(TelegramConnection.Disabled))
 
         assertEquals(TelegramConnectionState.Disabled, connector.state.value)
-        assertNull(connector.botUserName)
+        assertNull(connector.botUserName())
     }
 
     @Test
@@ -97,7 +97,7 @@ class TelegramBotConnectorTest {
         connect(connector, MutableStateFlow(ready))
 
         assertEquals(TelegramConnectionState.Connected("@$BOT_USER_NAME"), connector.state.value)
-        assertEquals(BOT_USER_NAME, connector.botUserName)
+        assertEquals(BOT_USER_NAME, connector.botUserName())
         assertEquals(1, session.pollings.size)
         assertEquals(1, backOff.resets.get())
     }
@@ -113,7 +113,7 @@ class TelegramBotConnectorTest {
 
         assertEquals(TelegramConnectionState.Failed(TelegramFailure.InvalidToken), connector.state.value)
         assertEquals(1, session.fetches.get())
-        assertNull(connector.botUserName)
+        assertNull(connector.botUserName())
     }
 
     @Test
@@ -170,7 +170,7 @@ class TelegramBotConnectorTest {
 
         assertTrue(session.pollings.single().isClosed)
         assertEquals(TelegramConnectionState.Disabled, connector.state.value)
-        assertNull(connector.botUserName)
+        assertNull(connector.botUserName())
     }
 
     @Test
