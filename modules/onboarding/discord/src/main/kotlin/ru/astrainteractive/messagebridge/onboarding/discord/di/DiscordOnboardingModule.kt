@@ -72,12 +72,9 @@ class DiscordOnboardingModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
+        onEnable = { botModule.connection.onEach(guideLogger::log).launchIn(moduleIoScope) },
         onDisable = { moduleIoScope.cancel() }
     )
-
-    init {
-        botModule.connection.onEach(guideLogger::log).launchIn(moduleIoScope)
-    }
 
     private companion object {
         val BIND_CODE_LIFETIME = 10.minutes

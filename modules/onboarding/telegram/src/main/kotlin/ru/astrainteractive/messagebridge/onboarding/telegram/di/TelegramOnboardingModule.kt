@@ -97,12 +97,9 @@ class TelegramOnboardingModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
+        onEnable = { botModule.state.onEach(guideLogger::log).launchIn(moduleIoScope) },
         onDisable = { moduleIoScope.cancel() }
     )
-
-    init {
-        botModule.state.onEach(guideLogger::log).launchIn(moduleIoScope)
-    }
 
     private companion object {
         val BIND_CODE_LIFETIME = 10.minutes

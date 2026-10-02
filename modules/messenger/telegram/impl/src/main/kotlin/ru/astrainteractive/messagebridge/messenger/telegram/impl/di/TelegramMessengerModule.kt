@@ -154,16 +154,15 @@ class TelegramMessengerModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
+        onEnable = {
+            moduleIoScope.launch { connector.connect(connections) }
+            connector.state.onEach(statusLogger::log).launchIn(moduleIoScope)
+            bEventChannel.bEvents(moduleIoScope)
+                .onEach { bEvent -> bEventConsumer.tryConsume(bEvent) }
+                .launchIn(moduleIoScope)
+        },
         onDisable = { moduleIoScope.cancel() }
     )
-
-    init {
-        moduleIoScope.launch { connector.connect(connections) }
-        connector.state.onEach(statusLogger::log).launchIn(moduleIoScope)
-        bEventChannel.bEvents(moduleIoScope)
-            .onEach { bEvent -> bEventConsumer.tryConsume(bEvent) }
-            .launchIn(moduleIoScope)
-    }
 
     private fun createBackOff(): BackOff = CappedBackOff(
         initialInterval = BACK_OFF_INITIAL_INTERVAL,
