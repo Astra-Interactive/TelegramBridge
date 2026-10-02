@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.onboarding.api.impl
 
+import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -10,15 +11,11 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 class BindCodesTest {
-    private var now = Instant.fromEpochSeconds(1_700_000_000L)
-    private val clock = object : Clock {
-        override fun now(): Instant = now
-    }
+    private val clock = FakeClock(now = Instant.fromEpochSeconds(1_700_000_000L))
     private val lifetime = 10.minutes
     private val bindCodes = BindCodes(clock = clock, lifetime = lifetime, random = Random(SEED))
 
@@ -44,7 +41,7 @@ class BindCodesTest {
     @Test
     fun GIVEN_expired_code_WHEN_consumed_THEN_nothing_is_returned() {
         val code = bindCodes.issue { _ -> }
-        now += lifetime + 1.minutes
+        clock.now += lifetime + 1.minutes
 
         assertFalse(bindCodes.isValid(code.value))
         assertNull(bindCodes.consume(code.value))
@@ -53,7 +50,7 @@ class BindCodesTest {
     @Test
     fun GIVEN_code_on_the_last_moment_of_its_lifetime_WHEN_consumed_THEN_it_still_works() {
         val code = bindCodes.issue { _ -> }
-        now += lifetime
+        clock.now += lifetime
 
         assertNotNull(bindCodes.consume(code.value))
     }

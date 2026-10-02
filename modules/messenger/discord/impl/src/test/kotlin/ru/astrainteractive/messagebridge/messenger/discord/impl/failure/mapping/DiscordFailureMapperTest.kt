@@ -14,6 +14,7 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.messagebridge.core.api.config.DiscordTranslation
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
+import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordFailure
 import ru.astrainteractive.messagebridge.messenger.discord.impl.failure.model.DiscordFailureError
 import java.net.ConnectException
@@ -30,10 +31,7 @@ class DiscordFailureMapperTest {
     private val config = PluginConfiguration.JdaConfig(token = "token", channelId = "42")
     private val proxy = PluginConfiguration.Proxy(host = "10.0.0.1", port = 3128)
 
-    private val guild = java.lang.reflect.Proxy.newProxyInstance(
-        Guild::class.java.classLoader,
-        arrayOf(Guild::class.java)
-    ) { _, method, _ -> if (method.name == "getIdLong") 1L else null } as Guild
+    private val guild = jdaFake<Guild> { method, _ -> if (method.name == "getIdLong") 1L else null }
 
     private fun networkError(cause: Exception): ErrorResponseException {
         return ErrorResponseException.create(ErrorResponse.SERVER_ERROR, Response(cause, emptySet()))

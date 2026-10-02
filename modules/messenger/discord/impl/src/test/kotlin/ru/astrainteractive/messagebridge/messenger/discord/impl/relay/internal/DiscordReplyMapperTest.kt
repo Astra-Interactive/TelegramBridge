@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import java.lang.reflect.Proxy
+import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -15,19 +15,16 @@ import kotlin.test.assertNull
 class DiscordReplyMapperTest {
     private val mapper = DiscordReplyMapper()
 
-    private inline fun <reified T : Any> jdaFake(answerByGetter: Map<String, Any?>): T {
-        val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
-            check(method.name in answerByGetter) { "${T::class.simpleName}.${method.name} is not faked" }
-            answerByGetter[method.name]
-        }
-        return fake as T
+    private inline fun <reified T : Any> fakeOf(answerByGetter: Map<String, Any?>): T = jdaFake { method, _ ->
+        check(method.name in answerByGetter) { "${T::class.simpleName}.${method.name} is not faked" }
+        answerByGetter[method.name]
     }
 
-    private fun user(name: String, id: Long): User = jdaFake(mapOf("getName" to name, "getIdLong" to id))
+    private fun user(name: String, id: Long): User = fakeOf(mapOf("getName" to name, "getIdLong" to id))
 
-    private fun member(nickname: String?): Member = jdaFake(mapOf("getNickname" to nickname))
+    private fun member(nickname: String?): Member = fakeOf(mapOf("getNickname" to nickname))
 
-    private fun repliedMessage(author: User, member: Member?, isWebhook: Boolean): Message = jdaFake(
+    private fun repliedMessage(author: User, member: Member?, isWebhook: Boolean): Message = fakeOf(
         mapOf(
             "getAuthor" to author,
             "getMember" to member,
@@ -36,7 +33,7 @@ class DiscordReplyMapperTest {
         )
     )
 
-    private fun message(type: MessageType, referenced: Message?): Message = jdaFake(
+    private fun message(type: MessageType, referenced: Message?): Message = fakeOf(
         mapOf(
             "getType" to type,
             "getReferencedMessage" to referenced
