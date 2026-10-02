@@ -45,7 +45,7 @@ class ReloadLiteralArgumentBuilderTest {
 
         val replies = fixture.repliesOf(fixture.admin)
         assertEquals(plain(reload.started), replies.first())
-        assertTrue(replies.last().startsWith("config.yml has an error and is not applied"), replies.last())
+        assertTrue(replies.last().startsWith("config.yml has an error, the previous settings are kept"), replies.last())
         assertTrue("line 2" in replies.last(), replies.last())
         assertEquals(2, replies.size, "$replies")
         assertEquals("-100123", fixture.coreModule.config.value.tgConfig.chatID)

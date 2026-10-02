@@ -38,7 +38,7 @@ class BindLiteralArgumentBuilderTest {
             fixture.consoleReplies
         )
         assertTrue("Send /bind@ServerBot $code" in fixture.consoleReplies.first())
-        assertTrue("valid for 10 minutes" in fixture.consoleReplies.first())
+        assertTrue("valid for 10 min" in fixture.consoleReplies.first())
     }
 
     @Test
@@ -60,10 +60,10 @@ class BindLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_telegram_bot_without_token_WHEN_console_asks_for_bind_code_THEN_reads_how_to_set_the_token() {
+    fun GIVEN_telegram_bot_without_token_WHEN_console_asks_for_bind_code_THEN_reads_that_there_is_no_token() {
         fixture.execute("mb telegram bind")
 
-        assertEquals(listOf("Telegram: not configured — /mb telegram token <token>"), fixture.consoleReplies)
+        assertEquals(listOf("Telegram: no token"), fixture.consoleReplies)
         assertTrue(fixture.telegram.bindCallbacks.isEmpty())
     }
 
@@ -78,10 +78,10 @@ class BindLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_discord_bot_without_token_WHEN_console_asks_for_bind_code_THEN_reads_how_to_set_the_token() {
+    fun GIVEN_discord_bot_without_token_WHEN_console_asks_for_bind_code_THEN_reads_that_there_is_no_token() {
         fixture.execute("mb discord bind")
 
-        assertEquals(listOf("Discord: not configured — /mb discord token <token>"), fixture.consoleReplies)
+        assertEquals(listOf("Discord: no token"), fixture.consoleReplies)
         assertTrue(fixture.discord.bindCallbacks.isEmpty())
     }
 

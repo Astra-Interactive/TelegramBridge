@@ -27,7 +27,7 @@ class MessengerLiteralArgumentBuilderTest {
 
         assertEquals(
             listOf(
-                plain(status.disabled(messenger = "Telegram", command = "telegram")),
+                plain(status.disabled(messenger = "Telegram")),
                 plain(status.noChat),
                 plain(status.noProxy)
             ),

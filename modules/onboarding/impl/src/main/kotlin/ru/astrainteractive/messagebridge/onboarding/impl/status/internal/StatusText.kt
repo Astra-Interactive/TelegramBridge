@@ -12,7 +12,7 @@ internal class StatusText(translationKrate: CachedKrate<OnboardingTranslation>) 
 
     fun stateOf(messenger: Messenger, status: MessengerStatus): LocalizableComponent {
         return when (status) {
-            MessengerStatus.Disabled -> translation.setup.status.disabled(messenger.name, messenger.command)
+            MessengerStatus.Disabled -> translation.setup.status.disabled(messenger.name)
             MessengerStatus.Connecting -> translation.setup.status.connecting(messenger.name)
             is MessengerStatus.Connected -> translation.setup.status.connected(messenger.name, status.botName)
             is MessengerStatus.Failed -> translation.setup.status.failed(messenger.name, status.reason)

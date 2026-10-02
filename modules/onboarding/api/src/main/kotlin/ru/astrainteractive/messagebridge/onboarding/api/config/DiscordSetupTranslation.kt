@@ -17,61 +17,33 @@ data class DiscordSetupTranslation(
     data class Bind(
         @SerialName("code_invalid")
         val codeInvalid: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The code is invalid or expired. Run /mb discord bind in the server console or in the game " +
-                    "to get a new one"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Код неверный или устарел. Выполните /mb discord bind в консоли сервера или в игре, " +
-                    "чтобы получить новый"
-            )
+            translation(MinecraftLocales.EN_US, "The code is wrong or expired")
+            translation(MinecraftLocales.RU_RU, "Код неверный или устарел")
         },
         @SerialName("wrong_channel_type")
         val wrongChannelType: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Send the code into a text channel of the server, not into a thread or a voice channel chat"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Отправьте код в текстовый канал сервера, а не в ветку или чат голосового канала"
-            )
+            translation(MinecraftLocales.EN_US, "Send the code to a text channel")
+            translation(MinecraftLocales.RU_RU, "Отправьте код в текстовый канал")
         },
         @SerialName("no_permission")
         val noPermission: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Only members who can manage this channel can connect it to the Minecraft server"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Подключить канал к серверу Minecraft может только участник с правом управлять этим каналом"
-            )
+            translation(MinecraftLocales.EN_US, "Only members who can manage this channel can bind it")
+            translation(MinecraftLocales.RU_RU, "Привязать канал может только участник с правом управлять им")
         },
         @SerialName("config_broken")
         val configBroken: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "config.yml of the Minecraft server has an error, so this channel is not saved. Fix the file, " +
-                    "run /mb reload and then /mb discord bind again"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "В config.yml сервера Minecraft ошибка, поэтому канал не сохранён. Исправьте файл, выполните " +
-                    "/mb reload, а затем снова /mb discord bind"
-            )
+            translation(MinecraftLocales.EN_US, "Not saved: config.yml of the Minecraft server has an error")
+            translation(MinecraftLocales.RU_RU, "Не сохранено: в config.yml сервера Minecraft ошибка")
         },
         @SerialName("bound_channel")
         val boundChannel: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "This channel is now connected to the Minecraft server")
-            translation(MinecraftLocales.RU_RU, "Этот канал подключён к серверу Minecraft")
+            translation(MinecraftLocales.EN_US, "The channel is bound to the Minecraft server")
+            translation(MinecraftLocales.RU_RU, "Канал привязан к серверу Minecraft")
         },
         @SerialName("bound")
         private val bound: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "Discord channel #%channel% on %guild% is connected")
-            translation(MinecraftLocales.RU_RU, "Канал Discord #%channel% на сервере %guild% подключён")
+            translation(MinecraftLocales.EN_US, "Discord channel #%channel% on %guild% is bound")
+            translation(MinecraftLocales.RU_RU, "Канал Discord #%channel% на сервере %guild% привязан")
         }
     ) {
         fun bound(channel: String, guild: String): LocalizableComponent = bound.replaceAll(

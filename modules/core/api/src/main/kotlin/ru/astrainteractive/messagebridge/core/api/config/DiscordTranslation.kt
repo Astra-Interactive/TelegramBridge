@@ -126,131 +126,54 @@ data class DiscordTranslation(
     data class Errors(
         @SerialName("invalid_token")
         val invalidToken: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Discord rejected the bot token. Open https://discord.com/developers/applications, choose your " +
-                    "application, open Bot, press Reset Token and run /mb discord token <token> with the new token"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Discord не принял токен бота. Откройте https://discord.com/developers/applications, выберите " +
-                    "приложение, откройте Bot, нажмите Reset Token и выполните /mb discord token <токен> " +
-                    "с новым токеном"
-            )
+            translation(MinecraftLocales.EN_US, "Discord rejected the bot token")
+            translation(MinecraftLocales.RU_RU, "Discord не принял токен бота")
         },
         @SerialName("missing_intents")
         private val missingIntents: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Discord refused the connection because an intent the bot needs is off. Open " +
-                    "https://discord.com/developers/applications, choose your application, open Bot, turn on " +
-                    "%intents% under Privileged Gateway Intents, save the changes and run /mb reload"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Discord не пустил бота: выключен нужный ему intent. Откройте " +
-                    "https://discord.com/developers/applications, выберите приложение, откройте Bot, включите " +
-                    "%intents% в разделе Privileged Gateway Intents, сохраните изменения и выполните /mb reload"
-            )
+            translation(MinecraftLocales.EN_US, "Privileged intents are off in the Developer Portal: %intents%")
+            translation(MinecraftLocales.RU_RU, "В Developer Portal выключены привилегированные intents: %intents%")
         },
         @SerialName("channel_not_set")
         val channelNotSet: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The Discord channel is not set. Run /mb discord bind and send the code into the channel, " +
-                    "or set its id with /mb discord channel <channel_id>"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Канал Discord не задан. Выполните /mb discord bind и отправьте код в нужный канал " +
-                    "или укажите его id: /mb discord channel <id_канала>"
-            )
+            translation(MinecraftLocales.EN_US, "channelId is not set")
+            translation(MinecraftLocales.RU_RU, "channelId не задан")
         },
         @SerialName("channel_not_found")
         private val channelNotFound: LocalizedText = LocalizedText.build {
             translation(
                 MinecraftLocales.EN_US,
-                "The bot cannot find the channel %channel_id%: the bot is not on that server or the id is wrong. " +
-                    "Add the bot with /mb discord invite, then run /mb discord bind and send the code into the channel"
+                "Channel %channel_id% not found: the id is wrong or the bot is not on that server"
             )
             translation(
                 MinecraftLocales.RU_RU,
-                "Бот не видит канал %channel_id%: бота нет на этом сервере или id указан неверно. " +
-                    "Добавьте бота через /mb discord invite, затем выполните /mb discord bind и отправьте код " +
-                    "в нужный канал"
+                "Канал %channel_id% не найден: id неверный или бота нет на этом сервере"
             )
         },
         @SerialName("missing_permission")
         private val missingPermission: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The bot lacks the \"%permission%\" permission in the channel. Give it to the bot's role " +
-                    "in the channel settings or add the bot again with /mb discord invite"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "У бота нет права «%permission%» в канале. Выдайте его роли бота в настройках канала " +
-                    "или добавьте бота заново через /mb discord invite"
-            )
+            translation(MinecraftLocales.EN_US, """The bot lacks the "%permission%" permission in the channel""")
+            translation(MinecraftLocales.RU_RU, "У бота нет права «%permission%» в канале")
         },
         @SerialName("socks_not_supported")
         val socksNotSupported: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Discord works only through an HTTP proxy, but a SOCKS5 proxy is set. Set an HTTP proxy with " +
-                    "/mb discord proxy http <host> <port> [username] [password] or turn the proxy off " +
-                    "with /mb discord proxy off"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Discord работает только через HTTP-прокси, а указан SOCKS5. Задайте HTTP-прокси: " +
-                    "/mb discord proxy http <хост> <порт> [логин] [пароль] или отключите прокси: " +
-                    "/mb discord proxy off"
-            )
+            translation(MinecraftLocales.EN_US, "Discord works only through an HTTP proxy, but a SOCKS5 proxy is set")
+            translation(MinecraftLocales.RU_RU, "Discord работает только через HTTP-прокси, а задан SOCKS5")
         },
         @SerialName("network")
         private val network: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Could not reach Discord: %error%. If Discord is blocked in your country, set an HTTP proxy " +
-                    "with /mb discord proxy http <host> <port> [username] [password]. How to get one: " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Не удалось подключиться к Discord: %error%. Если Discord заблокирован в вашей стране, " +
-                    "задайте HTTP-прокси: /mb discord proxy http <хост> <порт> [логин] [пароль]. " +
-                    "Где его взять (на английском): " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/proxy.md"
-            )
+            translation(MinecraftLocales.EN_US, "Could not reach Discord: %error%")
+            translation(MinecraftLocales.RU_RU, "Не удалось подключиться к Discord: %error%")
         },
         @SerialName("network_via_proxy")
         private val networkViaProxy: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Could not reach Discord through the proxy %proxy%: %error%. Check that the proxy works and " +
-                    "its address, username and password are right, or change it with " +
-                    "/mb discord proxy http <host> <port> [username] [password]"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Не удалось подключиться к Discord через прокси %proxy%: %error%. Проверьте, что прокси " +
-                    "работает, а адрес, логин и пароль указаны верно, или замените его: " +
-                    "/mb discord proxy http <хост> <порт> [логин] [пароль]"
-            )
+            translation(MinecraftLocales.EN_US, "Could not reach Discord through the proxy %proxy%: %error%")
+            translation(MinecraftLocales.RU_RU, "Не удалось подключиться к Discord через прокси %proxy%: %error%")
         },
         @SerialName("unknown")
         private val unknown: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "Discord error: %error%. Common problems and their fixes: " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/troubleshooting.md"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Ошибка Discord: %error%. Частые проблемы и их решения (на английском): " +
-                    "https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/troubleshooting.md"
-            )
+            translation(MinecraftLocales.EN_US, "Discord error: %error%")
+            translation(MinecraftLocales.RU_RU, "Ошибка Discord: %error%")
         }
     ) {
         fun missingIntents(intents: String): LocalizableComponent = missingIntents.replaceAll(

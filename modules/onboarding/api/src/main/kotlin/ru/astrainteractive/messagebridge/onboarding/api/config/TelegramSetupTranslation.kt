@@ -26,8 +26,6 @@ data class TelegramSetupTranslation(
                 topic_id: %topic_id%
                 Chat type: %type%
                 Topics: %forum%
-
-                To connect this chat, run /mb telegram bind on the server and send the code here
                 """.trimIndent()
             )
             translation(
@@ -37,8 +35,6 @@ data class TelegramSetupTranslation(
                 topic_id: %topic_id%
                 Тип чата: %type%
                 Топики: %forum%
-
-                Чтобы подключить этот чат, выполните /mb telegram bind на сервере и отправьте код сюда
                 """.trimIndent()
             )
         },
@@ -67,66 +63,41 @@ data class TelegramSetupTranslation(
     data class Bind(
         @SerialName("invalid_code")
         val invalidCode: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "The code is wrong or expired. Run /mb telegram bind on the server to get a new one"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Код неверный или устарел. Выполните /mb telegram bind на сервере, чтобы получить новый"
-            )
+            translation(MinecraftLocales.EN_US, "The code is wrong or expired")
+            translation(MinecraftLocales.RU_RU, "Код неверный или устарел")
         },
         @SerialName("admins_only")
         val adminsOnly: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "Only admins of the group can connect it")
-            translation(MinecraftLocales.RU_RU, "Подключить группу могут только её администраторы")
+            translation(MinecraftLocales.EN_US, "Only admins of the group can bind it")
+            translation(MinecraftLocales.RU_RU, "Привязать группу могут только её администраторы")
         },
         @SerialName("success")
         val success: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "✅ This chat is connected: messages from the Minecraft server will come here"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "✅ Чат подключён: сюда будут приходить сообщения с сервера Minecraft"
-            )
+            translation(MinecraftLocales.EN_US, "✅ The chat is bound to the Minecraft server")
+            translation(MinecraftLocales.RU_RU, "✅ Чат привязан к серверу Minecraft")
         },
         @SerialName("bound")
         private val bound: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, """Telegram chat "%chat%" is connected""")
-            translation(MinecraftLocales.RU_RU, "Чат Telegram «%chat%» подключён")
+            translation(MinecraftLocales.EN_US, """Telegram chat "%chat%" is bound""")
+            translation(MinecraftLocales.RU_RU, "Чат Telegram «%chat%» привязан")
         },
         @SerialName("bound_topic")
         private val boundTopic: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, """Telegram chat "%chat%", topic "%topic%" is connected""")
-            translation(MinecraftLocales.RU_RU, "Чат Telegram «%chat%», топик «%topic%» подключён")
+            translation(MinecraftLocales.EN_US, """Telegram chat "%chat%", topic "%topic%" is bound""")
+            translation(MinecraftLocales.RU_RU, "Чат Telegram «%chat%», топик «%topic%» привязан")
         },
         @SerialName("save_failed")
         val saveFailed: LocalizedText = LocalizedText.build {
-            translation(
-                MinecraftLocales.EN_US,
-                "❌ The server could not save this chat: its config.yml has an error. " +
-                    "Ask the admin of the server to fix it"
-            )
-            translation(
-                MinecraftLocales.RU_RU,
-                "❌ Сервер не смог сохранить этот чат: в его config.yml ошибка. " +
-                    "Попросите администратора сервера её исправить"
-            )
+            translation(MinecraftLocales.EN_US, "❌ Not saved: config.yml of the server has an error")
+            translation(MinecraftLocales.RU_RU, "❌ Не сохранено: в config.yml сервера ошибка")
         },
         @SerialName("not_bound")
         private val notBound: LocalizedText = LocalizedText.build {
             translation(
                 MinecraftLocales.EN_US,
-                """Telegram chat "%chat%" is not connected: config.yml has an error (%error%). """ +
-                    "Fix the file, run /mb reload and connect the chat again: /mb telegram bind"
+                """Telegram chat "%chat%" is not bound: config.yml has an error (%error%)"""
             )
-            translation(
-                MinecraftLocales.RU_RU,
-                "Чат Telegram «%chat%» не подключён: в config.yml ошибка (%error%). " +
-                    "Исправьте файл, выполните /mb reload и подключите чат заново: /mb telegram bind"
-            )
+            translation(MinecraftLocales.RU_RU, "Чат Telegram «%chat%» не привязан: в config.yml ошибка (%error%)")
         }
     ) {
         fun notBound(chat: String, error: String): LocalizableComponent = notBound.replaceAll(

@@ -9,12 +9,12 @@ data class PluginConfiguration(
     @YamlComment(
         "MessageBridge settings. Change them with the /mb commands, or edit this file and run /mb reload.",
         "The file is rewritten on every load, so comments you add here are lost.",
-        "Discord bot. Run /mb discord for a step-by-step guide.",
+        "Discord bot.",
         "Docs: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/discord.md"
     )
     val jdaConfig: JdaConfig = JdaConfig(),
     @YamlComment(
-        "Telegram bot. Run /mb telegram for a step-by-step guide.",
+        "Telegram bot.",
         "Docs: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md"
     )
     val tgConfig: TelegramConfig = TelegramConfig(),

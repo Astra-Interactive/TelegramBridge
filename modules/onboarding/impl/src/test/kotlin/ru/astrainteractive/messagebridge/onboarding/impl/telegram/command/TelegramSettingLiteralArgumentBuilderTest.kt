@@ -116,7 +116,7 @@ class TelegramSettingLiteralArgumentBuilderTest {
         fixture.execute("mb telegram chat -1001234567890")
 
         val reply = fixture.consoleReplies.single()
-        assertTrue(reply.startsWith("config.yml has an error, so nothing is saved"), reply)
+        assertTrue(reply.startsWith("config.yml has an error, nothing is saved"), reply)
         assertTrue("line 2" in reply, reply)
         assertEquals(brokenConfig, fixture.configFile.readText())
     }

@@ -137,20 +137,15 @@ class DiscordFailureMapperTest {
     }
 
     @Test
-    fun GIVEN_invalid_token_WHEN_text_THEN_it_explains_how_to_reset_it() {
-        assertMentions(
-            mapper.toText(DiscordFailure.InvalidToken, translation),
-            "Reset Token",
-            "/mb discord token <token>"
-        )
+    fun GIVEN_invalid_token_WHEN_text_THEN_reads_invalid_token() {
+        assertEquals(translation.errors.invalidToken.toMessengerText(), text(DiscordFailure.InvalidToken))
     }
 
     @Test
     fun GIVEN_missing_intents_WHEN_text_THEN_it_names_every_intent_to_turn_on() {
         assertMentions(
             mapper.toText(DiscordFailure.MissingIntent(INTENTS), translation),
-            "Message Content Intent, Server Members Intent",
-            "Privileged Gateway Intents"
+            "Message Content Intent, Server Members Intent"
         )
     }
 
@@ -162,13 +157,8 @@ class DiscordFailureMapperTest {
     }
 
     @Test
-    fun GIVEN_channel_not_found_WHEN_text_THEN_it_names_channel_and_next_steps() {
-        assertMentions(
-            mapper.toText(DiscordFailure.ChannelNotFound("42"), translation),
-            "42",
-            "/mb discord invite",
-            "/mb discord bind"
-        )
+    fun GIVEN_channel_not_found_WHEN_text_THEN_it_names_channel() {
+        assertMentions(mapper.toText(DiscordFailure.ChannelNotFound("42"), translation), "42")
     }
 
     @Test
@@ -180,19 +170,15 @@ class DiscordFailureMapperTest {
     }
 
     @Test
-    fun GIVEN_socks_proxy_WHEN_text_THEN_it_suggests_http_proxy() {
-        assertMentions(
-            mapper.toText(DiscordFailure.SocksNotSupported, translation),
-            "/mb discord proxy http <host> <port>",
-            "/mb discord proxy off"
-        )
+    fun GIVEN_socks_proxy_WHEN_text_THEN_reads_socks_not_supported() {
+        assertEquals(translation.errors.socksNotSupported.toMessengerText(), text(DiscordFailure.SocksNotSupported))
     }
 
     @Test
-    fun GIVEN_network_error_without_proxy_WHEN_text_THEN_it_suggests_proxy() {
+    fun GIVEN_network_error_without_proxy_WHEN_text_THEN_it_names_the_error() {
         val failure = DiscordFailure.Network(error = "UnknownHostException: discord.com", proxy = null)
 
-        assertMentions(mapper.toText(failure, translation), "discord.com", "/mb discord proxy http <host> <port>")
+        assertMentions(mapper.toText(failure, translation), "UnknownHostException: discord.com")
     }
 
     @Test

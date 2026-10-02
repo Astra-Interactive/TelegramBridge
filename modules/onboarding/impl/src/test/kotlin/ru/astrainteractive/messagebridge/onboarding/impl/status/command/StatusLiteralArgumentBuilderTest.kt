@@ -98,16 +98,16 @@ class StatusLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_bots_without_tokens_WHEN_console_runs_status_THEN_reads_how_to_set_each_token() {
+    fun GIVEN_bots_without_tokens_WHEN_console_runs_status_THEN_reads_that_each_has_no_token() {
         fixture.execute("mb status")
 
         assertEquals(
             listOf(
                 plain(status.header),
-                "Telegram: not configured — /mb telegram token <token>",
+                "Telegram: no token",
                 plain(status.noChat),
                 plain(status.noProxy),
-                "Discord: not configured — /mb discord token <token>",
+                "Discord: no token",
                 plain(status.noChannel),
                 plain(status.noProxy)
             ),
