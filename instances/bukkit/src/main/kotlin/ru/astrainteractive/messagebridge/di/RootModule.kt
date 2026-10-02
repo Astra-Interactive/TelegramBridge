@@ -13,7 +13,6 @@ import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitLuckPermsProvider
-import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
 import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
 import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
@@ -65,7 +64,6 @@ internal class RootModule(
 
     private val jdaMessengerModule = JdaMessengerModule(
         coreModule = coreModule,
-        onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule,
         messageInterceptors = {
             listOf(discordOnboardingModule.messageInterceptor, discordLinkModule.messageInterceptor)
@@ -87,7 +85,6 @@ internal class RootModule(
 
     private val telegramMessengerModule = TelegramMessengerModule(
         coreModule = coreModule,
-        onlinePlayersProvider = BukkitOnlinePlayersProvider,
         updateInterceptors = {
             listOf(telegramOnboardingModule.updateInterceptor, telegramLinkModule.updateInterceptor)
         },

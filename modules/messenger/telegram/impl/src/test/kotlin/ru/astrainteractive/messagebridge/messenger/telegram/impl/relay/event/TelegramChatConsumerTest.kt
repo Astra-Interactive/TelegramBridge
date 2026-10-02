@@ -9,9 +9,10 @@ import kotlinx.coroutines.test.runTest
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
-import ru.astrainteractive.messagebridge.core.api.fake.FakeOnlinePlayersProvider
+import ru.astrainteractive.messagebridge.core.api.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
+import ru.astrainteractive.messagebridge.core.api.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.fake.RecordingEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
@@ -32,6 +33,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.internal.
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.internal.TelegramRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.internal.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.relay.mapping.TelegramAuthorMapper
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -55,7 +57,14 @@ class TelegramChatConsumerTest {
     private val commandParser = TelegramCommandParser(botUserName = { BOT_USER_NAME })
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
-        onlinePlayersProvider = FakeOnlinePlayersProvider(players = listOf("Steve")),
+        platformServer = FakePlatformServer(
+            onlinePlayers = listOf(
+                RecordingOnlineKPlayer(
+                    uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
+                    name = "Steve"
+                )
+            )
+        ),
         translationKrate = translationKrate
     )
 

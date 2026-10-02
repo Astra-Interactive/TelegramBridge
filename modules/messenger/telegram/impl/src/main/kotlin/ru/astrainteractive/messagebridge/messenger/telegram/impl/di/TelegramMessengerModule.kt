@@ -17,7 +17,6 @@ import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.tryConsume
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
@@ -57,7 +56,6 @@ import kotlin.time.TimeSource
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
-    onlinePlayersProvider: OnlinePlayersProvider,
     updateInterceptors: () -> List<TelegramUpdateInterceptor>,
     bEventChannel: BEventChannel,
 ) : TelegramBotModule {
@@ -119,7 +117,7 @@ class TelegramMessengerModule(
 
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
-        onlinePlayersProvider = onlinePlayersProvider,
+        platformServer = coreModule.platformServer,
         translationKrate = coreModule.translationKrate,
     )
 

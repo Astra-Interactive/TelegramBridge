@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
-import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
@@ -51,7 +50,6 @@ import kotlin.time.Duration.Companion.seconds
 class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
-    onlinePlayersProvider: OnlinePlayersProvider,
     messageInterceptors: () -> List<DiscordMessageInterceptor>,
     bEventChannel: BEventChannel
 ) : DiscordBotModule {
@@ -97,7 +95,7 @@ class JdaMessengerModule(
     private val consumer = DiscordBEventConsumer(
         channelProvider = channelProvider,
         topicUpdater = DiscordTopicUpdater(
-            onlinePlayersProvider = onlinePlayersProvider,
+            platformServer = coreModule.platformServer,
             clock = Clock.System,
             translationKrate = coreModule.translationKrate,
         ),
@@ -129,7 +127,7 @@ class JdaMessengerModule(
         commandMapper = DiscordCommandMapper(),
         commandHandler = DiscordCommandHandler(
             messageSender = messageSender,
-            onlinePlayersProvider = onlinePlayersProvider,
+            platformServer = coreModule.platformServer,
             translationKrate = coreModule.translationKrate,
         ),
         replyMapper = DiscordReplyMapper(),

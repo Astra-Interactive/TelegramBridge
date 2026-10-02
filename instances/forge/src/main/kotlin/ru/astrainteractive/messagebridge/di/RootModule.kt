@@ -13,7 +13,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.forge.impl.ForgeLuckPermsProvider
-import ru.astrainteractive.messagebridge.core.forge.impl.ForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
 import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
 import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
@@ -45,10 +44,6 @@ internal class RootModule(
         commandRegistrarContextFactory = ::ForgeCommandRegistrarContext
     )
 
-    private val onlinePlayersProvider by lazy {
-        ForgeOnlinePlayersProvider()
-    }
-
     private val bEventChannel = BEventChannel()
 
     private val linkTranslationModule by lazy {
@@ -69,7 +64,6 @@ internal class RootModule(
     private val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule,
             messageInterceptors = {
                 listOf(discordOnboardingModule.messageInterceptor, discordLinkModule.messageInterceptor)
@@ -93,7 +87,6 @@ internal class RootModule(
     private val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
             updateInterceptors = {
                 listOf(telegramOnboardingModule.updateInterceptor, telegramLinkModule.updateInterceptor)
             },

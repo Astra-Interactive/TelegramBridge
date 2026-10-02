@@ -2,9 +2,9 @@ package ru.astrainteractive.messagebridge.messenger.discord.impl.relay.internal
 
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
@@ -14,7 +14,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordTopicUpdater(
-    private val onlinePlayersProvider: OnlinePlayersProvider,
+    private val platformServer: PlatformServer,
     private val clock: Clock,
     translationKrate: CachedKrate<PluginTranslation>,
 ) {
@@ -30,7 +30,7 @@ internal class DiscordTopicUpdater(
         val now = clock.now()
         val lastChange = lastOnlineChange.get()
         if (now - lastChange < THROTTLE || !lastOnlineChange.compareAndSet(lastChange, now)) return Result.success(Unit)
-        val topic = translation.discord.chat.topicOnline(onlinePlayersProvider.provide().size)
+        val topic = translation.discord.chat.topicOnline(platformServer.getOnlinePlayers().size)
         return setTopic(channel, topic.toMessengerText())
     }
 

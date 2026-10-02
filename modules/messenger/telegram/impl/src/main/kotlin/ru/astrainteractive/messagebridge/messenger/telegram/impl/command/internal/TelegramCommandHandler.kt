@@ -2,9 +2,10 @@ package ru.astrainteractive.messagebridge.messenger.telegram.impl.command.intern
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.message.Message
+import ru.astrainteractive.astralibs.server.bridge.PlatformServer
+import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMessageSender
@@ -12,7 +13,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.model.T
 
 internal class TelegramCommandHandler(
     private val messageSender: TelegramMessageSender,
-    private val onlinePlayersProvider: OnlinePlayersProvider,
+    private val platformServer: PlatformServer,
     translationKrate: CachedKrate<PluginTranslation>,
 ) {
     private val translation by translationKrate
@@ -22,7 +23,7 @@ internal class TelegramCommandHandler(
     }
 
     private suspend fun sendVanilla(message: Message) {
-        val players = onlinePlayersProvider.provide()
+        val players = platformServer.getOnlinePlayers().map(OnlineKPlayer::name)
         val text = translation.onlinePlayers.message(
             count = players.size,
             players = players.joinToString(separator = ", "),

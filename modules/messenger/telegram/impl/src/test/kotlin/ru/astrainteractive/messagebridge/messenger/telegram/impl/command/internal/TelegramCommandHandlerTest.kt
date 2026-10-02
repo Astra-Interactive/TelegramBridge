@@ -5,9 +5,10 @@ package ru.astrainteractive.messagebridge.messenger.telegram.impl.command.intern
 import kotlinx.coroutines.test.runTest
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.fake.FakeOnlinePlayersProvider
+import ru.astrainteractive.messagebridge.core.api.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingLogger
+import ru.astrainteractive.messagebridge.core.api.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.CHAT_ID
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.FakeTelegramBotApi
@@ -15,6 +16,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.messageOf
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.updateOf
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.model.TelegramCommand
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.internal.TelegramMessageSenderImpl
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -32,7 +34,18 @@ class TelegramCommandHandlerTest {
     )
     private val handler = TelegramCommandHandler(
         messageSender = messageSender,
-        onlinePlayersProvider = FakeOnlinePlayersProvider(players = listOf("Steve", "Alex")),
+        platformServer = FakePlatformServer(
+            onlinePlayers = listOf(
+                RecordingOnlineKPlayer(
+                    uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
+                    name = "Steve"
+                ),
+                RecordingOnlineKPlayer(
+                    uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"),
+                    name = "Alex"
+                )
+            )
+        ),
         translationKrate = translationKrate
     )
     private val threadRoot = Message().apply { messageId = 3 }

@@ -13,7 +13,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.neoforge.impl.NeoForgeLuckPermsProvider
-import ru.astrainteractive.messagebridge.core.neoforge.impl.NeoForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
 import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
 import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
@@ -45,10 +44,6 @@ internal class RootModule(
         commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
     )
 
-    private val onlinePlayersProvider by lazy {
-        NeoForgeOnlinePlayersProvider()
-    }
-
     private val bEventChannel = BEventChannel()
 
     private val linkTranslationModule by lazy {
@@ -69,7 +64,6 @@ internal class RootModule(
     private val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule,
             messageInterceptors = {
                 listOf(discordOnboardingModule.messageInterceptor, discordLinkModule.messageInterceptor)
@@ -93,7 +87,6 @@ internal class RootModule(
     private val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
             updateInterceptors = {
                 listOf(telegramOnboardingModule.updateInterceptor, telegramLinkModule.updateInterceptor)
             },
