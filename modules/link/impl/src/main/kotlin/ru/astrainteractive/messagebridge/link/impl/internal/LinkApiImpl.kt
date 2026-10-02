@@ -91,7 +91,9 @@ internal class LinkApiImpl(
             val codeUser = redeem(code) ?: return LinkResponse.NoCode
             val linkedPlayer = findOrCreate(codeUser)
                 .getOrElse { t -> return unknownError("linkDiscord", t) }
-            if (linkedPlayer.discordLink != null) return LinkResponse.AlreadyLinked
+            val accountOwner = linkingDao.findByDiscordId(discordLink.discordId)
+                .getOrElse { t -> return unknownError("linkDiscord", t) }
+            if (linkedPlayer.discordLink != null || accountOwner != null) return LinkResponse.AlreadyLinked
             val savedPlayer = linkingDao.upsert(linkedPlayer.copy(discordLink = discordLink))
                 .getOrElse { t -> return unknownError("linkDiscord", t) }
             giveGroup(savedPlayer.uuid)
@@ -104,7 +106,9 @@ internal class LinkApiImpl(
             val codeUser = redeem(code) ?: return LinkResponse.NoCode
             val linkedPlayer = findOrCreate(codeUser)
                 .getOrElse { t -> return unknownError("linkTelegram", t) }
-            if (linkedPlayer.telegramLink != null) return LinkResponse.AlreadyLinked
+            val accountOwner = linkingDao.findByTelegramId(telegramLink.telegramId)
+                .getOrElse { t -> return unknownError("linkTelegram", t) }
+            if (linkedPlayer.telegramLink != null || accountOwner != null) return LinkResponse.AlreadyLinked
             val savedPlayer = linkingDao.upsert(linkedPlayer.copy(telegramLink = telegramLink))
                 .getOrElse { t -> return unknownError("linkTelegram", t) }
             giveGroup(savedPlayer.uuid)

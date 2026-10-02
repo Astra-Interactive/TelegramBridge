@@ -154,6 +154,38 @@ class LinkApiImplTest {
     }
 
     @Test
+    fun GIVEN_discord_account_of_another_player_WHEN_discord_is_linked_THEN_already_linked() = runTest {
+        val alex = steve.copy(
+            uuid = UUID.fromString("ec561538-f3fd-461d-aff5-086b22154bce"),
+            lastMinecraftName = "Alex",
+            discordLink = null
+        )
+        val linkingDao = FakeLinkingDao(steve)
+
+        val response = createLinkApi(linkingDao).linkDiscord(codeOf(alex), discordLink)
+
+        assertEquals(LinkResponse.AlreadyLinked, response)
+        assertNull(linkingDao.players[alex.uuid])
+        assertEquals(emptySet<String>(), groups.groupsOf(alex.uuid))
+    }
+
+    @Test
+    fun GIVEN_telegram_account_of_another_player_WHEN_telegram_is_linked_THEN_already_linked() = runTest {
+        val alex = steve.copy(
+            uuid = UUID.fromString("ec561538-f3fd-461d-aff5-086b22154bce"),
+            lastMinecraftName = "Alex",
+            discordLink = null
+        )
+        val linkingDao = FakeLinkingDao(steve.copy(telegramLink = telegramLink))
+
+        val response = createLinkApi(linkingDao).linkTelegram(codeOf(alex), telegramLink)
+
+        assertEquals(LinkResponse.AlreadyLinked, response)
+        assertNull(linkingDao.players[alex.uuid])
+        assertEquals(emptySet<String>(), groups.groupsOf(alex.uuid))
+    }
+
+    @Test
     fun GIVEN_unknown_code_WHEN_linked_THEN_no_code_and_nothing_is_saved() = runTest {
         val linkingDao = FakeLinkingDao()
 
