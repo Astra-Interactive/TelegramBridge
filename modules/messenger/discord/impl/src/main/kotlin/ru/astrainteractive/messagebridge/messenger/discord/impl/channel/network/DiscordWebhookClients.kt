@@ -37,7 +37,7 @@ internal class DiscordWebhookClients(
         if (jda == null || channelId.isBlank()) return flowOf(null)
         return channelFlow {
             send(null)
-            val client = createWithRetry(jda, channelId) { failure -> send(Result.failure(failure)) }
+            val client = createWithRetry(jda, channelId) { t -> send(Result.failure(t)) }
             deliveryError.clear()
             send(Result.success(client))
             try {

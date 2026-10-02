@@ -120,13 +120,13 @@ internal class DiscordBEventConsumer(
         }
         var retriesLeft = DELIVERY_RETRIES
         while (true) {
-            val failure = send(bEvent, jda).exceptionOrNull()
-            if (failure == null) {
+            val t = send(bEvent, jda).exceptionOrNull()
+            if (t == null) {
                 delivery.clear()
                 return
             }
-            if (retriesLeft == 0 || !failureMapper.map(failure, config.jdaConfig).isRetryable) {
-                delivery.report(failure)
+            if (retriesLeft == 0 || !failureMapper.map(t, config.jdaConfig).isRetryable) {
+                delivery.report(t)
                 return
             }
             retriesLeft--

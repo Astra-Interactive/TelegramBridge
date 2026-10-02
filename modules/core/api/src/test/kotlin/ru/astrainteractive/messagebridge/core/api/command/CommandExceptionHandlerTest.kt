@@ -68,15 +68,15 @@ class CommandExceptionHandlerTest {
         }
     }
 
-    private fun executeFailing(failure: Throwable) {
-        execute(failingCommand(multiplatformCommand, handler, failure), "fail")
+    private fun executeFailing(t: Throwable) {
+        execute(failingCommand(multiplatformCommand, handler, t), "fail")
     }
 
-    private fun executeFailingInBackground(failure: Throwable) {
+    private fun executeFailingInBackground(t: Throwable) {
         val command = with(multiplatformCommand) {
             command("link") {
                 runs(handler::handle) { ctx ->
-                    backgroundScope.launch(handler.coroutineExceptionHandler(ctx)) { throw failure }
+                    backgroundScope.launch(handler.coroutineExceptionHandler(ctx)) { throw t }
                 }
             }
         }

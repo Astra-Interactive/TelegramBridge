@@ -67,9 +67,9 @@ class LongPollingBotSessionTest {
     fun GIVEN_revoked_token_WHEN_bot_is_fetched_THEN_failure_tells_the_token_is_invalid() = runTest {
         server.answer(GetMe.PATH, code = 401, body = UNAUTHORIZED_BODY)
 
-        val error = session.fetchBotUserName().exceptionOrNull()
+        val t = session.fetchBotUserName().exceptionOrNull()
 
-        assertEquals(TelegramFailure.InvalidToken, error?.let(failureMapper::map))
+        assertEquals(TelegramFailure.InvalidToken, t?.let(failureMapper::map))
     }
 
     @Test
@@ -104,10 +104,10 @@ class LongPollingBotSessionTest {
     fun GIVEN_telegram_refuses_the_token_WHEN_polling_starts_THEN_it_fails_without_polling() = runTest {
         server.answer(DeleteWebhook.PATH, code = 401, body = UNAUTHORIZED_BODY)
 
-        val error = session.startPolling("@$BOT_USER_NAME", onState = { state -> states += state }).exceptionOrNull()
+        val t = session.startPolling("@$BOT_USER_NAME", onState = { state -> states += state }).exceptionOrNull()
         Thread.sleep(QUIET_PERIOD.inWholeMilliseconds)
 
-        assertEquals(TelegramFailure.InvalidToken, error?.let(failureMapper::map))
+        assertEquals(TelegramFailure.InvalidToken, t?.let(failureMapper::map))
         assertTrue(GetUpdates.PATH !in server.requestedMethods)
     }
 

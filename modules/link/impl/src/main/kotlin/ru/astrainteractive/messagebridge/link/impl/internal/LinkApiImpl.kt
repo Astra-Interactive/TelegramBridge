@@ -51,8 +51,8 @@ internal class LinkApiImpl(
         }
     }
 
-    private fun unknownError(action: String, failure: Throwable): LinkResponse {
-        error(failure) { "#$action could not update the link" }
+    private fun unknownError(action: String, t: Throwable): LinkResponse {
+        error(t) { "#$action could not update the link" }
         return LinkResponse.UnknownError
     }
 
@@ -81,8 +81,8 @@ internal class LinkApiImpl(
             .onFailure { t -> error(t) { "#unlinkLeftDiscord could not unlink Discord of $uuid" } }
     }
 
-    private fun unlinkFailed(uuid: UUID, failure: Throwable): UnlinkResponse {
-        error(failure) { "#unlink could not unlink $uuid" }
+    private fun unlinkFailed(uuid: UUID, t: Throwable): UnlinkResponse {
+        error(t) { "#unlink could not unlink $uuid" }
         return UnlinkResponse.UnknownError
     }
 

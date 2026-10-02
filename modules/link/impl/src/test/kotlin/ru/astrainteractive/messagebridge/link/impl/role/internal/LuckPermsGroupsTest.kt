@@ -22,17 +22,17 @@ class LuckPermsGroupsTest {
 
     @Test
     fun GIVEN_luckperms_is_not_loaded_WHEN_group_is_added_THEN_fails_with_the_reason() = runTest {
-        val error = groups.add(uuid, "linked").exceptionOrNull()
+        val t = groups.add(uuid, "linked").exceptionOrNull()
 
-        assertIs<PermissionGroupError>(error)
-        assertSame(notLoaded, error.cause)
+        assertIs<PermissionGroupError>(t)
+        assertSame(notLoaded, t.cause)
     }
 
     @Test
     fun GIVEN_luckperms_is_not_loaded_WHEN_group_is_removed_THEN_fails_with_the_reason() = runTest {
-        val error = groups.remove(uuid, "linked").exceptionOrNull()
+        val t = groups.remove(uuid, "linked").exceptionOrNull()
 
-        assertIs<PermissionGroupError>(error)
-        assertSame(notLoaded, error.cause)
+        assertIs<PermissionGroupError>(t)
+        assertSame(notLoaded, t.cause)
     }
 }

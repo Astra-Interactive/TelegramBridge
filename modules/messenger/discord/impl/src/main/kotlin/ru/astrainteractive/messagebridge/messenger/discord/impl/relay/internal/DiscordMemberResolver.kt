@@ -21,8 +21,8 @@ internal class DiscordMemberResolver(
         return linkedPlayer?.discordLink?.discordId
     }
 
-    private fun isNotOnServer(failure: Throwable): Boolean {
-        return failure is ErrorResponseException && failure.errorResponse in MEMBER_GONE
+    private fun isNotOnServer(t: Throwable): Boolean {
+        return t is ErrorResponseException && t.errorResponse in MEMBER_GONE
     }
 
     suspend fun resolve(channel: TextChannel, event: Text): Result<Member?> {

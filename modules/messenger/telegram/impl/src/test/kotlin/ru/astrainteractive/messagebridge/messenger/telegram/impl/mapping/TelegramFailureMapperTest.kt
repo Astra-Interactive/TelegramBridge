@@ -61,20 +61,20 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_chat_not_found_WHEN_mapped_THEN_chat_is_not_found() {
-        val error = apiError(400, "Bad Request: chat not found")
+        val t = apiError(400, "Bad Request: chat not found")
 
-        assertEquals(TelegramFailure.ChatNotFound, mapperOf().map(error))
+        assertEquals(TelegramFailure.ChatNotFound, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_group_upgraded_to_supergroup_WHEN_mapped_THEN_new_chat_id_is_given() {
-        val error = apiError(
+        val t = apiError(
             code = 400,
             description = "Bad Request: group chat was upgraded to a supergroup chat",
             parameters = """{"migrate_to_chat_id":-1001234567890}"""
         )
 
-        assertEquals(TelegramFailure.ChatMigrated(-1001234567890), mapperOf().map(error))
+        assertEquals(TelegramFailure.ChatMigrated(-1001234567890), mapperOf().map(t))
     }
 
     @Test
@@ -120,23 +120,23 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_forbidden_to_write_WHEN_mapped_THEN_rights_win_over_membership() {
-        val error = apiError(403, "Forbidden: CHAT_WRITE_FORBIDDEN")
+        val t = apiError(403, "Forbidden: CHAT_WRITE_FORBIDDEN")
 
-        assertEquals(TelegramFailure.NoRights, mapperOf().map(error))
+        assertEquals(TelegramFailure.NoRights, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_conflict_WHEN_mapped_THEN_token_is_in_use() {
-        val error = apiError(409, "Conflict: terminated by other getUpdates request")
+        val t = apiError(409, "Conflict: terminated by other getUpdates request")
 
-        assertEquals(TelegramFailure.TokenInUse, mapperOf().map(error))
+        assertEquals(TelegramFailure.TokenInUse, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_too_many_requests_WHEN_mapped_THEN_it_is_rate_limited_with_delay() {
-        val error = apiError(429, "Too Many Requests: retry after 5", parameters = """{"retry_after":5}""")
+        val t = apiError(429, "Too Many Requests: retry after 5", parameters = """{"retry_after":5}""")
 
-        assertEquals(TelegramFailure.RateLimited(retryAfter = 5.seconds), mapperOf().map(error))
+        assertEquals(TelegramFailure.RateLimited(retryAfter = 5.seconds), mapperOf().map(t))
     }
 
     @Test
@@ -149,9 +149,9 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_other_api_error_WHEN_mapped_THEN_description_is_kept() {
-        val error = apiError(400, "Bad Request: message text is empty")
+        val t = apiError(400, "Bad Request: message text is empty")
 
-        assertEquals(TelegramFailure.Unknown("Bad Request: message text is empty"), mapperOf().map(error))
+        assertEquals(TelegramFailure.Unknown("Bad Request: message text is empty"), mapperOf().map(t))
     }
 
     @Test
@@ -188,16 +188,16 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_deep_cause_WHEN_mapped_THEN_whole_chain_is_searched() {
-        val error = ExecutionException(networkError(IOException("wrapper", UnknownHostException("api.telegram.org"))))
+        val t = ExecutionException(networkError(IOException("wrapper", UnknownHostException("api.telegram.org"))))
 
-        assertEquals(TelegramFailure.Network(proxy = null, apiUrl = null), mapperOf().map(error))
+        assertEquals(TelegramFailure.Network(proxy = null, apiUrl = null), mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_rejected_proxy_credentials_WHEN_mapped_THEN_proxy_auth_fails() {
-        val error = networkError(IOException("Failed to authenticate with proxy"))
+        val t = networkError(IOException("Failed to authenticate with proxy"))
 
-        val failure = mapperOf(proxy = proxy).map(error)
+        val failure = mapperOf(proxy = proxy).map(t)
 
         assertEquals(TelegramFailure.ProxyAuth, failure)
         assertTrue(failure.needsNewSettings)
@@ -205,30 +205,30 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_polling_unauthorized_WHEN_mapped_THEN_token_is_invalid() {
-        val error = TelegramApiErrorResponseException(401, "Unauthorized")
+        val t = TelegramApiErrorResponseException(401, "Unauthorized")
 
-        assertEquals(TelegramFailure.InvalidToken, mapperOf().map(error))
+        assertEquals(TelegramFailure.InvalidToken, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_polling_conflict_over_http2_WHEN_reason_is_empty_THEN_token_is_in_use() {
-        val error = TelegramApiErrorResponseException(409, "")
+        val t = TelegramApiErrorResponseException(409, "")
 
-        assertEquals(TelegramFailure.TokenInUse, mapperOf().map(error))
+        assertEquals(TelegramFailure.TokenInUse, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_polling_failed_to_connect_WHEN_mapped_THEN_it_is_a_network_failure() {
-        val error = TelegramApiErrorResponseException(SocketTimeoutException("timeout"))
+        val t = TelegramApiErrorResponseException(SocketTimeoutException("timeout"))
 
-        assertEquals(TelegramFailure.Network(proxy = null, apiUrl = null), mapperOf().map(error))
+        assertEquals(TelegramFailure.Network(proxy = null, apiUrl = null), mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_api_url_WHEN_answer_is_not_json_THEN_api_url_is_invalid() {
-        val error = apiError("<html><body>Welcome to nginx!</body></html>")
+        val t = apiError("<html><body>Welcome to nginx!</body></html>")
 
-        val failure = mapperOf(apiUrl = "https://example.com").map(error)
+        val failure = mapperOf(apiUrl = "https://example.com").map(t)
 
         assertEquals(TelegramFailure.InvalidApiUrl, failure)
         assertTrue(failure.needsNewSettings)
@@ -252,37 +252,37 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_empty_chat_id_WHEN_mapped_THEN_chat_is_not_set() {
-        val error = apiError(400, "Bad Request: chat_id is empty")
+        val t = apiError(400, "Bad Request: chat_id is empty")
 
-        assertEquals(TelegramFailure.ChatNotSet, mapperOf().map(error))
+        assertEquals(TelegramFailure.ChatNotSet, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_forbidden_without_known_reason_WHEN_mapped_THEN_bot_is_not_in_chat() {
-        val error = apiError(403, "Forbidden: something new")
+        val t = apiError(403, "Forbidden: something new")
 
-        assertEquals(TelegramFailure.BotNotInChat, mapperOf().map(error))
+        assertEquals(TelegramFailure.BotNotInChat, mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_too_many_requests_without_delay_WHEN_mapped_THEN_it_is_rate_limited_without_delay() {
-        val error = apiError(429, "Too Many Requests")
+        val t = apiError(429, "Too Many Requests")
 
-        assertEquals(TelegramFailure.RateLimited(retryAfter = null), mapperOf().map(error))
+        assertEquals(TelegramFailure.RateLimited(retryAfter = null), mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_polling_server_error_WHEN_mapped_THEN_it_is_a_server_error() {
-        val error = TelegramApiErrorResponseException(502, "Bad Gateway")
+        val t = TelegramApiErrorResponseException(502, "Bad Gateway")
 
-        assertEquals(TelegramFailure.ServerError(502), mapperOf().map(error))
+        assertEquals(TelegramFailure.ServerError(502), mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_polling_too_many_requests_WHEN_mapped_THEN_it_is_rate_limited_without_delay() {
-        val error = TelegramApiErrorResponseException(429, "Too Many Requests")
+        val t = TelegramApiErrorResponseException(429, "Too Many Requests")
 
-        assertEquals(TelegramFailure.RateLimited(retryAfter = null), mapperOf().map(error))
+        assertEquals(TelegramFailure.RateLimited(retryAfter = null), mapperOf().map(t))
     }
 
     @Test
@@ -293,23 +293,23 @@ class TelegramFailureMapperTest {
 
     @Test
     fun GIVEN_polling_other_code_WHEN_mapped_THEN_code_and_reason_are_kept() {
-        val error = TelegramApiErrorResponseException(418, "I'm a teapot")
+        val t = TelegramApiErrorResponseException(418, "I'm a teapot")
 
-        assertEquals(TelegramFailure.Unknown("418 I'm a teapot"), mapperOf().map(error))
+        assertEquals(TelegramFailure.Unknown("418 I'm a teapot"), mapperOf().map(t))
     }
 
     @Test
     fun GIVEN_proxy_refusing_tunnels_WHEN_mapped_THEN_proxy_auth_fails() {
-        val error = networkError(IOException("Too many tunnel connections attempted: 21"))
+        val t = networkError(IOException("Too many tunnel connections attempted: 21"))
 
-        assertEquals(TelegramFailure.ProxyAuth, mapperOf(proxy = proxy).map(error))
+        assertEquals(TelegramFailure.ProxyAuth, mapperOf(proxy = proxy).map(t))
     }
 
     @Test
     fun GIVEN_unknown_error_with_cause_WHEN_mapped_THEN_both_messages_are_kept() {
-        val error = IllegalStateException("outer", IllegalArgumentException("root"))
+        val t = IllegalStateException("outer", IllegalArgumentException("root"))
 
-        assertEquals(TelegramFailure.Unknown("outer: IllegalArgumentException: root"), mapperOf().map(error))
+        assertEquals(TelegramFailure.Unknown("outer: IllegalArgumentException: root"), mapperOf().map(t))
     }
 
     @Test
