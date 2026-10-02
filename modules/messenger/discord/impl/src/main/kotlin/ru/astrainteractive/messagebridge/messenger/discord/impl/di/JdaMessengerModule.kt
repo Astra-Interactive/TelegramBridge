@@ -85,7 +85,10 @@ class JdaMessengerModule(
         deliveryError = delivery,
     ).clients(
         jdaFlow = session.jda,
-        channelIdFlow = coreModule.config.map { config -> config.jdaConfig.channelId }.distinctUntilChanged(),
+        channelIdFlow = coreModule.config
+            .map { config -> config.jdaConfig }
+            .map { jdaConfig -> jdaConfig.channelId }
+            .distinctUntilChanged(),
     ).shareIn(moduleIoScope, SharingStarted.Eagerly, 1)
 
     private val channelProvider = DiscordChannelProvider(
