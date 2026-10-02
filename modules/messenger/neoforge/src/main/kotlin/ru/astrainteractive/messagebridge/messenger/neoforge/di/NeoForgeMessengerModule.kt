@@ -19,20 +19,20 @@ class NeoForgeMessengerModule(
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
 
-    private val eventBukkitMessengerModule = NeoForgeEvents(
+    private val neoForgeEvents = NeoForgeEvents(
         configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
         bEventChannel = bEventChannel
     )
-    private val minecraftMessageController = NeoForgeBEventConsumer(
+    private val bEventConsumer = NeoForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
         bEventChannel = bEventChannel,
         scope = moduleIoScope,
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onEnable = { minecraftMessageController.start() },
+        onEnable = { bEventConsumer.start() },
         onDisable = { moduleIoScope.cancel() }
     )
 }

@@ -25,7 +25,7 @@ internal class SettingCommand(
         }
     }
 
-    private fun <C> launch(
+    private fun <C> launchSetting(
         ctx: CommandContext<Any>,
         setting: Result<Setting<C>>,
         block: suspend (KCommandSender, Setting<C>) -> Unit
@@ -41,10 +41,10 @@ internal class SettingCommand(
     }
 
     fun <C> save(ctx: CommandContext<Any>, messenger: Messenger<C>, setting: Result<Setting<C>>) {
-        launch(ctx, setting) { sender, validSetting -> saver.save(sender, messenger, validSetting) }
+        launchSetting(ctx, setting) { sender, validSetting -> saver.save(sender, messenger, validSetting) }
     }
 
     fun <C> saveAndConnect(ctx: CommandContext<Any>, messenger: Messenger<C>, setting: Result<Setting<C>>) {
-        launch(ctx, setting) { sender, validSetting -> saver.saveAndConnect(sender, messenger, validSetting) }
+        launchSetting(ctx, setting) { sender, validSetting -> saver.saveAndConnect(sender, messenger, validSetting) }
     }
 }

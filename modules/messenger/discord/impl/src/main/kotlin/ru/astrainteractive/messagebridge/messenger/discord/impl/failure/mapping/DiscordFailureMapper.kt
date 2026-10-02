@@ -14,7 +14,7 @@ import java.io.IOException
 
 internal class DiscordFailureMapper {
 
-    private fun Throwable.describe(): String {
+    private fun Throwable.describeWithClass(): String {
         return listOfNotNull(this::class.java.simpleName, message?.takeIf(String::isNotBlank)).joinToString(": ")
     }
 
@@ -33,11 +33,11 @@ internal class DiscordFailureMapper {
             }
 
             ioException != null -> DiscordFailure.Network(
-                error = ioException.describe(),
+                error = ioException.describeWithClass(),
                 proxy = config.proxy?.let { proxy -> "${proxy.host}:${proxy.port}" }
             )
 
-            else -> DiscordFailure.Unknown(t.describe())
+            else -> DiscordFailure.Unknown(t.describeWithClass())
         }
     }
 

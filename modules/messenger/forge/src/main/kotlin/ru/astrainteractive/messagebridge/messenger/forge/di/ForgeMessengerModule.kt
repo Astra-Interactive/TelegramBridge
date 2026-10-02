@@ -19,20 +19,20 @@ class ForgeMessengerModule(
         .let(coreModule.ioScope.coroutineContext::plus)
         .let(::CoroutineScope)
 
-    private val eventForgeMessengerModule = ForgeEvents(
+    private val forgeEvents = ForgeEvents(
         configFlow = coreModule.config,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
         bEventChannel = bEventChannel
     )
-    private val minecraftMessageController = ForgeBEventConsumer(
+    private val bEventConsumer = ForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
         bEventChannel = bEventChannel,
         scope = moduleIoScope,
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onEnable = { minecraftMessageController.start() },
+        onEnable = { bEventConsumer.start() },
         onDisable = { moduleIoScope.cancel() }
     )
 }

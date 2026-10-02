@@ -48,7 +48,7 @@ internal class RootModule(
     }
 
     private val linkModule by lazy {
-        LinkModuleImpl(coreModule, linkTranslationModule)
+        LinkModuleImpl(coreModule = coreModule, linkTranslationModule = linkTranslationModule)
     }
 
     private val forgeMessengerModule by lazy {
@@ -58,7 +58,7 @@ internal class RootModule(
         )
     }
 
-    private val jdaEventModule by lazy {
+    private val jdaMessengerModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
             linkModule = linkModule,
@@ -77,11 +77,11 @@ internal class RootModule(
         DiscordOnboardingModule(
             coreModule = coreModule,
             onboardingTranslationModule = onboardingTranslationModule,
-            botModule = jdaEventModule
+            botModule = jdaMessengerModule
         )
     }
 
-    private val tgEventModule by lazy {
+    private val telegramMessengerModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
             updateInterceptors = {
@@ -95,7 +95,7 @@ internal class RootModule(
         TelegramOnboardingModule(
             coreModule = coreModule,
             onboardingTranslationModule = onboardingTranslationModule,
-            botModule = tgEventModule
+            botModule = telegramMessengerModule
         )
     }
 
@@ -104,7 +104,7 @@ internal class RootModule(
             coreModule = coreModule,
             linkModule = linkModule,
             linkTranslationModule = linkTranslationModule,
-            botModule = tgEventModule
+            botModule = telegramMessengerModule
         )
     }
 
@@ -113,7 +113,7 @@ internal class RootModule(
             coreModule = coreModule,
             linkModule = linkModule,
             linkTranslationModule = linkTranslationModule,
-            botModule = jdaEventModule
+            botModule = jdaMessengerModule
         )
     }
 
@@ -138,8 +138,8 @@ internal class RootModule(
             onboardingTranslationModule.lifecycle,
             telegramOnboardingModule.lifecycle,
             discordOnboardingModule.lifecycle,
-            jdaEventModule.lifecycle,
-            tgEventModule.lifecycle,
+            jdaMessengerModule.lifecycle,
+            telegramMessengerModule.lifecycle,
             forgeMessengerModule.lifecycle
         )
 

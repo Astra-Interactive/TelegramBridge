@@ -33,7 +33,7 @@ internal class SettingSaver(
 
     private fun <C> write(sender: KAudience, messenger: Messenger<C>, setting: Setting<C>): PluginConfiguration? {
         return configKrate
-            .saveAndGet { loaded -> loaded.map { config -> messenger.edit(config, setting.change) } }
+            .saveAndGet { loaded -> loaded.map { loadedConfig -> messenger.edit(loadedConfig, setting.change) } }
             .onFailure { t -> sender.sendMessage(translation.setup.configBroken(t.describe())) }
             .getOrNull()
     }

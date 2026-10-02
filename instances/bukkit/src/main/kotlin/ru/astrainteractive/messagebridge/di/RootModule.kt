@@ -50,7 +50,10 @@ internal class RootModule(
         LinkTranslationModule(coreModule = coreModule)
     }
 
-    private val linkModule = LinkModuleImpl(coreModule, linkTranslationModule)
+    private val linkModule = LinkModuleImpl(
+        coreModule = coreModule,
+        linkTranslationModule = linkTranslationModule
+    )
 
     private val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,

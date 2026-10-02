@@ -35,11 +35,11 @@ internal class DiscordLinkHandler(
         val channelId = config.jdaConfig.channelId
         val channel = event.jda.findTextChannel(channelId)
         if (channel == null) {
-            verbose { "#linkFromPrivate the bridge channel $channelId is not available" }
+            verbose { "#bridgeServerMemberOrNull the bridge channel $channelId is not available" }
             return null
         }
         return awaitRequest { channel.guild.retrieveMember(event.author) }
-            .onFailure { t -> verbose { "#linkFromPrivate the author is not on the bridge server: $t" } }
+            .onFailure { t -> verbose { "#bridgeServerMemberOrNull the author is not on the bridge server: $t" } }
             .getOrNull()
     }
 
