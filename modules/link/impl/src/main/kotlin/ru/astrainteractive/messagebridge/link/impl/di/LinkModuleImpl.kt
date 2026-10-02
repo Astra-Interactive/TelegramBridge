@@ -2,7 +2,7 @@ package ru.astrainteractive.messagebridge.link.impl.di
 
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.messagebridge.core.api.api.LuckPermsProvider
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.api.api.DiscordMembership
 import ru.astrainteractive.messagebridge.link.api.api.LinkApi
@@ -22,7 +22,6 @@ import kotlin.random.Random
 
 class LinkModuleImpl(
     coreModule: CoreModule,
-    luckPermsProvider: LuckPermsProvider,
     linkTranslationModule: LinkTranslationModule
 ) : LinkModule {
     private val linkDatabaseModule = LinkDatabaseModule(
@@ -38,7 +37,7 @@ class LinkModuleImpl(
         linkingDao = linkingDaoImpl,
         discordLinkedPlayerDao = linkingDaoImpl,
         codeApi = codeApi,
-        permissionGroups = LuckPermsGroups(luckPermsProvider),
+        permissionGroups = LuckPermsGroups(LuckPermsProvider.Default),
         configFlow = coreModule.config
     )
 

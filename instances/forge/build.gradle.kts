@@ -41,7 +41,6 @@ dependencies {
     shadow(libs.minecraft.kyori.minimessage)
     shadow(libs.minecraft.kyori.plain)
     shadow(projects.modules.core.api)
-    shadow(projects.modules.core.forge)
     shadow(projects.modules.link.api)
     shadow(projects.modules.link.discord)
     shadow(projects.modules.link.impl)

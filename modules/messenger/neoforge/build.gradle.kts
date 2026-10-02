@@ -19,7 +19,6 @@ dependencies {
     implementation(libs.minecraft.kyori.plain)
 
     implementation(projects.modules.core.api)
-    implementation(projects.modules.core.neoforge)
     implementation(projects.modules.messenger.api)
 }
 

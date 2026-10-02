@@ -12,7 +12,6 @@ import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.core.forge.impl.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
 import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
 import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
@@ -51,7 +50,7 @@ internal class RootModule(
     }
 
     private val linkModule by lazy {
-        LinkModuleImpl(coreModule, ForgeLuckPermsProvider, linkTranslationModule)
+        LinkModuleImpl(coreModule, linkTranslationModule)
     }
 
     private val forgeMessengerModule by lazy {

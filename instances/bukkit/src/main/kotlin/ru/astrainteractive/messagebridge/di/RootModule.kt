@@ -12,7 +12,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
-import ru.astrainteractive.messagebridge.core.bukkit.impl.BukkitLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.api.di.LinkTranslationModule
 import ru.astrainteractive.messagebridge.link.discord.di.DiscordLinkModule
 import ru.astrainteractive.messagebridge.link.impl.di.LinkModuleImpl
@@ -53,7 +52,7 @@ internal class RootModule(
         LinkTranslationModule(coreModule = coreModule)
     }
 
-    private val linkModule = LinkModuleImpl(coreModule, BukkitLuckPermsProvider, linkTranslationModule)
+    private val linkModule = LinkModuleImpl(coreModule, linkTranslationModule)
 
     private val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,

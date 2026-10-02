@@ -5,9 +5,9 @@ import kotlinx.coroutines.future.await
 import net.luckperms.api.model.data.DataMutateResult
 import net.luckperms.api.model.user.User
 import net.luckperms.api.node.types.InheritanceNode
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.api.api.LuckPermsProvider
 import ru.astrainteractive.messagebridge.link.impl.role.api.PermissionGroups
 import ru.astrainteractive.messagebridge.link.impl.role.model.PermissionGroupError
 import java.util.UUID
@@ -22,8 +22,9 @@ internal class LuckPermsGroups(
         group: String,
         change: (User, InheritanceNode) -> DataMutateResult
     ): Result<Unit> {
-        val luckPerms = luckPermsProvider.provide()
-            ?: return Result.failure(PermissionGroupError("LuckPerms is not installed", null))
+        val luckPerms = luckPermsProvider.provide().getOrElse { error ->
+            return Result.failure(PermissionGroupError("LuckPerms is not installed", error))
+        }
         val node = luckPerms.nodeBuilderRegistry.forInheritance().group(group).build()
         return runCatching {
             luckPerms.userManager
