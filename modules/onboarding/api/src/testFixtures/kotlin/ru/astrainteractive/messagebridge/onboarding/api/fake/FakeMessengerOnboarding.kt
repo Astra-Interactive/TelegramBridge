@@ -19,7 +19,7 @@ class FakeMessengerOnboarding : DiscordOnboarding {
         return BindCode(value = BIND_CODE, lifetime = 10.minutes)
     }
 
-    override suspend fun inviteUrl(): String? = inviteUrl
+    override fun inviteUrl(): String? = inviteUrl
 
     companion object {
         const val BIND_CODE = "48213705"

@@ -1,8 +1,6 @@
 package ru.astrainteractive.messagebridge.onboarding.impl.discord.command
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.format.TextDecoration
@@ -15,23 +13,19 @@ import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandle
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.permission.OnboardingPermission
 import ru.astrainteractive.messagebridge.onboarding.impl.discord.internal.DiscordMessenger
-import ru.astrainteractive.messagebridge.onboarding.impl.status.internal.StatusText
 
 internal class InviteLiteralArgumentBuilder(
     private val messenger: DiscordMessenger,
-    private val statusText: StatusText,
-    private val ioScope: CoroutineScope,
     private val multiplatformCommand: MultiplatformCommand,
     private val commandExceptionHandler: CommandExceptionHandler,
     translationKrate: CachedKrate<OnboardingTranslation>
 ) {
     private val translation by translationKrate
 
-    private suspend fun invite(sender: KAudience) {
+    private fun invite(sender: KAudience) {
         val url = messenger.onboarding.inviteUrl()
         if (url == null) {
             sender.sendMessage(translation.setup.inviteUnavailable)
-            sender.sendMessage(statusText.currentStateOf(messenger))
             return
         }
         val link = Component.text(url)
@@ -46,8 +40,7 @@ internal class InviteLiteralArgumentBuilder(
             command("invite") {
                 runs(commandExceptionHandler::handle) { ctx ->
                     ctx.requirePermission(OnboardingPermission.Setup)
-                    val sender = ctx.getSender()
-                    ioScope.launch(commandExceptionHandler.coroutineExceptionHandler(ctx)) { invite(sender) }
+                    invite(ctx.getSender())
                 }
             }
         }

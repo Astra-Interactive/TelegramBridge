@@ -5,8 +5,6 @@ package ru.astrainteractive.messagebridge.onboarding.impl.discord.command
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
-import ru.astrainteractive.astralibs.localization.text.LocalizedText
-import ru.astrainteractive.messagebridge.onboarding.api.model.MessengerStatus
 import ru.astrainteractive.messagebridge.onboarding.impl.fake.OnboardingFixture
 import java.util.Locale
 import kotlin.test.AfterTest
@@ -45,25 +43,10 @@ class InviteLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_bot_without_token_WHEN_console_asks_for_invite_THEN_reads_invite_unavailable_and_why() {
+    fun GIVEN_bot_that_is_not_connected_WHEN_console_asks_for_invite_THEN_reads_invite_unavailable() {
         fixture.execute("mb discord invite")
 
-        assertEquals(
-            listOf(plain(setup.inviteUnavailable), "Discord: not configured — /mb discord token <token>"),
-            fixture.consoleReplies
-        )
-    }
-
-    @Test
-    fun GIVEN_bot_that_failed_WHEN_console_asks_for_invite_THEN_reads_invite_unavailable_and_the_reason() {
-        fixture.discord.status.value = MessengerStatus.Failed(LocalizedText.shared("the token is revoked"))
-
-        fixture.execute("mb discord invite")
-
-        assertEquals(
-            listOf(plain(setup.inviteUnavailable), "Discord: not connected — the token is revoked"),
-            fixture.consoleReplies
-        )
+        assertEquals(listOf(plain(setup.inviteUnavailable)), fixture.consoleReplies)
     }
 
     @Test

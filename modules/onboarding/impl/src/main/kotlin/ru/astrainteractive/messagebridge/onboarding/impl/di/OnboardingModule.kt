@@ -111,8 +111,6 @@ class OnboardingModule(
         ).create(),
         InviteLiteralArgumentBuilder(
             messenger = discord,
-            statusText = statusText,
-            ioScope = coreModule.ioScope,
             multiplatformCommand = multiplatformCommand,
             commandExceptionHandler = commandExceptionHandler,
             translationKrate = translationKrate
