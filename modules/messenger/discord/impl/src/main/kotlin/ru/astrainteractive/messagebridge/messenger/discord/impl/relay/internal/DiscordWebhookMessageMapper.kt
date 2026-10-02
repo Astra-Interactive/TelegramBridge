@@ -6,13 +6,6 @@ import net.dv8tion.jda.api.entities.Member
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
 internal class DiscordWebhookMessageMapper {
-
-    fun map(event: Text, member: Member?): WebhookMessage = WebhookMessageBuilder()
-        .setUsername(username(event, member))
-        .setAvatarUrl(avatarUrl(event, member))
-        .setContent(event.text.replace("@", ""))
-        .build()
-
     private fun username(event: Text, member: Member?): String = when (member) {
         null -> "[${event.from.short}] ${event.author}"
         else -> "[${event.from.short}] ${member.effectiveName}"
@@ -23,6 +16,12 @@ internal class DiscordWebhookMessageMapper {
         is Text.Minecraft -> member?.effectiveAvatarUrl ?: "$MC_HEADS_AVATAR_URL${event.uuid}"
         is Text.Telegram -> member?.effectiveAvatarUrl ?: TELEGRAM_AVATAR_URL
     }
+
+    fun map(event: Text, member: Member?): WebhookMessage = WebhookMessageBuilder()
+        .setUsername(username(event, member))
+        .setAvatarUrl(avatarUrl(event, member))
+        .setContent(event.text.replace("@", ""))
+        .build()
 
     private companion object {
         const val MC_HEADS_AVATAR_URL = "https://mc-heads.net/avatar/"
