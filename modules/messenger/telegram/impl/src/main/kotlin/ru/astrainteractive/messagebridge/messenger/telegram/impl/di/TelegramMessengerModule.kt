@@ -27,6 +27,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramMess
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.api.di.TelegramBotModule
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.botUserName
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.internal.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.internal.TelegramCommandParser
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
@@ -140,7 +141,7 @@ class TelegramMessengerModule(
             authorMapper = authorMapper,
             relayedMessageCache = relayedMessageCache,
         ),
-        commandParser = TelegramCommandParser(botUserName = { connector.botUserName() }),
+        commandParser = TelegramCommandParser(botUserName = { connector.state.value.botUserName }),
         commandHandler = commandHandler,
         messageSender = messageSender,
         eventChannel = bEventChannel,

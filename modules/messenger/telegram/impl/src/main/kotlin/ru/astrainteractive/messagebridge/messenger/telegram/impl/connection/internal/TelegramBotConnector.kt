@@ -7,8 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
@@ -27,17 +25,9 @@ internal class TelegramBotConnector(
     private val mutableState = MutableStateFlow<TelegramConnectionState>(TelegramConnectionState.Connecting)
     val state: StateFlow<TelegramConnectionState> = mutableState.asStateFlow()
 
-    private val botUserNameMutex = Mutex()
-    private var knownBotUserName: String? = null
-
-    private suspend fun updateBotUserName(userName: String?) {
-        botUserNameMutex.withLock { knownBotUserName = userName }
-    }
-
     private suspend fun runOnce(session: TelegramBotSession, backOff: BackOff): TelegramFailure {
         val userName = session.fetchBotUserName().getOrElse { t -> return failureMapper.map(t) }
         val botName = "@$userName"
-        updateBotUserName(userName)
         mutableState.value = TelegramConnectionState.Connected(botName)
         val polling = session.startPolling(botName, onState = { state -> mutableState.value = state })
             .getOrElse { t -> return failureMapper.map(t) }
@@ -60,13 +50,8 @@ internal class TelegramBotConnector(
         }
     }
 
-    suspend fun botUserName(): String? {
-        return botUserNameMutex.withLock { knownBotUserName }
-    }
-
     suspend fun connect(connections: Flow<TelegramConnection>) {
         connections.collectLatest { connection ->
-            updateBotUserName(null)
             when (connection) {
                 TelegramConnection.Disabled -> mutableState.value = TelegramConnectionState.Disabled
                 is TelegramConnection.Invalid -> mutableState.value = TelegramConnectionState.Failed(connection.failure)

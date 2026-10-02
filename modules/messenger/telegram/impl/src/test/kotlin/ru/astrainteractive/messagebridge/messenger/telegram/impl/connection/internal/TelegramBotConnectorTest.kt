@@ -16,6 +16,7 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.api.fake.BOT_USER_NAME
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramConnectionState
 import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramFailure
+import ru.astrainteractive.messagebridge.messenger.telegram.api.model.botUserName
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.api.TelegramBotSession
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.fake.FakeBackOff
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.connection.fake.FakeTelegramBotSession
@@ -77,7 +78,7 @@ class TelegramBotConnectorTest {
         connect(connector, MutableStateFlow(TelegramConnection.Disabled))
 
         assertEquals(TelegramConnectionState.Disabled, connector.state.value)
-        assertNull(connector.botUserName())
+        assertNull(connector.state.value.botUserName)
     }
 
     @Test
@@ -97,7 +98,7 @@ class TelegramBotConnectorTest {
         connect(connector, MutableStateFlow(ready))
 
         assertEquals(TelegramConnectionState.Connected("@$BOT_USER_NAME"), connector.state.value)
-        assertEquals(BOT_USER_NAME, connector.botUserName())
+        assertEquals(BOT_USER_NAME, connector.state.value.botUserName)
         assertEquals(1, session.pollings.size)
         assertEquals(1, backOff.resets.get())
     }
@@ -113,7 +114,7 @@ class TelegramBotConnectorTest {
 
         assertEquals(TelegramConnectionState.Failed(TelegramFailure.InvalidToken), connector.state.value)
         assertEquals(1, session.fetches.get())
-        assertNull(connector.botUserName())
+        assertNull(connector.state.value.botUserName)
     }
 
     @Test
@@ -170,7 +171,7 @@ class TelegramBotConnectorTest {
 
         assertTrue(session.pollings.single().isClosed)
         assertEquals(TelegramConnectionState.Disabled, connector.state.value)
-        assertNull(connector.botUserName())
+        assertNull(connector.state.value.botUserName)
     }
 
     @Test

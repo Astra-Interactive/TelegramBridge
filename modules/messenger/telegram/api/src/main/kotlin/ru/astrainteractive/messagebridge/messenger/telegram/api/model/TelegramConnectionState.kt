@@ -9,3 +9,9 @@ sealed interface TelegramConnectionState {
 
     data class Failed(val failure: TelegramFailure) : TelegramConnectionState
 }
+
+val TelegramConnectionState.botUserName: String?
+    get() = when (this) {
+        is TelegramConnectionState.Connected -> botName.removePrefix("@")
+        else -> null
+    }

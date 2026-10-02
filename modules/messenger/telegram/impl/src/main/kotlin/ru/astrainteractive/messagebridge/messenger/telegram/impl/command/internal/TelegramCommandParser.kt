@@ -4,9 +4,9 @@ import ru.astrainteractive.messagebridge.messenger.telegram.api.model.TelegramBo
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.command.model.TelegramCommand
 
 internal class TelegramCommandParser(
-    private val botUserName: suspend () -> String?,
+    private val botUserName: () -> String?,
 ) {
-    suspend fun map(text: String): TelegramCommand? {
+    fun map(text: String): TelegramCommand? {
         val command = TelegramBotCommand.parse(text, botUserName.invoke()) ?: return null
         return when (command.name) {
             VANILLA -> TelegramCommand.Vanilla
