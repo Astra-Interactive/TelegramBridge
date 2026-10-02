@@ -10,35 +10,6 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
 
 @Serializable
 data class DiscordSetupTranslation(
-    @SerialName("guide")
-    val guide: LocalizedText = LocalizedText.build {
-        translation(
-            MinecraftLocales.EN_US,
-            """
-            Discord is not configured yet:
-             1. Create an application at https://discord.com/developers/applications, open Bot, copy the token
-                and turn on Message Content Intent. When link in config.yml gives roles for linking, turn on
-                Server Members Intent too: it lets the bot take the roles back from players who leave the server
-             2. In the server console run: mb discord token <token>
-             3. Run mb discord invite and open the link to add the bot to your server
-             4. Run mb discord bind and send the code it shows into the channel
-            Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/discord.md
-            """.trimIndent()
-        )
-        translation(
-            MinecraftLocales.RU_RU,
-            """
-            Discord ещё не настроен:
-             1. Создайте приложение на https://discord.com/developers/applications, откройте Bot, скопируйте токен
-                и включите Message Content Intent. Если link в config.yml выдаёт роли за привязку, включите
-                и Server Members Intent: так бот заберёт роли у игроков, которые ушли с сервера
-             2. В консоли сервера выполните: mb discord token <токен>
-             3. Выполните mb discord invite и откройте ссылку, чтобы добавить бота на сервер
-             4. Выполните mb discord bind и отправьте код в нужный канал
-            Инструкция на английском: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/discord.md
-            """.trimIndent()
-        )
-    },
     @SerialName("bind")
     val bind: Bind = Bind()
 ) {

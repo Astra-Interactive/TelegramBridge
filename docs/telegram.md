@@ -18,7 +18,7 @@ In game, add `/` in front and `--unsafe` after the token (see [Set the token](#2
    If the group has topics, send it inside the topic you want to bridge.
 5. The console shows whether the bot connected. `mb status` shows the same at any time.
 
-`mb telegram` without arguments shows these steps and the current status.
+`mb telegram` without arguments shows the status of the bot.
 
 Telegram is blocked in some countries, for example in Russia. If the bot cannot reach Telegram,
 set up a proxy first: [proxy.md](proxy.md).

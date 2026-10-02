@@ -4,13 +4,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.telegram.api.api.TelegramUpdateInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.api.di.TelegramBotModule
@@ -24,7 +21,6 @@ import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramBin
 import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramChatInfoHandler
 import ru.astrainteractive.messagebridge.onboarding.telegram.command.TelegramSetupCommandParser
 import ru.astrainteractive.messagebridge.onboarding.telegram.event.TelegramSetupInterceptor
-import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramGuideLogger
 import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramOnboarding
 import ru.astrainteractive.messagebridge.onboarding.telegram.internal.TelegramStatusMapper
 import java.security.SecureRandom
@@ -49,11 +45,6 @@ class TelegramOnboardingModule(
 
     private val statusMapper = TelegramStatusMapper(
         failureTextMapper = botModule.failureTextMapper,
-    )
-
-    private val guideLogger = TelegramGuideLogger(
-        translationKrate = onboardingTranslationModule.translationKrate,
-        logger = JUtiltLogger("MessageBridge-TelegramGuideLogger"),
     )
 
     val updateInterceptor: TelegramUpdateInterceptor = TelegramSetupInterceptor(
@@ -83,7 +74,6 @@ class TelegramOnboardingModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onEnable = { botModule.state.onEach(guideLogger::log).launchIn(moduleIoScope) },
         onDisable = { moduleIoScope.cancel() }
     )
 

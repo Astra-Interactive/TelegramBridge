@@ -44,7 +44,7 @@ Without it the command is refused and nothing is saved. The console and RCON do 
 
 | Command                                                                     | What it does                                   |
 |-----------------------------------------------------------------------------|------------------------------------------------|
-| `/mb telegram`                                                              | Step-by-step guide and the current status      |
+| `/mb telegram`                                                              | Status of the Telegram bot                     |
 | `/mb telegram token <token> [--unsafe]`                                     | Sets the bot token                             |
 | `/mb telegram chat <chat_id>`                                               | Sets the group                                 |
 | `/mb telegram topic <topic_id\|none>`                                       | Sets the topic, `none` for no topic            |
@@ -61,7 +61,7 @@ Details in [telegram.md](telegram.md#4-choose-the-chat-and-the-topic).
 
 | Command                                                               | What it does                                          |
 |-----------------------------------------------------------------------|-------------------------------------------------------|
-| `/mb discord`                                                         | Step-by-step guide and the current status             |
+| `/mb discord`                                                         | Status of the Discord bot                             |
 | `/mb discord token <token> [--unsafe]`                                | Sets the bot token                                    |
 | `/mb discord channel <channel_id>`                                    | Sets the channel                                      |
 | `/mb discord activity <text>`                                         | Sets the status of the bot, "Playing <text>"          |

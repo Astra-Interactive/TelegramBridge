@@ -7,8 +7,8 @@ import ru.astrainteractive.messagebridge.onboarding.api.api.MessengerOnboarding
 import ru.astrainteractive.messagebridge.onboarding.api.di.MessengerOnboardingModule
 import ru.astrainteractive.messagebridge.onboarding.api.di.OnboardingTranslationModule
 import ru.astrainteractive.messagebridge.onboarding.impl.command.BindLiteralArgumentBuilder
-import ru.astrainteractive.messagebridge.onboarding.impl.command.GuideLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.command.MbLiteralArgumentBuilder
+import ru.astrainteractive.messagebridge.onboarding.impl.command.MessengerLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.command.ReloadLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.discord.command.DiscordSettingLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.onboarding.impl.discord.command.InviteLiteralArgumentBuilder
@@ -135,17 +135,15 @@ class OnboardingModule(
                 translationKrate = coreModule.translationKrate,
                 onboardingTranslationKrate = translationKrate
             ).create(),
-            GuideLiteralArgumentBuilder(
+            MessengerLiteralArgumentBuilder(
                 messenger = telegram,
-                guide = { translationKrate.cachedValue.telegram.guide },
                 report = telegramReport,
                 subcommands = telegramSubcommands,
                 multiplatformCommand = multiplatformCommand,
                 commandExceptionHandler = commandExceptionHandler
             ).create(),
-            GuideLiteralArgumentBuilder(
+            MessengerLiteralArgumentBuilder(
                 messenger = discord,
-                guide = { translationKrate.cachedValue.discord.guide },
                 report = discordReport,
                 subcommands = discordSubcommands,
                 multiplatformCommand = multiplatformCommand,

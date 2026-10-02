@@ -10,31 +10,6 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
 
 @Serializable
 data class TelegramSetupTranslation(
-    @SerialName("guide")
-    val guide: LocalizedText = LocalizedText.build {
-        translation(
-            MinecraftLocales.EN_US,
-            """
-            Telegram is not configured yet:
-             1. Open @BotFather in Telegram, send /newbot and copy the token it gives
-             2. In the server console run: mb telegram token <token>
-             3. Add the bot to your group and make it an admin
-             4. Run mb telegram bind and send the code it shows into the group (inside the topic if you use topics)
-            Guide: https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md
-            """.trimIndent()
-        )
-        translation(
-            MinecraftLocales.RU_RU,
-            """
-            Telegram ещё не настроен:
-             1. Откройте @BotFather в Telegram, отправьте /newbot и скопируйте токен
-             2. В консоли сервера выполните: mb telegram token <токен>
-             3. Добавьте бота в группу и сделайте его администратором
-             4. Выполните mb telegram bind и отправьте код в группу (в нужный топик, если они есть)
-            Инструкция (на английском): https://github.com/Astra-Interactive/TelegramBridge/blob/master/docs/telegram.md
-            """.trimIndent()
-        )
-    },
     @SerialName("chat_info")
     val chatInfo: ChatInfo = ChatInfo(),
     @SerialName("bind")

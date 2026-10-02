@@ -108,7 +108,7 @@ In the console, type commands without `/`. Full list: [docs/commands.md](docs/co
 | Command                          | Permission              |                                              |
 |----------------------------------|-------------------------|----------------------------------------------|
 | `/mb status`                     | `tbridge.setup`         | Status of both bots and the last error       |
-| `/mb telegram`, `/mb discord`    | `tbridge.setup`         | Step-by-step guide and setup                 |
+| `/mb telegram`, `/mb discord`    | `tbridge.setup`         | Status and setup of one bot                  |
 | `/mb reload`                     | `tbridge.reload`        | Reload the config                            |
 | `/link`, `/unlink`               | -                       | Link or unlink your account                  |
 | `/unlink <player>`               | `tbridge.unlink.player` | Unlink another player                        |

@@ -20,7 +20,7 @@ data class SetupTranslation(
             &#42f596MessageBridge commands:
             &#42f596/mb status &7— state of the bots
             &#42f596/mb reload &7— reload config.yml and the translation folder
-            &#42f596/mb telegram &7— Telegram setup guide and state
+            &#42f596/mb telegram &7— state of Telegram
             &#42f596/mb telegram token <token> &7— set the bot token
             &#42f596/mb telegram chat <chat_id> &7— set the chat, e.g. -1001234567890
             &#42f596/mb telegram topic <topic_id|none> &7— set or clear the topic
@@ -28,7 +28,7 @@ data class SetupTranslation(
             &#42f596/mb telegram proxy off &7— remove the proxy
             &#42f596/mb telegram api-url <url|default> &7— use a self-hosted Bot API or a mirror
             &#42f596/mb telegram bind &7— bind the chat with a one-time code
-            &#42f596/mb discord &7— Discord setup guide and state
+            &#42f596/mb discord &7— state of Discord
             &#42f596/mb discord token <token> &7— set the bot token
             &#42f596/mb discord channel <channel_id> &7— set the channel
             &#42f596/mb discord activity <text> &7— set the activity of the bot
@@ -46,7 +46,7 @@ data class SetupTranslation(
             &#42f596Команды MessageBridge:
             &#42f596/mb status &7— состояние ботов
             &#42f596/mb reload &7— перечитать config.yml и папку translation
-            &#42f596/mb telegram &7— инструкция и состояние Telegram
+            &#42f596/mb telegram &7— состояние Telegram
             &#42f596/mb telegram token <токен> &7— задать токен бота
             &#42f596/mb telegram chat <chat_id> &7— задать чат, например -1001234567890
             &#42f596/mb telegram topic <topic_id|none> &7— задать или убрать топик
@@ -54,7 +54,7 @@ data class SetupTranslation(
             &#42f596/mb telegram proxy off &7— убрать прокси
             &#42f596/mb telegram api-url <url|default> &7— свой Bot API или зеркало
             &#42f596/mb telegram bind &7— привязать чат одноразовым кодом
-            &#42f596/mb discord &7— инструкция и состояние Discord
+            &#42f596/mb discord &7— состояние Discord
             &#42f596/mb discord token <токен> &7— задать токен бота
             &#42f596/mb discord channel <channel_id> &7— задать канал
             &#42f596/mb discord activity <текст> &7— задать статус бота

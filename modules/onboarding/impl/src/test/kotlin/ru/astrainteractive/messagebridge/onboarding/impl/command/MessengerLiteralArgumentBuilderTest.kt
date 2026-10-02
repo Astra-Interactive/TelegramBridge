@@ -10,7 +10,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GuideLiteralArgumentBuilderTest {
+class MessengerLiteralArgumentBuilderTest {
     private val fixture = OnboardingFixture()
     private val status = fixture.onboardingTranslation.setup.status
 
@@ -22,13 +22,12 @@ class GuideLiteralArgumentBuilderTest {
     private fun plain(message: LocalizableComponent): String = fixture.plainTextOf(message)
 
     @Test
-    fun GIVEN_telegram_bot_without_token_WHEN_console_runs_telegram_THEN_reads_guide_and_status() {
+    fun GIVEN_telegram_bot_without_token_WHEN_console_runs_telegram_THEN_reads_only_the_status() {
         fixture.execute("mb telegram")
 
         assertEquals(
             listOf(
-                plain(fixture.onboardingTranslation.telegram.guide),
-                "Telegram: not configured — /mb telegram token <token>",
+                plain(status.disabled(messenger = "Telegram", command = "telegram")),
                 plain(status.noChat),
                 plain(status.noProxy)
             ),
@@ -37,27 +36,14 @@ class GuideLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_connected_telegram_bot_WHEN_console_runs_telegram_THEN_reads_status_without_guide() {
-        fixture.telegram.status.value = MessengerStatus.Connected("@ServerBot")
-
-        fixture.execute("mb telegram")
-
-        assertEquals(
-            listOf("Telegram: connected as @ServerBot", plain(status.noChat), plain(status.noProxy)),
-            fixture.consoleReplies
-        )
-    }
-
-    @Test
-    fun GIVEN_discord_bot_that_failed_WHEN_console_runs_discord_THEN_reads_guide_and_why() {
+    fun GIVEN_discord_bot_that_failed_WHEN_console_runs_discord_THEN_reads_why() {
         fixture.discord.status.value = MessengerStatus.Failed(LocalizedText.shared("the token is revoked"))
 
         fixture.execute("mb discord")
 
         assertEquals(
             listOf(
-                plain(fixture.onboardingTranslation.discord.guide),
-                "Discord: not connected — the token is revoked",
+                plain(status.failed(messenger = "Discord", reason = LocalizedText.shared("the token is revoked"))),
                 plain(status.noChannel),
                 plain(status.noProxy)
             ),

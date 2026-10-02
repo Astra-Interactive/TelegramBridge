@@ -3,11 +3,8 @@ package ru.astrainteractive.messagebridge.onboarding.discord.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.di.DiscordBotModule
@@ -18,7 +15,6 @@ import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindCommandParser
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindHandler
 import ru.astrainteractive.messagebridge.onboarding.discord.event.DiscordBindInterceptor
-import ru.astrainteractive.messagebridge.onboarding.discord.internal.DiscordGuideLogger
 import ru.astrainteractive.messagebridge.onboarding.discord.internal.JdaDiscordOnboarding
 import java.security.SecureRandom
 import kotlin.time.Clock
@@ -38,11 +34,6 @@ class DiscordOnboardingModule(
         clock = Clock.System,
         lifetime = BIND_CODE_LIFETIME,
         random = SecureRandom(),
-    )
-
-    private val guideLogger = DiscordGuideLogger(
-        translationKrate = onboardingTranslationModule.translationKrate,
-        logger = JUtiltLogger("MessageBridge-DiscordGuideLogger"),
     )
 
     val messageInterceptor: DiscordMessageInterceptor = DiscordBindInterceptor(
@@ -65,7 +56,6 @@ class DiscordOnboardingModule(
     )
 
     val lifecycle = Lifecycle.Lambda(
-        onEnable = { botModule.connection.onEach(guideLogger::log).launchIn(moduleIoScope) },
         onDisable = { moduleIoScope.cancel() }
     )
 

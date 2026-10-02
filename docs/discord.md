@@ -18,7 +18,7 @@ In game, add `/` in front and `--unsafe` after the token (see [Set the token](#2
 4. Run `mb discord bind`. Send the `!bind <code>` it shows into the channel you want to bridge.
 5. The console shows whether the bot connected. `mb status` shows the same at any time.
 
-`mb discord` without arguments shows these steps and the current status.
+`mb discord` without arguments shows the status of the bot.
 
 Discord is blocked in some countries, for example in Russia. If the bot cannot reach Discord,
 set up an HTTP proxy first: [proxy.md](proxy.md).
