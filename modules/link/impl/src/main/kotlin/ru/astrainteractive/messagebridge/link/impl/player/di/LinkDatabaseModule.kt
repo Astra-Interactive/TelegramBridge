@@ -13,7 +13,9 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connectAsFlow
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.link.impl.player.database.LinkedPlayerTable
+import ru.astrainteractive.messagebridge.link.impl.player.database.DiscordLinkTable
+import ru.astrainteractive.messagebridge.link.impl.player.database.MinecraftPlayerTable
+import ru.astrainteractive.messagebridge.link.impl.player.database.TelegramLinkTable
 import java.sql.Connection
 
 internal class LinkDatabaseModule(
@@ -26,7 +28,7 @@ internal class LinkDatabaseModule(
         .onEach { database ->
             TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
             transaction(database) {
-                SchemaUtils.create(LinkedPlayerTable)
+                SchemaUtils.create(MinecraftPlayerTable, DiscordLinkTable, TelegramLinkTable)
             }
         }
         .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)

@@ -12,12 +12,15 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class LinkingDaoImplTest {
     private val database = Database.connect(
         url = "jdbc:h2:mem:linking-${UUID.randomUUID()};DB_CLOSE_DELAY=-1",
         driver = "org.h2.Driver"
-    ).also { database -> transaction(database) { SchemaUtils.create(LinkedPlayerTable) } }
+    ).also { database ->
+        transaction(database) { SchemaUtils.create(MinecraftPlayerTable, DiscordLinkTable, TelegramLinkTable) }
+    }
     private val dao = LinkingDaoImpl(flowOf(database))
 
     private val steve = LinkedPlayerModel(
@@ -73,5 +76,41 @@ class LinkingDaoImplTest {
         dao.deleteByUuid(steve.uuid).getOrThrow()
 
         assertNull(dao.findByUuid(steve.uuid).getOrThrow())
+    }
+
+    @Test
+    fun GIVEN_saved_player_WHEN_saved_again_with_new_names_THEN_the_new_names_are_found() = runTest {
+        dao.upsert(steve).getOrThrow()
+        val renamed = steve.copy(
+            lastMinecraftName = "Steve2",
+            discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = "steve2", discordId = 42L)
+        )
+
+        dao.upsert(renamed).getOrThrow()
+
+        assertEquals(renamed, dao.findByUuid(steve.uuid).getOrThrow())
+    }
+
+    @Test
+    fun GIVEN_discord_account_of_another_player_WHEN_saved_THEN_it_fails_and_nothing_is_saved() = runTest {
+        dao.upsert(steve).getOrThrow()
+
+        val result = dao.upsert(alex.copy(discordLink = steve.discordLink))
+
+        assertTrue(result.isFailure)
+        assertNull(dao.findByUuid(alex.uuid).getOrThrow())
+        assertEquals(steve, dao.findByDiscordId(42L).getOrThrow())
+    }
+
+    @Test
+    fun GIVEN_deleted_player_with_both_links_WHEN_another_player_takes_the_accounts_THEN_it_is_saved() = runTest {
+        dao.upsert(steve.copy(telegramLink = alex.telegramLink)).getOrThrow()
+        dao.deleteByUuid(steve.uuid).getOrThrow()
+        val newOwner = alex.copy(discordLink = steve.discordLink)
+
+        dao.upsert(newOwner).getOrThrow()
+
+        assertEquals(newOwner, dao.findByDiscordId(42L).getOrThrow())
+        assertEquals(newOwner, dao.findByTelegramId(7L).getOrThrow())
     }
 }
