@@ -47,7 +47,6 @@ class RootModule(
     val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
-            linkModule = linkModule,
             lifecyclePlugin = forgeLifecycleServer,
             commandRegistrarContext = coreModule.commandRegistrarContext
         )
@@ -83,6 +82,7 @@ class RootModule(
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
+            linkModule.lifecycle,
             commandModule.lifecycle,
             jdaEventModule.lifecycle,
             tgEventModule.lifecycle,

@@ -6,6 +6,8 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.minecraft.brigadier)
+    compileOnly(libs.minecraft.kyori.api)
     compileOnly(libs.minecraft.luckperms)
 
     implementation(libs.cache4k)
@@ -17,8 +19,18 @@ dependencies {
     implementation(libs.klibs.mikro.extensions)
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.serialization.json)
+    implementation(libs.minecraft.astralibs.command)
     implementation(libs.minecraft.astralibs.core)
     implementation(libs.telegrambots.client)
 
     implementation(projects.modules.core.api)
+
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.minecraft.brigadier)
+    testImplementation(libs.minecraft.kyori.api)
+    testImplementation(libs.minecraft.kyori.legacy)
+    testImplementation(libs.minecraft.kyori.minimessage)
+    testImplementation(libs.minecraft.kyori.plain)
+    testImplementation(libs.minecraft.luckperms)
+    testImplementation(libs.tests.kotlin.test)
 }

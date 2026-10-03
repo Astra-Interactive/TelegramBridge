@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.commands.link
+package ru.astrainteractive.messagebridge.link.command
 
 import com.mojang.brigadier.CommandDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -11,13 +11,13 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.commands.fake.FakeCodeApi
-import ru.astrainteractive.messagebridge.commands.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.commands.fake.FakeMultiplatformCommands
-import ru.astrainteractive.messagebridge.commands.fake.FakePlatformServer
-import ru.astrainteractive.messagebridge.commands.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.link.fake.FakeCodeApi
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
+import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
+import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import java.util.Locale
 import java.util.UUID
 import kotlin.test.Test

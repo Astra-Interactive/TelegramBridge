@@ -71,7 +71,6 @@ class RootModule(
     val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
-            linkModule = linkModule,
             lifecyclePlugin = plugin,
             commandRegistrarContext = coreModule.commandRegistrarContext
         )
@@ -83,6 +82,7 @@ class RootModule(
             bukkitMessengerModule.lifecycle,
             jdaMessengerModule.lifecycle,
             telegramMessengerModule.lifecycle,
+            linkModule.lifecycle,
             commandModule.lifecycle
         )
 

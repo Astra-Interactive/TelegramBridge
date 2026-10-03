@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.unlink
+package ru.astrainteractive.messagebridge.link.command
 
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.astralibs.server.KAudience

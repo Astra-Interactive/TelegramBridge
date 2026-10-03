@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.commands.link
+package ru.astrainteractive.messagebridge.link.command
 
 import kotlinx.coroutines.test.runTest
 import net.kyori.adventure.text.Component
@@ -8,12 +8,12 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.commands.fake.FakeCodeApi
-import ru.astrainteractive.messagebridge.commands.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.commands.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.fake.FakeCodeApi
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import java.util.Locale
 import java.util.UUID
 import kotlin.test.Test

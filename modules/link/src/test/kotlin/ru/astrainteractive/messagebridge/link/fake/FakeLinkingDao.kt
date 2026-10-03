@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.fake
+package ru.astrainteractive.messagebridge.link.fake
 
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel

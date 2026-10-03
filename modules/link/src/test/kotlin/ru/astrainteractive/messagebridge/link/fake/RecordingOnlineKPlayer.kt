@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.fake
+package ru.astrainteractive.messagebridge.link.fake
 
 import net.kyori.adventure.text.Component
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent

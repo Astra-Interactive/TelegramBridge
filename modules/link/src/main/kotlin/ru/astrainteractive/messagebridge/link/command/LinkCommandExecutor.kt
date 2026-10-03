@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.link
+package ru.astrainteractive.messagebridge.link.command
 
 import net.kyori.adventure.text.Component
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer

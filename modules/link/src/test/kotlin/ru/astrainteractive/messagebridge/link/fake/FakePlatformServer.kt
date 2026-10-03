@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.fake
+package ru.astrainteractive.messagebridge.link.fake
 
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.KPlayer

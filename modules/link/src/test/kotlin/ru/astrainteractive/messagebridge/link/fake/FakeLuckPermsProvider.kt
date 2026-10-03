@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.fake
+package ru.astrainteractive.messagebridge.link.fake
 
 import net.luckperms.api.LuckPerms
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider

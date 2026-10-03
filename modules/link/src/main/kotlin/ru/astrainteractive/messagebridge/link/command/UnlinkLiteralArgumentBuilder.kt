@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.unlink
+package ru.astrainteractive.messagebridge.link.command
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
