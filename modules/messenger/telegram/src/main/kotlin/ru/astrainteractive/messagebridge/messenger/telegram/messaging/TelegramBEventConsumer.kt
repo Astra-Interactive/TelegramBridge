@@ -50,7 +50,7 @@ internal class TelegramBEventConsumer(
             .getOrNull()
     }
 
-    override suspend fun consume(bEvent: BEvent) {
+    private suspend fun send(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.TELEGRAM) return
         val text = when (bEvent) {
             is Text -> {
@@ -112,6 +112,14 @@ internal class TelegramBEventConsumer(
         } catch (e: TelegramApiException) {
             error { "#sendMessage: Got TelegramApiException: ${e.message}. Probably fake exception." }
         }
+    }
+
+    override suspend fun consume(bEvent: BEvent) {
+        if (tgConfig.token.isBlank() || tgConfig.chatID.isBlank()) {
+            verbose { "#consume Telegram is not configured, skipped $bEvent" }
+            return
+        }
+        send(bEvent)
     }
 
     init {
