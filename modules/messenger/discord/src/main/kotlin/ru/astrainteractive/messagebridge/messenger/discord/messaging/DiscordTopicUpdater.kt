@@ -1,14 +1,14 @@
 package ru.astrainteractive.messagebridge.messenger.discord.messaging
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
+import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.awaitWithTimeout
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordTopicUpdater(
-    private val onlinePlayersProvider: OnlinePlayersProvider,
+    private val platformServer: PlatformServer,
 ) {
     private var lastOnlineChanged = System.currentTimeMillis().milliseconds
 
@@ -17,7 +17,7 @@ internal class DiscordTopicUpdater(
         if (current.minus(lastOnlineChanged) < THROTTLE) return
         lastOnlineChanged = current
         channel.manager
-            .setTopic("Игроков в сети: ${onlinePlayersProvider.provide().size}")
+            .setTopic("Игроков в сети: ${platformServer.getOnlinePlayers().size}")
             .awaitWithTimeout(TOPIC_TIMEOUT)
     }
 

@@ -14,7 +14,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.forge.core.api.NeoForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
@@ -39,10 +38,6 @@ class RootModule(
         commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
     )
 
-    val onlinePlayersProvider by lazy {
-        NeoForgeOnlinePlayersProvider()
-    }
-
     val linkModule by lazy {
         LinkModule.Default(coreModule, LuckPermsProvider.Default)
     }
@@ -64,7 +59,6 @@ class RootModule(
     val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule
         )
     }
@@ -72,7 +66,6 @@ class RootModule(
     val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
             linkModule = linkModule
         )
     }

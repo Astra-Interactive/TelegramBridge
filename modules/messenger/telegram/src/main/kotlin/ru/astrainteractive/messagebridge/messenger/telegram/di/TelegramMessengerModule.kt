@@ -24,7 +24,6 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
@@ -50,7 +49,6 @@ import kotlin.time.toJavaDuration
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
-    onlinePlayersProvider: OnlinePlayersProvider,
     linkModule: LinkModule,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
 
@@ -150,7 +148,7 @@ class TelegramMessengerModule(
 
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
-        onlinePlayersProvider = onlinePlayersProvider,
+        platformServer = coreModule.platformServer,
         linkApi = linkModule.linkApi,
         translationKrate = coreModule.translationKrate,
     )

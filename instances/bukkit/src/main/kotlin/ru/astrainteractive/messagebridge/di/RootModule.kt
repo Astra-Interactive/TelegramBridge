@@ -12,7 +12,6 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
-import ru.astrainteractive.messagebridge.core.api.BukkitOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
@@ -52,13 +51,11 @@ class RootModule(
 
     val jdaMessengerModule = JdaMessengerModule(
         coreModule = coreModule,
-        onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule
     )
 
     val telegramMessengerModule = TelegramMessengerModule(
         coreModule = coreModule,
-        onlinePlayersProvider = BukkitOnlinePlayersProvider,
         linkModule = linkModule
     )
 

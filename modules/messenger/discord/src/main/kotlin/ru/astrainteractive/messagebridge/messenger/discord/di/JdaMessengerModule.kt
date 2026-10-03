@@ -30,7 +30,6 @@ import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
@@ -53,8 +52,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class JdaMessengerModule(
     coreModule: CoreModule,
-    linkModule: LinkModule,
-    onlinePlayersProvider: OnlinePlayersProvider
+    linkModule: LinkModule
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
@@ -160,7 +158,7 @@ class JdaMessengerModule(
 
     private val discordMessageController = DiscordBEventConsumer(
         channelProvider = channelProvider,
-        topicUpdater = DiscordTopicUpdater(onlinePlayersProvider),
+        topicUpdater = DiscordTopicUpdater(coreModule.platformServer),
         embedMapper = DiscordEmbedMapper(),
         memberResolver = DiscordMemberResolver(linkModule.linkingDao),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
@@ -176,7 +174,7 @@ class JdaMessengerModule(
 
     private val commandHandler = DiscordCommandHandler(
         messageSender = messageSender,
-        onlinePlayersProvider = onlinePlayersProvider,
+        platformServer = coreModule.platformServer,
         linkApi = linkModule.linkApi,
         translationKrate = coreModule.translationKrate,
     )

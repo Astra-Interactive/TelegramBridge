@@ -2,12 +2,13 @@ package ru.astrainteractive.messagebridge.messenger.telegram.events
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.User
+import ru.astrainteractive.astralibs.server.bridge.PlatformServer
+import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
@@ -16,7 +17,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramComman
 
 internal class TelegramCommandHandler(
     private val messageSender: TelegramMessageSender,
-    private val onlinePlayersProvider: OnlinePlayersProvider,
+    private val platformServer: PlatformServer,
     private val linkApi: LinkApi,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramCommandHandler").withoutParentHandlers() {
@@ -45,7 +46,9 @@ internal class TelegramCommandHandler(
     }
 
     private suspend fun sendVanilla(chatId: String, originalMessageId: Int?) {
-        val players = onlinePlayersProvider.provide()
+        val players = platformServer
+            .getOnlinePlayers()
+            .map(OnlineKPlayer::name)
         val text = translation.onlinePlayers.message(
             count = players.size,
             players = players.joinToString(separator = ", "),
