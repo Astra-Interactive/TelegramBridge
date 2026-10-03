@@ -1,20 +1,22 @@
 package ru.astrainteractive.messagebridge.messenger.discord.event
 
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messaging.api.intercept
+import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordMessageRelevance
 
 internal class MessageEventListener(
@@ -22,22 +24,26 @@ internal class MessageEventListener(
     private val commandMapper: DiscordCommandMapper,
     private val commandHandler: DiscordCommandHandler,
     private val replyMapper: DiscordReplyMapper,
-    private val linkApi: LinkApi,
+    private val messageSender: DiscordMessageSender,
+    private val messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
     private val bEventConsumer: BEventConsumer,
 ) : ListenerAdapter(),
     DiscordEventListener,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-MessageEventListener") {
 
-    override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
-        super.onGuildMemberRemove(event)
-        launch { linkApi.userLeaveDiscord(event.user) }
+    private suspend fun runInterceptors(event: MessageReceivedEvent): Interception {
+        val interception = messageInterceptors.intercept(event)
+        if (interception is Interception.Reply) {
+            messageSender.reply(event.message, interception.text)
+        }
+        return interception
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
         when (relevanceMapper.map(event)) {
             DiscordMessageRelevance.Relevant -> launch { process(event) }
-            DiscordMessageRelevance.PrivateMessage -> launch { commandHandler.linkFromPrivate(event) }
+            DiscordMessageRelevance.PrivateMessage -> launch { runInterceptors(event) }
             DiscordMessageRelevance.WebhookMessage,
             DiscordMessageRelevance.BotAuthor,
             DiscordMessageRelevance.WrongChannel -> Unit
@@ -50,6 +56,7 @@ internal class MessageEventListener(
             commandHandler.handle(command, event)
             return
         }
+        if (runInterceptors(event) != Interception.Pass) return
         relay(event)
     }
 

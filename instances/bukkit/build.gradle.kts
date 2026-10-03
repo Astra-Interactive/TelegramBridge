@@ -22,6 +22,7 @@ dependencies {
     compileOnly(libs.minecraft.paper.api)
     compileOnly(libs.minecraft.vaultapi)
 
+    shadow(libs.jda)
     shadow(libs.klibs.kstorage)
     shadow(libs.klibs.mikro.core)
     shadow(libs.kotlin.coroutines.core)

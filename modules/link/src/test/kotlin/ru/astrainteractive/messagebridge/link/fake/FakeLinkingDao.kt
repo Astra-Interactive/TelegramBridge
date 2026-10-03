@@ -28,11 +28,18 @@ internal class FakeLinkingDao : LinkingDao {
         return Result.success(Unit)
     }
 
+    private fun findFirst(predicate: (LinkedPlayerModel) -> Boolean): Result<LinkedPlayerModel> {
+        findFailure?.let { t -> return Result.failure(t) }
+        val linkedPlayer = linkedPlayers.values.firstOrNull(predicate)
+            ?: return Result.failure(NoSuchElementException("No linked player matches"))
+        return Result.success(linkedPlayer)
+    }
+
     override suspend fun findByDiscordId(id: Long): Result<LinkedPlayerModel> {
-        error("Minecraft commands never look a player up by a Discord id")
+        return findFirst { linkedPlayer -> linkedPlayer.discordLink?.discordId == id }
     }
 
     override suspend fun findByTelegramId(id: Long): Result<LinkedPlayerModel> {
-        error("Minecraft commands never look a player up by a Telegram id")
+        return findFirst { linkedPlayer -> linkedPlayer.telegramLink?.telegramId == id }
     }
 }

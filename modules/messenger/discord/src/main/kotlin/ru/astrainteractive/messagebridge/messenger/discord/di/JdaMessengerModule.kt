@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.hooks.EventListener
 import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
@@ -34,6 +36,7 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
@@ -55,7 +58,9 @@ import kotlin.time.Duration.Companion.seconds
 class JdaMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
-    bEventChannel: BEventChannel
+    bEventChannel: BEventChannel,
+    messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
+    eventListeners: List<EventListener>
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
@@ -182,7 +187,6 @@ class JdaMessengerModule(
     private val commandHandler = DiscordCommandHandler(
         messageSender = messageSender,
         platformServer = coreModule.platformServer,
-        linkApi = linkModule.linkApi,
         translationKrate = coreModule.translationKrate,
     )
 
@@ -191,7 +195,8 @@ class JdaMessengerModule(
         commandMapper = commandMapper,
         commandHandler = commandHandler,
         replyMapper = DiscordReplyMapper(),
-        linkApi = linkModule.linkApi,
+        messageSender = messageSender,
+        messageInterceptors = messageInterceptors,
         bEventConsumer = bEventChannel,
     )
 
@@ -200,6 +205,7 @@ class JdaMessengerModule(
             jdaFlow
                 .filterNotNull()
                 .onEach { jda -> messageEventListener.onEnable(jda) }
+                .onEach { jda -> eventListeners.forEach(jda::addEventListener) }
                 .launchIn(coreModule.ioScope)
         },
         onDisable = {
@@ -208,6 +214,7 @@ class JdaMessengerModule(
             coreModule.ioScope.launch {
                 jdaFlow.firstOrNull()?.let { jda ->
                     messageEventListener.onDisable(jda)
+                    eventListeners.forEach(jda::removeEventListener)
                 }
             }
         }

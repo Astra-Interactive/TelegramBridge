@@ -59,7 +59,9 @@ class RootModule(
     val jdaMessengerModule = JdaMessengerModule(
         coreModule = coreModule,
         linkModule = linkModule,
-        bEventChannel = bEventChannel
+        bEventChannel = bEventChannel,
+        messageInterceptors = listOf(linkModule.discordLinkInterceptor),
+        eventListeners = listOf(linkModule.discordMemberLeaveListener)
     )
 
     val telegramMessengerModule = TelegramMessengerModule(

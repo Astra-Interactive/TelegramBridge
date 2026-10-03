@@ -1,5 +1,7 @@
 package ru.astrainteractive.messagebridge.link.di
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.hooks.EventListener
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -9,6 +11,7 @@ import ru.astrainteractive.messagebridge.link.api.CodeApi
 import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.api.internal.LinkApiImpl
+import ru.astrainteractive.messagebridge.link.command.DiscordLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.command.TelegramLinkInterceptor
@@ -19,6 +22,7 @@ import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.dao.internal.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.database.di.LinkDatabaseModule
+import ru.astrainteractive.messagebridge.link.event.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 
 interface LinkModule {
@@ -30,6 +34,8 @@ interface LinkModule {
     val luckPermsRoleController: LuckPermsRoleController
     val linkingDao: LinkingDao
     val telegramLinkInterceptor: MessageInterceptor<Update>
+    val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent>
+    val discordMemberLeaveListener: EventListener
 
     class Default(
         coreModule: CoreModule,
@@ -59,6 +65,16 @@ interface LinkModule {
         override val telegramLinkInterceptor: MessageInterceptor<Update> = TelegramLinkInterceptor(
             linkApi = linkApi,
             translationKrate = coreModule.translationKrate
+        )
+
+        override val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent> = DiscordLinkInterceptor(
+            linkApi = linkApi,
+            translationKrate = coreModule.translationKrate
+        )
+
+        override val discordMemberLeaveListener: EventListener = DiscordMemberLeaveListener(
+            linkApi = linkApi,
+            ioScope = coreModule.ioScope
         )
 
         private val commandNodes by lazy {

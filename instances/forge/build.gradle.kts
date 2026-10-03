@@ -27,6 +27,7 @@ dependencies {
 
     shadow(libs.driver.h2)
     shadow(libs.exposed.jdbc)
+    shadow(libs.jda)
     shadow(libs.klibs.kstorage)
     shadow(libs.klibs.mikro.core)
     shadow(libs.klibs.mikro.extensions)
