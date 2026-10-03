@@ -7,11 +7,11 @@ import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrar
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
-import ru.astrainteractive.messagebridge.core.api.BukkitLuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.BukkitOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -42,7 +42,7 @@ class RootModule(
         }
     )
 
-    val linkModule = LinkModule.Default(coreModule, BukkitLuckPermsProvider)
+    val linkModule = LinkModule.Default(coreModule, LuckPermsProvider.Default)
 
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,

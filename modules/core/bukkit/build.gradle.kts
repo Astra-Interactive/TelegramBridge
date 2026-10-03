@@ -6,7 +6,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.minecraft.luckperms)
     compileOnly(libs.minecraft.paper.api)
 
     implementation(libs.klibs.kstorage)

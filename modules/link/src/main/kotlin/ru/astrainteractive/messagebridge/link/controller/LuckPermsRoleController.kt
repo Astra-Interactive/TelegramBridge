@@ -1,12 +1,12 @@
 package ru.astrainteractive.messagebridge.link.controller
 
 import net.luckperms.api.LuckPerms
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
 import java.util.UUID
 
 class LuckPermsRoleController(
@@ -16,7 +16,7 @@ class LuckPermsRoleController(
     private val config by configKrate
 
     private val luckPermsOrNull: LuckPerms?
-        get() = luckPermsProvider.provide()
+        get() = luckPermsProvider.provide().getOrNull()
 
     fun addLinkRole(uuid: UUID) {
         val link = config.link ?: return

@@ -9,11 +9,11 @@ import ru.astrainteractive.astralibs.coroutines.MinecraftDispatchers
 import ru.astrainteractive.astralibs.lifecycle.ForgeLifecycleServer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.forge.core.api.ForgeLuckPermsProvider
 import ru.astrainteractive.messagebridge.forge.core.api.ForgeOnlinePlayersProvider
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
@@ -53,7 +53,7 @@ class RootModule(
     }
 
     val linkModule by lazy {
-        LinkModule.Default(coreModule, ForgeLuckPermsProvider)
+        LinkModule.Default(coreModule, LuckPermsProvider.Default)
     }
 
     val forgeMessengerModule by lazy {

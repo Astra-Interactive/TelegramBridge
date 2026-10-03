@@ -1,14 +1,14 @@
 package ru.astrainteractive.messagebridge.commands.fake
 
 import net.luckperms.api.LuckPerms
-import ru.astrainteractive.messagebridge.core.api.LuckPermsProvider
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 
 internal class FakeLuckPermsProvider : LuckPermsProvider {
     var provideCallCount = 0
         private set
 
-    override fun provide(): LuckPerms? {
+    override fun provide(): Result<LuckPerms> {
         provideCallCount++
-        return null
+        return Result.failure(IllegalStateException("LuckPerms is not installed"))
     }
 }
