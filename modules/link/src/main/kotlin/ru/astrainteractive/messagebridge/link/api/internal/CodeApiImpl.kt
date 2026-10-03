@@ -13,7 +13,7 @@ class CodeApiImpl : CodeApi {
 
     @Suppress("MagicNumber")
     override suspend fun generateCodeForPlayer(codeUser: CodeUser): Int = mutex.withLock {
-        cache[codeUser]?.let { return it }
+        cache[codeUser]?.let { cachedCode -> return cachedCode }
         val codes = cache.values
         var code: Int
         do {
@@ -24,7 +24,7 @@ class CodeApiImpl : CodeApi {
     }
 
     override suspend fun findUserByCode(code: Int): CodeUser? {
-        return cache.filter { it.value == code }.keys.firstOrNull()
+        return cache.filter { entry -> entry.value == code }.keys.firstOrNull()
     }
 
     override suspend fun clearCode(code: Int) {

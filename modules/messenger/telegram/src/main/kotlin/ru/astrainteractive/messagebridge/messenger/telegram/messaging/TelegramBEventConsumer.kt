@@ -46,7 +46,7 @@ internal class TelegramBEventConsumer(
 
     private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
         return runCatching { telegramClientFlow.firstOrNull() }
-            .onFailure { error(it) { "#onDisable could not get telegramClient: ${it.message} ${it.cause?.message}" } }
+            .onFailure { t -> error(t) { "#onDisable could not get telegramClient: ${t.message} ${t.cause?.message}" } }
             .getOrNull()
     }
 

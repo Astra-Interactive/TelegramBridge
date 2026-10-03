@@ -89,22 +89,24 @@ class LinkingDaoImpl(
                         where = {
                             LinkedPlayerTable.id eq linkedPlayerModel.uuid.toString()
                         },
-                        body = {
-                            it[LinkedPlayerTable.lastMinecraftName] = linkedPlayerModel.lastMinecraftName
-                            it[LinkedPlayerTable.discordId] = linkedPlayerModel.discordLink?.discordId
-                            it[LinkedPlayerTable.lastDiscordName] = linkedPlayerModel.discordLink?.lastDiscordName
-                            it[LinkedPlayerTable.telegramId] = linkedPlayerModel.telegramLink?.telegramId
-                            it[LinkedPlayerTable.lastTelegramName] = linkedPlayerModel.telegramLink?.telegramUsername
+                        body = { statement ->
+                            statement[LinkedPlayerTable.lastMinecraftName] = linkedPlayerModel.lastMinecraftName
+                            statement[LinkedPlayerTable.discordId] = linkedPlayerModel.discordLink?.discordId
+                            statement[LinkedPlayerTable.lastDiscordName] =
+                                linkedPlayerModel.discordLink?.lastDiscordName
+                            statement[LinkedPlayerTable.telegramId] = linkedPlayerModel.telegramLink?.telegramId
+                            statement[LinkedPlayerTable.lastTelegramName] =
+                                linkedPlayerModel.telegramLink?.telegramUsername
                         }
                     )
             } else {
-                LinkedPlayerTable.insert {
-                    it[LinkedPlayerTable.id] = linkedPlayerModel.uuid.toString()
-                    it[LinkedPlayerTable.lastMinecraftName] = linkedPlayerModel.lastMinecraftName
-                    it[LinkedPlayerTable.discordId] = linkedPlayerModel.discordLink?.discordId
-                    it[LinkedPlayerTable.lastDiscordName] = linkedPlayerModel.discordLink?.lastDiscordName
-                    it[LinkedPlayerTable.telegramId] = linkedPlayerModel.telegramLink?.telegramId
-                    it[LinkedPlayerTable.lastTelegramName] = linkedPlayerModel.telegramLink?.telegramUsername
+                LinkedPlayerTable.insert { statement ->
+                    statement[LinkedPlayerTable.id] = linkedPlayerModel.uuid.toString()
+                    statement[LinkedPlayerTable.lastMinecraftName] = linkedPlayerModel.lastMinecraftName
+                    statement[LinkedPlayerTable.discordId] = linkedPlayerModel.discordLink?.discordId
+                    statement[LinkedPlayerTable.lastDiscordName] = linkedPlayerModel.discordLink?.lastDiscordName
+                    statement[LinkedPlayerTable.telegramId] = linkedPlayerModel.telegramLink?.telegramId
+                    statement[LinkedPlayerTable.lastTelegramName] = linkedPlayerModel.telegramLink?.telegramUsername
                 }
             }
         }

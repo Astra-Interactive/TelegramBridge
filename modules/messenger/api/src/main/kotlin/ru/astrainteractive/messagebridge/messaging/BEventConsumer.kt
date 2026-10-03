@@ -21,8 +21,8 @@ public fun <T> Flow<T>.withRetry(
     retries: Long = 5,
     delay: Duration = 500.milliseconds,
 ): Flow<T> {
-    return retry(retries = retries) {
-        println(it.stackTraceToString())
+    return retry(retries = retries) { t ->
+        println(t.stackTraceToString())
         delay(delay)
         true
     }
@@ -35,7 +35,7 @@ suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {
                 consume(bEvent)
                 emit(Unit)
             }.withRetry()
-                .catch { error(it) { "#tryConsume could not send $bEvent" } }
+                .catch { t -> error(t) { "#tryConsume could not send $bEvent" } }
                 .collect()
         }
     }

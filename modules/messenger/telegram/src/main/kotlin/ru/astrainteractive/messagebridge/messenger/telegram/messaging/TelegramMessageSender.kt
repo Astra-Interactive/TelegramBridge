@@ -30,13 +30,13 @@ internal class TelegramMessageSender(
     private suspend fun <T : Serializable> executeWithRetry(method: BotApiMethod<T>, errorMessage: () -> String) {
         flow { emit(clientOrNull()?.execute(method)) }
             .withRetry()
-            .catch { error(it) { errorMessage() } }
+            .catch { t -> error(t) { errorMessage() } }
             .collect()
     }
 
     private suspend fun clientOrNull(): OkHttpTelegramClient? {
         return runCatching { telegramClientFlow.firstOrNull() }
-            .onFailure { error(it) { "#clientOrNull could not resolve telegram client: ${it.message}" } }
+            .onFailure { t -> error(t) { "#clientOrNull could not resolve telegram client: ${t.message}" } }
             .getOrNull()
     }
 }

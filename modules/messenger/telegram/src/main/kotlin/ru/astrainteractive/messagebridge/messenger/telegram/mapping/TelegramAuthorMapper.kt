@@ -22,7 +22,7 @@ internal class TelegramAuthorMapper {
     }
 
     private fun author(userName: String?, firstName: String?, lastName: String?): TelegramAuthor {
-        userName?.let { return TelegramAuthor.Username(it.toFixedName()) }
+        userName?.let { name -> return TelegramAuthor.Username(name.toFixedName()) }
         val displayName = "${firstName ?: ANONYMOUS} ${lastName ?: ""}".toFixedName()
         return TelegramAuthor.DisplayName(displayName)
     }

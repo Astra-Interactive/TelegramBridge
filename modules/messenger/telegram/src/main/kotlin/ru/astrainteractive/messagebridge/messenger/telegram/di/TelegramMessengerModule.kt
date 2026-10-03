@@ -103,7 +103,9 @@ class TelegramMessengerModule(
         .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
 
     private val telegramClientFlow = combine(
-        flow = coreModule.configKrate.cachedStateFlow.map { it.tgConfig }.distinctUntilChanged(),
+        flow = coreModule.configKrate.cachedStateFlow
+            .map { pluginConfiguration -> pluginConfiguration.tgConfig }
+            .distinctUntilChanged(),
         flow2 = okHttpClientFlow,
         transform = { tgConfig, okHttpClient ->
             val client = OkHttpTelegramClient(

@@ -15,7 +15,7 @@ internal class WebHookClientFactory(
         val channel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")
         val webhook = channel.retrieveWebhooks()
             .await()
-            .firstOrNull { it.name == "BRIDGE_HOOK_$channelId" }
+            .firstOrNull { existingWebhook -> existingWebhook.name == "BRIDGE_HOOK_$channelId" }
             ?: channel
                 .createWebhook("BRIDGE_HOOK_$channelId")
                 .await()

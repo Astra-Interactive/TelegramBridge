@@ -53,11 +53,11 @@ class NeoForgeEvents(
     val playerLoggedOutEvent = flowEvent<PlayerEvent.PlayerLoggedOutEvent>()
         .onEach { info { "#playerLoggedOutEvent" } }
         .filter { config.displayLeaveMessage }
-        .onEach {
+        .onEach { event ->
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = PlayerLeaveBEvent(
-                    name = it.entity.name.string,
-                    uuid = it.entity.uuid.toString()
+                    name = event.entity.name.string,
+                    uuid = event.entity.uuid.toString()
                 )
                 bEventChannel.consume(serverEvent)
             }
@@ -66,15 +66,15 @@ class NeoForgeEvents(
     val playerLoggedInEvent = flowEvent<PlayerEvent.PlayerLoggedInEvent>()
         .onEach { info { "#playerLoggedInEvent" } }
         .filter { config.displayJoinMessage }
-        .onEach {
+        .onEach { event ->
             // doesnt work
-//        val nbt = it.entity.persistentData
+//        val nbt = event.entity.persistentData
 //        val playedBefore = (nbt.getLong("lastPlayed") - nbt.getLong("firstPlayed")) > 1
 
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = PlayerJoinedBEvent(
-                    name = it.entity.name.string,
-                    uuid = it.entity.uuid.toString(),
+                    name = event.entity.name.string,
+                    uuid = event.entity.uuid.toString(),
                     hasPlayedBefore = true
                 )
                 bEventChannel.consume(serverEvent)
@@ -85,13 +85,13 @@ class NeoForgeEvents(
         .onEach { info { "#livingDeathEvent" } }
         .filter { config.displayDeathMessage }
         .filter { event -> event.entity is Player }
-        .onEach {
+        .onEach { event ->
             ioScope.launch(dispatchers.IO) {
-                val deathCause = it.source.getLocalizedDeathMessage(it.entity).string
+                val deathCause = event.source.getLocalizedDeathMessage(event.entity).string
                 val serverEvent = PlayerDeathBEvent(
-                    name = it.entity.name.string,
+                    name = event.entity.name.string,
                     cause = deathCause,
-                    uuid = it.entity.uuid.toString()
+                    uuid = event.entity.uuid.toString()
                 )
                 bEventChannel.consume(serverEvent)
             }
@@ -99,12 +99,12 @@ class NeoForgeEvents(
 
     val serverChatEvent = flowEvent<ServerChatEvent>()
         .onEach { info { "#serverChatEvent" } }
-        .onEach {
+        .onEach { event ->
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = Text.Minecraft(
-                    author = it.player.name.string,
-                    text = it.message.string,
-                    uuid = it.player.uuid.toString()
+                    author = event.player.name.string,
+                    text = event.message.string,
+                    uuid = event.player.uuid.toString()
                 )
                 bEventChannel.consume(serverEvent)
             }

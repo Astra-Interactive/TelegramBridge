@@ -140,7 +140,8 @@ class JdaMessengerModule(
 
     private val webhookClient = combine(
         flow = jdaFlow,
-        flow2 = coreModule.configKrate.cachedStateFlow.map { it.jdaConfig.channelId },
+        flow2 = coreModule.configKrate.cachedStateFlow
+            .map { pluginConfiguration -> pluginConfiguration.jdaConfig.channelId },
         transform = { jda, channelId ->
             callbackFlow {
                 val webhookClient = runInterruptible { WebHookClientFactory(jda).create(channelId) }.first()

@@ -71,7 +71,7 @@ internal class DiscordBEventConsumer(
     init {
         bEventChannel
             .bEvents(this)
-            .onEach { info { "#init receive event $it" } }
+            .onEach { bEvent -> info { "#init receive event $bEvent" } }
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)
     }

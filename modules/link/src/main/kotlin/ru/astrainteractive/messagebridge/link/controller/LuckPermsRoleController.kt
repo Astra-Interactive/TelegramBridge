@@ -24,13 +24,13 @@ class LuckPermsRoleController(
             error { "LuckPerms not found!" }
             return
         }
-        luckPerms.userManager.modifyUser(uuid) {
+        luckPerms.userManager.modifyUser(uuid) { user ->
             val groupNode = luckPerms.nodeBuilderRegistry.forInheritance().group(link.linkLuckPermsRole).build()
-            if (it.nodes.contains(groupNode)) {
+            if (user.nodes.contains(groupNode)) {
                 return@modifyUser
             }
 
-            val result = it.data().add(groupNode)
+            val result = user.data().add(groupNode)
             info { "Игроку $uuid выдана роль ${link.linkLuckPermsRole}: $result" }
         }.whenComplete { _, failure ->
             if (failure != null) error(failure) { "Could not grant ${link.linkLuckPermsRole} to $uuid" }
@@ -43,13 +43,13 @@ class LuckPermsRoleController(
             error { "LuckPerms not found!" }
             return
         }
-        luckPerms.userManager.modifyUser(uuid) {
+        luckPerms.userManager.modifyUser(uuid) { user ->
             val groupNode = luckPerms.nodeBuilderRegistry.forInheritance().group(link.linkLuckPermsRole).build()
-            if (!it.nodes.contains(groupNode)) {
+            if (!user.nodes.contains(groupNode)) {
                 return@modifyUser
             }
 
-            val result = it.data().remove(groupNode)
+            val result = user.data().remove(groupNode)
             info { "Игроку $uuid выдана роль ${link.linkLuckPermsRole}: $result" }
         }.whenComplete { _, failure ->
             if (failure != null) error(failure) { "Could not revoke ${link.linkLuckPermsRole} from $uuid" }

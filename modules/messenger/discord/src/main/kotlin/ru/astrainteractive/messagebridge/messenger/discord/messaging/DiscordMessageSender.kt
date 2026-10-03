@@ -15,7 +15,7 @@ internal class DiscordMessageSender :
     suspend fun reply(message: Message, text: String) {
         flow { emit(message.reply(text).await()) }
             .withRetry()
-            .catch { error(it) { "#reply could not reply to message ${message.id}" } }
+            .catch { t -> error(t) { "#reply could not reply to message ${message.id}" } }
             .collect()
     }
 }
