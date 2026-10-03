@@ -19,9 +19,9 @@ import ru.astrainteractive.messagebridge.link.discord.event.DiscordLinkIntercept
 import ru.astrainteractive.messagebridge.link.discord.event.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordLinkRole
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordMemberSweep
-import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
-import ru.astrainteractive.messagebridge.messenger.discord.api.di.DiscordBotModule
-import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordConnection
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.discord.di.DiscordBotModule
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
 
 class DiscordLinkModule(
     coreModule: CoreModule,

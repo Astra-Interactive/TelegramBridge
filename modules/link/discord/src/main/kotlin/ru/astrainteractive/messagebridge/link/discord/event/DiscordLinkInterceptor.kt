@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.link.discord.command.DiscordLinkHandler
-import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageInterceptor
 
 internal class DiscordLinkInterceptor(
     private val scope: CoroutineScope,

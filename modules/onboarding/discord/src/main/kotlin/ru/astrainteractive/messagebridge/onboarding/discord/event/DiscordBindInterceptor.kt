@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.onboarding.discord.event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageInterceptor
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindCommandParser
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindHandler
 

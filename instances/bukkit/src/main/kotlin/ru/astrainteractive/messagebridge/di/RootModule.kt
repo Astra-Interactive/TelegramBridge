@@ -17,7 +17,7 @@ import ru.astrainteractive.messagebridge.link.telegram.di.TelegramLinkModule
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.BukkitMessengerModule
-import ru.astrainteractive.messagebridge.messenger.discord.impl.di.JdaMessengerModule
+import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.impl.di.TelegramMessengerModule
 import ru.astrainteractive.messagebridge.onboarding.api.di.OnboardingTranslationModule
 import ru.astrainteractive.messagebridge.onboarding.discord.di.DiscordOnboardingModule

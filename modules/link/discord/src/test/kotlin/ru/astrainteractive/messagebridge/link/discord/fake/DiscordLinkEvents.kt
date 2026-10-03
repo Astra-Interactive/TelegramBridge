@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 
 internal const val BRIDGE_CHANNEL_ID = 10L
 internal const val MEMBER_ID = 42L

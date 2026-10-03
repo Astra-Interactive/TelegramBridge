@@ -15,9 +15,9 @@ import ru.astrainteractive.messagebridge.link.api.mapping.asMessage
 import ru.astrainteractive.messagebridge.link.api.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.api.player.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordLinkRole
-import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageSender
-import ru.astrainteractive.messagebridge.messenger.discord.api.util.awaitRequest
-import ru.astrainteractive.messagebridge.messenger.discord.api.util.findTextChannel
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.util.awaitRequest
+import ru.astrainteractive.messagebridge.messenger.discord.util.findTextChannel
 
 internal class DiscordLinkHandler(
     private val linkApi: LinkApi,

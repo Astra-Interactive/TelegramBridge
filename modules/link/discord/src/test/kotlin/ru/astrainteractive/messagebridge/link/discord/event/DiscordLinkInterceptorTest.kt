@@ -17,7 +17,7 @@ import ru.astrainteractive.messagebridge.link.discord.command.DiscordLinkHandler
 import ru.astrainteractive.messagebridge.link.discord.fake.BRIDGE_CHANNEL_ID
 import ru.astrainteractive.messagebridge.link.discord.fake.messageEventOf
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordLinkRole
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.RecordingDiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.fake.RecordingDiscordMessageSender
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

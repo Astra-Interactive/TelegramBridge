@@ -11,7 +11,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageSender
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 

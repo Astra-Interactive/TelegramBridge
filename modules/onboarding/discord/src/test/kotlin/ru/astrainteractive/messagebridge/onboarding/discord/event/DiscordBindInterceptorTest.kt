@@ -17,8 +17,8 @@ import ru.astrainteractive.messagebridge.core.api.fake.FakeClock
 import ru.astrainteractive.messagebridge.core.api.fake.FakeConfigKrate
 import ru.astrainteractive.messagebridge.core.api.fake.FakeTranslationKrate
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.RecordingDiscordMessageSender
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.fake.RecordingDiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.onboarding.api.config.OnboardingTranslation
 import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 import ru.astrainteractive.messagebridge.onboarding.discord.command.DiscordBindCommandParser

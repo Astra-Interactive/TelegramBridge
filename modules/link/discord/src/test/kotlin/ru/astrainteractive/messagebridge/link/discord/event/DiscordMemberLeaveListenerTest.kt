@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.link.api.fake.RecordingDiscordMembership
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

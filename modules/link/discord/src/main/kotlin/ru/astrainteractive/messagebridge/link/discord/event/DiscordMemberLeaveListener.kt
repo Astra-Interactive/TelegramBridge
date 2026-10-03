@@ -9,7 +9,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.link.api.api.DiscordMembership
-import ru.astrainteractive.messagebridge.messenger.discord.api.util.findTextChannel
+import ru.astrainteractive.messagebridge.messenger.discord.util.findTextChannel
 
 internal class DiscordMemberLeaveListener(
     private val configFlow: StateFlow<PluginConfiguration>,

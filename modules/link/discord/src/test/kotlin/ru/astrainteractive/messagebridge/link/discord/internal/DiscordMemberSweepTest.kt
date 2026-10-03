@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.concurrent.Task
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.link.api.fake.RecordingDiscordMembership
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.EnumSet
 import java.util.function.Consumer
 import kotlin.test.Test

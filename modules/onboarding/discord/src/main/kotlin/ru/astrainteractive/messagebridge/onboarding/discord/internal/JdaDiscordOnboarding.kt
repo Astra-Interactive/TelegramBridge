@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.stateIn
 import net.dv8tion.jda.api.Permission
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.messenger.discord.api.api.DiscordFailureTextMapper
-import ru.astrainteractive.messagebridge.messenger.discord.api.model.DiscordConnection
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordFailureTextMapper
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
 import ru.astrainteractive.messagebridge.onboarding.api.api.DiscordOnboarding
 import ru.astrainteractive.messagebridge.onboarding.api.impl.BindCodes
 import ru.astrainteractive.messagebridge.onboarding.api.model.BindCode

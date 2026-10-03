@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.minecraft.astralibs.core)
 
     implementation(projects.modules.core.api)
-    implementation(projects.modules.messenger.discord.api)
+    implementation(projects.modules.messenger.discord)
     implementation(projects.modules.onboarding.api)
 
     testImplementation(libs.kotlin.coroutines.test)
@@ -25,6 +25,6 @@ dependencies {
     testImplementation(libs.tests.kotlin.test)
 
     testImplementation(testFixtures(projects.modules.core.api))
-    testImplementation(testFixtures(projects.modules.messenger.discord.api))
+    testImplementation(testFixtures(projects.modules.messenger.discord))
     testImplementation(testFixtures(projects.modules.onboarding.api))
 }

@@ -26,9 +26,9 @@ import ru.astrainteractive.messagebridge.link.discord.fake.MEMBER_NAME
 import ru.astrainteractive.messagebridge.link.discord.fake.memberOf
 import ru.astrainteractive.messagebridge.link.discord.fake.messageEventOf
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordLinkRole
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.RecordingDiscordMessageSender
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaFake
-import ru.astrainteractive.messagebridge.messenger.discord.api.fake.jdaRequest
+import ru.astrainteractive.messagebridge.messenger.discord.fake.RecordingDiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaRequest
 import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.Test

@@ -15,7 +15,7 @@ dependencies {
 
     implementation(projects.modules.core.api)
     implementation(projects.modules.link.api)
-    implementation(projects.modules.messenger.discord.api)
+    implementation(projects.modules.messenger.discord)
 
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.minecraft.kyori.api)
@@ -26,5 +26,5 @@ dependencies {
 
     testImplementation(testFixtures(projects.modules.core.api))
     testImplementation(testFixtures(projects.modules.link.api))
-    testImplementation(testFixtures(projects.modules.messenger.discord.api))
+    testImplementation(testFixtures(projects.modules.messenger.discord))
 }
