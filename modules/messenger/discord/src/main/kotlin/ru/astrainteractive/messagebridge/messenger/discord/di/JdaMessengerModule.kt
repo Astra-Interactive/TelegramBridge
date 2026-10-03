@@ -3,14 +3,10 @@ package ru.astrainteractive.messagebridge.messenger.discord.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -23,7 +19,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageInt
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.channel.internal.DiscordChannelProvider
 import ru.astrainteractive.messagebridge.messenger.discord.channel.internal.DiscordMessageSenderImpl
-import ru.astrainteractive.messagebridge.messenger.discord.channel.network.DiscordWebhookClients
 import ru.astrainteractive.messagebridge.messenger.discord.channel.network.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.command.internal.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.command.internal.DiscordCommandMapper
@@ -79,25 +74,17 @@ class JdaMessengerModule(
         translationKrate = coreModule.translationKrate,
     )
 
-    private val webhookClients = DiscordWebhookClients(
-        factory = WebHookClientFactory(),
-        deliveryError = delivery,
-    ).clients(
-        jdaFlow = session.jda,
-        channelIdFlow = coreModule.config
-            .map { config -> config.jdaConfig }
-            .map { jdaConfig -> jdaConfig.channelId }
-            .distinctUntilChanged(),
-    ).shareIn(moduleIoScope, SharingStarted.Eagerly, 1)
-
     private val channelProvider = DiscordChannelProvider(
+        webhookClientFactory = WebHookClientFactory(),
+        failureMapper = failureMapper,
+        deliveryError = delivery,
         connection = session.connection,
-        webhookClients = webhookClients,
         configFlow = coreModule.config,
+        scope = moduleIoScope,
     )
 
     private val consumer = DiscordBEventConsumer(
-        channelProvider = channelProvider,
+        channel = channelProvider.channel,
         topicUpdater = DiscordTopicUpdater(
             platformServer = coreModule.platformServer,
             clock = Clock.System,
