@@ -10,25 +10,13 @@ import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
-import java.lang.reflect.Proxy
+import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertSame
-
-private fun interface JdaAnswer {
-    fun answer(args: List<Any?>): Any?
-}
-
-private inline fun <reified T : Any> jdaFake(answerByMethod: Map<String, Any?>): T {
-    val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, args ->
-        check(method.name in answerByMethod) { "${T::class.simpleName}.${method.name} is not faked" }
-        val answer = answerByMethod[method.name]
-        if (answer is JdaAnswer) answer.answer(args.orEmpty().toList()) else answer
-    }
-    return fake as T
-}
 
 class DiscordMemberResolverTest {
     private val steveText = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hi")

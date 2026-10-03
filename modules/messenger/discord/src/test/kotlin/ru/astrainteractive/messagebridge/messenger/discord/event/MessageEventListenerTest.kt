@@ -29,29 +29,17 @@ import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
-import java.lang.reflect.Proxy
 import java.util.UUID
 import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-
-private fun interface JdaAnswer {
-    fun answer(args: List<Any?>): Any?
-}
-
-private inline fun <reified T : Any> jdaFake(answerByMethod: Map<String, Any?>): T {
-    val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, args ->
-        check(method.name in answerByMethod) { "${T::class.simpleName}.${method.name} is not faked" }
-        val answer = answerByMethod[method.name]
-        if (answer is JdaAnswer) answer.answer(args.orEmpty().toList()) else answer
-    }
-    return fake as T
-}
 
 private class RecordingBEventConsumer :
     BEventConsumer,

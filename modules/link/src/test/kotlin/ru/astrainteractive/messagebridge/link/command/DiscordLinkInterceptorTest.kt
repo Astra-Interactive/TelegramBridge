@@ -23,7 +23,7 @@ import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.messaging.model.Interception
-import java.lang.reflect.Proxy
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,14 +50,6 @@ class DiscordLinkInterceptorTest {
     )
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val stevie: Member = jdaFake(mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "Stevie"))
-
-    private inline fun <reified T : Any> jdaFake(answerByGetter: Map<String, Any?>): T {
-        val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
-            check(method.name in answerByGetter) { "${T::class.simpleName}.${method.name} is not faked" }
-            answerByGetter[method.name]
-        }
-        return fake as T
-    }
 
     private fun event(content: String, member: Member?, channelType: ChannelType): MessageReceivedEvent {
         val message: Message = jdaFake(

@@ -20,7 +20,7 @@ import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
-import java.lang.reflect.Proxy
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,14 +45,6 @@ class DiscordMemberLeaveListenerTest {
             luckPermsProvider = luckPermsProvider
         )
     )
-
-    private inline fun <reified T : Any> jdaFake(answerByGetter: Map<String, Any?>): T {
-        val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
-            check(method.name in answerByGetter) { "${T::class.simpleName}.${method.name} is not faked" }
-            answerByGetter[method.name]
-        }
-        return fake as T
-    }
 
     private fun memberLeft(discordId: Long): GuildMemberRemoveEvent {
         return GuildMemberRemoveEvent(

@@ -7,21 +7,13 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import java.lang.reflect.Proxy
+import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class DiscordReplyMapperTest {
     private val mapper = DiscordReplyMapper()
-
-    private inline fun <reified T : Any> jdaFake(answerByGetter: Map<String, Any?>): T {
-        val fake = Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
-            check(method.name in answerByGetter) { "${T::class.simpleName}.${method.name} is not faked" }
-            answerByGetter[method.name]
-        }
-        return fake as T
-    }
 
     private fun user(name: String, id: Long): User = jdaFake(mapOf("getName" to name, "getIdLong" to id))
 

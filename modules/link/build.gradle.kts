@@ -36,4 +36,5 @@ dependencies {
     testImplementation(libs.minecraft.kyori.plain)
     testImplementation(libs.minecraft.luckperms)
     testImplementation(libs.tests.kotlin.test)
+    testImplementation(testFixtures(projects.modules.messenger.discord))
 }
