@@ -12,7 +12,7 @@ class ForgeMessengerModule(
     bEventChannel: BEventChannel,
 ) {
 
-    val eventForgeMessengerModule = ForgeEvents(
+    val forgeEvents = ForgeEvents(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
