@@ -33,7 +33,7 @@ class ForgeEvents(
     private val config by configKrate
 
     val playerLoggedOutEvent = flowEvent<PlayerEvent.PlayerLoggedOutEvent>()
-        .onEach { info { "#playerLoggedOutEvent" } }
+        .onEach { verbose { "#playerLoggedOutEvent" } }
         .filter { config.displayLeaveMessage }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
@@ -46,7 +46,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val playerLoggedInEvent = flowEvent<PlayerEvent.PlayerLoggedInEvent>()
-        .onEach { info { "#playerLoggedInEvent" } }
+        .onEach { verbose { "#playerLoggedInEvent" } }
         .filter { config.displayJoinMessage }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
@@ -60,7 +60,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val livingDeathEvent = flowEvent<LivingDeathEvent>()
-        .onEach { info { "#livingDeathEvent" } }
+        .onEach { verbose { "#livingDeathEvent" } }
         .filter { config.displayDeathMessage }
         .filter { event -> event.entity is Player }
         .onEach { event ->
@@ -76,7 +76,7 @@ class ForgeEvents(
         }.launchIn(ioScope)
 
     val serverChatEvent = flowEvent<ServerChatEvent>(EventPriority.HIGHEST)
-        .onEach { info { "#serverChatEvent" } }
+        .onEach { verbose { "#serverChatEvent" } }
         .onEach { event ->
             ioScope.launch(dispatchers.IO) {
                 val serverEvent = Text.Minecraft(

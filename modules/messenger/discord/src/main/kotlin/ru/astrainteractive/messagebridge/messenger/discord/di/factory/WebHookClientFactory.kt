@@ -19,7 +19,7 @@ internal class WebHookClientFactory(
             ?: channel
                 .createWebhook("BRIDGE_HOOK_$channelId")
                 .await()
-        info { "#create channel: $channelId, url: ${webhook.url}" }
+        verbose { "#create channel: $channelId, url: ${webhook.url}" }
         val client = WebhookClientBuilder(webhook.url)
             .setHttpClient(jda.httpClient)
             .setThreadFactory { job: Runnable? ->
@@ -28,7 +28,7 @@ internal class WebHookClientFactory(
                 thread.isDaemon = true
                 thread
             }.setWait(true).build()
-        info { "#create WebhookClientBuilder: created" }
+        verbose { "#create WebhookClientBuilder: created" }
         emit(client)
     }
 }

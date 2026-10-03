@@ -40,7 +40,7 @@ internal class DiscordCommandHandler(
     }
 
     private suspend fun sendVanilla(event: MessageReceivedEvent) {
-        info { "#sendVanilla !vanilla executed" }
+        verbose { "#sendVanilla !vanilla executed" }
         val players = platformServer
             .getOnlinePlayers()
             .map(OnlineKPlayer::name)
