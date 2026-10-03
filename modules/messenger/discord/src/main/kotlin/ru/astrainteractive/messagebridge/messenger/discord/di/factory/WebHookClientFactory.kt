@@ -9,7 +9,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.aw
 
 internal class WebHookClientFactory(
     private val jda: JDA
-) : Logger by JUtiltLogger("WebHookClientFactory").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-WebHookClientFactory").withoutParentHandlers() {
     fun create(channelId: String) = flow {
         jda.awaitReady()
         val channel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")

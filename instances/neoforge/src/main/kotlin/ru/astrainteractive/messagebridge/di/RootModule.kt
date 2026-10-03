@@ -26,7 +26,7 @@ import java.io.File
 
 class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
-) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-RootModule").withoutParentHandlers() {
     val coreModule = CoreModule(
         dataFolder = FMLPaths.CONFIGDIR.get()
             .resolve("MessageBridge")

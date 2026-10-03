@@ -27,7 +27,7 @@ internal class MessageEventListener(
 ) : ListenerAdapter(),
     DiscordEventListener,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageEventListener") {
+    Logger by JUtiltLogger("MessageBridge-MessageEventListener") {
 
     override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
         super.onGuildMemberRemove(event)

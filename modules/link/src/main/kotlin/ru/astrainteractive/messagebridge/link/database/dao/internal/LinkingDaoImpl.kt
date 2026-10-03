@@ -19,7 +19,7 @@ import java.util.UUID
 
 class LinkingDaoImpl(
     private val databaseFlow: Flow<Database>
-) : LinkingDao, Logger by JUtiltLogger("LinkingDao").withoutParentHandlers() {
+) : LinkingDao, Logger by JUtiltLogger("MessageBridge-LinkingDaoImpl").withoutParentHandlers() {
     private suspend fun requireDatabase() = databaseFlow.first()
 
     private fun toLinkedPlayerModel(row: ResultRow): LinkedPlayerModel {

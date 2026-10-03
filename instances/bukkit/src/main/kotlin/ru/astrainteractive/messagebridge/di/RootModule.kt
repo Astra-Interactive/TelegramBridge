@@ -25,7 +25,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessenger
 
 class RootModule(
     plugin: MessageBridge
-) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-RootModule").withoutParentHandlers() {
 
     val bukkitCoreModule = BukkitCoreModule(plugin)
 

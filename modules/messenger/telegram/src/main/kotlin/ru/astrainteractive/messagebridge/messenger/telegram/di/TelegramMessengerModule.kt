@@ -52,7 +52,7 @@ class TelegramMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     bEventChannel: BEventChannel,
-) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
+) : Logger by JUtiltLogger("MessageBridge-TelegramMessengerModule") {
 
     private val ipv4FirstDns = object : Dns {
         override fun lookup(hostname: String): List<InetAddress> {
