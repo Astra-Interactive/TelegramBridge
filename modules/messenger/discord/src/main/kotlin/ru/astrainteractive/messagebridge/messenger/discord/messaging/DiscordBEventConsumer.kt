@@ -52,7 +52,7 @@ internal class DiscordBEventConsumer(
             }
 
             is Text -> sendText(bEvent, channel)
-            ServerClosedBEvent -> sendServerStatus(channel, SERVER_CLOSED_MESSAGE)
+            ServerClosedBEvent -> channel.sendMessage(SERVER_CLOSED_MESSAGE).await()
             ServerOpenBEvent -> sendServerStatus(channel, SERVER_OPEN_MESSAGE)
         }
     }
