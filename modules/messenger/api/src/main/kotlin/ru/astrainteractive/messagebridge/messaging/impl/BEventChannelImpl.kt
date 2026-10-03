@@ -1,10 +1,12 @@
 package ru.astrainteractive.messagebridge.messaging.impl
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transform
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -23,6 +25,7 @@ class BEventChannelImpl :
             emit(event)
             kotlinx.coroutines.delay(DELAY_MILLIS)
         }
+        .buffer(RECEIVER_BUFFER_CAPACITY, BufferOverflow.DROP_OLDEST)
         .shareIn(scope, SharingStarted.Lazily)
 
     override suspend fun consume(bEvent: BEvent) {
@@ -35,5 +38,7 @@ class BEventChannelImpl :
          * encounter timeout for discord/tg api, so we need to wait a little
          */
         const val DELAY_MILLIS = 500L
+
+        const val RECEIVER_BUFFER_CAPACITY = 64
     }
 }

@@ -3,7 +3,9 @@
 
 package ru.astrainteractive.messagebridge.messaging.impl
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -35,6 +37,10 @@ class BEventChannelImplTest {
         }
         runCurrent()
         return received
+    }
+
+    private fun chatMessages(): List<BEvent> {
+        return List(EVENT_COUNT) { index -> chatMessage.copy(text = "message $index") }
     }
 
     @Test
@@ -104,7 +110,51 @@ class BEventChannelImplTest {
         assertTrue(received.isEmpty())
     }
 
+    @Test
+    fun GIVEN_receiver_stuck_on_an_event_WHEN_more_events_than_it_buffers_are_consumed_THEN_others_still_get_them() =
+        runTest {
+            val channel = BEventChannelImpl()
+            backgroundScope.launch {
+                channel.bEvents(backgroundScope).collect { _ -> awaitCancellation() }
+            }
+            val received = receive(channel)
+            val events = chatMessages()
+
+            val producer = launch { events.forEach { event -> channel.consume(event) } }
+            advanceTimeBy(DELIVERY_WINDOW)
+            runCurrent()
+
+            assertTrue(producer.isCompleted)
+            assertEquals(events, received)
+        }
+
+    @Test
+    fun GIVEN_receiver_stuck_on_an_event_WHEN_it_resumes_THEN_it_gets_only_the_newest_buffered_events() = runTest {
+        val channel = BEventChannelImpl()
+        val gate = CompletableDeferred<Unit>()
+        val received = mutableListOf<BEvent>()
+        backgroundScope.launch {
+            channel.bEvents(backgroundScope).collect { bEvent ->
+                gate.await()
+                received += bEvent
+            }
+        }
+        runCurrent()
+        val events = chatMessages()
+
+        launch { events.forEach { event -> channel.consume(event) } }
+        advanceTimeBy(DELIVERY_WINDOW)
+        runCurrent()
+        gate.complete(Unit)
+        runCurrent()
+
+        assertEquals(listOf(events.first()) + events.takeLast(RECEIVER_BUFFER_CAPACITY), received)
+    }
+
     private companion object {
         val RECEIVE_WINDOW = 1000.milliseconds
+        const val EVENT_COUNT = 100
+        const val RECEIVER_BUFFER_CAPACITY = 64
+        val DELIVERY_WINDOW = 500.milliseconds * EVENT_COUNT
     }
 }
