@@ -125,7 +125,7 @@ class TelegramMessengerModule(
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow,
         relayedMessageCache = relayedMessageCache,
-        bEventChannel = bEventChannel,
+        bEventReceiver = bEventChannel,
     )
 
     private val authorMapper = TelegramAuthorMapper()
@@ -168,7 +168,7 @@ class TelegramMessengerModule(
         commandParser = commandParser,
         commandHandler = commandHandler,
         messageSender = messageSender,
-        bEventChannel = bEventChannel,
+        bEventConsumer = bEventChannel,
     )
 
     private val bridgeBotFlow = coreModule.configKrate

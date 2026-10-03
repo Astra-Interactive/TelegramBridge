@@ -16,11 +16,11 @@ class ForgeMessengerModule(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
-        bEventChannel = bEventChannel
+        bEventConsumer = bEventChannel
     )
     private val minecraftMessageController = ForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
-        bEventChannel = bEventChannel,
+        bEventReceiver = bEventChannel,
     )
 
     val lifecycle = Lifecycle.Lambda(

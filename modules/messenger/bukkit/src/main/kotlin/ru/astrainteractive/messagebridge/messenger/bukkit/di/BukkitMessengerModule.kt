@@ -20,14 +20,14 @@ class BukkitMessengerModule(
         translationKrate = coreModule.translationKrate,
         linkingDao = linkingDao,
         dispatchers = coreModule.dispatchers,
-        bEventChannel = bEventChannel
+        bEventReceiver = bEventChannel
     )
 
     private val bukkitEvent = BukkitEvent(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
-        bEventChannel = bEventChannel,
+        bEventConsumer = bEventChannel,
     )
 
     val lifecycle = Lifecycle.Lambda(

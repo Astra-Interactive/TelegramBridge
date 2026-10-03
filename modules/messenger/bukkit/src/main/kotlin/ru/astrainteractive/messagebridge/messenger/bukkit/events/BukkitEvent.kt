@@ -29,7 +29,7 @@ internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val bEventChannel: BEventConsumer
+    private val bEventConsumer: BEventConsumer
 ) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent").withoutParentHandlers() {
     private val config by configKrate
 
@@ -43,7 +43,7 @@ internal class BukkitEvent(
                 uuid = event.player.uniqueId.toString(),
                 hasPlayedBefore = event.player.hasPlayedBefore()
             )
-            bEventChannel.consume(bEvent)
+            bEventConsumer.consume(bEvent)
         }
     }
 
@@ -55,7 +55,7 @@ internal class BukkitEvent(
                 name = event.player.name,
                 uuid = event.player.uniqueId.toString()
             )
-            bEventChannel.consume(bEvent)
+            bEventConsumer.consume(bEvent)
         }
     }
 
@@ -71,7 +71,7 @@ internal class BukkitEvent(
                 text = textComponent.content(),
                 uuid = player.uniqueId.toString()
             )
-            bEventChannel.consume(bEvent)
+            bEventConsumer.consume(bEvent)
         }
     }
 
@@ -85,7 +85,7 @@ internal class BukkitEvent(
                 cause = deathCause,
                 uuid = event.entity.uniqueId.toString()
             )
-            bEventChannel.consume(bEvent)
+            bEventConsumer.consume(bEvent)
         }
     }
 }

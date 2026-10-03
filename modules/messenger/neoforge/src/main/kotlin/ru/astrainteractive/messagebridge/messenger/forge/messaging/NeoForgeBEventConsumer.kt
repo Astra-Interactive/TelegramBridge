@@ -25,7 +25,7 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class NeoForgeBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
-    private val bEventChannel: BEventReceiver,
+    private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer").withoutParentHandlers() {
@@ -66,7 +66,7 @@ internal class NeoForgeBEventConsumer(
     }
 
     init {
-        bEventChannel
+        bEventReceiver
             .bEvents(this)
             .onEach { bEvent -> consume(bEvent) }
             .launchIn(this)

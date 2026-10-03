@@ -16,11 +16,11 @@ class NeoForgeMessengerModule(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
-        bEventChannel = bEventChannel
+        bEventConsumer = bEventChannel
     )
     private val minecraftMessageController = NeoForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
-        bEventChannel = bEventChannel,
+        bEventReceiver = bEventChannel,
     )
 
     val lifecycle = Lifecycle.Lambda(

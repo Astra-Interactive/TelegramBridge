@@ -35,7 +35,7 @@ internal class TelegramBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val relayedMessageCache: TelegramRelayedMessageCache,
-    private val bEventChannel: BEventReceiver,
+    private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer").withoutParentHandlers() {
@@ -115,7 +115,7 @@ internal class TelegramBEventConsumer(
     }
 
     init {
-        bEventChannel
+        bEventReceiver
             .bEvents(this)
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)

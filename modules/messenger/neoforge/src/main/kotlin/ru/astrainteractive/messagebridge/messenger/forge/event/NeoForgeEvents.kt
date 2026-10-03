@@ -30,7 +30,7 @@ class NeoForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val bEventChannel: BEventConsumer
+    private val bEventConsumer: BEventConsumer
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
     private val config by configKrate
 
@@ -38,7 +38,7 @@ class NeoForgeEvents(
         .onEach { info { "#serverStartedEvent" } }
         .onEach {
             ioScope.launch {
-                bEventChannel.consume(ServerOpenBEvent)
+                bEventConsumer.consume(ServerOpenBEvent)
             }
         }.launchIn(ioScope)
 
@@ -46,7 +46,7 @@ class NeoForgeEvents(
         .onEach { info { "#serverStoppingEvent" } }
         .onEach {
             ioScope.launch {
-                bEventChannel.consume(ServerClosedBEvent)
+                bEventConsumer.consume(ServerClosedBEvent)
             }
         }.launchIn(ioScope)
 
@@ -59,7 +59,7 @@ class NeoForgeEvents(
                     name = event.entity.name.string,
                     uuid = event.entity.uuid.toString()
                 )
-                bEventChannel.consume(serverEvent)
+                bEventConsumer.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -77,7 +77,7 @@ class NeoForgeEvents(
                     uuid = event.entity.uuid.toString(),
                     hasPlayedBefore = true
                 )
-                bEventChannel.consume(serverEvent)
+                bEventConsumer.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -93,7 +93,7 @@ class NeoForgeEvents(
                     cause = deathCause,
                     uuid = event.entity.uuid.toString()
                 )
-                bEventChannel.consume(serverEvent)
+                bEventConsumer.consume(serverEvent)
             }
         }.launchIn(ioScope)
 
@@ -106,7 +106,7 @@ class NeoForgeEvents(
                     text = event.message.string,
                     uuid = event.player.uuid.toString()
                 )
-                bEventChannel.consume(serverEvent)
+                bEventConsumer.consume(serverEvent)
             }
         }.launchIn(ioScope)
 }

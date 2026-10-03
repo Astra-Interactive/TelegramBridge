@@ -165,7 +165,7 @@ class JdaMessengerModule(
         embedMapper = DiscordEmbedMapper(),
         memberResolver = DiscordMemberResolver(linkModule.linkingDao),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
-        bEventChannel = bEventChannel,
+        bEventReceiver = bEventChannel,
     )
 
     private val relevanceMapper = DiscordMessageRelevanceMapper(
@@ -189,7 +189,7 @@ class JdaMessengerModule(
         commandHandler = commandHandler,
         replyMapper = DiscordReplyMapper(),
         linkApi = linkModule.linkApi,
-        bEventChannel = bEventChannel,
+        bEventConsumer = bEventChannel,
     )
 
     val lifecycle = Lifecycle.Lambda(
