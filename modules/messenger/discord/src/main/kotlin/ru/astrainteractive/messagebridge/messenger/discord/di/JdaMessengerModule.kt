@@ -33,10 +33,10 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
@@ -57,9 +57,9 @@ import kotlin.time.Duration.Companion.seconds
 
 class JdaMessengerModule(
     coreModule: CoreModule,
-    linkModule: LinkModule,
     bEventChannel: BEventChannel,
     messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
+    authorResolver: DiscordAuthorResolver,
     eventListeners: List<EventListener>
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
@@ -169,7 +169,7 @@ class JdaMessengerModule(
         channelProvider = channelProvider,
         topicUpdater = DiscordTopicUpdater(coreModule.platformServer),
         embedMapper = DiscordEmbedMapper(),
-        memberResolver = DiscordMemberResolver(linkModule.linkingDao),
+        memberResolver = DiscordMemberResolver(authorResolver),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
         bEventReceiver = bEventChannel,
     )

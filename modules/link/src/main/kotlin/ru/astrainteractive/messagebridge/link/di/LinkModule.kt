@@ -23,7 +23,9 @@ import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.dao.internal.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.database.di.LinkDatabaseModule
 import ru.astrainteractive.messagebridge.link.event.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 
 interface LinkModule {
     val lifecycle: Lifecycle
@@ -36,6 +38,7 @@ interface LinkModule {
     val telegramLinkInterceptor: MessageInterceptor<Update>
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent>
     val discordMemberLeaveListener: EventListener
+    val discordAuthorResolver: DiscordAuthorResolver
 
     class Default(
         coreModule: CoreModule,
@@ -76,6 +79,8 @@ interface LinkModule {
             linkApi = linkApi,
             ioScope = coreModule.ioScope
         )
+
+        override val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkingDao)
 
         private val commandNodes by lazy {
             listOf(

@@ -25,6 +25,7 @@ dependencies {
 
     implementation(projects.modules.core.api)
     implementation(projects.modules.messenger.api)
+    implementation(projects.modules.messenger.discord)
 
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.minecraft.brigadier)
