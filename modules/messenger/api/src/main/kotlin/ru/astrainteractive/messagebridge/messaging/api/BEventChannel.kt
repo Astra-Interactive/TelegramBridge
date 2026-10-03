@@ -27,7 +27,7 @@ suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {
             flow {
                 consume(bEvent)
                 emit(Unit)
-            }.withRetry()
+            }.withRetry(logger = this@tryConsume)
                 .catch { t -> error(t) { "#tryConsume could not send $bEvent" } }
                 .collect()
         }

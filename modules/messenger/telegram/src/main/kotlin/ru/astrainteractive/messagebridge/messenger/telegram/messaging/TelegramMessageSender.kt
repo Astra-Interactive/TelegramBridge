@@ -29,7 +29,7 @@ internal class TelegramMessageSender(
 
     private suspend fun <T : Serializable> executeWithRetry(method: BotApiMethod<T>, errorMessage: () -> String) {
         flow { emit(clientOrNull()?.execute(method)) }
-            .withRetry()
+            .withRetry(logger = this)
             .catch { t -> error(t) { errorMessage() } }
             .collect()
     }
