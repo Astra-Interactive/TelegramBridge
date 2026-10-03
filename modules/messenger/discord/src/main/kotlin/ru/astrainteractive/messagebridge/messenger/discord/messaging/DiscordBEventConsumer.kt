@@ -7,8 +7,9 @@ import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messaging.api.tryConsume
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -17,7 +18,6 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
@@ -28,7 +28,7 @@ internal class DiscordBEventConsumer(
     private val embedMapper: DiscordEmbedMapper,
     private val memberResolver: DiscordMemberResolver,
     private val webhookMessageMapper: DiscordWebhookMessageMapper,
-    private val bEventChannel: BEventChannel,
+    private val bEventChannel: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer").withoutParentHandlers() {

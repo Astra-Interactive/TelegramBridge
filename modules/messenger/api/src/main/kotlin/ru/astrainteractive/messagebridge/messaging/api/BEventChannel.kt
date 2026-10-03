@@ -1,32 +1,25 @@
-package ru.astrainteractive.messagebridge.messaging
+package ru.astrainteractive.messagebridge.messaging.api
 
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import ru.astrainteractive.messagebridge.messaging.util.withRetry
 
 interface BEventConsumer : Logger {
     suspend fun consume(bEvent: BEvent)
 }
 
-public fun <T> Flow<T>.withRetry(
-    retries: Long = 5,
-    delay: Duration = 500.milliseconds,
-): Flow<T> {
-    return retry(retries = retries) { t ->
-        println(t.stackTraceToString())
-        delay(delay)
-        true
-    }
+interface BEventReceiver {
+    fun bEvents(scope: CoroutineScope): Flow<BEvent>
 }
+
+interface BEventChannel : BEventConsumer, BEventReceiver
 
 suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {
     supervisorScope {

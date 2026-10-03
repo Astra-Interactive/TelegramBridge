@@ -18,7 +18,7 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
@@ -30,7 +30,7 @@ class NeoForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val dispatchers: KotlinDispatchers,
-    private val bEventChannel: BEventChannel
+    private val bEventChannel: BEventConsumer
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
     private val config by configKrate
 

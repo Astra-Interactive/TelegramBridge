@@ -11,7 +11,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
@@ -31,7 +31,7 @@ internal class TelegramChatConsumer(
     private val commandParser: TelegramCommandMapper,
     private val commandHandler: TelegramCommandHandler,
     private val messageSender: TelegramMessageSender,
-    private val bEventChannel: BEventChannel,
+    private val bEventChannel: BEventConsumer,
 ) : LongPollingSingleThreadUpdateConsumer,
     Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
     private val translation by translationKrate

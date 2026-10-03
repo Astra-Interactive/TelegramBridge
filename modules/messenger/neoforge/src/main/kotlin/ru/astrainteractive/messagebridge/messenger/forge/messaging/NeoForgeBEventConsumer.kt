@@ -12,8 +12,8 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -25,7 +25,7 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class NeoForgeBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
-    private val bEventChannel: BEventChannel,
+    private val bEventChannel: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer").withoutParentHandlers() {

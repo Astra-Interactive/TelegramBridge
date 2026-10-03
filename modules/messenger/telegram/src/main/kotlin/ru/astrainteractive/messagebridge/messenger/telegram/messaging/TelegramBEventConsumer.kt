@@ -17,8 +17,9 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messaging.api.tryConsume
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -27,7 +28,6 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import ru.astrainteractive.messagebridge.messaging.tryConsume
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 
 internal class TelegramBEventConsumer(
@@ -35,7 +35,7 @@ internal class TelegramBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
     private val relayedMessageCache: TelegramRelayedMessageCache,
-    private val bEventChannel: BEventChannel,
+    private val bEventChannel: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer").withoutParentHandlers() {

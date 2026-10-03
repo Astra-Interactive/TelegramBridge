@@ -15,7 +15,8 @@ import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.impl.BEventChannelImpl
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.BukkitMessengerModule
@@ -41,7 +42,7 @@ class RootModule(
         }
     )
 
-    private val bEventChannel = BEventChannel()
+    private val bEventChannel: BEventChannel = BEventChannelImpl()
 
     val linkModule = LinkModule.Default(coreModule, LuckPermsProvider.Default)
 

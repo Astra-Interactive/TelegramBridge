@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messaging.internal
+package ru.astrainteractive.messagebridge.messaging.impl
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -9,14 +9,12 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transform
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messaging.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.BEventReceiver
+import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 
-class BEventChannel :
-    BEventConsumer,
-    BEventReceiver,
-    Logger by JUtiltLogger("MessageBridge-BEventChannel").withoutParentHandlers() {
+class BEventChannelImpl :
+    BEventChannel,
+    Logger by JUtiltLogger("MessageBridge-BEventChannelImpl").withoutParentHandlers() {
     private val channel = MutableSharedFlow<BEvent>(1)
 
     override fun bEvents(scope: CoroutineScope): Flow<BEvent> = channel
