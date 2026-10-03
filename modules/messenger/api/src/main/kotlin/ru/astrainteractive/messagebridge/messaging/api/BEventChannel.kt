@@ -7,9 +7,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withTimeoutOrNull
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.util.withRetry
+import kotlin.time.Duration
 
 interface BEventConsumer : Logger {
     suspend fun consume(bEvent: BEvent)
@@ -32,4 +34,15 @@ suspend fun BEventConsumer.tryConsume(bEvent: BEvent) {
                 .collect()
         }
     }
+}
+
+suspend fun List<BEventConsumer>.tryConsumeWithin(
+    bEvent: BEvent,
+    timeout: Duration,
+    scope: CoroutineScope
+): Boolean {
+    val delivery = scope.launch {
+        this@tryConsumeWithin.forEach { consumer -> launch { consumer.tryConsume(bEvent) } }
+    }
+    return withTimeoutOrNull(timeout) { delivery.join() } != null
 }

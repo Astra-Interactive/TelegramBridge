@@ -33,6 +33,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
@@ -167,6 +168,8 @@ class JdaMessengerModule(
         webhookMessageMapper = DiscordWebhookMessageMapper(),
         bEventReceiver = bEventChannel,
     )
+
+    val bEventConsumer: BEventConsumer = discordMessageController
 
     private val relevanceMapper = DiscordMessageRelevanceMapper(
         configKrate = coreModule.configKrate,

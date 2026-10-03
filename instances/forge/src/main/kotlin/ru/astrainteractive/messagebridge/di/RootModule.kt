@@ -1,6 +1,7 @@
 package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.minecraftforge.fml.loading.FMLPaths
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.brigadier.command.MinecraftMultiplatformCommands
@@ -16,6 +17,7 @@ import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.tryConsumeWithin
 import ru.astrainteractive.messagebridge.messaging.impl.BEventChannelImpl
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
@@ -23,6 +25,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.forge.di.ForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 
 class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
@@ -97,10 +100,22 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            coreModule.ioScope.launch {
-                bEventChannel.consume(ServerClosedBEvent)
+            val isServerClosedConsumed = runBlocking {
+                listOf(tgEventModule.bEventConsumer, jdaEventModule.bEventConsumer)
+                    .tryConsumeWithin(
+                        bEvent = ServerClosedBEvent,
+                        timeout = SERVER_CLOSED_TIMEOUT,
+                        scope = coreModule.ioScope
+                    )
+            }
+            if (!isServerClosedConsumed) {
+                warn { "#onDisable messengers did not consume $ServerClosedBEvent within $SERVER_CLOSED_TIMEOUT" }
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }
     )
+
+    private companion object {
+        val SERVER_CLOSED_TIMEOUT = 5.seconds
+    }
 }
