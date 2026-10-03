@@ -19,15 +19,16 @@ import okhttp3.Dns
 import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
+import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
@@ -51,8 +52,8 @@ import kotlin.time.toJavaDuration
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
-    linkModule: LinkModule,
     bEventChannel: BEventChannel,
+    messageInterceptors: List<MessageInterceptor<Update>>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramMessengerModule") {
 
     private val ipv4FirstDns = object : Dns {
@@ -157,7 +158,6 @@ class TelegramMessengerModule(
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
         platformServer = coreModule.platformServer,
-        linkApi = linkModule.linkApi,
         translationKrate = coreModule.translationKrate,
     )
 
@@ -172,6 +172,7 @@ class TelegramMessengerModule(
         commandHandler = commandHandler,
         messageSender = messageSender,
         bEventConsumer = bEventChannel,
+        messageInterceptors = messageInterceptors,
     )
 
     private val bridgeBotFlow = coreModule.configKrate

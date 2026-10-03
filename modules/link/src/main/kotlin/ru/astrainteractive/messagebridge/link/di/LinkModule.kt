@@ -1,5 +1,6 @@
 package ru.astrainteractive.messagebridge.link.di
 
+import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
@@ -10,6 +11,7 @@ import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.api.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.command.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.LinkLiteralArgumentBuilder
+import ru.astrainteractive.messagebridge.link.command.TelegramLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.controller.DiscordRoleController
@@ -17,6 +19,7 @@ import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.dao.internal.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.database.di.LinkDatabaseModule
+import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 
 interface LinkModule {
     val lifecycle: Lifecycle
@@ -26,6 +29,7 @@ interface LinkModule {
     val discordRoleController: DiscordRoleController
     val luckPermsRoleController: LuckPermsRoleController
     val linkingDao: LinkingDao
+    val telegramLinkInterceptor: MessageInterceptor<Update>
 
     class Default(
         coreModule: CoreModule,
@@ -50,6 +54,11 @@ interface LinkModule {
             codeApi = codeApi,
             discordRoleController = discordRoleController,
             luckPermsRoleController = luckPermsRoleController
+        )
+
+        override val telegramLinkInterceptor: MessageInterceptor<Update> = TelegramLinkInterceptor(
+            linkApi = linkApi,
+            translationKrate = coreModule.translationKrate
         )
 
         private val commandNodes by lazy {

@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.telegrambots.client)
 
     implementation(projects.modules.core.api)
+    implementation(projects.modules.messenger.api)
 
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.minecraft.brigadier)

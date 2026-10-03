@@ -12,6 +12,9 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messaging.api.intercept
+import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
@@ -32,6 +35,7 @@ internal class TelegramChatConsumer(
     private val commandHandler: TelegramCommandHandler,
     private val messageSender: TelegramMessageSender,
     private val bEventConsumer: BEventConsumer,
+    private val messageInterceptors: List<MessageInterceptor<Update>>,
 ) : LongPollingSingleThreadUpdateConsumer,
     Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
     private val translation by translationKrate
@@ -62,12 +66,22 @@ internal class TelegramChatConsumer(
         }
     }
 
+    private suspend fun answer(update: Update, text: String) {
+        val message = update.message ?: return
+        messageSender.send(message.chatId.toString(), text, message.replyToMessage?.messageId)
+    }
+
     private suspend fun relay(update: Update, valid: TelegramMessageValidation.Valid) {
         val command = commandParser.map(valid.text)
         if (command != null) {
             commandHandler.handle(command, update)
             return
         }
+        val interception = messageInterceptors.intercept(update)
+        if (interception is Interception.Reply) {
+            answer(update, interception.text)
+        }
+        if (interception != Interception.Pass) return
         bEventConsumer.consume(
             Text.Telegram(
                 author = valid.author,

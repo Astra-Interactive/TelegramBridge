@@ -40,6 +40,7 @@ dependencies {
     shadow(libs.minecraft.kyori.legacy)
     shadow(libs.minecraft.kyori.minimessage)
     shadow(libs.minecraft.kyori.plain)
+    shadow(libs.telegrambots.client)
     shadow(projects.modules.core.api)
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)

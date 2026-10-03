@@ -1,7 +1,6 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.events
 
 import org.telegram.telegrambots.meta.api.objects.Update
-import org.telegram.telegrambots.meta.api.objects.User
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
@@ -10,15 +9,12 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.link.api.LinkApi
-import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
 
 internal class TelegramCommandHandler(
     private val messageSender: TelegramMessageSender,
     private val platformServer: PlatformServer,
-    private val linkApi: LinkApi,
     translationKrate: CachedKrate<PluginTranslation>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramCommandHandler").withoutParentHandlers() {
     private val translation by translationKrate
@@ -29,7 +25,6 @@ internal class TelegramCommandHandler(
         val originalMessageId = message.replyToMessage?.messageId
         when (command) {
             TelegramCommand.Vanilla -> sendVanilla(chatId, originalMessageId)
-            is TelegramCommand.Link -> sendLink(command.code, message.from, chatId, originalMessageId)
         }
     }
 
@@ -53,13 +48,6 @@ internal class TelegramCommandHandler(
             count = players.size,
             players = players.joinToString(separator = ", "),
         ).toMessengerText()
-        messageSender.send(chatId, text, originalMessageId)
-    }
-
-    private suspend fun sendLink(code: Int, user: User?, chatId: String, originalMessageId: Int?) {
-        user ?: return
-        val response = linkApi.linkTelegram(code, user)
-        val text = response.asMessage(translation.link).toMessengerText()
         messageSender.send(chatId, text, originalMessageId)
     }
 

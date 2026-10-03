@@ -64,8 +64,8 @@ class RootModule(
 
     val telegramMessengerModule = TelegramMessengerModule(
         coreModule = coreModule,
-        linkModule = linkModule,
-        bEventChannel = bEventChannel
+        bEventChannel = bEventChannel,
+        messageInterceptors = listOf(linkModule.telegramLinkInterceptor)
     )
 
     val commandModule by lazy {

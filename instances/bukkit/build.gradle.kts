@@ -32,6 +32,7 @@ dependencies {
     shadow(libs.minecraft.astralibs.core.bukkit)
     shadow(libs.minecraft.astralibs.menu.bukkit)
     shadow(libs.minecraft.bstats)
+    shadow(libs.telegrambots.client)
     shadow(projects.modules.command)
     shadow(projects.modules.core.api)
     shadow(projects.modules.core.bukkit)
