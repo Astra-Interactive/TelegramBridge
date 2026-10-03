@@ -12,11 +12,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.api.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
+import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.controller.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
@@ -31,7 +31,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class DiscordLinkInterceptorTest {
-    private val translation = PluginTranslation()
+    private val linkTranslation = LinkTranslation()
     private val configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null })
         .asCachedKrate()
     private val codeApi = CodeApiImpl()
@@ -46,7 +46,7 @@ class DiscordLinkInterceptorTest {
                 luckPermsProvider = FakeLuckPermsProvider()
             )
         ),
-        translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
+        linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null }).asCachedKrate()
     )
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val stevie: Member = jdaFake(mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "Stevie"))
@@ -78,7 +78,7 @@ class DiscordLinkInterceptorTest {
 
             val interception = interceptor.intercept(event("/link $code", stevie, ChannelType.TEXT))
 
-            assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
+            assertEquals(Interception.Reply(linkTranslation.link.success.toMessengerText()), interception)
             assertEquals(
                 LinkedPlayerModel.DiscordLink(lastDiscordName = "Stevie", discordId = DISCORD_ID),
                 linkingDao.linkedPlayers[steve.uuid]?.discordLink

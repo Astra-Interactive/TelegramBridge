@@ -10,11 +10,11 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.api.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.api.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
+import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.controller.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
@@ -27,7 +27,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TelegramLinkInterceptorTest {
-    private val translation = PluginTranslation()
+    private val linkTranslation = LinkTranslation()
     private val configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null })
         .asCachedKrate()
     private val codeApi = CodeApiImpl()
@@ -42,7 +42,7 @@ class TelegramLinkInterceptorTest {
                 luckPermsProvider = FakeLuckPermsProvider()
             )
         ),
-        translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
+        linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null }).asCachedKrate()
     )
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val telegramSteve = User(TELEGRAM_ID, "Steve", false).apply { userName = "steve_tg" }
@@ -77,7 +77,7 @@ class TelegramLinkInterceptorTest {
 
         val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
 
-        assertEquals(reply(translation.link.success), interception)
+        assertEquals(reply(linkTranslation.link.success), interception)
         assertEquals(
             LinkedPlayerModel.TelegramLink(telegramUsername = "steve_tg", telegramId = TELEGRAM_ID),
             linkingDao.linkedPlayers[steve.uuid]?.telegramLink
@@ -91,14 +91,14 @@ class TelegramLinkInterceptorTest {
 
         val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
 
-        assertEquals(reply(translation.link.noCodeFound), interception)
+        assertEquals(reply(linkTranslation.link.noCodeFound), interception)
     }
 
     @Test
     fun GIVEN_code_nobody_created_WHEN_sent_THEN_user_reads_no_code_found_and_nothing_is_linked() = runTest {
         val interception = interceptor.intercept(update(text = "/link 1234", from = telegramSteve))
 
-        assertEquals(reply(translation.link.noCodeFound), interception)
+        assertEquals(reply(linkTranslation.link.noCodeFound), interception)
         assertTrue(linkingDao.linkedPlayers.isEmpty())
     }
 
@@ -108,7 +108,7 @@ class TelegramLinkInterceptorTest {
 
         val interception = interceptor.intercept(update(text = "/link abc", from = telegramSteve))
 
-        assertEquals(reply(translation.link.noCodeFound), interception)
+        assertEquals(reply(linkTranslation.link.noCodeFound), interception)
         assertTrue(linkingDao.linkedPlayers.isEmpty())
     }
 
@@ -119,9 +119,9 @@ class TelegramLinkInterceptorTest {
 
         val interception = interceptor.intercept(update(text = "/link $code", from = nameless))
 
-        assertEquals(reply(translation.link.noUsername), interception)
+        assertEquals(reply(linkTranslation.link.noUsername), interception)
         assertEquals(
-            reply(translation.link.success),
+            reply(linkTranslation.link.success),
             interceptor.intercept(update(text = "/link $code", from = telegramSteve))
         )
     }
@@ -148,7 +148,7 @@ class TelegramLinkInterceptorTest {
 
             val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
 
-            assertEquals(reply(translation.link.alreadyLinked), interception)
+            assertEquals(reply(linkTranslation.link.alreadyLinked), interception)
             assertEquals(existingLink, linkingDao.linkedPlayers[steve.uuid]?.telegramLink)
         }
 
@@ -159,7 +159,7 @@ class TelegramLinkInterceptorTest {
 
         val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
 
-        assertEquals(reply(translation.link.unknownError), interception)
+        assertEquals(reply(linkTranslation.link.unknownError), interception)
         assertTrue(linkingDao.linkedPlayers.isEmpty())
     }
 

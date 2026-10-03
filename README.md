@@ -43,7 +43,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 ## Installation
 
 1. Drop the jar into `plugins/` or `mods/`
-2. Start the server — `config.yml` and `translations.yml` are generated
+2. Start the server — `config.yml`, `translations.yml` and `link.yml` are generated
 3. Fill in bot tokens and channel IDs
 4. `/mbreload` or restart
 

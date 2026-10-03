@@ -9,8 +9,8 @@ import ru.astrainteractive.astralibs.command.api.argumenttype.KPlayerArgumentCon
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
-import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.link.permission.LinkPermission
 
 internal class UnlinkLiteralArgumentBuilder(
     private val executor: UnlinkCommandExecutor,
@@ -32,7 +32,7 @@ internal class UnlinkLiteralArgumentBuilder(
                 argument("player", StringArgumentType.string()) { playerArg ->
                     hints { platformServer.getOnlinePlayers().map(OnlineKPlayer::name) }
                     runs(commandExceptionHandler::handle) { ctx ->
-                        ctx.requirePermission(PluginPermission.UnlinkPlayer)
+                        ctx.requirePermission(LinkPermission.UnlinkPlayer)
                         val offlinePlayer = ctx.requireArgument(playerArg, KPlayerArgumentConverter(platformServer))
                         val intent = UnlinkCommandExecutor.Intent.AdminUnlink(
                             targetPlayerUuid = offlinePlayer.uuid,

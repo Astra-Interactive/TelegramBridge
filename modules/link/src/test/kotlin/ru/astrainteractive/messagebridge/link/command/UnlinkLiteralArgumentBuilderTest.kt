@@ -12,9 +12,9 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.PluginPermission
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.link.permission.LinkPermission
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,6 +31,7 @@ import kotlin.test.assertTrue
 class UnlinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
+    private val linkTranslation = LinkTranslation()
     private val linkingDao = FakeLinkingDao()
     private val luckPermsRoleController = LuckPermsRoleController(
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
@@ -38,7 +40,7 @@ class UnlinkLiteralArgumentBuilderTest {
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
         name = "Admin",
-        permissions = setOf(PluginPermission.UnlinkPlayer)
+        permissions = setOf(LinkPermission.UnlinkPlayer)
     )
     private val steve = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"),
@@ -57,7 +59,9 @@ class UnlinkLiteralArgumentBuilderTest {
             executor = UnlinkCommandExecutor(
                 linkingDao = linkingDao,
                 luckPermsRoleController = luckPermsRoleController,
-                translationKrate = translationKrate
+                translationKrate = translationKrate,
+                linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null })
+                    .asCachedKrate()
             ),
             ioScope = ioScope,
             multiplatformCommand = multiplatformCommand,
@@ -79,7 +83,7 @@ class UnlinkLiteralArgumentBuilderTest {
         execute(input = "unlink", sender = steve)
 
         assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertEquals(listOf<LocalizableComponent>(translation.unlink.success), steve.messages)
+        assertEquals(listOf<LocalizableComponent>(linkTranslation.unlink.success), steve.messages)
     }
 
     @Test
@@ -89,6 +93,6 @@ class UnlinkLiteralArgumentBuilderTest {
         execute(input = "unlink Steve", sender = admin)
 
         assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
+        assertEquals(listOf<LocalizableComponent>(linkTranslation.unlink.playerSuccess), admin.messages)
     }
 }
