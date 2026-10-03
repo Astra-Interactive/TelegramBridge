@@ -9,8 +9,6 @@ import net.minecraft.world.entity.player.Player
 import net.minecraftforge.event.ServerChatEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
-import net.minecraftforge.event.server.ServerStartedEvent
-import net.minecraftforge.event.server.ServerStoppingEvent
 import net.minecraftforge.eventbus.api.EventPriority
 import ru.astrainteractive.astralibs.event.flowEvent
 import ru.astrainteractive.astralibs.server.util.toPlain
@@ -24,8 +22,6 @@ import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
 class ForgeEvents(
@@ -35,22 +31,6 @@ class ForgeEvents(
     private val bEventConsumer: BEventConsumer
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
     private val config by configKrate
-
-    val serverStartedEvent = flowEvent<ServerStartedEvent>()
-        .onEach { info { "#serverStartedEvent" } }
-        .onEach {
-            ioScope.launch {
-                bEventConsumer.consume(ServerOpenBEvent)
-            }
-        }.launchIn(ioScope)
-
-    val serverStoppingEvent = flowEvent<ServerStoppingEvent>()
-        .onEach { info { "#serverStoppingEvent" } }
-        .onEach {
-            ioScope.launch {
-                bEventConsumer.consume(ServerClosedBEvent)
-            }
-        }.launchIn(ioScope)
 
     val playerLoggedOutEvent = flowEvent<PlayerEvent.PlayerLoggedOutEvent>()
         .onEach { info { "#playerLoggedOutEvent" } }
