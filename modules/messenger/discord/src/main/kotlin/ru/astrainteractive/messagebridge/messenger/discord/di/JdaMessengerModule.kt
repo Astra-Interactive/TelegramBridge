@@ -5,23 +5,18 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -32,6 +27,7 @@ import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
@@ -50,6 +46,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordChan
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopicUpdater
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
@@ -60,7 +57,7 @@ class JdaMessengerModule(
     bEventChannel: BEventChannel,
     messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
     authorResolver: DiscordAuthorResolver,
-    eventListeners: List<EventListener>
+    private val eventListeners: List<EventListener>
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
@@ -101,81 +98,6 @@ class JdaMessengerModule(
         }
         .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
 
-    private val jdaFlow = combine(
-        flow = okHttpClientFlow,
-        flow2 = coreModule.configKrate.cachedStateFlow
-            .map { pluginConfiguration -> pluginConfiguration.jdaConfig },
-        transform = { okHttpClient, config ->
-            callbackFlow {
-                val builder = JDABuilder.createLight(config.token).apply {
-                    enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                    enableIntents(GatewayIntent.DIRECT_MESSAGES)
-                    enableIntents(GatewayIntent.GUILD_MESSAGES)
-                    setActivity(Activity.playing(config.activity))
-                    setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
-                    config.proxy?.let { proxy ->
-                        setWebsocketFactory(
-                            WebSocketFactory()
-                                .setVerifyHostname(false)
-                                .also { webSocketFactory ->
-                                    webSocketFactory.proxySettings.setHost(proxy.host)
-                                    webSocketFactory.proxySettings.setPort(proxy.port)
-                                    webSocketFactory.proxySettings.setCredentials(proxy.username, proxy.password)
-                                }
-                        )
-                        setHttpClient(okHttpClient)
-                    }
-                }
-
-                val jda = runInterruptible { builder.build().awaitReady() }
-                send(jda)
-
-                awaitClose {
-                    jda.shutdownNow()
-                    jda.awaitShutdown()
-                    jda.registeredListeners.forEach(jda::removeEventListener)
-                }
-            }.retryWhen { t, _ ->
-                error { "#jdaFlow could not create JDA: ${t.localizedMessage}" }
-                delay(5.seconds)
-                val shouldRetry = t !is CancellationException
-                shouldRetry
-            }
-        }
-    ).flattenConcat().shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
-
-    private val webhookClient = combine(
-        flow = jdaFlow,
-        flow2 = coreModule.configKrate.cachedStateFlow
-            .map { pluginConfiguration -> pluginConfiguration.jdaConfig.channelId },
-        transform = { jda, channelId ->
-            callbackFlow {
-                val webhookClient = runInterruptible { WebHookClientFactory(jda).create(channelId) }.first()
-                send(webhookClient)
-                awaitClose {
-                    webhookClient.close()
-                }
-            }
-        }
-    ).flattenConcat().shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
-
-    private val channelProvider = DiscordChannelProvider(
-        jdaFlow = jdaFlow,
-        webHookClientFlow = webhookClient,
-        configKrate = coreModule.configKrate,
-    )
-
-    private val discordMessageController = DiscordBEventConsumer(
-        channelProvider = channelProvider,
-        topicUpdater = DiscordTopicUpdater(coreModule.platformServer),
-        embedMapper = DiscordEmbedMapper(),
-        memberResolver = DiscordMemberResolver(authorResolver),
-        webhookMessageMapper = DiscordWebhookMessageMapper(),
-        bEventReceiver = bEventChannel,
-    )
-
-    val bEventConsumer: BEventConsumer = discordMessageController
-
     private val relevanceMapper = DiscordMessageRelevanceMapper(
         configKrate = coreModule.configKrate,
     )
@@ -200,27 +122,87 @@ class JdaMessengerModule(
         bEventConsumer = bEventChannel,
     )
 
+    private val channelProvider = DiscordChannelProvider(
+        jdaConfigFlow = coreModule.configKrate.cachedStateFlow
+            .map { pluginConfiguration -> pluginConfiguration.jdaConfig },
+        connect = ::connect,
+        scope = coreModule.ioScope,
+    )
+
+    private val discordMessageController = DiscordBEventConsumer(
+        discordChannel = channelProvider.channel,
+        topicUpdater = DiscordTopicUpdater(coreModule.platformServer),
+        embedMapper = DiscordEmbedMapper(),
+        memberResolver = DiscordMemberResolver(authorResolver),
+        webhookMessageMapper = DiscordWebhookMessageMapper(),
+        bEventReceiver = bEventChannel,
+    )
+
+    val bEventConsumer: BEventConsumer = discordMessageController
+
     val lifecycle = Lifecycle.Lambda(
-        onEnable = {
-            jdaFlow
-                .filterNotNull()
-                .onEach { jda -> messageEventListener.onEnable(jda) }
-                .onEach { jda -> eventListeners.forEach(jda::addEventListener) }
-                .launchIn(coreModule.ioScope)
-        },
         onDisable = {
             discordMessageController.cancel()
             messageEventListener.cancel()
-            coreModule.ioScope.launch {
-                jdaFlow.firstOrNull()?.let { jda ->
-                    messageEventListener.onDisable(jda)
-                    eventListeners.forEach(jda::removeEventListener)
-                }
-            }
         }
     )
 
+    private fun jdaSession(
+        okHttpClient: OkHttpClient,
+        config: PluginConfiguration.JdaConfig
+    ): Flow<JDA> = callbackFlow {
+        val builder = JDABuilder.createLight(config.token).apply {
+            enableIntents(GatewayIntent.MESSAGE_CONTENT)
+            enableIntents(GatewayIntent.DIRECT_MESSAGES)
+            enableIntents(GatewayIntent.GUILD_MESSAGES)
+            setActivity(Activity.playing(config.activity))
+            setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
+            config.proxy?.let { proxy ->
+                setWebsocketFactory(
+                    WebSocketFactory()
+                        .setVerifyHostname(false)
+                        .also { webSocketFactory ->
+                            webSocketFactory.proxySettings.setHost(proxy.host)
+                            webSocketFactory.proxySettings.setPort(proxy.port)
+                            webSocketFactory.proxySettings.setCredentials(proxy.username, proxy.password)
+                        }
+                )
+                setHttpClient(okHttpClient)
+            }
+        }
+
+        val jda = runInterruptible { builder.build() }
+        messageEventListener.onEnable(jda)
+        eventListeners.forEach(jda::addEventListener)
+        launch { send(runInterruptible { jda.awaitReady() }) }
+
+        awaitClose {
+            jda.shutdownNow()
+            jda.awaitShutdown()
+            jda.registeredListeners.forEach(jda::removeEventListener)
+        }
+    }
+
+    private fun channelSession(jda: JDA, channelId: String): Flow<DiscordChannel> = callbackFlow<DiscordChannel> {
+        val textChannel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")
+        val webhookClient = WebHookClientFactory(jda).create(channelId).first()
+        send(DiscordChannel.Ready(textChannel = textChannel, webhookClient = webhookClient))
+        awaitClose {
+            webhookClient.close()
+        }
+    }.retryWhen { t, _ ->
+        error { "#channelSession could not open channel $channelId: ${t.message}" }
+        emit(DiscordChannel.Failed)
+        delay(RETRY_DELAY)
+        t !is CancellationException
+    }
+
+    private fun connect(config: PluginConfiguration.JdaConfig): Flow<DiscordChannel> = okHttpClientFlow
+        .flatMapLatest { okHttpClient -> jdaSession(okHttpClient, config) }
+        .flatMapLatest { jda -> channelSession(jda, config.channelId) }
+
     private companion object {
         val MAX_RECONNECT_DELAY = 32.seconds
+        val RETRY_DELAY = 5.seconds
     }
 }

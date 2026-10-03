@@ -1,12 +1,17 @@
 package ru.astrainteractive.messagebridge.messenger.discord.messaging
 
+import club.minnced.discord.webhook.WebhookClient
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.api.tryConsume
@@ -20,10 +25,12 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordBEventConsumer(
-    private val channelProvider: DiscordChannelProvider,
+    private val discordChannel: Flow<DiscordChannel>,
     private val topicUpdater: DiscordTopicUpdater,
     private val embedMapper: DiscordEmbedMapper,
     private val memberResolver: DiscordMemberResolver,
@@ -33,12 +40,19 @@ internal class DiscordBEventConsumer(
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer").withoutParentHandlers() {
 
+    private suspend fun readyChannel(): DiscordChannel.Ready? {
+        return withTimeoutOrNull(CONNECTING_TIMEOUT) {
+            discordChannel.first { state -> state != DiscordChannel.Connecting }
+        }?.tryCast<DiscordChannel.Ready>()
+    }
+
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.DISCORD) return
-        val channel = channelProvider.textChannel() ?: run {
-            error { "#consume could not get text channel" }
+        val ready = readyChannel() ?: run {
+            verbose { "#consume Discord is not ready, skipped $bEvent" }
             return
         }
+        val channel = ready.textChannel
         when (bEvent) {
             is PlayerDeathBEvent -> channel.sendMessageEmbeds(embedMapper.map(bEvent)).await()
             is PlayerJoinedBEvent -> {
@@ -51,16 +65,16 @@ internal class DiscordBEventConsumer(
                 channel.sendMessageEmbeds(embedMapper.map(bEvent)).await()
             }
 
-            is Text -> sendText(bEvent, channel)
+            is Text -> sendText(bEvent, channel, ready.webhookClient)
             ServerClosedBEvent -> channel.sendMessage(SERVER_CLOSED_MESSAGE).await()
             ServerOpenBEvent -> sendServerStatus(channel, SERVER_OPEN_MESSAGE)
         }
     }
 
-    private suspend fun sendText(event: Text, channel: TextChannel) {
+    private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
         val member = memberResolver.resolve(channel, event)
         val message = webhookMessageMapper.map(event, member)
-        channelProvider.webHookClient().send(message)
+        webhookClient.send(message)
     }
 
     private suspend fun sendServerStatus(channel: TextChannel, text: String) {
@@ -79,5 +93,6 @@ internal class DiscordBEventConsumer(
     private companion object {
         const val SERVER_CLOSED_MESSAGE = "🛑 **Сервер остановлен**"
         const val SERVER_OPEN_MESSAGE = "✅ **Сервер успешно запущен**"
+        val CONNECTING_TIMEOUT = 30.seconds
     }
 }
