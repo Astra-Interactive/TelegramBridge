@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import ru.astrainteractive.astralibs.coroutines.withTimings
+import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.astralibs.server.util.asKAudience
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -13,9 +14,9 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.tryConsume
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
@@ -25,11 +26,10 @@ import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import java.util.UUID
 
 internal class MinecraftBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
-    private val linkingDao: LinkingDao,
+    private val textInterceptors: List<TextInterceptor>,
     private val dispatchers: KotlinDispatchers,
     private val bEventReceiver: BEventReceiver
 ) : BEventConsumer,
@@ -37,52 +37,30 @@ internal class MinecraftBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
     private val translation by translationKrate
 
-    private suspend fun replyPlayerName(text: Text, reply: Text.Reply): String {
-        val authorId = reply.authorId ?: return reply.author
-        val linkedPlayerModel = when (text) {
-            is Text.Discord -> linkingDao.findByDiscordId(authorId).getOrNull()
-            is Text.Telegram -> linkingDao.findByTelegramId(authorId).getOrNull()
-            is Text.Minecraft -> null
+    internal suspend fun toMinecraftComponent(text: Text): LocalizableComponent {
+        val shown = textInterceptors.fold(text) { current, interceptor -> interceptor.intercept(current) }
+        val reply = shown.reply
+        if (reply == null) {
+            return translation.chat.toMinecraft(
+                playerName = shown.author,
+                message = shown.text,
+                from = shown.from.short
+            )
         }
-        return linkedPlayerModel?.lastMinecraftName ?: reply.author
+        return translation.chat.toMinecraftReply(
+            playerName = shown.author,
+            message = shown.text,
+            from = shown.from.short,
+            replyPlayerName = reply.author,
+            replyMessage = reply.text
+        )
     }
 
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.MINECRAFT) return
 
         val text = when (bEvent) {
-            is Text -> {
-                val linkedPlayerModel = when (bEvent) {
-                    is Text.Discord -> {
-                        linkingDao.findByDiscordId(bEvent.authorId).getOrNull()
-                    }
-
-                    is Text.Minecraft -> {
-                        linkingDao.findByUuid(UUID.fromString(bEvent.uuid)).getOrNull()
-                    }
-
-                    is Text.Telegram -> {
-                        linkingDao.findByTelegramId(bEvent.authorId).getOrNull()
-                    }
-                }
-
-                val reply = bEvent.reply
-                if (reply == null) {
-                    translation.chat.toMinecraft(
-                        playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
-                        message = bEvent.text,
-                        from = bEvent.from.short
-                    )
-                } else {
-                    translation.chat.toMinecraftReply(
-                        playerName = linkedPlayerModel?.lastMinecraftName ?: bEvent.author,
-                        message = bEvent.text,
-                        from = bEvent.from.short,
-                        replyPlayerName = replyPlayerName(bEvent, reply),
-                        replyMessage = reply.text
-                    )
-                }
-            }
+            is Text -> toMinecraftComponent(bEvent)
 
             ServerOpenBEvent,
             ServerClosedBEvent,

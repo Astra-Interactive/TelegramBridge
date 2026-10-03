@@ -52,8 +52,8 @@ class RootModule(
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        linkingDao = linkModule.linkingDao,
-        bEventChannel = bEventChannel
+        bEventChannel = bEventChannel,
+        textInterceptors = listOf(linkModule.linkedNameInterceptor)
     )
 
     val jdaMessengerModule = JdaMessengerModule(

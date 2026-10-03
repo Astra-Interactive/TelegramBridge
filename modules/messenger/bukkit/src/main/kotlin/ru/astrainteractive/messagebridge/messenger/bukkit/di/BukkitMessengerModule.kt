@@ -5,20 +5,20 @@ import org.bukkit.event.HandlerList
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
+import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.bukkit.events.BukkitEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.messaging.MinecraftBEventConsumer
 
 class BukkitMessengerModule(
     coreModule: CoreModule,
     bukkitCoreModule: BukkitCoreModule,
-    linkingDao: LinkingDao,
-    bEventChannel: BEventChannel
+    bEventChannel: BEventChannel,
+    textInterceptors: List<TextInterceptor>
 ) {
     private val minecraftBEventConsumer = MinecraftBEventConsumer(
         translationKrate = coreModule.translationKrate,
-        linkingDao = linkingDao,
+        textInterceptors = textInterceptors,
         dispatchers = coreModule.dispatchers,
         bEventReceiver = bEventChannel
     )
