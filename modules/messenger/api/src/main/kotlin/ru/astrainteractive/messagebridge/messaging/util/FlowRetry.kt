@@ -13,7 +13,7 @@ fun <T> Flow<T>.withRetry(
     delay: Duration = 500.milliseconds,
 ): Flow<T> {
     return retry(retries = retries) { t ->
-        logger.error(t) { "#withRetry attempt failed, retrying in $delay" }
+        logger.warn { "#withRetry attempt failed, retrying in $delay: ${t.message}" }
         delay(delay)
         true
     }
