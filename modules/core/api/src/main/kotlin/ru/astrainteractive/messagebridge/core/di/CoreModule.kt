@@ -30,7 +30,7 @@ class CoreModule(
     commandRegistrarContextFactory: (mainScope: CoroutineScope) -> CommandRegistrarContext
 ) {
     private fun createCoroutineExceptionHandler() = CoroutineExceptionHandler { _, throwable ->
-        val logger = JUtiltLogger("CoroutineExceptionHandler-AspeKt")
+        val logger = JUtiltLogger("MessageBridge-CoroutineExceptionHandler")
         logger.error(throwable) { "Error happened inside global coroutine scope!" }
     }
 
