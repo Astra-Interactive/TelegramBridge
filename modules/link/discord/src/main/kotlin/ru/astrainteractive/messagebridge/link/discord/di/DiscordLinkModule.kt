@@ -20,14 +20,14 @@ import ru.astrainteractive.messagebridge.link.discord.event.DiscordMemberLeaveLi
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordLinkRole
 import ru.astrainteractive.messagebridge.link.discord.internal.DiscordMemberSweep
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageInterceptor
-import ru.astrainteractive.messagebridge.messenger.discord.di.DiscordBotModule
+import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordConnection
 
 class DiscordLinkModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
     linkTranslationModule: LinkTranslationModule,
-    botModule: DiscordBotModule,
+    botModule: JdaMessengerModule,
 ) {
     private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)

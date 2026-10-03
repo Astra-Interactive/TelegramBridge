@@ -7,7 +7,7 @@ import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMessageInterceptor
-import ru.astrainteractive.messagebridge.messenger.discord.di.DiscordBotModule
+import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.onboarding.api.api.DiscordOnboarding
 import ru.astrainteractive.messagebridge.onboarding.api.di.MessengerOnboardingModule
 import ru.astrainteractive.messagebridge.onboarding.api.di.OnboardingTranslationModule
@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.minutes
 class DiscordOnboardingModule(
     coreModule: CoreModule,
     onboardingTranslationModule: OnboardingTranslationModule,
-    botModule: DiscordBotModule,
+    botModule: JdaMessengerModule,
 ) : MessengerOnboardingModule<DiscordOnboarding> {
     private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)

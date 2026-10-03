@@ -31,7 +31,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.connection.internal.D
 import ru.astrainteractive.messagebridge.messenger.discord.connection.internal.ExponentialBackoff
 import ru.astrainteractive.messagebridge.messenger.discord.connection.network.DiscordConnector
 import ru.astrainteractive.messagebridge.messenger.discord.connection.network.JdaBuilderFactory
-import ru.astrainteractive.messagebridge.messenger.discord.di.DiscordBotModule
 import ru.astrainteractive.messagebridge.messenger.discord.failure.internal.DiscordDeliveryError
 import ru.astrainteractive.messagebridge.messenger.discord.failure.mapping.DiscordFailureMapper
 import ru.astrainteractive.messagebridge.messenger.discord.failure.mapping.DiscordFailureTextMapperImpl
@@ -53,7 +52,7 @@ class JdaMessengerModule(
     linkModule: LinkModule,
     messageInterceptors: () -> List<DiscordMessageInterceptor>,
     bEventChannel: BEventChannel
-) : DiscordBotModule {
+) {
 
     private val moduleIoScope = coreModule.ioScope.coroutineContext.job
         .let(::SupervisorJob)
@@ -115,13 +114,13 @@ class JdaMessengerModule(
         bEventChannel = bEventChannel,
     )
 
-    override val connection: StateFlow<DiscordConnection> = session.connection
+    val connection: StateFlow<DiscordConnection> = session.connection
 
-    override val deliveryError: StateFlow<LocalizableComponent?> = delivery.text
+    val deliveryError: StateFlow<LocalizableComponent?> = delivery.text
 
-    override val messageSender: DiscordMessageSender = DiscordMessageSenderImpl()
+    val messageSender: DiscordMessageSender = DiscordMessageSenderImpl()
 
-    override val failureTextMapper: DiscordFailureTextMapper = DiscordFailureTextMapperImpl(
+    val failureTextMapper: DiscordFailureTextMapper = DiscordFailureTextMapperImpl(
         failureMapper = failureMapper,
         configFlow = coreModule.config,
         translationKrate = coreModule.translationKrate,
