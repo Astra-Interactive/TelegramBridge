@@ -23,6 +23,7 @@ internal class MessageEventListener(
     private val commandHandler: DiscordCommandHandler,
     private val replyMapper: DiscordReplyMapper,
     private val linkApi: LinkApi,
+    private val bEventChannel: BEventChannel,
 ) : ListenerAdapter(),
     DiscordEventListener,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
@@ -53,7 +54,7 @@ internal class MessageEventListener(
     }
 
     private suspend fun relay(event: MessageReceivedEvent) {
-        BEventChannel.consume(
+        bEventChannel.consume(
             Text.Discord(
                 author = event.member?.nickname ?: event.author.name,
                 text = event.message.contentRaw,

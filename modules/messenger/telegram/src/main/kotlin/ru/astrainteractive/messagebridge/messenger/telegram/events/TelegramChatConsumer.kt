@@ -31,6 +31,7 @@ internal class TelegramChatConsumer(
     private val commandParser: TelegramCommandMapper,
     private val commandHandler: TelegramCommandHandler,
     private val messageSender: TelegramMessageSender,
+    private val bEventChannel: BEventChannel,
 ) : LongPollingSingleThreadUpdateConsumer,
     Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
     private val translation by translationKrate
@@ -67,7 +68,7 @@ internal class TelegramChatConsumer(
             commandHandler.handle(command, update)
             return
         }
-        BEventChannel.consume(
+        bEventChannel.consume(
             Text.Telegram(
                 author = valid.author,
                 text = valid.text,

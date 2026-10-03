@@ -38,6 +38,8 @@ class RootModule(
         commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
     )
 
+    private val bEventChannel = BEventChannel()
+
     val linkModule by lazy {
         LinkModule.Default(coreModule, LuckPermsProvider.Default)
     }
@@ -45,6 +47,7 @@ class RootModule(
     val neoForgeMessengerModule by lazy {
         NeoForgeMessengerModule(
             coreModule = coreModule,
+            bEventChannel = bEventChannel,
         )
     }
     val commandModule by lazy {
@@ -59,14 +62,16 @@ class RootModule(
     val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            bEventChannel = bEventChannel
         )
     }
 
     val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            bEventChannel = bEventChannel
         )
     }
 
@@ -82,7 +87,7 @@ class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -91,7 +96,7 @@ class RootModule(
         },
         onDisable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }

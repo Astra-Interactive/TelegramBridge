@@ -38,6 +38,8 @@ class RootModule(
         commandRegistrarContextFactory = ::ForgeCommandRegistrarContext
     )
 
+    private val bEventChannel = BEventChannel()
+
     val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
@@ -54,20 +56,23 @@ class RootModule(
     val forgeMessengerModule by lazy {
         ForgeMessengerModule(
             coreModule = coreModule,
+            bEventChannel = bEventChannel,
         )
     }
 
     val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            bEventChannel = bEventChannel
         )
     }
 
     val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
-            linkModule = linkModule
+            linkModule = linkModule,
+            bEventChannel = bEventChannel
         )
     }
 
@@ -83,7 +88,7 @@ class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -92,7 +97,7 @@ class RootModule(
         },
         onDisable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }

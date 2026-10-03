@@ -41,22 +41,27 @@ class RootModule(
         }
     )
 
+    private val bEventChannel = BEventChannel()
+
     val linkModule = LinkModule.Default(coreModule, LuckPermsProvider.Default)
 
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,
         bukkitCoreModule = bukkitCoreModule,
-        linkingDao = linkModule.linkingDao
+        linkingDao = linkModule.linkingDao,
+        bEventChannel = bEventChannel
     )
 
     val jdaMessengerModule = JdaMessengerModule(
         coreModule = coreModule,
-        linkModule = linkModule
+        linkModule = linkModule,
+        bEventChannel = bEventChannel
     )
 
     val telegramMessengerModule = TelegramMessengerModule(
         coreModule = coreModule,
-        linkModule = linkModule
+        linkModule = linkModule,
+        bEventChannel = bEventChannel
     )
 
     val commandModule by lazy {
@@ -80,7 +85,7 @@ class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -89,7 +94,7 @@ class RootModule(
         },
         onDisable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+                bEventChannel.consume(ServerClosedBEvent)
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }

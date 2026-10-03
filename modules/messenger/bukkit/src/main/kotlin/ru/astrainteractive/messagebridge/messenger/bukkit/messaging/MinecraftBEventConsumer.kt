@@ -30,7 +30,8 @@ import java.util.UUID
 internal class MinecraftBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,
     private val linkingDao: LinkingDao,
-    private val dispatchers: KotlinDispatchers
+    private val dispatchers: KotlinDispatchers,
+    private val bEventChannel: BEventChannel
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
@@ -96,7 +97,7 @@ internal class MinecraftBEventConsumer(
     }
 
     init {
-        BEventChannel
+        bEventChannel
             .bEvents(this)
             .onEach { bEvent -> tryConsume(bEvent) }
             .launchIn(this)

@@ -28,6 +28,7 @@ internal class DiscordBEventConsumer(
     private val embedMapper: DiscordEmbedMapper,
     private val memberResolver: DiscordMemberResolver,
     private val webhookMessageMapper: DiscordWebhookMessageMapper,
+    private val bEventChannel: BEventChannel,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer").withoutParentHandlers() {
@@ -68,7 +69,7 @@ internal class DiscordBEventConsumer(
     }
 
     init {
-        BEventChannel
+        bEventChannel
             .bEvents(this)
             .onEach { info { "#init receive event $it" } }
             .onEach { bEvent -> tryConsume(bEvent) }

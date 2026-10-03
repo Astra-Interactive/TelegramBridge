@@ -28,7 +28,8 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
-    private val dispatchers: KotlinDispatchers
+    private val dispatchers: KotlinDispatchers,
+    private val bEventChannel: BEventChannel
 ) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent").withoutParentHandlers() {
     private val config by configKrate
 
@@ -42,7 +43,7 @@ internal class BukkitEvent(
                 uuid = it.player.uniqueId.toString(),
                 hasPlayedBefore = it.player.hasPlayedBefore()
             )
-            BEventChannel.consume(bEvent)
+            bEventChannel.consume(bEvent)
         }
     }
 
@@ -54,7 +55,7 @@ internal class BukkitEvent(
                 name = it.player.name,
                 uuid = it.player.uniqueId.toString()
             )
-            BEventChannel.consume(bEvent)
+            bEventChannel.consume(bEvent)
         }
     }
 
@@ -70,7 +71,7 @@ internal class BukkitEvent(
                 text = textComponent.content(),
                 uuid = player.uniqueId.toString()
             )
-            BEventChannel.consume(bEvent)
+            bEventChannel.consume(bEvent)
         }
     }
 
@@ -84,7 +85,7 @@ internal class BukkitEvent(
                 cause = deathCause,
                 uuid = it.entity.uniqueId.toString()
             )
-            BEventChannel.consume(bEvent)
+            bEventChannel.consume(bEvent)
         }
     }
 }

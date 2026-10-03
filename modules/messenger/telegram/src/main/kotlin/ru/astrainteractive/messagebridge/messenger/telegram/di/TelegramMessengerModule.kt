@@ -26,6 +26,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
@@ -50,6 +51,7 @@ import kotlin.time.toJavaDuration
 class TelegramMessengerModule(
     coreModule: CoreModule,
     linkModule: LinkModule,
+    bEventChannel: BEventChannel,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
 
     private val ipv4FirstDns = object : Dns {
@@ -121,6 +123,7 @@ class TelegramMessengerModule(
         translationKrate = coreModule.translationKrate,
         telegramClientFlow = telegramClientFlow,
         relayedMessageCache = relayedMessageCache,
+        bEventChannel = bEventChannel,
     )
 
     private val authorMapper = TelegramAuthorMapper()
@@ -163,6 +166,7 @@ class TelegramMessengerModule(
         commandParser = commandParser,
         commandHandler = commandHandler,
         messageSender = messageSender,
+        bEventChannel = bEventChannel,
     )
 
     private val bridgeBotFlow = coreModule.configKrate

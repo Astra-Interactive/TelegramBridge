@@ -32,6 +32,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
+import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
@@ -52,7 +53,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class JdaMessengerModule(
     coreModule: CoreModule,
-    linkModule: LinkModule
+    linkModule: LinkModule,
+    bEventChannel: BEventChannel
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
@@ -162,6 +164,7 @@ class JdaMessengerModule(
         embedMapper = DiscordEmbedMapper(),
         memberResolver = DiscordMemberResolver(linkModule.linkingDao),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
+        bEventChannel = bEventChannel,
     )
 
     private val relevanceMapper = DiscordMessageRelevanceMapper(
@@ -185,6 +188,7 @@ class JdaMessengerModule(
         commandHandler = commandHandler,
         replyMapper = DiscordReplyMapper(),
         linkApi = linkModule.linkApi,
+        bEventChannel = bEventChannel,
     )
 
     val lifecycle = Lifecycle.Lambda(
