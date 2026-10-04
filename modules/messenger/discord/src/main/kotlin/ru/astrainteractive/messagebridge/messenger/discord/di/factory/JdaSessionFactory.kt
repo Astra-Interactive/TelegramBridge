@@ -25,7 +25,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ShutdownEvent
 import net.dv8tion.jda.api.requests.CloseCode
 import net.dv8tion.jda.api.requests.GatewayIntent
+import okhttp3.ConnectionPool
 import okhttp3.Credentials
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import ru.astrainteractive.klibs.kstorage.api.StateFlowKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
@@ -56,7 +58,12 @@ internal class JdaSessionFactory(
         .shareIn(ioScope, SharingStarted.Lazily, 1)
 
     @Suppress("MagicNumber")
-    private fun proxiedOkHttpClient(proxy: PluginConfiguration.Proxy): OkHttpClient = OkHttpClient.Builder()
+    private fun jdaOkHttpClientBuilder(): OkHttpClient.Builder = OkHttpClient.Builder()
+        .dispatcher(Dispatcher().apply { maxRequestsPerHost = 25 })
+        .connectionPool(ConnectionPool(5, 10, TimeUnit.SECONDS))
+
+    @Suppress("MagicNumber")
+    private fun proxiedOkHttpClient(proxy: PluginConfiguration.Proxy): OkHttpClient = jdaOkHttpClientBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .writeTimeout(10, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
@@ -76,7 +83,7 @@ internal class JdaSessionFactory(
 
     private fun okHttpClientSession(proxy: PluginConfiguration.Proxy?): Flow<OkHttpClient> = callbackFlow {
         val okHttpClient = if (proxy == null) {
-            OkHttpClient.Builder().build()
+            jdaOkHttpClientBuilder().build()
         } else {
             proxiedOkHttpClient(proxy)
         }
@@ -105,9 +112,9 @@ internal class JdaSessionFactory(
         enableIntents(intents)
         setActivity(Activity.playing(config.activity))
         setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
+        setHttpClient(okHttpClient)
         config.proxy?.let { proxy ->
             setWebsocketFactory(proxiedWebSocketFactory(proxy))
-            setHttpClient(okHttpClient)
         }
     }
 
