@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -19,8 +21,8 @@ import kotlinx.coroutines.runInterruptible
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.EventListener
 import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
@@ -33,6 +35,7 @@ import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
@@ -47,18 +50,21 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMemb
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
+import ru.astrainteractive.messagebridge.messenger.discord.util.flowEvent
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class JdaMessengerModule(
     coreModule: CoreModule,
     bEventChannel: BEventChannel,
     messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
     authorResolver: DiscordAuthorResolver,
-    private val eventListeners: List<EventListener>
+    private val memberLeaveListeners: List<DiscordMemberLeaveListener>
 ) : Logger by JUtiltLogger("MessageBridge-JdaMessengerModule").withoutParentHandlers() {
+    private val ioScope = coreModule.ioScope
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
@@ -147,6 +153,10 @@ class JdaMessengerModule(
         }
     )
 
+    private suspend fun notifyMemberLeave(discordUserId: Long) {
+        memberLeaveListeners.forEach { listener -> listener.onMemberLeave(discordUserId) }
+    }
+
     private fun jdaSession(
         okHttpClient: OkHttpClient,
         config: PluginConfiguration.JdaConfig
@@ -171,15 +181,22 @@ class JdaMessengerModule(
             }
         }
 
-        val jda = runInterruptible { builder.build() }
-        messageEventListener.onEnable(jda)
-        eventListeners.forEach(jda::addEventListener)
+        val jda = builder.build()
+        jda.flowEvent<MessageReceivedEvent>()
+            .onEach(messageEventListener::onMessageReceived)
+            .launchIn(this)
+        jda.flowEvent<GuildMemberRemoveEvent>()
+            .map { event -> event.user }
+            .map { user -> user.idLong }
+            .onEach { discordUserId -> ioScope.launch { notifyMemberLeave(discordUserId) } }
+            .launchIn(this)
         launch { send(runInterruptible { jda.awaitReady() }) }
 
         awaitClose {
             jda.shutdownNow()
-            jda.awaitShutdown()
-            jda.registeredListeners.forEach(jda::removeEventListener)
+            if (!jda.awaitShutdown(SHUTDOWN_TIMEOUT.toJavaDuration())) {
+                warn { "#jdaSession JDA did not shut down within $SHUTDOWN_TIMEOUT" }
+            }
         }
     }
 
@@ -204,5 +221,6 @@ class JdaMessengerModule(
     private companion object {
         val MAX_RECONNECT_DELAY = 32.seconds
         val RETRY_DELAY = 5.seconds
+        val SHUTDOWN_TIMEOUT = 10.seconds
     }
 }

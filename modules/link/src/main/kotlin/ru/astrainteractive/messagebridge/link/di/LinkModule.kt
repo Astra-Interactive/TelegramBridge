@@ -1,7 +1,6 @@
 package ru.astrainteractive.messagebridge.link.di
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.EventListener
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
@@ -27,12 +26,13 @@ import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import ru.astrainteractive.messagebridge.link.database.dao.internal.LinkingDaoImpl
 import ru.astrainteractive.messagebridge.link.database.di.LinkDatabaseModule
-import ru.astrainteractive.messagebridge.link.event.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.link.internal.LinkedNameInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 
 interface LinkModule {
     val lifecycle: Lifecycle
@@ -44,7 +44,7 @@ interface LinkModule {
     val linkingDao: LinkingDao
     val telegramLinkInterceptor: MessageInterceptor<Update>
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent>
-    val discordMemberLeaveListener: EventListener
+    val discordMemberLeaveListener: DiscordMemberLeaveListener
     val discordAuthorResolver: DiscordAuthorResolver
     val linkedNameInterceptor: TextInterceptor
 
@@ -94,9 +94,8 @@ interface LinkModule {
             linkTranslationKrate = linkTranslationKrate
         )
 
-        override val discordMemberLeaveListener: EventListener = DiscordMemberLeaveListener(
-            linkApi = linkApi,
-            ioScope = coreModule.ioScope
+        override val discordMemberLeaveListener: DiscordMemberLeaveListener = LinkedMemberLeaveListener(
+            linkApi = linkApi
         )
 
         override val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkingDao)

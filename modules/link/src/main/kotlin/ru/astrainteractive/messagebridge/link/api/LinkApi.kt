@@ -17,5 +17,5 @@ interface LinkApi {
 
     suspend fun linkTelegram(code: Int, tgUser: User): Response
 
-    suspend fun userLeaveDiscord(discordUser: net.dv8tion.jda.api.entities.User)
+    suspend fun userLeaveDiscord(discordUserId: Long)
 }

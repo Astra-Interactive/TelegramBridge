@@ -65,8 +65,8 @@ class LinkApiImpl(
         return Response.UnknownError
     }
 
-    override suspend fun userLeaveDiscord(discordUser: net.dv8tion.jda.api.entities.User) {
-        val user = linkingDao.findByDiscordId(discordUser.idLong)
+    override suspend fun userLeaveDiscord(discordUserId: Long) {
+        val user = linkingDao.findByDiscordId(discordUserId)
             .getOrNull() ?: return
         luckPermsRoleController.removeLinkedRole(user.uuid)
     }

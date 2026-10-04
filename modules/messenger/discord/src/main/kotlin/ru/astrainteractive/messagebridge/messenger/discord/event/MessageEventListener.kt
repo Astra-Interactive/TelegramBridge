@@ -2,7 +2,6 @@ package ru.astrainteractive.messagebridge.messenger.discord.event
 
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -12,7 +11,6 @@ import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.intercept
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messaging.model.Text
-import ru.astrainteractive.messagebridge.messenger.discord.event.core.DiscordEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
@@ -27,9 +25,7 @@ internal class MessageEventListener(
     private val messageSender: DiscordMessageSender,
     private val messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
     private val bEventConsumer: BEventConsumer,
-) : ListenerAdapter(),
-    DiscordEventListener,
-    CoroutineFeature by CoroutineFeature.IO.withTimings(),
+) : CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-MessageEventListener") {
 
     private suspend fun runInterceptors(event: MessageReceivedEvent): Interception {
@@ -40,7 +36,7 @@ internal class MessageEventListener(
         return interception
     }
 
-    override fun onMessageReceived(event: MessageReceivedEvent) {
+    fun onMessageReceived(event: MessageReceivedEvent) {
         when (relevanceMapper.map(event)) {
             DiscordMessageRelevance.Relevant -> launch { process(event) }
             DiscordMessageRelevance.PrivateMessage -> launch { runInterceptors(event) }
