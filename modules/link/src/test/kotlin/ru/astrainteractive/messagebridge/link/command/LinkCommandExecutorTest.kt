@@ -10,7 +10,6 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
-import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.fake.FakeCodeApi
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
@@ -22,14 +21,12 @@ import kotlin.test.assertEquals
 
 class LinkCommandExecutorTest {
     private val translation = PluginTranslation()
-    private val linkTranslation = LinkTranslation()
     private val codeApi = FakeCodeApi(code = 4821)
     private val linkingDao = FakeLinkingDao()
     private val executor = LinkCommandExecutor(
         codeApi = codeApi,
         linkingDao = linkingDao,
-        translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate(),
-        linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null }).asCachedKrate()
+        translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
@@ -57,7 +54,7 @@ class LinkCommandExecutorTest {
         executor.onIntent(LinkCommandExecutor.Intent.Link(steve))
 
         assertEquals(listOf(CodeUser(name = "Steve", uuid = steve.uuid)), codeApi.codeUsers)
-        assertEquals(listOf(plainTextOf(linkTranslation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
+        assertEquals(listOf(plainTextOf(translation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
     }
 
     @Test
@@ -83,7 +80,7 @@ class LinkCommandExecutorTest {
     fun GIVEN_player_without_links_WHEN_admin_asks_for_their_links_THEN_admin_reads_player_not_linked() = runTest {
         executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertReadOnly(admin, linkTranslation.unlink.playerNotLinked)
+        assertReadOnly(admin, translation.unlink.playerNotLinked)
     }
 
     @Test

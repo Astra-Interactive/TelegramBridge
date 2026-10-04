@@ -8,7 +8,6 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import java.util.UUID
@@ -16,11 +15,9 @@ import java.util.UUID
 internal class UnlinkCommandExecutor(
     private val linkingDao: LinkingDao,
     private val luckPermsRoleController: LuckPermsRoleController,
-    translationKrate: CachedKrate<PluginTranslation>,
-    linkTranslationKrate: CachedKrate<LinkTranslation>
+    translationKrate: CachedKrate<PluginTranslation>
 ) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
     private val translation by translationKrate
-    private val linkTranslation by linkTranslationKrate
 
     sealed interface Intent {
         data class Unlink(val player: OnlineKPlayer) : Intent
@@ -62,15 +59,15 @@ internal class UnlinkCommandExecutor(
             is Intent.Unlink -> unlink(
                 uuid = intent.player.uuid,
                 sender = intent.player,
-                notLinkedText = linkTranslation.unlink.notLinked,
-                unlinkedText = linkTranslation.unlink.success
+                notLinkedText = translation.unlink.notLinked,
+                unlinkedText = translation.unlink.success
             )
 
             is Intent.AdminUnlink -> unlink(
                 uuid = intent.targetPlayerUuid,
                 sender = intent.sender,
-                notLinkedText = linkTranslation.unlink.playerNotLinked,
-                unlinkedText = linkTranslation.unlink.playerSuccess
+                notLinkedText = translation.unlink.playerNotLinked,
+                unlinkedText = translation.unlink.playerSuccess
             )
         }
     }

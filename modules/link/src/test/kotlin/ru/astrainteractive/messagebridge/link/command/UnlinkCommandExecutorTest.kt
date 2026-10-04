@@ -8,7 +8,6 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
@@ -21,7 +20,6 @@ import kotlin.test.assertTrue
 
 class UnlinkCommandExecutorTest {
     private val translation = PluginTranslation()
-    private val linkTranslation = LinkTranslation()
     private val linkingDao = FakeLinkingDao()
     private val luckPermsProvider = FakeLuckPermsProvider()
     private val pluginConfiguration = PluginConfiguration(
@@ -36,8 +34,7 @@ class UnlinkCommandExecutorTest {
             configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
             luckPermsProvider = luckPermsProvider
         ),
-        translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate(),
-        linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null }).asCachedKrate()
+        translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
@@ -63,7 +60,7 @@ class UnlinkCommandExecutorTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
         assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertReadOnly(steve, linkTranslation.unlink.success)
+        assertReadOnly(steve, translation.unlink.success)
     }
 
     @Test
@@ -79,7 +76,7 @@ class UnlinkCommandExecutorTest {
     fun GIVEN_player_without_link_WHEN_unlinks_THEN_player_reads_not_linked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertReadOnly(steve, linkTranslation.unlink.notLinked)
+        assertReadOnly(steve, translation.unlink.notLinked)
     }
 
     @Test
@@ -111,7 +108,7 @@ class UnlinkCommandExecutorTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
         assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertReadOnly(admin, linkTranslation.unlink.playerSuccess)
+        assertReadOnly(admin, translation.unlink.playerSuccess)
         assertTrue(steve.messages.isEmpty())
     }
 
@@ -119,7 +116,7 @@ class UnlinkCommandExecutorTest {
     fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_admin_reads_player_not_linked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertReadOnly(admin, linkTranslation.unlink.playerNotLinked)
+        assertReadOnly(admin, translation.unlink.playerNotLinked)
     }
 
     @Test

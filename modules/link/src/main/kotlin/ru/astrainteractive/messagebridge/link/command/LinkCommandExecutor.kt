@@ -9,18 +9,15 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.api.CodeApi
 import ru.astrainteractive.messagebridge.link.api.model.CodeUser
-import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
 import java.util.UUID
 
 internal class LinkCommandExecutor(
     private val codeApi: CodeApi,
     private val linkingDao: LinkingDao,
-    translationKrate: CachedKrate<PluginTranslation>,
-    linkTranslationKrate: CachedKrate<LinkTranslation>
+    translationKrate: CachedKrate<PluginTranslation>
 ) : Logger by JUtiltLogger("MessageBridge-LinkCommandExecutor") {
     private val translation by translationKrate
-    private val linkTranslation by linkTranslationKrate
 
     sealed interface Intent {
         data class Link(val player: OnlineKPlayer) : Intent
@@ -36,7 +33,7 @@ internal class LinkCommandExecutor(
             uuid = player.uuid
         )
         val code = codeApi.generateCodeForPlayer(codeUser)
-        player.sendMessage(linkTranslation.link.codeCreated(code))
+        player.sendMessage(translation.link.codeCreated(code))
     }
 
     private suspend fun showUserInfo(intent: Intent.UserInfo) {
@@ -46,7 +43,7 @@ internal class LinkCommandExecutor(
             return
         }
         if (user == null) {
-            intent.sender.sendMessage(linkTranslation.unlink.playerNotLinked)
+            intent.sender.sendMessage(translation.unlink.playerNotLinked)
             return
         }
         intent.sender.sendMessage(

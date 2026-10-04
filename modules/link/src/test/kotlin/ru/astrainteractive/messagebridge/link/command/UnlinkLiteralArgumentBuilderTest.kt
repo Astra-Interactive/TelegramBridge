@@ -14,7 +14,6 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
@@ -31,7 +30,6 @@ import kotlin.test.assertTrue
 class UnlinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
-    private val linkTranslation = LinkTranslation()
     private val linkingDao = FakeLinkingDao()
     private val luckPermsRoleController = LuckPermsRoleController(
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
@@ -59,9 +57,7 @@ class UnlinkLiteralArgumentBuilderTest {
             executor = UnlinkCommandExecutor(
                 linkingDao = linkingDao,
                 luckPermsRoleController = luckPermsRoleController,
-                translationKrate = translationKrate,
-                linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null })
-                    .asCachedKrate()
+                translationKrate = translationKrate
             ),
             ioScope = ioScope,
             multiplatformCommand = multiplatformCommand,
@@ -83,7 +79,7 @@ class UnlinkLiteralArgumentBuilderTest {
         execute(input = "unlink", sender = steve)
 
         assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertEquals(listOf<LocalizableComponent>(linkTranslation.unlink.success), steve.messages)
+        assertEquals(listOf<LocalizableComponent>(translation.unlink.success), steve.messages)
     }
 
     @Test
@@ -93,6 +89,6 @@ class UnlinkLiteralArgumentBuilderTest {
         execute(input = "unlink Steve", sender = admin)
 
         assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertEquals(listOf<LocalizableComponent>(linkTranslation.unlink.playerSuccess), admin.messages)
+        assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
     }
 }

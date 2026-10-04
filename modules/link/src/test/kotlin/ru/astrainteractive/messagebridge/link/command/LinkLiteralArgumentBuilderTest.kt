@@ -13,7 +13,6 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.config.LinkTranslation
 import ru.astrainteractive.messagebridge.link.fake.FakeCodeApi
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
@@ -27,7 +26,6 @@ import kotlin.test.assertEquals
 class LinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
-    private val linkTranslation = LinkTranslation()
     private val steve = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"),
         name = "Steve"
@@ -45,9 +43,7 @@ class LinkLiteralArgumentBuilderTest {
             executor = LinkCommandExecutor(
                 codeApi = codeApi,
                 linkingDao = FakeLinkingDao(),
-                translationKrate = translationKrate,
-                linkTranslationKrate = DefaultMutableKrate(factory = { linkTranslation }, loader = { null })
-                    .asCachedKrate()
+                translationKrate = translationKrate
             ),
             ioScope = ioScope,
             multiplatformCommand = multiplatformCommand,
@@ -66,7 +62,7 @@ class LinkLiteralArgumentBuilderTest {
     fun GIVEN_player_WHEN_runs_link_THEN_reads_the_created_code() {
         executeAsSteve(input = "link", codeApi = FakeCodeApi(code = 4821))
 
-        assertEquals(listOf(plainTextOf(linkTranslation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
+        assertEquals(listOf(plainTextOf(translation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
     }
 
     @Test
@@ -82,6 +78,6 @@ class LinkLiteralArgumentBuilderTest {
     fun GIVEN_player_without_links_WHEN_someone_asks_for_their_links_THEN_reads_player_not_linked() {
         executeAsSteve(input = "link Steve", codeApi = FakeCodeApi(code = 4821))
 
-        assertEquals(listOf<LocalizableComponent>(linkTranslation.unlink.playerNotLinked), steve.messages)
+        assertEquals(listOf<LocalizableComponent>(translation.unlink.playerNotLinked), steve.messages)
     }
 }
