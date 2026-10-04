@@ -24,13 +24,13 @@ internal class LinkAccountUseCase(
 
     suspend fun link(code: Int, account: MessengerAccount): LinkResponse {
         val codeUser = codeApi.findUserByCode(code) ?: return LinkResponse.NoCode
-        codeApi.clearCode(code)
         val player = linkingDao.findByUuid(codeUser.uuid).getOrElse { _ -> return LinkResponse.UnknownError }
         if (player?.hasAccountOf(account) == true) return LinkResponse.AlreadyLinked
         val owner = findOwner(account).getOrElse { _ -> return LinkResponse.UnknownError }
         if (owner != null) return LinkResponse.AccountTaken
         return linkingDao.link(uuid = codeUser.uuid, minecraftName = codeUser.name, account = account).fold(
             onSuccess = { _ ->
+                codeApi.clearCode(code)
                 luckPermsRoleController.addLinkRole(codeUser.uuid)
                 LinkResponse.Linked
             },

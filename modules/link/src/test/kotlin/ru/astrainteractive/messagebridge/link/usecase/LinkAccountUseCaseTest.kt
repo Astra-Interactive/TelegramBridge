@@ -147,6 +147,44 @@ class LinkAccountUseCaseTest {
         assertEquals(0, luckPermsProvider.provideCallCount)
     }
 
+    @Test
+    fun GIVEN_account_linked_WHEN_the_same_code_is_sent_again_THEN_no_code() = runTest {
+        val code = codeApi.generateCodeForPlayer(steve)
+        useCase.link(code, stevie)
+
+        assertEquals(LinkResponse.NoCode, useCase.link(code, steveTelegram))
+    }
+
+    @Test
+    fun GIVEN_unreadable_database_WHEN_code_is_sent_THEN_the_code_still_links_once_the_database_is_back() = runTest {
+        val code = codeApi.generateCodeForPlayer(steve)
+        linkingDao.findFailure = IllegalStateException("Database is locked")
+        useCase.link(code, stevie)
+        linkingDao.findFailure = null
+
+        assertEquals(LinkResponse.Linked, useCase.link(code, stevie))
+    }
+
+    @Test
+    fun GIVEN_database_that_can_not_write_WHEN_code_is_sent_THEN_the_code_still_links_later() = runTest {
+        val code = codeApi.generateCodeForPlayer(steve)
+        linkingDao.linkFailure = IllegalStateException("Database is read-only")
+        useCase.link(code, stevie)
+        linkingDao.linkFailure = null
+
+        assertEquals(LinkResponse.Linked, useCase.link(code, stevie))
+    }
+
+    @Test
+    fun GIVEN_account_linked_to_another_player_WHEN_it_sends_a_code_THEN_the_code_stays_for_another_account() =
+        runTest {
+            linkingDao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie)
+            val code = codeApi.generateCodeForPlayer(steve)
+            useCase.link(code, stevie)
+
+            assertEquals(LinkResponse.Linked, useCase.link(code, steveTelegram))
+        }
+
     private companion object {
         const val DISCORD_ID = 4242L
         const val OTHER_DISCORD_ID = 4343L
