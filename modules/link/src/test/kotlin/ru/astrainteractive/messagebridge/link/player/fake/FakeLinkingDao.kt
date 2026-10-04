@@ -39,6 +39,18 @@ internal class FakeLinkingDao : LinkingDao {
         return Result.success(Unit)
     }
 
+    override suspend fun unlinkDiscord(discordId: Long): Result<LinkedPlayer?> {
+        deleteFailure?.let { t -> return Result.failure(t) }
+        val player = linkedPlayers.values.firstOrNull { linkedPlayer -> linkedPlayer.discord?.id == discordId }
+            ?: return Result.success(null)
+        if (player.telegram == null) {
+            linkedPlayers.remove(player.uuid)
+        } else {
+            linkedPlayers[player.uuid] = player.copy(discord = null)
+        }
+        return Result.success(player)
+    }
+
     override suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?> {
         deleteFailure?.let { t -> return Result.failure(t) }
         return Result.success(linkedPlayers.remove(uuid))

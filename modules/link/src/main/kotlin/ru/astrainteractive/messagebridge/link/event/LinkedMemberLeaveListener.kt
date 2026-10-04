@@ -11,10 +11,11 @@ internal class LinkedMemberLeaveListener(
     private val luckPermsRoleController: LuckPermsRoleController
 ) : DiscordMemberLeaveListener, Logger by JUtiltLogger("MessageBridge-LinkedMemberLeaveListener") {
     override suspend fun onMemberLeave(discordUserId: Long) {
-        val player = linkingDao.findByDiscordId(discordUserId).getOrElse { t ->
-            error(t) { "#onMemberLeave could not read the link of Discord user $discordUserId" }
+        val player = linkingDao.unlinkDiscord(discordUserId).getOrElse { t ->
+            error(t) { "#onMemberLeave could not unlink Discord user $discordUserId" }
             return
         } ?: return
+        if (player.telegram != null) return
         luckPermsRoleController.removeLinkedRole(player.uuid)
     }
 }

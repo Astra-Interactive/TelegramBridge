@@ -10,4 +10,5 @@ internal interface LinkingDao {
     suspend fun findByTelegramId(telegramId: Long): Result<LinkedPlayer?>
     suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<Unit>
     suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?>
+    suspend fun unlinkDiscord(discordId: Long): Result<LinkedPlayer?>
 }

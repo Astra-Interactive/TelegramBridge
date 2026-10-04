@@ -104,6 +104,16 @@ internal class LinkingDaoImpl(
         player
     }
 
+    override suspend fun unlinkDiscord(discordId: Long): Result<LinkedPlayer?> =
+        query("unlink Discord account $discordId") {
+            val player = findWhere(DiscordAccountTable.discordId eq discordId) ?: return@query null
+            DiscordAccountTable.deleteWhere { DiscordAccountTable.discordId eq discordId }
+            if (player.telegram == null) {
+                PlayerTable.deleteWhere { PlayerTable.uuid eq player.uuid }
+            }
+            player
+        }
+
     private companion object {
         val DATABASE_TIMEOUT = 10.seconds
     }

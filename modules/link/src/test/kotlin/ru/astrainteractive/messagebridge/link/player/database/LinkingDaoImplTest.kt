@@ -126,6 +126,37 @@ class LinkingDaoImplTest {
     }
 
     @Test
+    fun GIVEN_player_with_two_accounts_WHEN_discord_is_unlinked_THEN_telegram_stays_and_discord_is_free() = runTest {
+        val dao = dao()
+        dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie)
+        dao.link(uuid = steveUuid, minecraftName = "Steve", account = steveTelegram)
+
+        val unlinked = dao.unlinkDiscord(STEVE_DISCORD_ID).getOrThrow()
+
+        assertEquals(stevie, unlinked?.discord)
+        assertEquals(
+            LinkedPlayer(uuid = steveUuid, minecraftName = "Steve", discord = null, telegram = steveTelegram),
+            dao.findByUuid(steveUuid).getOrThrow()
+        )
+        assertNull(dao.findByDiscordId(STEVE_DISCORD_ID).getOrThrow())
+    }
+
+    @Test
+    fun GIVEN_player_with_only_discord_WHEN_discord_is_unlinked_THEN_the_player_is_gone() = runTest {
+        val dao = dao()
+        dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie)
+
+        dao.unlinkDiscord(STEVE_DISCORD_ID).getOrThrow()
+
+        assertNull(dao.findByUuid(steveUuid).getOrThrow())
+    }
+
+    @Test
+    fun GIVEN_unknown_discord_account_WHEN_unlinked_THEN_no_player_is_returned() = runTest {
+        assertNull(dao().unlinkDiscord(STEVE_DISCORD_ID).getOrThrow())
+    }
+
+    @Test
     fun GIVEN_nothing_linked_WHEN_deleted_THEN_no_player_is_returned() = runTest {
         assertNull(dao().deleteByUuid(steveUuid).getOrThrow())
     }
