@@ -10,6 +10,7 @@ import ru.astrainteractive.astralibs.server.util.asKAudience
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
@@ -17,7 +18,6 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
-import ru.astrainteractive.messagebridge.messaging.api.tryConsume
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -56,9 +56,7 @@ internal class MinecraftBEventConsumer(
         )
     }
 
-    override suspend fun consume(bEvent: BEvent) {
-        if (bEvent.from == MessageFrom.MINECRAFT) return
-
+    private suspend fun show(bEvent: BEvent) {
         val text = when (bEvent) {
             is Text -> toMinecraftComponent(bEvent)
 
@@ -74,10 +72,17 @@ internal class MinecraftBEventConsumer(
         }
     }
 
+    override suspend fun consume(bEvent: BEvent) {
+        if (bEvent.from == MessageFrom.MINECRAFT) return
+        runCatching { show(bEvent) }
+            .propagateCancellationException()
+            .onFailure { t -> error(t) { "#consume could not show $bEvent in game" } }
+    }
+
     init {
         bEventReceiver
             .bEvents(this)
-            .onEach { bEvent -> tryConsume(bEvent) }
+            .onEach { bEvent -> consume(bEvent) }
             .launchIn(this)
     }
 }

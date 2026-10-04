@@ -97,6 +97,11 @@ class MinecraftBEventConsumerTest {
         assertEquals("[DS] Stevie: hello", plainText(component))
     }
 
+    @Test
+    fun GIVEN_main_thread_unavailable_WHEN_chat_message_is_consumed_THEN_consume_returns() = runTest {
+        consumer().consume(telegramText)
+    }
+
     private companion object {
         const val STEVE_TG = 77L
         const val ALEX_TG = 78L
