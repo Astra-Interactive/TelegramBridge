@@ -122,10 +122,14 @@ class TelegramMessengerModule(
         capacity = RELAYED_MESSAGE_CACHE_CAPACITY
     )
 
+    private val messageSender = TelegramMessageSender(
+        telegramClientFlow = telegramClientFlow,
+    )
+
     private val telegramMessageController = TelegramBEventConsumer(
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
-        telegramClientFlow = telegramClientFlow,
+        messageSender = messageSender,
         relayedMessageCache = relayedMessageCache,
         bEventReceiver = bEventChannel,
     )
@@ -150,10 +154,6 @@ class TelegramMessengerModule(
     )
 
     private val commandParser = TelegramCommandMapper()
-
-    private val messageSender = TelegramMessageSender(
-        telegramClientFlow = telegramClientFlow,
-    )
 
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,

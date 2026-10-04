@@ -1,13 +1,7 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.messaging
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -19,7 +13,6 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.api.tryConsume
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -33,7 +26,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRel
 internal class TelegramBEventConsumer(
     configKrate: CachedKrate<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>,
-    private val telegramClientFlow: Flow<OkHttpTelegramClient>,
+    private val messageSender: TelegramMessageSender,
     private val relayedMessageCache: TelegramRelayedMessageCache,
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
@@ -43,12 +36,6 @@ internal class TelegramBEventConsumer(
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
     private val translation by translationKrate
-
-    private suspend fun telegramClientOrNull(): OkHttpTelegramClient? {
-        return runCatching { telegramClientFlow.firstOrNull() }
-            .onFailure { t -> error(t) { "#onDisable could not get telegramClient: ${t.message} ${t.cause?.message}" } }
-            .getOrNull()
-    }
 
     private suspend fun send(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.TELEGRAM) return
@@ -94,23 +81,9 @@ internal class TelegramBEventConsumer(
                 translation.server.started
             }
         }.toMessengerText()
-        val sendMessage = SendMessage(tgConfig.chatID, text).apply {
-            replyToMessageId = tgConfig.topicID.toIntOrNull()
-        }
-        try {
-            val sentMessage = telegramClientOrNull()?.execute(sendMessage)
-            if (sentMessage != null && bEvent is Text) {
-                relayedMessageCache.remember(sentMessage.chatId, sentMessage.messageId, bEvent)
-            }
-        } catch (e: TelegramApiRequestException) {
-            @Suppress("MagicNumber")
-            if (e.errorCode == 404) {
-                error { "#sendMessage: Wrong token, chat or topic id" }
-            } else {
-                error(e) { "#sendMessage unknown exception" }
-            }
-        } catch (e: TelegramApiException) {
-            error { "#sendMessage: Got TelegramApiException: ${e.message}. Probably fake exception." }
+        val sentMessage = messageSender.send(tgConfig.chatID, text, tgConfig.topicID.toIntOrNull()) ?: return
+        if (bEvent is Text) {
+            relayedMessageCache.remember(sentMessage.chatId, sentMessage.messageId, bEvent)
         }
     }
 
@@ -125,7 +98,7 @@ internal class TelegramBEventConsumer(
     init {
         bEventReceiver
             .bEvents(this)
-            .onEach { bEvent -> tryConsume(bEvent) }
+            .onEach { bEvent -> consume(bEvent) }
             .launchIn(this)
     }
 }

@@ -1,42 +1,36 @@
 package ru.astrainteractive.messagebridge.messenger.telegram.messaging
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.future.await
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
+import org.telegram.telegrambots.meta.api.objects.message.Message
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messaging.util.withRetry
 import java.io.Serializable
 
 internal class TelegramMessageSender(
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramMessageSender").withoutParentHandlers() {
 
-    suspend fun send(chatId: String, text: String, replyToMessageId: Int? = null) {
+    private suspend fun <T : Serializable> execute(method: BotApiMethod<T>): Result<T> {
+        return runCatching { telegramClientFlow.first().executeAsync(method).await() }
+            .propagateCancellationException()
+    }
+
+    suspend fun send(chatId: String, text: String, replyToMessageId: Int? = null): Message? {
         val sendMessage = SendMessage(chatId, text).apply { this.replyToMessageId = replyToMessageId }
-        executeWithRetry(sendMessage) { "#send could not send message to chat $chatId" }
+        return execute(sendMessage)
+            .onFailure { t -> error { "#send could not send a message to chat $chatId: $t" } }
+            .getOrNull()
     }
 
     suspend fun delete(chatId: String, messageId: Int) {
-        executeWithRetry(DeleteMessage(chatId, messageId)) { "#delete could not delete message $messageId" }
-    }
-
-    private suspend fun <T : Serializable> executeWithRetry(method: BotApiMethod<T>, errorMessage: () -> String) {
-        flow { emit(clientOrNull()?.execute(method)) }
-            .withRetry(logger = this)
-            .catch { t -> error(t) { errorMessage() } }
-            .collect()
-    }
-
-    private suspend fun clientOrNull(): OkHttpTelegramClient? {
-        return runCatching { telegramClientFlow.firstOrNull() }
-            .onFailure { t -> error(t) { "#clientOrNull could not resolve telegram client: ${t.message}" } }
-            .getOrNull()
+        execute(DeleteMessage(chatId, messageId))
+            .onFailure { t -> error { "#delete could not delete message $messageId: $t" } }
     }
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import okhttp3.Dispatcher
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -50,6 +51,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMess
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.messaging.fake.DirectExecutorService
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -113,7 +115,10 @@ class TelegramChatConsumerTest {
     private val messageSender = TelegramMessageSender(
         telegramClientFlow = flowOf(
             OkHttpTelegramClient(
-                OkHttpClient.Builder().addInterceptor { chain -> respond(chain) }.build(),
+                OkHttpClient.Builder()
+                    .dispatcher(Dispatcher(DirectExecutorService))
+                    .addInterceptor { chain -> respond(chain) }
+                    .build(),
                 "123:token"
             )
         )
