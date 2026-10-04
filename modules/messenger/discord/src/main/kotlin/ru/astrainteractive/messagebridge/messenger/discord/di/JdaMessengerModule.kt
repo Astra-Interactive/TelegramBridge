@@ -2,6 +2,8 @@ package ru.astrainteractive.messagebridge.messenger.discord.di
 
 import com.neovisionaries.ws.client.WebSocketFactory
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -18,15 +20,19 @@ import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.session.ShutdownEvent
+import net.dv8tion.jda.api.requests.CloseCode
 import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
@@ -49,7 +55,9 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordChan
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopicUpdater
+import ru.astrainteractive.messagebridge.messenger.discord.model.DisallowedIntentsError
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
+import ru.astrainteractive.messagebridge.messenger.discord.util.fallbackOnDisallowedIntents
 import ru.astrainteractive.messagebridge.messenger.discord.util.flowEvent
 import java.net.InetSocketAddress
 import java.net.Proxy
@@ -157,14 +165,19 @@ class JdaMessengerModule(
         memberLeaveListeners.forEach { listener -> listener.onMemberLeave(discordUserId) }
     }
 
+    private suspend fun sessionFailure(t: Throwable, shutdownCode: Deferred<CloseCode?>): Throwable {
+        val closeCode = withTimeoutOrNull(SHUTDOWN_EVENT_TIMEOUT) { shutdownCode.await() }
+        if (closeCode == CloseCode.DISALLOWED_INTENTS) return DisallowedIntentsError(t)
+        return t
+    }
+
     private fun jdaSession(
         okHttpClient: OkHttpClient,
-        config: PluginConfiguration.JdaConfig
+        config: PluginConfiguration.JdaConfig,
+        intents: List<GatewayIntent>
     ): Flow<JDA> = callbackFlow {
         val builder = JDABuilder.createLight(config.token).apply {
-            enableIntents(GatewayIntent.MESSAGE_CONTENT)
-            enableIntents(GatewayIntent.DIRECT_MESSAGES)
-            enableIntents(GatewayIntent.GUILD_MESSAGES)
+            enableIntents(intents)
             setActivity(Activity.playing(config.activity))
             setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
             config.proxy?.let { proxy ->
@@ -190,7 +203,18 @@ class JdaMessengerModule(
             .map { user -> user.idLong }
             .onEach { discordUserId -> ioScope.launch { notifyMemberLeave(discordUserId) } }
             .launchIn(this)
-        launch { send(runInterruptible { jda.awaitReady() }) }
+        val shutdownCode = CompletableDeferred<CloseCode?>()
+        jda.flowEvent<ShutdownEvent>()
+            .onEach { event -> shutdownCode.complete(event.closeCode) }
+            .launchIn(this)
+        launch {
+            runCatching { runInterruptible { jda.awaitReady() } }
+                .propagateCancellationException()
+                .fold(
+                    onSuccess = { readyJda -> send(readyJda) },
+                    onFailure = { t -> close(sessionFailure(t, shutdownCode)) }
+                )
+        }
 
         awaitClose {
             jda.shutdownNow()
@@ -215,12 +239,24 @@ class JdaMessengerModule(
     }
 
     private fun connect(config: PluginConfiguration.JdaConfig): Flow<DiscordChannel> = okHttpClientFlow
-        .flatMapLatest { okHttpClient -> jdaSession(okHttpClient, config) }
+        .flatMapLatest { okHttpClient ->
+            jdaSession(okHttpClient, config, MESSAGE_INTENTS + GatewayIntent.GUILD_MEMBERS)
+                .fallbackOnDisallowedIntents(
+                    onFallback = { warn { "#connect Server Members Intent is off: member leaves are not tracked" } },
+                    fallback = { jdaSession(okHttpClient, config, MESSAGE_INTENTS) }
+                )
+        }
         .flatMapLatest { jda -> channelSession(jda, config.channelId) }
 
     private companion object {
         val MAX_RECONNECT_DELAY = 32.seconds
         val RETRY_DELAY = 5.seconds
         val SHUTDOWN_TIMEOUT = 10.seconds
+        val SHUTDOWN_EVENT_TIMEOUT = 5.seconds
+        val MESSAGE_INTENTS = listOf(
+            GatewayIntent.MESSAGE_CONTENT,
+            GatewayIntent.DIRECT_MESSAGES,
+            GatewayIntent.GUILD_MESSAGES
+        )
     }
 }
