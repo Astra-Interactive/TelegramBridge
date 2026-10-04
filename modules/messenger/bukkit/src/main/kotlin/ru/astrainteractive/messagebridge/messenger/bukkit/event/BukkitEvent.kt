@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.bukkit.events
+package ru.astrainteractive.messagebridge.messenger.bukkit.event
 
 import io.papermc.paper.event.player.AsyncChatEvent
 import kotlinx.coroutines.channels.Channel

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
+package ru.astrainteractive.messagebridge.messenger.bukkit.internal
 
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

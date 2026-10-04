@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
+package ru.astrainteractive.messagebridge.messenger.bukkit.internal
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.MainCoroutineDispatcher
