@@ -34,7 +34,17 @@ class DiscordMemberResolverTest {
         )
     )
 
-    private fun channel(cached: Member?): TextChannel {
+    private val failedRetrieval: CacheRestAction<Member> = jdaFake(
+        mapOf(
+            "queue" to JdaAnswer { args ->
+                args[1]
+                    ?.tryCast<Consumer<Throwable>>()
+                    ?.accept(IllegalStateException("10007: Unknown Member"))
+            }
+        )
+    )
+
+    private fun channel(cached: Member?, retrieval: CacheRestAction<Member> = memberRetrieval): TextChannel {
         val guild: Guild = jdaFake(
             mapOf(
                 "getMemberById" to JdaAnswer { args ->
@@ -43,7 +53,7 @@ class DiscordMemberResolverTest {
                 },
                 "retrieveMemberById" to JdaAnswer { args ->
                     guildCalls += "retrieveMemberById:${args.first()}"
-                    memberRetrieval
+                    retrieval
                 }
             )
         )
@@ -81,6 +91,15 @@ class DiscordMemberResolverTest {
 
         assertSame(fetchedMember, member)
         assertEquals(listOf("getMemberById:$DISCORD_ID", "retrieveMemberById:$DISCORD_ID"), guildCalls)
+    }
+
+    @Test
+    fun GIVEN_linked_author_who_left_the_server_WHEN_resolved_THEN_no_member_instead_of_a_failure() = runTest {
+        val channel = channel(cached = null, retrieval = failedRetrieval)
+
+        val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+
+        assertNull(member)
     }
 
     private companion object {
