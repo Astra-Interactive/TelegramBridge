@@ -18,9 +18,11 @@ internal class FakeWebhookClient : WebhookClient(
     0L
 ) {
     val sent = mutableListOf<WebhookMessage>()
+    var failure: Throwable? = null
 
     override fun send(message: WebhookMessage): CompletableFuture<ReadonlyMessage> {
         sent += message
-        return CompletableFuture()
+        val t = failure ?: return CompletableFuture.completedFuture(null)
+        return CompletableFuture.failedFuture(t)
     }
 }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.coroutines.withTimings
@@ -74,7 +75,7 @@ internal class DiscordBEventConsumer(
     private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
         val member = memberResolver.resolve(channel, event)
         val message = webhookMessageMapper.map(event, member)
-        webhookClient.send(message)
+        webhookClient.send(message).await()
     }
 
     private suspend fun sendServerStatus(channel: TextChannel, text: String) {

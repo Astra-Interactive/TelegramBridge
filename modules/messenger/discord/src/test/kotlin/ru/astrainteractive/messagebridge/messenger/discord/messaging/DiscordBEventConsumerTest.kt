@@ -29,6 +29,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -129,6 +130,15 @@ class DiscordBEventConsumerTest {
         assertEquals("[MC] Steve", message.username)
         assertEquals("hello", message.content)
         assertTrue(sentMessages.isEmpty())
+    }
+
+    @Test
+    fun GIVEN_webhook_that_fails_WHEN_chat_message_is_consumed_THEN_the_failure_reaches_the_caller() = runTest {
+        webhookClient.failure = IllegalStateException("429: You are being rate limited")
+
+        val t = assertFailsWith<IllegalStateException> { consumer(ready).consume(steveMessage) }
+
+        assertEquals("429: You are being rate limited", t.message)
     }
 
     @Test
