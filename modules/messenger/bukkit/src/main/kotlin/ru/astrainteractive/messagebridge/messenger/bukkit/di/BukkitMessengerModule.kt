@@ -3,14 +3,10 @@ package ru.astrainteractive.messagebridge.messenger.bukkit.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import org.bukkit.event.EventPriority
-import ru.astrainteractive.astralibs.event.flowEvent
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -39,10 +35,7 @@ class BukkitMessengerModule(
 
     private val bukkitEvent = BukkitEvent(
         configKrate = coreModule.configKrate,
-        eventFlow = { type ->
-            flowEvent(bukkitCoreModule.plugin, type, EventPriority.MONITOR)
-                .buffer(Channel.UNLIMITED)
-        }
+        plugin = bukkitCoreModule.plugin
     )
 
     val lifecycle = Lifecycle.Lambda(
