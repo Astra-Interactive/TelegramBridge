@@ -27,15 +27,18 @@ import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordBEve
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordChannelProvider
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordRoleUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 
 class JdaMessengerModule(
     coreModule: CoreModule,
     bEventChannel: BEventChannel,
     messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
     authorResolver: DiscordAuthorResolver,
-    memberLeaveListeners: List<DiscordMemberLeaveListener>
+    memberLeaveListeners: List<DiscordMemberLeaveListener>,
+    roleChanges: Flow<DiscordRoleChange>
 ) {
     private val relevanceMapper = DiscordMessageRelevanceMapper(
         configKrate = coreModule.configKrate,
@@ -88,12 +91,18 @@ class JdaMessengerModule(
         bEventReceiver = bEventChannel,
     )
 
+    private val roleUpdater = DiscordRoleUpdater(
+        discordChannel = channelProvider.channel,
+        roleChanges = roleChanges,
+    )
+
     val bEventConsumer: BEventConsumer = discordMessageController
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
             discordMessageController.cancel()
             messageEventListener.cancel()
+            roleUpdater.cancel()
         }
     )
 

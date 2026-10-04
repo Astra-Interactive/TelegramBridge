@@ -2,18 +2,17 @@
 
 package ru.astrainteractive.messagebridge.link.command
 
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
@@ -31,12 +30,12 @@ import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class DiscordLinkInterceptorTest {
@@ -45,18 +44,16 @@ class DiscordLinkInterceptorTest {
         factory = {
             PluginConfiguration(
                 jdaConfig = PluginConfiguration.JdaConfig(channelId = BRIDGE_CHANNEL_ID),
-                link = PluginConfiguration.Link(linkDiscordRole = ROLE_ID, linkLuckPermsRole = "verified")
+                link = PluginConfiguration.Link(linkDiscordRole = "$ROLE_ID", linkLuckPermsRole = "verified")
             )
         },
         loader = { null }
     ).asCachedKrate()
-    private val grantedRoles = mutableListOf<Any?>()
-    private val linkedRole: Role = jdaFake(emptyMap())
+    private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private var memberOnServer: Member? = null
     private val guild: Guild = jdaFake(
         mapOf(
             "getName" to "Bridge",
-            "getRoleById" to JdaAnswer { args -> linkedRole.takeIf { _ -> args.first() == ROLE_ID } },
             "retrieveMemberById" to JdaAnswer { _ ->
                 val member = memberOnServer
                 val future = if (member == null) {
@@ -65,10 +62,6 @@ class DiscordLinkInterceptorTest {
                     CompletableFuture.completedFuture(member)
                 }
                 jdaFake<CacheRestAction<Member>>(mapOf("submit" to future))
-            },
-            "addRoleToMember" to JdaAnswer { args ->
-                grantedRoles += args[1]
-                jdaFake<AuditableRestAction<Void>>(mapOf("queue" to null))
             }
         )
     )
@@ -83,7 +76,7 @@ class DiscordLinkInterceptorTest {
                 luckPermsProvider = FakeLuckPermsProvider()
             )
         ),
-        discordRoleController = DiscordRoleController(configKrate),
+        discordRoleController = DiscordRoleController(configKrate = configKrate, roleChanges = roleChanges),
         configKrate = configKrate,
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
@@ -92,6 +85,7 @@ class DiscordLinkInterceptorTest {
         mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "Stevie", "getGuild" to guild)
     )
     private val stevieUser: User = jdaFake(mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "stevie_global"))
+    private val stevieGrant = DiscordRoleChange.Grant(discordUserId = DISCORD_ID, roleId = ROLE_ID)
     private val bridgeChannel: TextChannel = jdaFake(mapOf("getGuild" to guild))
     private val jda: JDA = jdaFake(
         mapOf(
@@ -151,7 +145,7 @@ class DiscordLinkInterceptorTest {
                 MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie"),
                 linkingDao.linkedPlayers[steve.uuid]?.discord
             )
-            assertSame(linkedRole, grantedRoles.single())
+            assertEquals(stevieGrant, roleChanges.tryReceive().getOrNull())
         }
 
     @Test
@@ -166,7 +160,7 @@ class DiscordLinkInterceptorTest {
                 MessengerAccount.Discord(id = DISCORD_ID, name = "stevie_global"),
                 linkingDao.linkedPlayers[steve.uuid]?.discord
             )
-            assertTrue(grantedRoles.isEmpty())
+            assertTrue(roleChanges.tryReceive().isFailure)
         }
 
     @Test
@@ -186,18 +180,18 @@ class DiscordLinkInterceptorTest {
 
         interceptor.intercept(event("/link $code", stevie, ChannelType.TEXT))
 
-        assertSame(linkedRole, grantedRoles.single())
+        assertEquals(stevieGrant, roleChanges.tryReceive().getOrNull())
     }
 
     @Test
     fun GIVEN_code_nobody_created_WHEN_member_sends_it_THEN_member_gets_no_role() = runTest {
         interceptor.intercept(event("/link $UNKNOWN_CODE", stevie, ChannelType.TEXT))
 
-        assertTrue(grantedRoles.isEmpty())
+        assertTrue(roleChanges.tryReceive().isFailure)
     }
 
     private companion object {
-        const val ROLE_ID = "123456789012345678"
+        const val ROLE_ID = 123456789012345678L
         const val BRIDGE_CHANNEL_ID = "555"
         const val UNKNOWN_CODE = 1234
         const val DISCORD_ID = 4242L

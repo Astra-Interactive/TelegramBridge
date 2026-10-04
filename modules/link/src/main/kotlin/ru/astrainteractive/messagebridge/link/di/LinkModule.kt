@@ -1,5 +1,8 @@
 package ru.astrainteractive.messagebridge.link.di
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
@@ -25,6 +28,7 @@ import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 
 class LinkModule(
     coreModule: CoreModule,
@@ -50,6 +54,15 @@ class LinkModule(
         luckPermsRoleController = luckPermsRoleController
     )
 
+    private val discordRoleChannel = Channel<DiscordRoleChange>(Channel.UNLIMITED)
+
+    private val discordRoleController = DiscordRoleController(
+        configKrate = coreModule.configKrate,
+        roleChanges = discordRoleChannel
+    )
+
+    val discordRoleChanges: Flow<DiscordRoleChange> = discordRoleChannel.receiveAsFlow()
+
     val telegramLinkInterceptor: MessageInterceptor<Update> = TelegramLinkInterceptor(
         linkAccountUseCase = linkAccountUseCase,
         translationKrate = coreModule.translationKrate
@@ -57,7 +70,7 @@ class LinkModule(
 
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent> = DiscordLinkInterceptor(
         linkAccountUseCase = linkAccountUseCase,
-        discordRoleController = DiscordRoleController(coreModule.configKrate),
+        discordRoleController = discordRoleController,
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate
     )

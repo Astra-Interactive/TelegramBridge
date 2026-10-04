@@ -1,24 +1,25 @@
 package ru.astrainteractive.messagebridge.link.internal
 
-import net.dv8tion.jda.api.entities.Member
+import kotlinx.coroutines.channels.SendChannel
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 
 internal class DiscordRoleController(
     configKrate: CachedKrate<PluginConfiguration>,
+    private val roleChanges: SendChannel<DiscordRoleChange>
 ) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController").withoutParentHandlers() {
     private val config by configKrate
 
-    fun addLinkedRole(member: Member) {
+    suspend fun addLinkedRole(discordUserId: Long) {
         val link = config.link ?: return
-        val guild = member.guild
-        val role = guild.getRoleById(link.linkDiscordRole) ?: run {
-            error { "#accountLinked could not find role with id ${link.linkDiscordRole}" }
+        val roleId = link.linkDiscordRole.toLongOrNull() ?: run {
+            error { "#addLinkedRole linkDiscordRole ${link.linkDiscordRole} is not a Discord role id" }
             return
         }
-        guild.addRoleToMember(member, role).queue()
+        roleChanges.send(DiscordRoleChange.Grant(discordUserId = discordUserId, roleId = roleId))
     }
 }

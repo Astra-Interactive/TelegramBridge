@@ -58,7 +58,7 @@ internal class DiscordLinkInterceptor(
         )
         val response = linkAccountUseCase.link(code, account)
         if (response == LinkResponse.Linked && member != null) {
-            discordRoleController.addLinkedRole(member)
+            discordRoleController.addLinkedRole(account.id)
         }
         return Interception.Reply(response.asMessage(translation.link).toMessengerText())
     }

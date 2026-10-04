@@ -69,7 +69,8 @@ class RootModule(
             bEventChannel = bEventChannel,
             messageInterceptors = listOf(linkModule.discordLinkInterceptor),
             authorResolver = linkModule.discordAuthorResolver,
-            memberLeaveListeners = listOf(linkModule.discordMemberLeaveListener)
+            memberLeaveListeners = listOf(linkModule.discordMemberLeaveListener),
+            roleChanges = linkModule.discordRoleChanges
         )
     }
 
