@@ -1,7 +1,9 @@
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.api.brigadier.command.PaperMultiplatformCommands
 import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrarContext
@@ -17,7 +19,6 @@ import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.api.tryConsumeWithin
 import ru.astrainteractive.messagebridge.messaging.impl.BEventChannelImpl
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
@@ -100,16 +101,12 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            val isServerClosedConsumed = runBlocking {
-                listOf(telegramMessengerModule.bEventConsumer, jdaMessengerModule.bEventConsumer)
-                    .tryConsumeWithin(
-                        bEvent = ServerClosedBEvent,
-                        timeout = SERVER_CLOSED_TIMEOUT,
-                        scope = coreModule.ioScope
-                    )
-            }
-            if (!isServerClosedConsumed) {
-                warn { "#onDisable messengers did not consume $ServerClosedBEvent within $SERVER_CLOSED_TIMEOUT" }
+            runBlocking {
+                withTimeoutOrNull(SERVER_CLOSED_TIMEOUT) {
+                    listOf(telegramMessengerModule.bEventConsumer, jdaMessengerModule.bEventConsumer)
+                        .map { consumer -> coreModule.ioScope.launch { consumer.consume(ServerClosedBEvent) } }
+                        .joinAll()
+                } ?: warn { "#onDisable messengers did not consume $ServerClosedBEvent within $SERVER_CLOSED_TIMEOUT" }
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }
