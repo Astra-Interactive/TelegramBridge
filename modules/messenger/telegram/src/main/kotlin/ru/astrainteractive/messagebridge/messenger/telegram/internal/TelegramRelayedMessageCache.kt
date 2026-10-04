@@ -2,7 +2,7 @@ package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 
 internal class TelegramRelayedMessageCache(
     private val capacity: Int

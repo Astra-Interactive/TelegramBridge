@@ -2,8 +2,8 @@ package ru.astrainteractive.messagebridge.messenger.discord.mapping
 
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
-import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class DiscordReplyMapper {
     private val sourceTagRegex = MessageFrom.entries

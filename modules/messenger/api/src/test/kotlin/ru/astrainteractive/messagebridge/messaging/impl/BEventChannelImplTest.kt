@@ -13,9 +13,9 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

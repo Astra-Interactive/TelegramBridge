@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.discord.mapping
 import club.minnced.discord.webhook.send.WebhookMessage
 import club.minnced.discord.webhook.send.WebhookMessageBuilder
 import net.dv8tion.jda.api.entities.Member
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 
 internal class DiscordWebhookMessageMapper {
 

@@ -18,13 +18,13 @@ import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
-import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class NeoForgeBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,

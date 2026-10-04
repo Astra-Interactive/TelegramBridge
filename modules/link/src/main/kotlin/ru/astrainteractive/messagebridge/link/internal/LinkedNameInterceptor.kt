@@ -5,7 +5,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 
 internal class LinkedNameInterceptor(
     private val linkingDao: LinkingDao
