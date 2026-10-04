@@ -42,11 +42,11 @@ internal class UnlinkCommandExecutor(
             reportFailure(sender, uuid, t)
             return
         }
+        luckPermsRoleController.removeLinkedRole(uuid)
         if (unlinked == null) {
             sender.sendMessage(notLinkedText)
             return
         }
-        luckPermsRoleController.removeLinkedRole(uuid)
         sender.sendMessage(unlinkedText)
     }
 

@@ -117,6 +117,20 @@ class UnlinkCommandExecutorTest {
     }
 
     @Test
+    fun GIVEN_player_without_link_WHEN_unlinks_THEN_their_luckperms_group_is_still_revoked() = runTest {
+        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+
+        assertEquals(1, luckPermsProvider.provideCallCount)
+    }
+
+    @Test
+    fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_their_luckperms_group_is_still_revoked() = runTest {
+        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+
+        assertEquals(1, luckPermsProvider.provideCallCount)
+    }
+
+    @Test
     fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_admin_reads_player_not_linked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
