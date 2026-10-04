@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.core
+package ru.astrainteractive.messagebridge.core.config
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
