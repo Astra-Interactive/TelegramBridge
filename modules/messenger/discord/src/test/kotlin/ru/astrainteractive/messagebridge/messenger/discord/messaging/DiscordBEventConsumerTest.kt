@@ -14,10 +14,12 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeWebhookClient
@@ -48,11 +50,17 @@ class DiscordBEventConsumerTest {
             }
         )
     )
+    private var topicEdits = 0
+    private var topicManager = JdaAnswer { _ -> throw IllegalStateException("Missing permission MANAGE_CHANNEL") }
     private val textChannel: TextChannel = jdaFake(
         mapOf(
             "sendMessage" to JdaAnswer { args ->
                 sentMessages += args.first().toString()
                 messageAction
+            },
+            "getManager" to JdaAnswer { args ->
+                topicEdits += 1
+                topicManager.answer(args)
             },
             "toString" to "#bridge"
         )
@@ -63,6 +71,18 @@ class DiscordBEventConsumerTest {
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
         text = "hello"
     )
+
+    private fun topicManagerHeldByRateLimit(): TextChannelManager {
+        lateinit var manager: TextChannelManager
+        manager = jdaFake(
+            mapOf(
+                "setTopic" to JdaAnswer { _ -> manager },
+                "timeout" to JdaAnswer { _ -> manager },
+                "queue" to null
+            )
+        )
+        return manager
+    }
 
     private fun consumer(state: DiscordChannel): DiscordBEventConsumer = consumer(MutableStateFlow(state))
 
@@ -120,6 +140,7 @@ class DiscordBEventConsumerTest {
             consumer(ready).consume(ServerClosedBEvent)
 
             assertEquals(listOf(SERVER_CLOSED_MESSAGE), sentMessages)
+            assertEquals(0, topicEdits)
         }
 
     @Test
@@ -151,7 +172,28 @@ class DiscordBEventConsumerTest {
         assertTrue(webhookClient.sent.isEmpty())
     }
 
+    @Test
+    fun GIVEN_bot_that_cannot_edit_the_topic_WHEN_server_open_is_consumed_THEN_the_start_message_is_still_sent() =
+        runTest {
+            consumer(ready).consume(ServerOpenBEvent)
+
+            assertEquals(listOf(SERVER_OPEN_MESSAGE), sentMessages)
+        }
+
+    @Test
+    fun GIVEN_topic_edit_held_by_a_rate_limit_WHEN_server_open_is_consumed_THEN_the_start_message_is_sent_at_once() =
+        runTest {
+            val manager = topicManagerHeldByRateLimit()
+            topicManager = JdaAnswer { _ -> manager }
+
+            consumer(ready).consume(ServerOpenBEvent)
+
+            assertEquals(listOf(SERVER_OPEN_MESSAGE), sentMessages)
+            assertEquals(Duration.ZERO, currentTime.milliseconds)
+        }
+
     private companion object {
+        const val SERVER_OPEN_MESSAGE = "✅ **Сервер успешно запущен**"
         const val SERVER_CLOSED_MESSAGE = "🛑 **Сервер остановлен**"
         val CONNECTING_TIMEOUT = 30.seconds
     }
