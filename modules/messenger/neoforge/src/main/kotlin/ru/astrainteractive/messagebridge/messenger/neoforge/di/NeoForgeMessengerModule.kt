@@ -1,11 +1,11 @@
-package ru.astrainteractive.messagebridge.messenger.forge.di
+package ru.astrainteractive.messagebridge.messenger.neoforge.di
 
 import kotlinx.coroutines.cancel
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
-import ru.astrainteractive.messagebridge.messenger.forge.event.NeoForgeEvents
-import ru.astrainteractive.messagebridge.messenger.forge.messaging.NeoForgeBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.neoforge.event.NeoForgeEvents
+import ru.astrainteractive.messagebridge.messenger.neoforge.messaging.NeoForgeBEventConsumer
 
 class NeoForgeMessengerModule(
     coreModule: CoreModule,

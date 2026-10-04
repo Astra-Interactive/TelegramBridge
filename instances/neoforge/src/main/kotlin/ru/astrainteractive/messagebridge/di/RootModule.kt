@@ -23,7 +23,7 @@ import ru.astrainteractive.messagebridge.messaging.impl.BEventChannelImpl
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
-import ru.astrainteractive.messagebridge.messenger.forge.di.NeoForgeMessengerModule
+import ru.astrainteractive.messagebridge.messenger.neoforge.di.NeoForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import java.io.File
 import kotlin.time.Duration.Companion.seconds

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.forge.event
+package ru.astrainteractive.messagebridge.messenger.neoforge.event
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filter
