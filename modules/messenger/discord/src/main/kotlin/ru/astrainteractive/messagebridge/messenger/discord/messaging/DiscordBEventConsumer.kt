@@ -10,12 +10,12 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.api.tryConsume
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
@@ -47,12 +47,18 @@ internal class DiscordBEventConsumer(
         }?.tryCast<DiscordChannel.Ready>()
     }
 
-    override suspend fun consume(bEvent: BEvent) {
-        if (bEvent.from == MessageFrom.DISCORD) return
-        val ready = readyChannel() ?: run {
-            verbose { "#consume Discord is not ready, skipped $bEvent" }
-            return
-        }
+    private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
+        val member = memberResolver.resolve(channel, event)
+        val message = webhookMessageMapper.map(event, member)
+        webhookClient.send(message).await()
+    }
+
+    private suspend fun sendServerStatus(channel: TextChannel, text: String) {
+        topicUpdater.setStarting(channel)
+        channel.sendMessage(text).await()
+    }
+
+    private suspend fun send(bEvent: BEvent, ready: DiscordChannel.Ready) {
         val channel = ready.textChannel
         when (bEvent) {
             is PlayerDeathBEvent -> channel.sendMessageEmbeds(embedMapper.map(bEvent)).await()
@@ -72,22 +78,22 @@ internal class DiscordBEventConsumer(
         }
     }
 
-    private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
-        val member = memberResolver.resolve(channel, event)
-        val message = webhookMessageMapper.map(event, member)
-        webhookClient.send(message).await()
-    }
-
-    private suspend fun sendServerStatus(channel: TextChannel, text: String) {
-        topicUpdater.setStarting(channel)
-        channel.sendMessage(text).await()
+    override suspend fun consume(bEvent: BEvent) {
+        if (bEvent.from == MessageFrom.DISCORD) return
+        val ready = readyChannel() ?: run {
+            verbose { "#consume Discord is not ready, skipped $bEvent" }
+            return
+        }
+        runCatching { send(bEvent, ready) }
+            .propagateCancellationException()
+            .onFailure { t -> error(t) { "#consume could not send $bEvent" } }
     }
 
     init {
         bEventReceiver
             .bEvents(this)
             .onEach { bEvent -> verbose { "#init receive event $bEvent" } }
-            .onEach { bEvent -> tryConsume(bEvent) }
+            .onEach { bEvent -> consume(bEvent) }
             .launchIn(this)
     }
 

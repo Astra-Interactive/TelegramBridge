@@ -3,15 +3,18 @@
 
 package ru.astrainteractive.messagebridge.messenger.discord.messaging
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager
@@ -31,7 +34,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -41,13 +44,14 @@ class DiscordBEventConsumerTest {
     private val sentMessages = mutableListOf<String>()
     private val webhookClient = FakeWebhookClient()
     private val sentMessage: Message = jdaFake(emptyMap())
+    private var sendAnswer = JdaAnswer { args ->
+        args.first()
+            ?.tryCast<Consumer<Message>>()
+            ?.accept(sentMessage)
+    }
     private val messageAction: MessageCreateAction = jdaFake(
         mapOf(
-            "queue" to JdaAnswer { args ->
-                args.first()
-                    ?.tryCast<Consumer<Message>>()
-                    ?.accept(sentMessage)
-            }
+            "queue" to JdaAnswer { args -> sendAnswer.answer(args) }
         )
     )
     private var topicEdits = 0
@@ -154,13 +158,56 @@ class DiscordBEventConsumerTest {
     }
 
     @Test
-    fun GIVEN_webhook_that_fails_WHEN_chat_message_is_consumed_THEN_the_failure_reaches_the_caller() = runTest {
+    fun GIVEN_webhook_that_fails_WHEN_chat_message_is_consumed_THEN_consume_returns() = runTest {
         webhookClient.failure = IllegalStateException("429: You are being rate limited")
 
-        val t = assertFailsWith<IllegalStateException> { consumer(ready).consume(steveMessage) }
+        consumer(ready).consume(steveMessage)
 
-        assertEquals("429: You are being rate limited", t.message)
+        assertEquals(1, webhookClient.sent.size)
     }
+
+    @Test
+    fun GIVEN_jda_cancels_the_send_WHEN_server_closed_is_consumed_THEN_consume_returns_and_the_caller_stays_active() =
+        runTest {
+            sendAnswer = JdaAnswer { args ->
+                args[1]
+                    ?.tryCast<Consumer<Throwable>>()
+                    ?.accept(CancellationException("RestAction has been cancelled"))
+            }
+
+            consumer(ready).consume(ServerClosedBEvent)
+
+            assertTrue(isActive)
+        }
+
+    @Test
+    fun GIVEN_chat_message_of_only_at_signs_WHEN_consumed_THEN_consume_returns_and_nothing_is_sent() = runTest {
+        consumer(ready).consume(steveMessage.copy(text = "@@"))
+
+        assertTrue(webhookClient.sent.isEmpty())
+    }
+
+    @Test
+    fun GIVEN_discord_connecting_WHEN_consumed_within_the_shutdown_timeout_THEN_it_gives_up_at_that_timeout() =
+        runTest {
+            val consumed = withTimeoutOrNull(SHUTDOWN_TIMEOUT) {
+                consumer(DiscordChannel.Connecting).consume(ServerClosedBEvent)
+            }
+
+            assertNull(consumed)
+            assertEquals(SHUTDOWN_TIMEOUT, currentTime.milliseconds)
+        }
+
+    @Test
+    fun GIVEN_discord_that_never_answers_WHEN_consumed_within_the_shutdown_timeout_THEN_it_gives_up_at_that_timeout() =
+        runTest {
+            sendAnswer = JdaAnswer { _ -> null }
+
+            val consumed = withTimeoutOrNull(SHUTDOWN_TIMEOUT) { consumer(ready).consume(ServerClosedBEvent) }
+
+            assertNull(consumed)
+            assertEquals(SHUTDOWN_TIMEOUT, currentTime.milliseconds)
+        }
 
     @Test
     fun GIVEN_ready_discord_WHEN_message_from_discord_is_consumed_THEN_it_is_not_sent_back() = runTest {
@@ -196,5 +243,6 @@ class DiscordBEventConsumerTest {
         const val SERVER_OPEN_MESSAGE = "✅ **Сервер успешно запущен**"
         const val SERVER_CLOSED_MESSAGE = "🛑 **Сервер остановлен**"
         val CONNECTING_TIMEOUT = 30.seconds
+        val SHUTDOWN_TIMEOUT = 5.seconds
     }
 }
