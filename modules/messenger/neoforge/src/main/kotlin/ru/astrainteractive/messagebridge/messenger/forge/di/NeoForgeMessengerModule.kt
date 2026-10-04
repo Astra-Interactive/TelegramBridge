@@ -15,7 +15,6 @@ class NeoForgeMessengerModule(
     val neoForgeEvents = NeoForgeEvents(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
-        dispatchers = coreModule.dispatchers,
         bEventConsumer = bEventChannel
     )
     private val minecraftMessageController = NeoForgeBEventConsumer(

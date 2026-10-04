@@ -15,7 +15,6 @@ class ForgeMessengerModule(
     val forgeEvents = ForgeEvents(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
-        dispatchers = coreModule.dispatchers,
         bEventConsumer = bEventChannel
     )
     private val minecraftMessageController = ForgeBEventConsumer(

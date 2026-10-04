@@ -6,7 +6,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -41,7 +40,7 @@ class BukkitMessengerModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             bukkitEvent.bEvents
-                .onEach { bEvent -> moduleIoScope.launch { bEventChannel.consume(bEvent) } }
+                .onEach { bEvent -> bEventChannel.consume(bEvent) }
                 .launchIn(moduleIoScope)
         },
         onDisable = {
