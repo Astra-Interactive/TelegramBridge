@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.forge.messaging
+package ru.astrainteractive.messagebridge.messenger.forge.internal
 
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

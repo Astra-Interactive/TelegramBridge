@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.forge.messaging
+package ru.astrainteractive.messagebridge.messenger.forge.internal
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.MainCoroutineDispatcher

@@ -5,7 +5,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.forge.event.ForgeEvents
-import ru.astrainteractive.messagebridge.messenger.forge.messaging.ForgeBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.forge.internal.ForgeBEventConsumer
 
 class ForgeMessengerModule(
     coreModule: CoreModule,
