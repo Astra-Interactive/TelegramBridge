@@ -58,6 +58,7 @@ class LinkModule(
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent> = DiscordLinkInterceptor(
         linkAccountUseCase = linkAccountUseCase,
         discordRoleController = DiscordRoleController(coreModule.configKrate),
+        configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate
     )
 

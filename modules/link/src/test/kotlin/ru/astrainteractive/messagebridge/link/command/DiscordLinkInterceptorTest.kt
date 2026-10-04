@@ -8,10 +8,13 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction
+import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
@@ -29,6 +32,7 @@ import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -40,6 +44,7 @@ class DiscordLinkInterceptorTest {
     private val configKrate = DefaultMutableKrate(
         factory = {
             PluginConfiguration(
+                jdaConfig = PluginConfiguration.JdaConfig(channelId = BRIDGE_CHANNEL_ID),
                 link = PluginConfiguration.Link(linkDiscordRole = ROLE_ID, linkLuckPermsRole = "verified")
             )
         },
@@ -47,9 +52,20 @@ class DiscordLinkInterceptorTest {
     ).asCachedKrate()
     private val grantedRoles = mutableListOf<Any?>()
     private val linkedRole: Role = jdaFake(emptyMap())
+    private var memberOnServer: Member? = null
     private val guild: Guild = jdaFake(
         mapOf(
+            "getName" to "Bridge",
             "getRoleById" to JdaAnswer { args -> linkedRole.takeIf { _ -> args.first() == ROLE_ID } },
+            "retrieveMemberById" to JdaAnswer { _ ->
+                val member = memberOnServer
+                val future = if (member == null) {
+                    CompletableFuture.failedFuture(IllegalStateException("Unknown Member"))
+                } else {
+                    CompletableFuture.completedFuture(member)
+                }
+                jdaFake<CacheRestAction<Member>>(mapOf("submit" to future))
+            },
             "addRoleToMember" to JdaAnswer { args ->
                 grantedRoles += args[1]
                 jdaFake<AuditableRestAction<Void>>(mapOf("queue" to null))
@@ -68,11 +84,21 @@ class DiscordLinkInterceptorTest {
             )
         ),
         discordRoleController = DiscordRoleController(configKrate),
+        configKrate = configKrate,
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val stevie: Member = jdaFake(
         mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "Stevie", "getGuild" to guild)
+    )
+    private val stevieUser: User = jdaFake(mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "stevie_global"))
+    private val bridgeChannel: TextChannel = jdaFake(mapOf("getGuild" to guild))
+    private val jda: JDA = jdaFake(
+        mapOf(
+            "getTextChannelById" to JdaAnswer { args ->
+                bridgeChannel.takeIf { _ -> args.first() == BRIDGE_CHANNEL_ID }
+            }
+        )
     )
 
     private fun event(content: String, member: Member?, channelType: ChannelType): MessageReceivedEvent {
@@ -81,10 +107,11 @@ class DiscordLinkInterceptorTest {
                 "getIdLong" to MESSAGE_ID,
                 "getChannel" to jdaFake<MessageChannelUnion>(mapOf("getType" to channelType)),
                 "getContentRaw" to content,
-                "getMember" to member
+                "getMember" to member,
+                "getAuthor" to stevieUser
             )
         )
-        return MessageReceivedEvent(jdaFake<JDA>(emptyMap()), 0, message)
+        return MessageReceivedEvent(jda, 0, message)
     }
 
     @Test
@@ -112,15 +139,35 @@ class DiscordLinkInterceptorTest {
     }
 
     @Test
-    fun GIVEN_link_without_a_member_WHEN_intercepted_THEN_it_is_consumed_and_code_stays_valid() = runTest {
-        val code = codeApi.generateCodeForPlayer(steve)
+    fun GIVEN_code_created_in_game_WHEN_server_member_sends_it_in_a_direct_message_THEN_linked_with_the_role() =
+        runTest {
+            memberOnServer = stevie
+            val code = codeApi.generateCodeForPlayer(steve)
 
-        val interception = interceptor.intercept(event("/link $code", null, ChannelType.TEXT))
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
-        assertEquals(Interception.Consumed, interception)
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
-        assertEquals(steve, codeApi.findUserByCode(code))
-    }
+            assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
+            assertEquals(
+                MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie"),
+                linkingDao.linkedPlayers[steve.uuid]?.discord
+            )
+            assertSame(linkedRole, grantedRoles.single())
+        }
+
+    @Test
+    fun GIVEN_user_who_is_not_on_the_server_WHEN_sends_code_in_a_direct_message_THEN_linked_without_a_role() =
+        runTest {
+            val code = codeApi.generateCodeForPlayer(steve)
+
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+
+            assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
+            assertEquals(
+                MessengerAccount.Discord(id = DISCORD_ID, name = "stevie_global"),
+                linkingDao.linkedPlayers[steve.uuid]?.discord
+            )
+            assertTrue(grantedRoles.isEmpty())
+        }
 
     @Test
     fun GIVEN_direct_message_WHEN_intercepted_THEN_it_never_passes() = runTest {
@@ -151,6 +198,7 @@ class DiscordLinkInterceptorTest {
 
     private companion object {
         const val ROLE_ID = "123456789012345678"
+        const val BRIDGE_CHANNEL_ID = "555"
         const val UNKNOWN_CODE = 1234
         const val DISCORD_ID = 4242L
         const val MESSAGE_ID = 900L
