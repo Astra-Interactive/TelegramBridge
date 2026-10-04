@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.mapping
+package ru.astrainteractive.messagebridge.messenger.discord.command
 
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordCommand
 

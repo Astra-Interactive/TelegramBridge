@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.discord.util
+package ru.astrainteractive.messagebridge.messenger.discord.internal
 
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf

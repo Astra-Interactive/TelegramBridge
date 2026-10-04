@@ -11,10 +11,11 @@ import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.intercept
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.Interception
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
-import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandHandler
+import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandMapper
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordReplyMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordMessageRelevance
 
 internal class MessageEventListener(

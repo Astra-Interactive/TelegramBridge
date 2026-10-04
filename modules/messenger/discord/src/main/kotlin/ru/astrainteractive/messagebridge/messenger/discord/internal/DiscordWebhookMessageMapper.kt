@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.mapping
+package ru.astrainteractive.messagebridge.messenger.discord.internal
 
 import club.minnced.discord.webhook.send.WebhookMessage
 import club.minnced.discord.webhook.send.WebhookMessageBuilder

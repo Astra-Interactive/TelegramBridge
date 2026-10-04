@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.mapping
+package ru.astrainteractive.messagebridge.messenger.discord.internal
 
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType

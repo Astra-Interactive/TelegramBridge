@@ -27,12 +27,13 @@ import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandHandler
+import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordCommandMapper
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordReplyMapper
-import ru.astrainteractive.messagebridge.messenger.discord.messaging.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordReplyMapper
 import java.util.UUID
 import java.util.function.Consumer
 import kotlin.test.Test

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.util
+package ru.astrainteractive.messagebridge.messenger.discord.internal
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

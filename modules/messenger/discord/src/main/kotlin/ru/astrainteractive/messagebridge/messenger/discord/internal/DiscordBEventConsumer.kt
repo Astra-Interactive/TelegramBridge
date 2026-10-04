@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.messaging
+package ru.astrainteractive.messagebridge.messenger.discord.internal
 
 import club.minnced.discord.webhook.WebhookClient
 import kotlinx.coroutines.flow.Flow
@@ -24,8 +24,6 @@ import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEve
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 import kotlin.time.Duration.Companion.seconds
