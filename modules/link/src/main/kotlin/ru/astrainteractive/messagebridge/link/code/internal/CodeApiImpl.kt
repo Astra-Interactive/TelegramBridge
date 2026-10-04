@@ -23,12 +23,15 @@ internal class CodeApiImpl : CodeApi {
         code
     }
 
-    override suspend fun findUserByCode(code: Int): CodeUser? {
-        return cache.filter { entry -> entry.value == code }.keys.firstOrNull()
+    override suspend fun findUserByCode(code: Int): CodeUser? = mutex.withLock {
+        cache.entries
+            .firstOrNull { entry -> entry.value == code }
+            ?.key
     }
 
     override suspend fun clearCode(code: Int) {
-        val key = findUserByCode(code)
-        cache.remove(key)
+        mutex.withLock {
+            cache.entries.removeAll { entry -> entry.value == code }
+        }
     }
 }

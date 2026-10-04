@@ -2,7 +2,11 @@
 
 package ru.astrainteractive.messagebridge.link.code.internal
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import java.util.UUID
 import kotlin.test.Test
@@ -57,7 +61,27 @@ class CodeApiImplTest {
         assertNull(codeApi.findUserByCode(UNKNOWN_CODE))
     }
 
+    @Test
+    fun GIVEN_many_players_WHEN_they_get_and_redeem_codes_at_the_same_time_THEN_every_code_finds_its_player() =
+        runTest {
+            val players = List(PLAYER_COUNT) { index -> CodeUser(name = "Player$index", uuid = UUID.randomUUID()) }
+
+            val found = withContext(Dispatchers.Default) {
+                players.map { player ->
+                    async {
+                        val code = codeApi.generateCodeForPlayer(player)
+                        val owner = codeApi.findUserByCode(code)
+                        codeApi.clearCode(code)
+                        owner
+                    }
+                }.awaitAll()
+            }
+
+            assertEquals(players, found)
+        }
+
     private companion object {
+        const val PLAYER_COUNT = 2000
         const val UNKNOWN_CODE = 1234
     }
 }
