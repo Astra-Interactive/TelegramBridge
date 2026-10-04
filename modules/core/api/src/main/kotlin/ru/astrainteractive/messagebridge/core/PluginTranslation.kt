@@ -288,6 +288,11 @@ data class PluginTranslation(
                 "У вас не задан username в Telegram. Установите @username в настройках профиля и попробуйте снова."
             )
         },
+        @SerialName("not_server_member")
+        val notServerMember: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Linking is not possible without being a member of the Discord server")
+            translation(MinecraftLocales.RU_RU, "Привязка невозможна, если вы не состоите на Discord-сервере")
+        },
         @SerialName("unknown_error")
         val unknownError: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "An unknown error occurred")

@@ -65,12 +65,13 @@ internal class DiscordLinkInterceptor(
         val member = bridgeMemberOf(event).getOrElse { _ ->
             return Interception.Reply(translation.link.unknownError.toMessengerText())
         }
+        if (member == null) return Interception.Reply(translation.link.notServerMember.toMessengerText())
         val account = MessengerAccount.Discord(
             id = event.author.idLong,
-            name = member?.effectiveName ?: event.author.effectiveName
+            name = member.effectiveName
         )
         val response = linkAccountUseCase.link(code, account)
-        if (response == LinkResponse.Linked && member != null) {
+        if (response == LinkResponse.Linked) {
             discordRoleController.addLinkedRole(account.id)
         }
         return Interception.Reply(response.asMessage(translation.link).toMessengerText())

@@ -98,10 +98,11 @@ class DiscordLinkInterceptorTest {
     private val stevieUser: User = jdaFake(mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "stevie_global"))
     private val stevieGrant = DiscordRoleChange.Grant(discordUserId = DISCORD_ID, roleId = ROLE_ID)
     private val bridgeChannel: TextChannel = jdaFake(mapOf("getGuild" to guild))
+    private var visibleBridgeChannel: TextChannel? = bridgeChannel
     private val jda: JDA = jdaFake(
         mapOf(
             "getTextChannelById" to JdaAnswer { args ->
-                bridgeChannel.takeIf { _ -> args.first() == BRIDGE_CHANNEL_ID }
+                visibleBridgeChannel.takeIf { _ -> args.first() == BRIDGE_CHANNEL_ID }
             }
         )
     )
@@ -160,18 +161,42 @@ class DiscordLinkInterceptorTest {
         }
 
     @Test
-    fun GIVEN_user_who_is_not_on_the_server_WHEN_sends_code_in_a_direct_message_THEN_linked_without_a_role() =
+    fun GIVEN_user_who_is_not_on_the_server_WHEN_sends_code_in_a_direct_message_THEN_refused_and_code_is_kept() =
         runTest {
             val code = codeApi.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
-            assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
-            assertEquals(
-                MessengerAccount.Discord(id = DISCORD_ID, name = "stevie_global"),
-                linkingDao.linkedPlayers[steve.uuid]?.discord
-            )
+            assertEquals(Interception.Reply(translation.link.notServerMember.toMessengerText()), interception)
+            assertTrue(linkingDao.linkedPlayers.isEmpty())
+            assertEquals(steve, codeApi.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
+        }
+
+    @Test
+    fun GIVEN_user_refused_as_not_on_the_server_WHEN_joins_and_sends_the_same_code_THEN_linked_with_the_role() =
+        runTest {
+            val code = codeApi.generateCodeForPlayer(steve)
+            interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+            memberOnServer = stevie
+
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+
+            assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
+            assertEquals(stevieGrant, roleChanges.tryReceive().getOrNull())
+        }
+
+    @Test
+    fun GIVEN_bridge_channel_the_bot_cannot_see_WHEN_code_is_sent_in_a_direct_message_THEN_refused_and_no_link() =
+        runTest {
+            visibleBridgeChannel = null
+            memberOnServer = stevie
+            val code = codeApi.generateCodeForPlayer(steve)
+
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+
+            assertEquals(Interception.Reply(translation.link.notServerMember.toMessengerText()), interception)
+            assertTrue(linkingDao.linkedPlayers.isEmpty())
         }
 
     @Test
