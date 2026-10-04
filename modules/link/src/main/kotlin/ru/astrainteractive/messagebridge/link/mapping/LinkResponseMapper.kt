@@ -6,10 +6,9 @@ import ru.astrainteractive.messagebridge.link.model.LinkResponse
 
 internal fun LinkResponse.asMessage(translation: PluginTranslation.Link): LocalizableComponent {
     return when (this) {
+        LinkResponse.Linked -> translation.success
         LinkResponse.AlreadyLinked -> translation.alreadyLinked
         LinkResponse.NoCode -> translation.noCodeFound
-        LinkResponse.NoUsername -> translation.noUsername
         LinkResponse.UnknownError -> translation.unknownError
-        is LinkResponse.Linked -> translation.success
     }
 }

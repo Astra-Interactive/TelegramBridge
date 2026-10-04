@@ -8,6 +8,7 @@ internal class FakeLinkingDao : LinkingDao {
     val linkedPlayers = mutableMapOf<UUID, LinkedPlayerModel>()
     var findFailure: Throwable? = null
     var deleteFailure: Throwable? = null
+    var upsertFailure: Throwable? = null
 
     override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayerModel?> {
         val failure = findFailure ?: return Result.success(linkedPlayers[uuid])
@@ -15,6 +16,7 @@ internal class FakeLinkingDao : LinkingDao {
     }
 
     override suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel> {
+        upsertFailure?.let { t -> return Result.failure(t) }
         linkedPlayers[linkedPlayerModel.uuid] = linkedPlayerModel
         return Result.success(linkedPlayerModel)
     }

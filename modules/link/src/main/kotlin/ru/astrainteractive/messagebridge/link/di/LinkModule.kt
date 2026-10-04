@@ -6,7 +6,6 @@ import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.api.LinkApi
 import ru.astrainteractive.messagebridge.link.code.api.CodeApi
 import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.command.DiscordLinkInterceptor
@@ -17,11 +16,11 @@ import ru.astrainteractive.messagebridge.link.command.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.link.internal.LinkedNameInterceptor
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.di.LinkDatabaseModule
+import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
@@ -45,25 +44,26 @@ class LinkModule(
         luckPermsProvider = luckPermsProvider
     )
 
-    private val linkApi: LinkApi = LinkApiImpl(
-        linkingDao = linkingDao,
+    private val linkAccountUseCase = LinkAccountUseCase(
         codeApi = codeApi,
-        discordRoleController = DiscordRoleController(coreModule.configKrate),
+        linkingDao = linkingDao,
         luckPermsRoleController = luckPermsRoleController
     )
 
     val telegramLinkInterceptor: MessageInterceptor<Update> = TelegramLinkInterceptor(
-        linkApi = linkApi,
+        linkAccountUseCase = linkAccountUseCase,
         translationKrate = coreModule.translationKrate
     )
 
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent> = DiscordLinkInterceptor(
-        linkApi = linkApi,
+        linkAccountUseCase = linkAccountUseCase,
+        discordRoleController = DiscordRoleController(coreModule.configKrate),
         translationKrate = coreModule.translationKrate
     )
 
     val discordMemberLeaveListener: DiscordMemberLeaveListener = LinkedMemberLeaveListener(
-        linkApi = linkApi
+        linkingDao = linkingDao,
+        luckPermsRoleController = luckPermsRoleController
     )
 
     val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkingDao)

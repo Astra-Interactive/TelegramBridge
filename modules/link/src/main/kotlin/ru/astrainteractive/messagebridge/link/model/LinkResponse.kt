@@ -1,11 +1,8 @@
 package ru.astrainteractive.messagebridge.link.model
 
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
-
 internal sealed interface LinkResponse {
+    data object Linked : LinkResponse
     data object AlreadyLinked : LinkResponse
     data object NoCode : LinkResponse
-    data object NoUsername : LinkResponse
     data object UnknownError : LinkResponse
-    data class Linked(val user: LinkedPlayerModel) : LinkResponse
 }

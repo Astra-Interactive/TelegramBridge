@@ -15,11 +15,10 @@ import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import java.util.UUID
 import kotlin.test.Test
@@ -33,10 +32,9 @@ class TelegramLinkInterceptorTest {
     private val codeApi = CodeApiImpl()
     private val linkingDao = FakeLinkingDao()
     private val interceptor = TelegramLinkInterceptor(
-        linkApi = LinkApiImpl(
-            linkingDao = linkingDao,
+        linkAccountUseCase = LinkAccountUseCase(
             codeApi = codeApi,
-            discordRoleController = DiscordRoleController(configKrate),
+            linkingDao = linkingDao,
             luckPermsRoleController = LuckPermsRoleController(
                 configKrate = configKrate,
                 luckPermsProvider = FakeLuckPermsProvider()

@@ -6,10 +6,7 @@ import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
@@ -29,14 +26,10 @@ class LinkedMemberLeaveListenerTest {
     private val luckPermsProvider = FakeLuckPermsProvider()
     private val linkingDao = FakeLinkingDao()
     private val listener = LinkedMemberLeaveListener(
-        linkApi = LinkApiImpl(
-            linkingDao = linkingDao,
-            codeApi = CodeApiImpl(),
-            discordRoleController = DiscordRoleController(configKrate),
-            luckPermsRoleController = LuckPermsRoleController(
-                configKrate = configKrate,
-                luckPermsProvider = luckPermsProvider
-            )
+        linkingDao = linkingDao,
+        luckPermsRoleController = LuckPermsRoleController(
+            configKrate = configKrate,
+            luckPermsProvider = luckPermsProvider
         )
     )
 

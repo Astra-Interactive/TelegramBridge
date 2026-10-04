@@ -4,11 +4,14 @@ package ru.astrainteractive.messagebridge.link.command
 
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
@@ -18,38 +21,59 @@ import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LinkApiImpl
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class DiscordLinkInterceptorTest {
     private val translation = PluginTranslation()
-    private val configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null })
-        .asCachedKrate()
+    private val configKrate = DefaultMutableKrate(
+        factory = {
+            PluginConfiguration(
+                link = PluginConfiguration.Link(linkDiscordRole = ROLE_ID, linkLuckPermsRole = "verified")
+            )
+        },
+        loader = { null }
+    ).asCachedKrate()
+    private val grantedRoles = mutableListOf<Any?>()
+    private val linkedRole: Role = jdaFake(emptyMap())
+    private val guild: Guild = jdaFake(
+        mapOf(
+            "getRoleById" to JdaAnswer { args -> linkedRole.takeIf { _ -> args.first() == ROLE_ID } },
+            "addRoleToMember" to JdaAnswer { args ->
+                grantedRoles += args[1]
+                jdaFake<AuditableRestAction<Void>>(mapOf("queue" to null))
+            }
+        )
+    )
     private val codeApi = CodeApiImpl()
     private val linkingDao = FakeLinkingDao()
     private val interceptor = DiscordLinkInterceptor(
-        linkApi = LinkApiImpl(
-            linkingDao = linkingDao,
+        linkAccountUseCase = LinkAccountUseCase(
             codeApi = codeApi,
-            discordRoleController = DiscordRoleController(configKrate),
+            linkingDao = linkingDao,
             luckPermsRoleController = LuckPermsRoleController(
                 configKrate = configKrate,
                 luckPermsProvider = FakeLuckPermsProvider()
             )
         ),
+        discordRoleController = DiscordRoleController(configKrate),
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
-    private val stevie: Member = jdaFake(mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "Stevie"))
+    private val stevie: Member = jdaFake(
+        mapOf("getIdLong" to DISCORD_ID, "getEffectiveName" to "Stevie", "getGuild" to guild)
+    )
 
     private fun event(content: String, member: Member?, channelType: ChannelType): MessageReceivedEvent {
         val message: Message = jdaFake(
@@ -109,7 +133,25 @@ class DiscordLinkInterceptorTest {
         assertNotEquals(Interception.Pass, textInterception)
     }
 
+    @Test
+    fun GIVEN_code_created_in_game_WHEN_member_links_THEN_member_gets_the_linked_role() = runTest {
+        val code = codeApi.generateCodeForPlayer(steve)
+
+        interceptor.intercept(event("/link $code", stevie, ChannelType.TEXT))
+
+        assertSame(linkedRole, grantedRoles.single())
+    }
+
+    @Test
+    fun GIVEN_code_nobody_created_WHEN_member_sends_it_THEN_member_gets_no_role() = runTest {
+        interceptor.intercept(event("/link $UNKNOWN_CODE", stevie, ChannelType.TEXT))
+
+        assertTrue(grantedRoles.isEmpty())
+    }
+
     private companion object {
+        const val ROLE_ID = "123456789012345678"
+        const val UNKNOWN_CODE = 1234
         const val DISCORD_ID = 4242L
         const val MESSAGE_ID = 900L
     }
