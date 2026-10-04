@@ -20,6 +20,7 @@ class NeoForgeMessengerModule(
     )
     private val minecraftMessageController = NeoForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
+        dispatchers = coreModule.dispatchers,
         bEventReceiver = bEventChannel,
     )
 

@@ -20,6 +20,7 @@ class ForgeMessengerModule(
     )
     private val minecraftMessageController = ForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
+        dispatchers = coreModule.dispatchers,
         bEventReceiver = bEventChannel,
     )
 

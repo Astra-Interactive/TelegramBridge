@@ -20,6 +20,10 @@ dependencies {
 
     implementation(projects.modules.core.api)
     implementation(projects.modules.messenger.api)
+
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.tests.kotlin.test)
+    testImplementation(testFixtures(projects.modules.messenger.api))
 }
 
 dependencies {
