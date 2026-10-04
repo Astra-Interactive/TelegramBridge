@@ -1,5 +1,7 @@
 package ru.astrainteractive.messagebridge.link.internal
 
+import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
+import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
@@ -7,12 +9,13 @@ import ru.astrainteractive.messagebridge.messaging.model.Text
 
 internal class LinkedNameInterceptor(
     private val linkingDao: LinkingDao
-) : TextInterceptor {
+) : TextInterceptor, Logger by JUtiltLogger("MessageBridge-LinkedNameInterceptor") {
     private suspend fun linkedName(
         authorId: Long,
         findLinkedPlayer: suspend (Long) -> Result<LinkedPlayer?>
     ): String? {
         return findLinkedPlayer.invoke(authorId)
+            .onFailure { t -> error(t) { "#linkedName could not read the link of $authorId" } }
             .getOrNull()
             ?.minecraftName
     }
