@@ -8,6 +8,7 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginTranslation
+import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
 import java.util.UUID
@@ -15,6 +16,7 @@ import java.util.UUID
 internal class UnlinkCommandExecutor(
     private val linkingDao: LinkingDao,
     private val luckPermsRoleController: LuckPermsRoleController,
+    private val discordRoleController: DiscordRoleController,
     translationKrate: CachedKrate<PluginTranslation>
 ) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
     private val translation by translationKrate
@@ -43,6 +45,7 @@ internal class UnlinkCommandExecutor(
             return
         }
         luckPermsRoleController.removeLinkedRole(uuid)
+        unlinked?.discord?.let { discord -> discordRoleController.removeLinkedRole(discord.id) }
         if (unlinked == null) {
             sender.sendMessage(notLinkedText)
             return

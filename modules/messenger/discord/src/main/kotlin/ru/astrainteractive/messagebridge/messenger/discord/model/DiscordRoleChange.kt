@@ -5,4 +5,6 @@ sealed interface DiscordRoleChange {
     val roleId: Long
 
     data class Grant(override val discordUserId: Long, override val roleId: Long) : DiscordRoleChange
+
+    data class Revoke(override val discordUserId: Long, override val roleId: Long) : DiscordRoleChange
 }

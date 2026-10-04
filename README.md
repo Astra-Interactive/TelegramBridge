@@ -23,6 +23,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Account linking** — `/link` in-game → code → `/link <code>` in TG or Discord
     - Grants a LuckPerms role and a Discord role on link
+    - Revokes both roles on `/unlink`
     - Revokes the LuckPerms role when a player leaves the Discord server
 - **Online list** — `/vanilla` (Telegram) or `!vanilla` (Discord) shows current players
 - **Proxy support** — HTTP proxy with auth for both bots

@@ -101,6 +101,7 @@ class LinkModule(
                 executor = UnlinkCommandExecutor(
                     linkingDao = linkingDao,
                     luckPermsRoleController = luckPermsRoleController,
+                    discordRoleController = discordRoleController,
                     translationKrate = coreModule.translationKrate
                 ),
                 ioScope = coreModule.ioScope,

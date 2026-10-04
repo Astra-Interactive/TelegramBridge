@@ -46,15 +46,9 @@ class DiscordRoleUpdaterTest {
                 if (!botCanManageRoles) {
                     throw HierarchyException("Can't modify a role with higher or equal highest role than yourself!")
                 }
-                val userId = args.first()
-                    ?.tryCast<UserSnowflake>()
-                    ?.idLong
-                    ?: error("addRoleToMember got no user")
-                val roleId = args[1]
-                    ?.tryCast<Role>()
-                    ?.idLong
-                roleRequest(userId = userId, appliedChange = "grant:$userId:$roleId")
-            }
+                roleRequest(change = "grant", args = args)
+            },
+            "removeRoleFromMember" to JdaAnswer { args -> roleRequest(change = "revoke", args = args) }
         )
     )
 
@@ -63,22 +57,31 @@ class DiscordRoleUpdaterTest {
         webhookClient = FakeWebhookClient()
     )
 
-    private fun roleRequest(userId: Long, appliedChange: String): AuditableRestAction<Void> = jdaFake(
-        mapOf(
-            "queue" to JdaAnswer { args ->
-                if (userId in usersWhoseRequestJdaCancels) {
-                    args[1]
-                        ?.tryCast<Consumer<Throwable>>()
-                        ?.accept(CancellationException("RestAction has been cancelled"))
-                } else {
-                    appliedChanges += appliedChange
-                    args.first()
-                        ?.tryCast<Consumer<Void?>>()
-                        ?.accept(null)
+    private fun roleRequest(change: String, args: List<Any?>): AuditableRestAction<Void> {
+        val userId = args.first()
+            ?.tryCast<UserSnowflake>()
+            ?.idLong
+            ?: error("$change got no user")
+        val roleId = args[1]
+            ?.tryCast<Role>()
+            ?.idLong
+        return jdaFake(
+            mapOf(
+                "queue" to JdaAnswer { queueArgs ->
+                    if (userId in usersWhoseRequestJdaCancels) {
+                        queueArgs[1]
+                            ?.tryCast<Consumer<Throwable>>()
+                            ?.accept(CancellationException("RestAction has been cancelled"))
+                    } else {
+                        appliedChanges += "$change:$userId:$roleId"
+                        queueArgs.first()
+                            ?.tryCast<Consumer<Void?>>()
+                            ?.accept(null)
+                    }
                 }
-            }
+            )
         )
-    )
+    }
 
     private fun updater(
         discordChannel: Flow<DiscordChannel>,
@@ -92,6 +95,15 @@ class DiscordRoleUpdaterTest {
         updater(MutableStateFlow(ready)).update(steveGrant)
 
         assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+    }
+
+    @Test
+    fun GIVEN_ready_discord_WHEN_revoke_is_updated_THEN_the_role_is_removed_from_the_user() = runTest {
+        val steveRevoke = DiscordRoleChange.Revoke(discordUserId = STEVE_ID, roleId = ROLE_ID)
+
+        updater(MutableStateFlow(ready)).update(steveRevoke)
+
+        assertEquals(listOf("revoke:$STEVE_ID:$ROLE_ID"), appliedChanges)
     }
 
     @Test

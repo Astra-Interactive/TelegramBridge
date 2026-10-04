@@ -22,4 +22,13 @@ internal class DiscordRoleController(
         }
         roleChanges.send(DiscordRoleChange.Grant(discordUserId = discordUserId, roleId = roleId))
     }
+
+    suspend fun removeLinkedRole(discordUserId: Long) {
+        val link = config.link ?: return
+        val roleId = link.linkDiscordRole.toLongOrNull() ?: run {
+            error { "#removeLinkedRole linkDiscordRole ${link.linkDiscordRole} is not a Discord role id" }
+            return
+        }
+        roleChanges.send(DiscordRoleChange.Revoke(discordUserId = discordUserId, roleId = roleId))
+    }
 }

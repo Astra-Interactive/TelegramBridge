@@ -38,6 +38,22 @@ class DiscordRoleControllerTest {
         assertTrue(roleChanges.tryReceive().isFailure)
     }
 
+    @Test
+    fun GIVEN_config_without_link_block_WHEN_linked_role_is_removed_THEN_no_role_change_is_sent() = runTest {
+        controller(link = null).removeLinkedRole(DISCORD_ID)
+
+        assertTrue(roleChanges.tryReceive().isFailure)
+    }
+
+    @Test
+    fun GIVEN_link_role_that_is_not_a_snowflake_WHEN_linked_role_is_removed_THEN_no_role_change_is_sent() = runTest {
+        val link = PluginConfiguration.Link(linkDiscordRole = "verified", linkLuckPermsRole = "verified")
+
+        controller(link = link).removeLinkedRole(DISCORD_ID)
+
+        assertTrue(roleChanges.tryReceive().isFailure)
+    }
+
     private companion object {
         const val DISCORD_ID = 4242L
     }

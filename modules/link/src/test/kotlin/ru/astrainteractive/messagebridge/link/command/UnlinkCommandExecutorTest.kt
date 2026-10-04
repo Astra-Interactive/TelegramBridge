@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.link.command
 
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
@@ -10,9 +11,11 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,14 +31,20 @@ class UnlinkCommandExecutorTest {
             linkLuckPermsRole = "verified"
         )
     )
+    private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private val executor = UnlinkCommandExecutor(
         linkingDao = linkingDao,
         luckPermsRoleController = LuckPermsRoleController(
             configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
             luckPermsProvider = luckPermsProvider
         ),
+        discordRoleController = DiscordRoleController(
+            configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
+            roleChanges = roleChanges
+        ),
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
+    private val stevieRevoke = DiscordRoleChange.Revoke(discordUserId = 42, roleId = 123456789012345678)
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
         name = "Admin"
@@ -144,5 +153,53 @@ class UnlinkCommandExecutorTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
         assertReadOnly(admin, translation.commandError.unknownError)
+    }
+
+    @Test
+    fun GIVEN_player_linked_to_discord_WHEN_unlinks_THEN_their_discord_role_is_revoked() = runTest {
+        linkSteve()
+
+        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+
+        assertEquals(stevieRevoke, roleChanges.tryReceive().getOrNull())
+    }
+
+    @Test
+    fun GIVEN_player_linked_to_discord_WHEN_admin_unlinks_them_THEN_their_discord_role_is_revoked() = runTest {
+        linkSteve()
+
+        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+
+        assertEquals(stevieRevoke, roleChanges.tryReceive().getOrNull())
+    }
+
+    @Test
+    fun GIVEN_player_linked_only_to_telegram_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
+        linkingDao.link(
+            uuid = steve.uuid,
+            minecraftName = "Steve",
+            account = MessengerAccount.Telegram(id = 77, username = "steve_tg")
+        )
+
+        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+
+        assertTrue(roleChanges.tryReceive().isFailure)
+    }
+
+    @Test
+    fun GIVEN_player_without_link_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
+        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+
+        assertTrue(roleChanges.tryReceive().isFailure)
+    }
+
+    @Test
+    fun GIVEN_database_that_can_not_delete_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
+        linkSteve()
+        linkingDao.deleteFailure = IllegalStateException("Database is read-only")
+
+        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+
+        assertTrue(roleChanges.tryReceive().isFailure)
     }
 }

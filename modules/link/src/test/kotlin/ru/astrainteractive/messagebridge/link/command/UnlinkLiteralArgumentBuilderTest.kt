@@ -6,6 +6,7 @@ import com.mojang.brigadier.CommandDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -18,6 +19,7 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.permission.LinkPermission
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
@@ -34,6 +36,10 @@ class UnlinkLiteralArgumentBuilderTest {
     private val luckPermsRoleController = LuckPermsRoleController(
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
         luckPermsProvider = FakeLuckPermsProvider()
+    )
+    private val discordRoleController = DiscordRoleController(
+        configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
+        roleChanges = Channel(Channel.UNLIMITED)
     )
     private val admin = RecordingOnlineKPlayer(
         uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000001"),
@@ -61,6 +67,7 @@ class UnlinkLiteralArgumentBuilderTest {
             executor = UnlinkCommandExecutor(
                 linkingDao = linkingDao,
                 luckPermsRoleController = luckPermsRoleController,
+                discordRoleController = discordRoleController,
                 translationKrate = translationKrate
             ),
             ioScope = ioScope,

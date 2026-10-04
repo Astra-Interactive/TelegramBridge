@@ -28,6 +28,7 @@ internal class DiscordRoleUpdater(
         val user = UserSnowflake.fromId(discordUserId)
         return when (this) {
             is DiscordRoleChange.Grant -> guild.addRoleToMember(user, role)
+            is DiscordRoleChange.Revoke -> guild.removeRoleFromMember(user, role)
         }
     }
 
