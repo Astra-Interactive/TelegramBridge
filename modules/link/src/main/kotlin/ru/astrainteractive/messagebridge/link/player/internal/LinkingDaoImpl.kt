@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.player.database
+package ru.astrainteractive.messagebridge.link.player.internal
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -19,6 +19,9 @@ import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerStorageError
 import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.player.table.DiscordAccountTable
+import ru.astrainteractive.messagebridge.link.player.table.PlayerTable
+import ru.astrainteractive.messagebridge.link.player.table.TelegramAccountTable
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 

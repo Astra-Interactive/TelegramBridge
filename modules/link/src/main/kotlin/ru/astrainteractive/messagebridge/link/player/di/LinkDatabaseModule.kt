@@ -14,10 +14,10 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connectAsFlow
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.database.DiscordAccountTable
-import ru.astrainteractive.messagebridge.link.player.database.LinkingDaoImpl
-import ru.astrainteractive.messagebridge.link.player.database.PlayerTable
-import ru.astrainteractive.messagebridge.link.player.database.TelegramAccountTable
+import ru.astrainteractive.messagebridge.link.player.internal.LinkingDaoImpl
+import ru.astrainteractive.messagebridge.link.player.table.DiscordAccountTable
+import ru.astrainteractive.messagebridge.link.player.table.PlayerTable
+import ru.astrainteractive.messagebridge.link.player.table.TelegramAccountTable
 import java.io.File
 import java.sql.Connection
 

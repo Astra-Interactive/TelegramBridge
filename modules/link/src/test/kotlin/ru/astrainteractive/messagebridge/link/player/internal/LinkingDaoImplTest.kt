@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.link.player.database
+package ru.astrainteractive.messagebridge.link.player.internal
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
