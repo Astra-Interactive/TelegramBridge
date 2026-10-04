@@ -50,7 +50,7 @@ internal class LuckPermsRoleController(
             }
 
             val result = user.data().remove(groupNode)
-            info { "Игроку $uuid выдана роль ${link.linkLuckPermsRole}: $result" }
+            info { "У игрока $uuid снята роль ${link.linkLuckPermsRole}: $result" }
         }.whenComplete { _, failure ->
             if (failure != null) error(failure) { "Could not revoke ${link.linkLuckPermsRole} from $uuid" }
         }
