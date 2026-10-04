@@ -45,7 +45,7 @@ class RootModule(
     private val bEventChannel: BEventChannel = BEventChannelImpl()
 
     val linkModule by lazy {
-        LinkModule.Default(coreModule, LuckPermsProvider.Default)
+        LinkModule(coreModule, LuckPermsProvider.Default)
     }
 
     val neoForgeMessengerModule by lazy {

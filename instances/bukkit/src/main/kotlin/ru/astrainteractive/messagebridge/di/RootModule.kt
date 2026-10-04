@@ -47,7 +47,7 @@ class RootModule(
 
     private val bEventChannel: BEventChannel = BEventChannelImpl()
 
-    val linkModule = LinkModule.Default(coreModule, LuckPermsProvider.Default)
+    val linkModule = LinkModule(coreModule, LuckPermsProvider.Default)
 
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,

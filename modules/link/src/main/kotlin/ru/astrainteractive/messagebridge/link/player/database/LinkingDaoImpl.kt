@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.database.dao.internal
+package ru.astrainteractive.messagebridge.link.player.database
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -12,12 +12,11 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
-import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
-import ru.astrainteractive.messagebridge.link.database.table.LinkedPlayerTable
+import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
 import java.util.UUID
 
-class LinkingDaoImpl(
+internal class LinkingDaoImpl(
     private val databaseFlow: Flow<Database>
 ) : LinkingDao, Logger by JUtiltLogger("MessageBridge-LinkingDaoImpl").withoutParentHandlers() {
     private suspend fun requireDatabase() = databaseFlow.first()

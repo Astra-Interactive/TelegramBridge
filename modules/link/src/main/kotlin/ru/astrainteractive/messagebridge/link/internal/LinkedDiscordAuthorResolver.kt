@@ -1,6 +1,6 @@
 package ru.astrainteractive.messagebridge.link.internal
 
-import ru.astrainteractive.messagebridge.link.database.dao.LinkingDao
+import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import java.util.UUID

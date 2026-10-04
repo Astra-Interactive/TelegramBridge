@@ -1,7 +1,7 @@
-package ru.astrainteractive.messagebridge.link.fake
+package ru.astrainteractive.messagebridge.link.code.fake
 
-import ru.astrainteractive.messagebridge.link.api.CodeApi
-import ru.astrainteractive.messagebridge.link.api.model.CodeUser
+import ru.astrainteractive.messagebridge.link.code.api.CodeApi
+import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 
 internal class FakeCodeApi(
     private val code: Int,

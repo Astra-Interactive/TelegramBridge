@@ -1,9 +1,9 @@
-package ru.astrainteractive.messagebridge.link.database.dao
+package ru.astrainteractive.messagebridge.link.player.api
 
-import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
 import java.util.UUID
 
-interface LinkingDao {
+internal interface LinkingDao {
     suspend fun findByUuid(uuid: UUID): Result<LinkedPlayerModel?>
     suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel>
     suspend fun deleteByUuid(uuid: UUID): Result<Unit>

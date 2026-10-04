@@ -1,9 +1,9 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.link.api.internal
+package ru.astrainteractive.messagebridge.link.code.internal
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.link.api.model.CodeUser
+import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -53,7 +53,7 @@ class RootModule(
     }
 
     val linkModule by lazy {
-        LinkModule.Default(coreModule, LuckPermsProvider.Default)
+        LinkModule(coreModule, LuckPermsProvider.Default)
     }
 
     val forgeMessengerModule by lazy {

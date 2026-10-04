@@ -1,8 +1,8 @@
-package ru.astrainteractive.messagebridge.link.database.model
+package ru.astrainteractive.messagebridge.link.player.model
 
 import java.util.UUID
 
-data class LinkedPlayerModel(
+internal data class LinkedPlayerModel(
     val uuid: UUID,
     val lastMinecraftName: String,
     val discordLink: DiscordLink? = null,

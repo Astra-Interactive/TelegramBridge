@@ -13,11 +13,11 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.fake.FakeCodeApi
-import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.code.fake.FakeCodeApi
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
 import java.util.Locale
 import java.util.UUID
 import kotlin.test.Test

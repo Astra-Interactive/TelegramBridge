@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.controller
+package ru.astrainteractive.messagebridge.link.internal
 
 import net.luckperms.api.LuckPerms
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
@@ -9,7 +9,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import java.util.UUID
 
-class LuckPermsRoleController(
+internal class LuckPermsRoleController(
     configKrate: CachedKrate<PluginConfiguration>,
     private val luckPermsProvider: LuckPermsProvider
 ) : Logger by JUtiltLogger("MessageBridge-LuckPermsRoleController").withoutParentHandlers() {

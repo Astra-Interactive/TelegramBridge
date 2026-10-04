@@ -14,14 +14,14 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.controller.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
-import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.permission.LinkPermission
+import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

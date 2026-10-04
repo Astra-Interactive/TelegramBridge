@@ -1,8 +1,8 @@
-package ru.astrainteractive.messagebridge.link.database.table
+package ru.astrainteractive.messagebridge.link.player.database
 
 import ru.astrainteractive.klibs.mikro.exposed.dao.StringIdTable
 
-object LinkedPlayerTable : StringIdTable("LinkedPlayerTable", "uuid") {
+internal object LinkedPlayerTable : StringIdTable("LinkedPlayerTable", "uuid") {
     val lastMinecraftName = text("last_minecraft_name")
 
     val lastDiscordName = text("last_discord_name").nullable()

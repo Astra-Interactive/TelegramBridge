@@ -3,8 +3,8 @@
 package ru.astrainteractive.messagebridge.link.internal
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.link.database.model.LinkedPlayerModel
-import ru.astrainteractive.messagebridge.link.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import java.util.UUID
 import kotlin.test.Test
