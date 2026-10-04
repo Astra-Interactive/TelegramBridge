@@ -5,7 +5,7 @@ import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.neoforge.event.NeoForgeEvents
-import ru.astrainteractive.messagebridge.messenger.neoforge.messaging.NeoForgeBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.neoforge.internal.NeoForgeBEventConsumer
 
 class NeoForgeMessengerModule(
     coreModule: CoreModule,
