@@ -29,6 +29,7 @@ dependencies {
     testImplementation(libs.minecraft.kyori.legacy)
     testImplementation(libs.minecraft.kyori.minimessage)
     testImplementation(libs.minecraft.kyori.plain)
+    testImplementation(libs.minecraft.paper.api)
     testImplementation(libs.tests.kotlin.test)
     testImplementation(testFixtures(projects.modules.messenger.api))
 }

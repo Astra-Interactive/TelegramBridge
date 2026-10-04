@@ -1,7 +1,16 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.di
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import org.bukkit.event.HandlerList
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
+import org.bukkit.event.EventPriority
+import ru.astrainteractive.astralibs.event.flowEvent
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -16,6 +25,11 @@ class BukkitMessengerModule(
     bEventChannel: BEventChannel,
     textInterceptors: List<TextInterceptor>
 ) {
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
+
     private val minecraftBEventConsumer = MinecraftBEventConsumer(
         translationKrate = coreModule.translationKrate,
         textInterceptors = textInterceptors,
@@ -25,18 +39,20 @@ class BukkitMessengerModule(
 
     private val bukkitEvent = BukkitEvent(
         configKrate = coreModule.configKrate,
-        ioScope = coreModule.ioScope,
-        dispatchers = coreModule.dispatchers,
-        bEventConsumer = bEventChannel,
+        eventFlow = { type ->
+            flowEvent(bukkitCoreModule.plugin, type, EventPriority.MONITOR)
+                .buffer(Channel.UNLIMITED)
+        }
     )
 
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
-            bukkitEvent.onEnable(bukkitCoreModule.plugin)
+            bukkitEvent.bEvents
+                .onEach { bEvent -> moduleIoScope.launch { bEventChannel.consume(bEvent) } }
+                .launchIn(moduleIoScope)
         },
         onDisable = {
-            HandlerList.unregisterAll(bukkitCoreModule.plugin)
-            bukkitEvent.onDisable()
+            moduleIoScope.cancel()
             minecraftBEventConsumer.cancel()
         }
     )

@@ -1,91 +1,70 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.events
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import net.kyori.adventure.text.TextComponent
-import org.bukkit.event.EventHandler
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import org.bukkit.event.Cancellable
+import org.bukkit.event.Event
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import ru.astrainteractive.astralibs.event.EventListener
-import ru.astrainteractive.astralibs.localization.markup.KyoriComponentSerializer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
-/**
- * This is a most convenient way to use bukkit events in kotlin
- */
 internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,
-    private val ioScope: CoroutineScope,
-    private val dispatchers: KotlinDispatchers,
-    private val bEventConsumer: BEventConsumer
-) : EventListener, Logger by JUtiltLogger("MessageBridge-BukkitEvent").withoutParentHandlers() {
+    private val eventFlow: (Class<out Event>) -> Flow<Event>
+) {
     private val config by configKrate
 
-    @EventHandler(ignoreCancelled = true)
-    fun playerJoin(event: PlayerJoinEvent) {
-        if (!config.displayJoinMessage) return
-
-        ioScope.launch(dispatchers.IO) {
-            val bEvent = PlayerJoinedBEvent(
-                name = event.player.name,
-                uuid = event.player.uniqueId.toString(),
-                hasPlayedBefore = event.player.hasPlayedBefore()
+    private val playerJoinEvent: Flow<BEvent> = uncancelledEvents<PlayerJoinEvent>()
+        .filter { config.displayJoinMessage }
+        .map { event -> event.player }
+        .map { player ->
+            PlayerJoinedBEvent(
+                name = player.name,
+                uuid = player.uniqueId.toString(),
+                hasPlayedBefore = player.hasPlayedBefore()
             )
-            bEventConsumer.consume(bEvent)
         }
-    }
 
-    @EventHandler(ignoreCancelled = true)
-    fun playerLeaveEvent(event: PlayerQuitEvent) {
-        if (!config.displayLeaveMessage) return
-        ioScope.launch(dispatchers.IO) {
-            val bEvent = PlayerLeaveBEvent(
-                name = event.player.name,
+    private val playerQuitEvent: Flow<BEvent> = uncancelledEvents<PlayerQuitEvent>()
+        .filter { config.displayLeaveMessage }
+        .map { event -> event.player }
+        .map { player -> PlayerLeaveBEvent(name = player.name, uuid = player.uniqueId.toString()) }
+
+    private val asyncPlayerChatEvent: Flow<BEvent> = uncancelledEvents<AsyncPlayerChatEvent>()
+        .map { event ->
+            Text.Minecraft(
+                author = event.player.name,
+                text = event.message,
                 uuid = event.player.uniqueId.toString()
             )
-            bEventConsumer.consume(bEvent)
         }
-    }
 
-    @EventHandler(ignoreCancelled = true)
-    fun asyncMessageEvent(event: AsyncPlayerChatEvent) {
-        val message = KyoriComponentSerializer.Plain.toComponent(event.message)
-        val player = event.player
-
-        ioScope.launch(dispatchers.IO) {
-            val textComponent = message as TextComponent
-            val bEvent = Text.Minecraft(
-                author = player.name,
-                text = textComponent.content(),
-                uuid = player.uniqueId.toString()
-            )
-            bEventConsumer.consume(bEvent)
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    fun deathEvent(event: PlayerDeathEvent) {
-        if (!config.displayDeathMessage) return
-        ioScope.launch(dispatchers.IO) {
-            val deathCause = event.deathMessage
-            val bEvent = PlayerDeathBEvent(
+    private val playerDeathEvent: Flow<BEvent> = uncancelledEvents<PlayerDeathEvent>()
+        .filter { config.displayDeathMessage }
+        .map { event ->
+            PlayerDeathBEvent(
                 name = event.entity.name,
-                cause = deathCause,
+                cause = event.deathMessage,
                 uuid = event.entity.uniqueId.toString()
             )
-            bEventConsumer.consume(bEvent)
         }
-    }
+
+    val bEvents: Flow<BEvent> = merge(playerJoinEvent, playerQuitEvent, asyncPlayerChatEvent, playerDeathEvent)
+
+    private inline fun <reified T : Event> uncancelledEvents(): Flow<T> = eventFlow.invoke(T::class.java)
+        .filterIsInstance<T>()
+        .filterNot { event -> event is Cancellable && event.isCancelled }
 }
