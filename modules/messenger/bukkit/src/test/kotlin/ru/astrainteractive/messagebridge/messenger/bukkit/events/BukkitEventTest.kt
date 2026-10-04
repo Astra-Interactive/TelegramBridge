@@ -3,6 +3,8 @@
 
 package ru.astrainteractive.messagebridge.messenger.bukkit.events
 
+import io.papermc.paper.chat.ChatRenderer
+import io.papermc.paper.event.player.AsyncChatEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -11,12 +13,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import net.kyori.adventure.chat.SignedMessage
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
@@ -70,8 +73,11 @@ class BukkitEventTest {
         runCurrent()
     }
 
-    private fun chat(message: String, isCancelled: Boolean): AsyncPlayerChatEvent {
-        return AsyncPlayerChatEvent(true, steve, message, emptySet()).apply { this.isCancelled = isCancelled }
+    private fun chat(message: Component, isCancelled: Boolean): AsyncChatEvent {
+        val renderer: ChatRenderer = proxyFake(emptyMap())
+        val signedMessage: SignedMessage = proxyFake(emptyMap())
+        return AsyncChatEvent(true, steve, emptySet(), renderer, message, message, signedMessage)
+            .apply { this.isCancelled = isCancelled }
     }
 
     private fun death(isCancelled: Boolean): PlayerDeathEvent {
@@ -121,16 +127,29 @@ class BukkitEventTest {
     fun GIVEN_chat_message_WHEN_it_arrives_THEN_minecraft_text_with_that_message_is_emitted() = runTest {
         val received = collect(PluginConfiguration())
 
-        dispatch(chat(message = "hello", isCancelled = false))
+        dispatch(chat(message = Component.text("hello"), isCancelled = false))
 
         assertEquals(listOf<BEvent>(Text.Minecraft(author = "Steve", uuid = "$STEVE_UUID", text = "hello")), received)
+    }
+
+    @Test
+    fun GIVEN_chat_message_with_colors_WHEN_it_arrives_THEN_text_has_no_markup() = runTest {
+        val received = collect(PluginConfiguration())
+        val colored = Component.text("hello ", NamedTextColor.GREEN).append(Component.text("world", NamedTextColor.RED))
+
+        dispatch(chat(message = colored, isCancelled = false))
+
+        assertEquals(
+            listOf<BEvent>(Text.Minecraft(author = "Steve", uuid = "$STEVE_UUID", text = "hello world")),
+            received
+        )
     }
 
     @Test
     fun GIVEN_chat_cancelled_by_another_plugin_WHEN_it_arrives_THEN_nothing_is_emitted() = runTest {
         val received = collect(PluginConfiguration())
 
-        dispatch(chat(message = "muted words", isCancelled = true))
+        dispatch(chat(message = Component.text("muted words"), isCancelled = true))
 
         assertEquals(emptyList(), received)
     }

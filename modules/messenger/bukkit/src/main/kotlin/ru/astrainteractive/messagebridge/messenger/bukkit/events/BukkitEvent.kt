@@ -1,15 +1,16 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.events
 
+import io.papermc.paper.event.player.AsyncChatEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
@@ -43,11 +44,11 @@ internal class BukkitEvent(
         .map { event -> event.player }
         .map { player -> PlayerLeaveBEvent(name = player.name, uuid = player.uniqueId.toString()) }
 
-    private val asyncPlayerChatEvent: Flow<BEvent> = uncancelledEvents<AsyncPlayerChatEvent>()
+    private val asyncChatEvent: Flow<BEvent> = uncancelledEvents<AsyncChatEvent>()
         .map { event ->
             Text.Minecraft(
                 author = event.player.name,
-                text = event.message,
+                text = PlainTextComponentSerializer.plainText().serialize(event.message()),
                 uuid = event.player.uniqueId.toString()
             )
         }
@@ -62,7 +63,7 @@ internal class BukkitEvent(
             )
         }
 
-    val bEvents: Flow<BEvent> = merge(playerJoinEvent, playerQuitEvent, asyncPlayerChatEvent, playerDeathEvent)
+    val bEvents: Flow<BEvent> = merge(playerJoinEvent, playerQuitEvent, asyncChatEvent, playerDeathEvent)
 
     private inline fun <reified T : Event> uncancelledEvents(): Flow<T> = eventFlow.invoke(T::class.java)
         .filterIsInstance<T>()

@@ -34,7 +34,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 
 | Platform       | File                           | Minecraft |
 |----------------|--------------------------------|-----------|
-| Paper / Spigot | `MessageBridge-bukkit-*.jar`   | 1.18+     |
+| Paper          | `MessageBridge-bukkit-*.jar`   | 1.18+     |
 | NeoForge       | `MessageBridge-neoforge-*.jar` | 1.20.1    |
 | Forge          | `MessageBridge-forge-*.jar`    | 1.20.1    |
 
