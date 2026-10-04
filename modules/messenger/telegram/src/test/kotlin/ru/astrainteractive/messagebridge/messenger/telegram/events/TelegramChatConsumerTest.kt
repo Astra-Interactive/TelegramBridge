@@ -35,13 +35,11 @@ import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messaging.model.Text
@@ -65,16 +63,6 @@ private data class TelegramRequest(
     val text: String?,
     val replyToMessageId: Int?
 )
-
-private class RecordingBEventConsumer :
-    BEventConsumer,
-    Logger by JUtiltLogger("MessageBridge-RecordingBEventConsumer") {
-    val consumed = mutableListOf<BEvent>()
-
-    override suspend fun consume(bEvent: BEvent) {
-        consumed += bEvent
-    }
-}
 
 private class TestDispatchers(dispatcher: CoroutineDispatcher) : KotlinDispatchers {
     override val Main: MainCoroutineDispatcher
@@ -113,7 +101,7 @@ class TelegramChatConsumerTest {
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     private val objectMapper = ObjectMapper()
     private val sentRequests = mutableListOf<TelegramRequest>()
-    private val published = RecordingBEventConsumer()
+    private val published = FakeBEventConsumer { _ -> }
     private val interceptedTexts = mutableListOf<String?>()
     private val failures = mutableListOf<Throwable>()
     private val steve = User(STEVE_ID, "Steve", false).apply { userName = "steve_tg" }
@@ -230,7 +218,7 @@ class TelegramChatConsumerTest {
             authorId = STEVE_ID,
             reply = Text.Reply(author = "alex_tg", authorId = ALEX_ID, text = "hi")
         )
-        assertEquals(listOf<BEvent>(relayed), published.consumed)
+        assertEquals(listOf<BEvent>(relayed), published.sent)
         assertEquals(listOf<String?>("hello"), interceptedTexts)
     }
 
@@ -241,7 +229,7 @@ class TelegramChatConsumerTest {
         consumer.consume(update(text = "/link 1234"))
         runCurrent()
 
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
         assertEquals(emptyList(), sentRequests)
     }
 
@@ -260,7 +248,7 @@ class TelegramChatConsumerTest {
                 replyToMessageId = TOPIC_ID
             )
             assertEquals(listOf(answer), sentRequests)
-            assertEquals(emptyList(), published.consumed)
+            assertEquals(emptyList(), published.sent)
         }
 
     @Test
@@ -271,7 +259,7 @@ class TelegramChatConsumerTest {
         runCurrent()
 
         assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -282,7 +270,7 @@ class TelegramChatConsumerTest {
         runCurrent()
 
         assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -293,7 +281,7 @@ class TelegramChatConsumerTest {
         runCurrent()
 
         assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -318,7 +306,7 @@ class TelegramChatConsumerTest {
         runCurrent()
 
         assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
         assertEquals(listOf("sendmessage"), sentRequests.map(TelegramRequest::method))
     }
 
@@ -330,7 +318,7 @@ class TelegramChatConsumerTest {
             consumer.consume(update(text = "/link 1234"))
             runCurrent()
 
-            assertEquals(emptyList(), published.consumed)
+            assertEquals(emptyList(), published.sent)
             assertEquals(emptyList(), sentRequests)
             assertEquals(listOf<String?>("Database is locked"), failures.map(Throwable::message))
         }

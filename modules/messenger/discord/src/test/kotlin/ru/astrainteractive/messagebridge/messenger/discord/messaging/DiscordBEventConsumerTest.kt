@@ -3,7 +3,6 @@
 
 package ru.astrainteractive.messagebridge.messenger.discord.messaging
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +16,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
@@ -64,9 +62,6 @@ class DiscordBEventConsumerTest {
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
         text = "hello"
     )
-    private val noEvents = object : BEventReceiver {
-        override fun bEvents(scope: CoroutineScope): Flow<BEvent> = emptyFlow()
-    }
 
     private fun consumer(state: DiscordChannel): DiscordBEventConsumer = consumer(MutableStateFlow(state))
 
@@ -77,7 +72,7 @@ class DiscordBEventConsumerTest {
             embedMapper = DiscordEmbedMapper(),
             memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
             webhookMessageMapper = DiscordWebhookMessageMapper(),
-            bEventReceiver = noEvents
+            bEventReceiver = FakeBEventReceiver(emptyFlow())
         )
     }
 

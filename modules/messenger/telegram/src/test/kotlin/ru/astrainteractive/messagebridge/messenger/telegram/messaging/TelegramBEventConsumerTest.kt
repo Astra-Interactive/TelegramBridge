@@ -2,8 +2,6 @@
 
 package ru.astrainteractive.messagebridge.messenger.telegram.messaging
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -18,8 +16,7 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 import kotlin.test.Test
@@ -28,9 +25,6 @@ import kotlin.test.assertTrue
 
 class TelegramBEventConsumerTest {
     private val requestedMethods = mutableListOf<String>()
-    private val noEvents = object : BEventReceiver {
-        override fun bEvents(scope: CoroutineScope): Flow<BEvent> = emptyFlow()
-    }
 
     private fun respond(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -60,7 +54,7 @@ class TelegramBEventConsumerTest {
                 .asCachedKrate(),
             telegramClientFlow = flowOf(telegramClient),
             relayedMessageCache = TelegramRelayedMessageCache(capacity = 10),
-            bEventReceiver = noEvents
+            bEventReceiver = FakeBEventReceiver(emptyFlow())
         )
     }
 

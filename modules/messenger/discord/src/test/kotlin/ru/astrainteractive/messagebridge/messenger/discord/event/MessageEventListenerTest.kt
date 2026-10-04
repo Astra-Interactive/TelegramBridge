@@ -19,13 +19,11 @@ import ru.astrainteractive.astralibs.server.player.KPlayer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messaging.model.Text
@@ -40,16 +38,6 @@ import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-
-private class RecordingBEventConsumer :
-    BEventConsumer,
-    Logger by JUtiltLogger("MessageBridge-RecordingBEventConsumer") {
-    val consumed = mutableListOf<BEvent>()
-
-    override suspend fun consume(bEvent: BEvent) {
-        consumed += bEvent
-    }
-}
 
 private object EmptyPlatformServer : PlatformServer {
     override fun getOnlinePlayers(): List<OnlineKPlayer> = emptyList()
@@ -70,7 +58,7 @@ class MessageEventListenerTest {
     ).asCachedKrate()
     private val translationKrate = DefaultMutableKrate(factory = { PluginTranslation() }, loader = { null })
         .asCachedKrate()
-    private val published = RecordingBEventConsumer()
+    private val published = FakeBEventConsumer { _ -> }
     private val replies = mutableListOf<String>()
     private val interceptedContents = mutableListOf<String>()
     private val jda: JDA = jdaFake(emptyMap())
@@ -144,7 +132,7 @@ class MessageEventListenerTest {
         receive(listener(recording(Interception.Pass)), message(content = "hello"))
 
         val relayed = Text.Discord(author = "Stevie", text = "hello", authorId = STEVE_ID, reply = null)
-        assertEquals(listOf<BEvent>(relayed), published.consumed)
+        assertEquals(listOf<BEvent>(relayed), published.sent)
         assertEquals(listOf("hello"), interceptedContents)
         assertEquals(emptyList(), replies)
     }
@@ -153,7 +141,7 @@ class MessageEventListenerTest {
     fun GIVEN_interceptor_that_consumes_WHEN_bridge_message_arrives_THEN_nothing_is_relayed_or_answered() = runTest {
         receive(listener(recording(Interception.Consumed)), message(content = "/link 1234"))
 
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
         assertEquals(emptyList(), replies)
     }
 
@@ -163,7 +151,7 @@ class MessageEventListenerTest {
             receive(listener(recording(Interception.Reply("Your account is linked"))), message(content = "/link 1234"))
 
             assertEquals(listOf("Your account is linked"), replies)
-            assertEquals(emptyList(), published.consumed)
+            assertEquals(emptyList(), published.sent)
         }
 
     @Test
@@ -174,7 +162,7 @@ class MessageEventListenerTest {
         )
 
         assertEquals(listOf("1234"), interceptedContents)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
         assertEquals(emptyList(), replies)
     }
 
@@ -186,7 +174,7 @@ class MessageEventListenerTest {
         )
 
         assertEquals(listOf("Code not found"), replies)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -194,7 +182,7 @@ class MessageEventListenerTest {
         receive(listener(recording(Interception.Pass)), message(content = "/link 1234", isWebhook = true))
 
         assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -202,7 +190,7 @@ class MessageEventListenerTest {
         receive(listener(recording(Interception.Pass)), message(content = "/link 1234", author = bot))
 
         assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -210,7 +198,7 @@ class MessageEventListenerTest {
         receive(listener(recording(Interception.Pass)), message(content = "/link 1234", channelId = OTHER_CHANNEL_ID))
 
         assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
     }
 
     @Test
@@ -218,7 +206,7 @@ class MessageEventListenerTest {
         receive(listener(recording(Interception.Pass)), message(content = "!vanilla"))
 
         assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.consumed)
+        assertEquals(emptyList(), published.sent)
         assertEquals(1, replies.size)
     }
 
@@ -228,7 +216,7 @@ class MessageEventListenerTest {
             runTest {
                 receive(listener(MessageInterceptor { _ -> error("Database is locked") }), message(content = "/link 1"))
 
-                assertEquals(emptyList(), published.consumed)
+                assertEquals(emptyList(), published.sent)
                 assertEquals(emptyList(), replies)
             }
         }

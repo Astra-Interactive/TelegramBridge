@@ -5,7 +5,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 
-internal class FakeBEventConsumer(
+class FakeBEventConsumer(
     private val send: suspend (BEvent) -> Unit
 ) : BEventConsumer,
     Logger by JUtiltLogger("MessageBridge-FakeBEventConsumer") {

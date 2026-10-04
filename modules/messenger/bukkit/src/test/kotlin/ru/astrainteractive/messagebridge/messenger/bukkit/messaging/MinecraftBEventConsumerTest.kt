@@ -3,9 +3,7 @@
 package ru.astrainteractive.messagebridge.messenger.bukkit.messaging
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainCoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
@@ -15,9 +13,8 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,10 +28,6 @@ private object UnusedDispatchers : KotlinDispatchers {
         get() = error("Formatting a message never switches threads")
     override val Unconfined: CoroutineDispatcher
         get() = error("Formatting a message never switches threads")
-}
-
-private object NoBEvents : BEventReceiver {
-    override fun bEvents(scope: CoroutineScope): Flow<BEvent> = emptyFlow()
 }
 
 class MinecraftBEventConsumerTest {
@@ -52,7 +45,7 @@ class MinecraftBEventConsumerTest {
             translationKrate = translationKrate,
             textInterceptors = interceptors.toList(),
             dispatchers = UnusedDispatchers,
-            bEventReceiver = NoBEvents
+            bEventReceiver = FakeBEventReceiver(emptyFlow())
         )
     }
 
