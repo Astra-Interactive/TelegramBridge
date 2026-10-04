@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.transform
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
@@ -24,10 +23,6 @@ class BEventChannelImpl :
             warn { "#bEvents a receiver fell behind, dropped $bEvent" }
         }
         channel
-            .transform { event ->
-                emit(event)
-                kotlinx.coroutines.delay(DELAY_MILLIS)
-            }
             .onEach(receiverBuffer::send)
             .launchIn(scope)
         return receiverBuffer.receiveAsFlow()
@@ -38,12 +33,6 @@ class BEventChannelImpl :
     }
 
     private companion object {
-        /**
-         * When people write a lot of messages at one time - we can
-         * encounter timeout for discord/tg api, so we need to wait a little
-         */
-        const val DELAY_MILLIS = 500L
-
         const val RECEIVER_BUFFER_CAPACITY = 64
     }
 }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -61,14 +60,13 @@ class BEventChannelImplTest {
 
         channel.consume(ServerOpenBEvent)
         channel.consume(chatMessage)
-        advanceTimeBy(RECEIVE_WINDOW)
         runCurrent()
 
         assertEquals(listOf(ServerOpenBEvent, chatMessage), received)
     }
 
     @Test
-    fun GIVEN_two_events_consumed_back_to_back_WHEN_received_THEN_the_second_waits_half_a_second() = runTest {
+    fun GIVEN_burst_of_events_WHEN_consumed_THEN_receiver_gets_them_all_at_once() = runTest {
         val channel = BEventChannelImpl()
         val arrivals = mutableListOf<Duration>()
         backgroundScope.launch {
@@ -76,12 +74,10 @@ class BEventChannelImplTest {
         }
         runCurrent()
 
-        channel.consume(ServerOpenBEvent)
-        channel.consume(chatMessage)
-        advanceTimeBy(RECEIVE_WINDOW)
+        chatMessages().forEach { event -> channel.consume(event) }
         runCurrent()
 
-        assertEquals(listOf(Duration.ZERO, 500.milliseconds), arrivals)
+        assertEquals(List(EVENT_COUNT) { _ -> Duration.ZERO }, arrivals)
     }
 
     @Test
@@ -104,7 +100,6 @@ class BEventChannelImplTest {
         val received = receive(idle)
 
         busy.consume(ServerOpenBEvent)
-        advanceTimeBy(RECEIVE_WINDOW)
         runCurrent()
 
         assertTrue(received.isEmpty())
@@ -121,7 +116,6 @@ class BEventChannelImplTest {
             val events = chatMessages()
 
             val producer = launch { events.forEach { event -> channel.consume(event) } }
-            advanceTimeBy(DELIVERY_WINDOW)
             runCurrent()
 
             assertTrue(producer.isCompleted)
@@ -143,7 +137,6 @@ class BEventChannelImplTest {
         val events = chatMessages()
 
         launch { events.forEach { event -> channel.consume(event) } }
-        advanceTimeBy(DELIVERY_WINDOW)
         runCurrent()
         gate.complete(Unit)
         runCurrent()
@@ -152,9 +145,7 @@ class BEventChannelImplTest {
     }
 
     private companion object {
-        val RECEIVE_WINDOW = 1000.milliseconds
         const val EVENT_COUNT = 100
         const val RECEIVER_BUFFER_CAPACITY = 64
-        val DELIVERY_WINDOW = 500.milliseconds * EVENT_COUNT
     }
 }
