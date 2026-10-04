@@ -17,7 +17,7 @@ import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import java.util.UUID
@@ -77,8 +77,8 @@ class TelegramLinkInterceptorTest {
 
         assertEquals(reply(translation.link.success), interception)
         assertEquals(
-            LinkedPlayerModel.TelegramLink(telegramUsername = "steve_tg", telegramId = TELEGRAM_ID),
-            linkingDao.linkedPlayers[steve.uuid]?.telegramLink
+            MessengerAccount.Telegram(id = TELEGRAM_ID, username = "steve_tg"),
+            linkingDao.linkedPlayers[steve.uuid]?.telegram
         )
     }
 
@@ -138,16 +138,14 @@ class TelegramLinkInterceptorTest {
     @Test
     fun GIVEN_player_already_linked_to_telegram_WHEN_sends_new_code_THEN_reads_already_linked_and_link_stays() =
         runTest {
-            val existingLink = LinkedPlayerModel.TelegramLink(telegramUsername = "old_tg", telegramId = 1)
-            linkingDao.upsert(
-                LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve", telegramLink = existingLink)
-            )
+            val existingLink = MessengerAccount.Telegram(id = 1, username = "old_tg")
+            linkingDao.link(uuid = steve.uuid, minecraftName = "Steve", account = existingLink)
             val code = codeApi.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
 
             assertEquals(reply(translation.link.alreadyLinked), interception)
-            assertEquals(existingLink, linkingDao.linkedPlayers[steve.uuid]?.telegramLink)
+            assertEquals(existingLink, linkingDao.linkedPlayers[steve.uuid]?.telegram)
         }
 
     @Test
@@ -159,6 +157,22 @@ class TelegramLinkInterceptorTest {
 
         assertEquals(reply(translation.link.unknownError), interception)
         assertTrue(linkingDao.linkedPlayers.isEmpty())
+    }
+
+    @Test
+    fun GIVEN_telegram_account_linked_to_another_player_WHEN_code_is_sent_THEN_user_reads_account_taken() = runTest {
+        val alexUuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000003")
+        linkingDao.link(
+            uuid = alexUuid,
+            minecraftName = "Alex",
+            account = MessengerAccount.Telegram(TELEGRAM_ID, "steve_tg")
+        )
+        val code = codeApi.generateCodeForPlayer(steve)
+
+        val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
+
+        assertEquals(reply(translation.link.accountTaken), interception)
+        assertEquals(null, linkingDao.linkedPlayers[steve.uuid])
     }
 
     private companion object {

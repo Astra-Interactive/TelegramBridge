@@ -267,6 +267,11 @@ data class PluginTranslation(
             translation(MinecraftLocales.EN_US, "You have already linked an account this way")
             translation(MinecraftLocales.RU_RU, "Вы уже привязали аккаунт этим способом")
         },
+        @SerialName("account_linked_to_another_player")
+        val accountTaken: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "This account is already linked to another player")
+            translation(MinecraftLocales.RU_RU, "Этот аккаунт уже привязан к другому игроку")
+        },
         @SerialName("no_code_found")
         val noCodeFound: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "Code not found. Use /link in the game to create one")

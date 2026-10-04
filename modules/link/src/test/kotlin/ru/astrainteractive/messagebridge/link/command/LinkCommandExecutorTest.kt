@@ -13,7 +13,7 @@ import ru.astrainteractive.messagebridge.link.code.fake.FakeCodeApi
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.Locale
 import java.util.UUID
 import kotlin.test.Test
@@ -59,13 +59,15 @@ class LinkCommandExecutorTest {
 
     @Test
     fun GIVEN_linked_player_WHEN_admin_asks_for_their_links_THEN_admin_reads_them() = runTest {
-        linkingDao.upsert(
-            LinkedPlayerModel(
-                uuid = steve.uuid,
-                lastMinecraftName = "Steve",
-                discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = "steve", discordId = 42),
-                telegramLink = LinkedPlayerModel.TelegramLink(telegramUsername = "steve_tg", telegramId = 7)
-            )
+        linkingDao.link(
+            uuid = steve.uuid,
+            minecraftName = "Steve",
+            account = MessengerAccount.Discord(id = 42, name = "steve")
+        )
+        linkingDao.link(
+            uuid = steve.uuid,
+            minecraftName = "Steve",
+            account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
         )
 
         executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))

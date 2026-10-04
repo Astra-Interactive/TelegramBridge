@@ -1,7 +1,7 @@
 package ru.astrainteractive.messagebridge.link.internal
 
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messaging.model.Text
 
@@ -10,16 +10,16 @@ internal class LinkedNameInterceptor(
 ) : TextInterceptor {
     private suspend fun linkedName(
         authorId: Long,
-        findLinkedPlayer: suspend (Long) -> Result<LinkedPlayerModel>
+        findLinkedPlayer: suspend (Long) -> Result<LinkedPlayer?>
     ): String? {
         return findLinkedPlayer.invoke(authorId)
             .getOrNull()
-            ?.lastMinecraftName
+            ?.minecraftName
     }
 
     private suspend fun linkedReply(
         reply: Text.Reply?,
-        findLinkedPlayer: suspend (Long) -> Result<LinkedPlayerModel>
+        findLinkedPlayer: suspend (Long) -> Result<LinkedPlayer?>
     ): Text.Reply? {
         val authorId = reply?.authorId ?: return reply
         val author = linkedName(authorId, findLinkedPlayer) ?: return reply

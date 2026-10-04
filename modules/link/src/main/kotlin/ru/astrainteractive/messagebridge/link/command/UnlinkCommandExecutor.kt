@@ -38,20 +38,16 @@ internal class UnlinkCommandExecutor(
         notLinkedText: LocalizableComponent,
         unlinkedText: LocalizableComponent
     ) {
-        val existing = linkingDao.findByUuid(uuid).getOrElse { failure ->
-            reportFailure(sender, uuid, failure)
+        val unlinked = linkingDao.deleteByUuid(uuid).getOrElse { t ->
+            reportFailure(sender, uuid, t)
             return
         }
-        if (existing == null) {
+        if (unlinked == null) {
             sender.sendMessage(notLinkedText)
             return
         }
-        linkingDao.deleteByUuid(uuid)
-            .onSuccess { _ ->
-                luckPermsRoleController.removeLinkedRole(uuid)
-                sender.sendMessage(unlinkedText)
-            }
-            .onFailure { failure -> reportFailure(sender, uuid, failure) }
+        luckPermsRoleController.removeLinkedRole(uuid)
+        sender.sendMessage(unlinkedText)
     }
 
     suspend fun onIntent(intent: Intent) {

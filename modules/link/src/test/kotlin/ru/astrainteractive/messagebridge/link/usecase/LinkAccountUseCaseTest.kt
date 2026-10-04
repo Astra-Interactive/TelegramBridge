@@ -12,7 +12,7 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
 import kotlin.test.Test
@@ -42,11 +42,7 @@ class LinkAccountUseCaseTest {
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val stevie = MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie")
     private val steveTelegram = MessengerAccount.Telegram(id = TELEGRAM_ID, username = "steve_tg")
-    private val stevieDiscordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = "Stevie", discordId = DISCORD_ID)
-    private val steveTelegramLink = LinkedPlayerModel.TelegramLink(
-        telegramUsername = "steve_tg",
-        telegramId = TELEGRAM_ID
-    )
+    private val alexUuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000003")
 
     @Test
     fun GIVEN_code_of_a_player_WHEN_discord_account_sends_it_THEN_account_is_linked_to_that_player() = runTest {
@@ -56,7 +52,7 @@ class LinkAccountUseCaseTest {
 
         assertEquals(LinkResponse.Linked, response)
         assertEquals(
-            LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve", discordLink = stevieDiscordLink),
+            LinkedPlayer(uuid = steve.uuid, minecraftName = "Steve", discord = stevie, telegram = null),
             linkingDao.linkedPlayers[steve.uuid]
         )
     }
@@ -69,8 +65,10 @@ class LinkAccountUseCaseTest {
             val response = useCase.link(codeApi.generateCodeForPlayer(steve), steveTelegram)
 
             assertEquals(LinkResponse.Linked, response)
-            assertEquals(stevieDiscordLink, linkingDao.linkedPlayers[steve.uuid]?.discordLink)
-            assertEquals(steveTelegramLink, linkingDao.linkedPlayers[steve.uuid]?.telegramLink)
+            assertEquals(
+                LinkedPlayer(uuid = steve.uuid, minecraftName = "Steve", discord = stevie, telegram = steveTelegram),
+                linkingDao.linkedPlayers[steve.uuid]
+            )
         }
 
     @Test
@@ -92,14 +90,14 @@ class LinkAccountUseCaseTest {
     @Test
     fun GIVEN_player_already_linked_to_discord_WHEN_another_discord_account_sends_code_THEN_already_linked() =
         runTest {
-            val existing = LinkedPlayerModel.DiscordLink(lastDiscordName = "Old", discordId = OTHER_DISCORD_ID)
-            linkingDao.upsert(LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve", discordLink = existing))
+            val existing = MessengerAccount.Discord(id = OTHER_DISCORD_ID, name = "Old")
+            linkingDao.link(uuid = steve.uuid, minecraftName = "Steve", account = existing)
             val code = codeApi.generateCodeForPlayer(steve)
 
             val response = useCase.link(code, stevie)
 
             assertEquals(LinkResponse.AlreadyLinked, response)
-            assertEquals(existing, linkingDao.linkedPlayers[steve.uuid]?.discordLink)
+            assertEquals(existing, linkingDao.linkedPlayers[steve.uuid]?.discord)
         }
 
     @Test
@@ -117,13 +115,37 @@ class LinkAccountUseCaseTest {
     fun GIVEN_database_that_can_not_write_WHEN_account_sends_code_THEN_unknown_error_and_no_group_is_requested() =
         runTest {
             val code = codeApi.generateCodeForPlayer(steve)
-            linkingDao.upsertFailure = IllegalStateException("Database is read-only")
+            linkingDao.linkFailure = IllegalStateException("Database is read-only")
 
             val response = useCase.link(code, stevie)
 
             assertEquals(LinkResponse.UnknownError, response)
             assertEquals(0, luckPermsProvider.provideCallCount)
         }
+
+    @Test
+    fun GIVEN_discord_account_linked_to_another_player_WHEN_it_sends_a_code_THEN_account_taken_and_links_stay() =
+        runTest {
+            linkingDao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie)
+            val code = codeApi.generateCodeForPlayer(steve)
+
+            val response = useCase.link(code, stevie)
+
+            assertEquals(LinkResponse.AccountTaken, response)
+            assertEquals(null, linkingDao.linkedPlayers[steve.uuid])
+            assertEquals(stevie, linkingDao.linkedPlayers[alexUuid]?.discord)
+        }
+
+    @Test
+    fun GIVEN_telegram_account_linked_to_another_player_WHEN_it_sends_a_code_THEN_account_taken() = runTest {
+        linkingDao.link(uuid = alexUuid, minecraftName = "Alex", account = steveTelegram)
+        val code = codeApi.generateCodeForPlayer(steve)
+
+        val response = useCase.link(code, steveTelegram)
+
+        assertEquals(LinkResponse.AccountTaken, response)
+        assertEquals(0, luckPermsProvider.provideCallCount)
+    }
 
     private companion object {
         const val DISCORD_ID = 4242L

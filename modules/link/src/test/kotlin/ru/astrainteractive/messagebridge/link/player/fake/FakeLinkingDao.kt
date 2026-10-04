@@ -1,47 +1,46 @@
 package ru.astrainteractive.messagebridge.link.player.fake
 
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
 
 internal class FakeLinkingDao : LinkingDao {
-    val linkedPlayers = mutableMapOf<UUID, LinkedPlayerModel>()
+    val linkedPlayers = mutableMapOf<UUID, LinkedPlayer>()
     var findFailure: Throwable? = null
+    var linkFailure: Throwable? = null
     var deleteFailure: Throwable? = null
-    var upsertFailure: Throwable? = null
 
-    override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayerModel?> {
-        val failure = findFailure ?: return Result.success(linkedPlayers[uuid])
-        return Result.failure(failure)
+    private fun find(predicate: (LinkedPlayer) -> Boolean): Result<LinkedPlayer?> {
+        findFailure?.let { t -> return Result.failure(t) }
+        return Result.success(linkedPlayers.values.firstOrNull(predicate))
     }
 
-    override suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel> {
-        upsertFailure?.let { t -> return Result.failure(t) }
-        linkedPlayers[linkedPlayerModel.uuid] = linkedPlayerModel
-        return Result.success(linkedPlayerModel)
+    override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?> {
+        return find { player -> player.uuid == uuid }
     }
 
-    override suspend fun deleteByUuid(uuid: UUID): Result<Unit> {
-        val failure = deleteFailure
-        if (failure != null) {
-            return Result.failure(failure)
+    override suspend fun findByDiscordId(discordId: Long): Result<LinkedPlayer?> {
+        return find { player -> player.discord?.id == discordId }
+    }
+
+    override suspend fun findByTelegramId(telegramId: Long): Result<LinkedPlayer?> {
+        return find { player -> player.telegram?.id == telegramId }
+    }
+
+    override suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<Unit> {
+        linkFailure?.let { t -> return Result.failure(t) }
+        val player = linkedPlayers[uuid]
+            ?: LinkedPlayer(uuid = uuid, minecraftName = minecraftName, discord = null, telegram = null)
+        linkedPlayers[uuid] = when (account) {
+            is MessengerAccount.Discord -> player.copy(minecraftName = minecraftName, discord = account)
+            is MessengerAccount.Telegram -> player.copy(minecraftName = minecraftName, telegram = account)
         }
-        linkedPlayers.remove(uuid)
         return Result.success(Unit)
     }
 
-    private fun findFirst(predicate: (LinkedPlayerModel) -> Boolean): Result<LinkedPlayerModel> {
-        findFailure?.let { t -> return Result.failure(t) }
-        val linkedPlayer = linkedPlayers.values.firstOrNull(predicate)
-            ?: return Result.failure(NoSuchElementException("No linked player matches"))
-        return Result.success(linkedPlayer)
-    }
-
-    override suspend fun findByDiscordId(id: Long): Result<LinkedPlayerModel> {
-        return findFirst { linkedPlayer -> linkedPlayer.discordLink?.discordId == id }
-    }
-
-    override suspend fun findByTelegramId(id: Long): Result<LinkedPlayerModel> {
-        return findFirst { linkedPlayer -> linkedPlayer.telegramLink?.telegramId == id }
+    override suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?> {
+        deleteFailure?.let { t -> return Result.failure(t) }
+        return Result.success(linkedPlayers.remove(uuid))
     }
 }

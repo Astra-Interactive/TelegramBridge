@@ -9,7 +9,7 @@ import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,12 +35,10 @@ class LinkedMemberLeaveListenerTest {
 
     @Test
     fun GIVEN_linked_player_WHEN_leaves_discord_server_THEN_luckperms_group_removal_is_requested() = runTest {
-        linkingDao.upsert(
-            LinkedPlayerModel(
-                uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"),
-                lastMinecraftName = "Steve",
-                discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = "Stevie", discordId = DISCORD_ID)
-            )
+        linkingDao.link(
+            uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"),
+            minecraftName = "Steve",
+            account = MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie")
         )
 
         listener.onMemberLeave(DISCORD_ID)

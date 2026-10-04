@@ -4,7 +4,7 @@ package ru.astrainteractive.messagebridge.link.internal
 
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import java.util.UUID
 import kotlin.test.Test
@@ -15,23 +15,17 @@ class LinkedDiscordAuthorResolverTest {
     private val linkingDao = FakeLinkingDao()
     private val resolver = LinkedDiscordAuthorResolver(linkingDao)
     private val steveUuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002")
-    private val discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = "Stevie", discordId = DISCORD_ID)
-    private val telegramLink = LinkedPlayerModel.TelegramLink(telegramUsername = "steve_tg", telegramId = TELEGRAM_ID)
+    private val discordAccount = MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie")
+    private val telegramAccount = MessengerAccount.Telegram(id = TELEGRAM_ID, username = "steve_tg")
 
-    private suspend fun linkSteve(discordLink: LinkedPlayerModel.DiscordLink?) {
-        linkingDao.upsert(
-            LinkedPlayerModel(
-                uuid = steveUuid,
-                lastMinecraftName = "Steve",
-                discordLink = discordLink,
-                telegramLink = telegramLink
-            )
-        )
+    private suspend fun linkSteve(discordAccount: MessengerAccount.Discord?) {
+        linkingDao.link(uuid = steveUuid, minecraftName = "Steve", account = telegramAccount)
+        discordAccount?.let { account -> linkingDao.link(uuid = steveUuid, minecraftName = "Steve", account = account) }
     }
 
     @Test
     fun GIVEN_player_linked_to_discord_WHEN_their_game_message_is_resolved_THEN_returns_their_discord_id() = runTest {
-        linkSteve(discordLink)
+        linkSteve(discordAccount)
 
         val discordId = resolver.discordUserId(Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi"))
 
@@ -40,7 +34,7 @@ class LinkedDiscordAuthorResolverTest {
 
     @Test
     fun GIVEN_telegram_author_linked_to_discord_WHEN_resolved_THEN_returns_discord_id() = runTest {
-        linkSteve(discordLink)
+        linkSteve(discordAccount)
 
         val discordId = resolver.discordUserId(
             Text.Telegram(author = "steve_tg", text = "hi", authorId = TELEGRAM_ID, reply = null)
@@ -51,7 +45,7 @@ class LinkedDiscordAuthorResolverTest {
 
     @Test
     fun GIVEN_linked_discord_author_WHEN_resolved_THEN_returns_their_own_discord_id() = runTest {
-        linkSteve(discordLink)
+        linkSteve(discordAccount)
 
         val discordId = resolver.discordUserId(
             Text.Discord(author = "Stevie", text = "hi", authorId = DISCORD_ID, reply = null)
@@ -62,7 +56,7 @@ class LinkedDiscordAuthorResolverTest {
 
     @Test
     fun GIVEN_telegram_author_linked_without_discord_WHEN_resolved_THEN_returns_null() = runTest {
-        linkSteve(discordLink = null)
+        linkSteve(discordAccount = null)
 
         val discordId = resolver.discordUserId(
             Text.Telegram(author = "steve_tg", text = "hi", authorId = TELEGRAM_ID, reply = null)
@@ -82,7 +76,7 @@ class LinkedDiscordAuthorResolverTest {
 
     @Test
     fun GIVEN_unreadable_database_WHEN_game_message_is_resolved_THEN_returns_null() = runTest {
-        linkSteve(discordLink)
+        linkSteve(discordAccount)
         linkingDao.findFailure = IllegalStateException("Database is locked")
 
         val discordId = resolver.discordUserId(Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi"))

@@ -23,7 +23,7 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
@@ -96,8 +96,8 @@ class DiscordLinkInterceptorTest {
 
             assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
             assertEquals(
-                LinkedPlayerModel.DiscordLink(lastDiscordName = "Stevie", discordId = DISCORD_ID),
-                linkingDao.linkedPlayers[steve.uuid]?.discordLink
+                MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie"),
+                linkingDao.linkedPlayers[steve.uuid]?.discord
             )
         }
 

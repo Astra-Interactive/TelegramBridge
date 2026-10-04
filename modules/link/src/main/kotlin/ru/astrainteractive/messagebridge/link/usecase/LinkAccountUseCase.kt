@@ -4,7 +4,7 @@ import ru.astrainteractive.messagebridge.link.code.api.CodeApi
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 
 internal class LinkAccountUseCase(
@@ -12,31 +12,26 @@ internal class LinkAccountUseCase(
     private val linkingDao: LinkingDao,
     private val luckPermsRoleController: LuckPermsRoleController
 ) {
-    private fun LinkedPlayerModel.hasAccountOf(account: MessengerAccount): Boolean = when (account) {
-        is MessengerAccount.Discord -> discordLink != null
-        is MessengerAccount.Telegram -> telegramLink != null
+    private fun LinkedPlayer.hasAccountOf(account: MessengerAccount): Boolean = when (account) {
+        is MessengerAccount.Discord -> discord != null
+        is MessengerAccount.Telegram -> telegram != null
     }
 
-    private fun LinkedPlayerModel.withAccount(account: MessengerAccount): LinkedPlayerModel = when (account) {
-        is MessengerAccount.Discord -> copy(
-            discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = account.name, discordId = account.id)
-        )
-
-        is MessengerAccount.Telegram -> copy(
-            telegramLink = LinkedPlayerModel.TelegramLink(telegramUsername = account.username, telegramId = account.id)
-        )
+    private suspend fun findOwner(account: MessengerAccount): Result<LinkedPlayer?> = when (account) {
+        is MessengerAccount.Discord -> linkingDao.findByDiscordId(account.id)
+        is MessengerAccount.Telegram -> linkingDao.findByTelegramId(account.id)
     }
 
     suspend fun link(code: Int, account: MessengerAccount): LinkResponse {
         val codeUser = codeApi.findUserByCode(code) ?: return LinkResponse.NoCode
         codeApi.clearCode(code)
-        val player = linkingDao.findByUuid(codeUser.uuid)
-            .getOrElse { _ -> return LinkResponse.UnknownError }
-            ?: LinkedPlayerModel(codeUser.uuid, codeUser.name)
-        if (player.hasAccountOf(account)) return LinkResponse.AlreadyLinked
-        return linkingDao.upsert(player.withAccount(account)).fold(
-            onSuccess = { linked ->
-                luckPermsRoleController.addLinkRole(linked.uuid)
+        val player = linkingDao.findByUuid(codeUser.uuid).getOrElse { _ -> return LinkResponse.UnknownError }
+        if (player?.hasAccountOf(account) == true) return LinkResponse.AlreadyLinked
+        val owner = findOwner(account).getOrElse { _ -> return LinkResponse.UnknownError }
+        if (owner != null) return LinkResponse.AccountTaken
+        return linkingDao.link(uuid = codeUser.uuid, minecraftName = codeUser.name, account = account).fold(
+            onSuccess = { _ ->
+                luckPermsRoleController.addLinkRole(codeUser.uuid)
                 LinkResponse.Linked
             },
             onFailure = { _ -> LinkResponse.UnknownError }

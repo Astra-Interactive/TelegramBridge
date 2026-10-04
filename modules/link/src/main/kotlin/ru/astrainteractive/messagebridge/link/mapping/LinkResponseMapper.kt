@@ -8,6 +8,7 @@ internal fun LinkResponse.asMessage(translation: PluginTranslation.Link): Locali
     return when (this) {
         LinkResponse.Linked -> translation.success
         LinkResponse.AlreadyLinked -> translation.alreadyLinked
+        LinkResponse.AccountTaken -> translation.accountTaken
         LinkResponse.NoCode -> translation.noCodeFound
         LinkResponse.UnknownError -> translation.unknownError
     }

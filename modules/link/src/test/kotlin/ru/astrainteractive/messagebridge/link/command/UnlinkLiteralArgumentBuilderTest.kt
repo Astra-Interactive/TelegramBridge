@@ -21,7 +21,7 @@ import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.permission.LinkPermission
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,7 +48,11 @@ class UnlinkLiteralArgumentBuilderTest {
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private suspend fun linkSteve() {
-        linkingDao.upsert(LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve"))
+        linkingDao.link(
+            uuid = steve.uuid,
+            minecraftName = "Steve",
+            account = MessengerAccount.Discord(id = 42, name = "Stevie")
+        )
     }
 
     private fun execute(input: String, sender: RecordingOnlineKPlayer) {

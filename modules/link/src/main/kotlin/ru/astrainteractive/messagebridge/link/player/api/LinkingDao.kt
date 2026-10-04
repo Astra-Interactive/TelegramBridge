@@ -1,12 +1,13 @@
 package ru.astrainteractive.messagebridge.link.player.api
 
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
 
 internal interface LinkingDao {
-    suspend fun findByUuid(uuid: UUID): Result<LinkedPlayerModel?>
-    suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel>
-    suspend fun deleteByUuid(uuid: UUID): Result<Unit>
-    suspend fun findByDiscordId(id: Long): Result<LinkedPlayerModel>
-    suspend fun findByTelegramId(id: Long): Result<LinkedPlayerModel>
+    suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?>
+    suspend fun findByDiscordId(discordId: Long): Result<LinkedPlayer?>
+    suspend fun findByTelegramId(telegramId: Long): Result<LinkedPlayer?>
+    suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<Unit>
+    suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?>
 }

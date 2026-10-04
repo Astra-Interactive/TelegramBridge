@@ -4,7 +4,7 @@ package ru.astrainteractive.messagebridge.link.internal
 
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import java.util.UUID
 import kotlin.test.Test
@@ -16,13 +16,16 @@ class LinkedNameInterceptorTest {
     private val interceptor = LinkedNameInterceptor(linkingDao)
 
     private suspend fun link(name: String, uuid: String, discordId: Long, telegramId: Long) {
-        linkingDao.upsert(
-            LinkedPlayerModel(
-                uuid = UUID.fromString(uuid),
-                lastMinecraftName = name,
-                discordLink = LinkedPlayerModel.DiscordLink(lastDiscordName = name, discordId = discordId),
-                telegramLink = LinkedPlayerModel.TelegramLink(telegramUsername = name, telegramId = telegramId)
-            )
+        val playerUuid = UUID.fromString(uuid)
+        linkingDao.link(
+            uuid = playerUuid,
+            minecraftName = name,
+            account = MessengerAccount.Discord(id = discordId, name = name)
+        )
+        linkingDao.link(
+            uuid = playerUuid,
+            minecraftName = name,
+            account = MessengerAccount.Telegram(id = telegramId, username = name)
         )
     }
 

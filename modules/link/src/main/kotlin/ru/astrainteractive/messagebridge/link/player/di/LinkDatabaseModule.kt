@@ -7,31 +7,44 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
+import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connectAsFlow
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.database.LinkedPlayerTable
+import ru.astrainteractive.messagebridge.link.player.database.DiscordAccountTable
 import ru.astrainteractive.messagebridge.link.player.database.LinkingDaoImpl
+import ru.astrainteractive.messagebridge.link.player.database.PlayerTable
+import ru.astrainteractive.messagebridge.link.player.database.TelegramAccountTable
 import java.io.File
+import java.sql.Connection
 
 internal class LinkDatabaseModule(
     ioScope: CoroutineScope,
     dataFolder: File
 ) {
+    private val databaseConfig = DatabaseConfig {
+        defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+        defaultMaxAttempts = MAX_ATTEMPTS
+        defaultMinRetryDelay = 0
+        defaultMaxRetryDelay = 0
+    }
+
     private val databaseFlow: Flow<Database> =
         flowOf(DatabaseConfiguration.H2(dataFolder.resolve("linking").absolutePath))
-            .flatMapLatest { databaseConfiguration -> databaseConfiguration.connectAsFlow() }
+            .flatMapLatest { databaseConfiguration -> databaseConfiguration.connectAsFlow(databaseConfig) }
             .onEach { database ->
-                TransactionManager.manager.defaultIsolationLevel = java.sql.Connection.TRANSACTION_SERIALIZABLE
                 transaction(database) {
-                    SchemaUtils.create(LinkedPlayerTable)
+                    SchemaUtils.create(PlayerTable, DiscordAccountTable, TelegramAccountTable)
                 }
             }
             .shareIn(ioScope, SharingStarted.Eagerly, 1)
 
     val linkingDao: LinkingDao = LinkingDaoImpl(databaseFlow)
+
+    private companion object {
+        const val MAX_ATTEMPTS = 3
+    }
 }

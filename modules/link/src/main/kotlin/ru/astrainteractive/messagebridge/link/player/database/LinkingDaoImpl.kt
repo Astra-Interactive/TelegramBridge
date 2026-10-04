@@ -2,113 +2,109 @@ package ru.astrainteractive.messagebridge.link.player.database
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
-import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.upsert
+import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerStorageError
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 internal class LinkingDaoImpl(
     private val databaseFlow: Flow<Database>
-) : LinkingDao, Logger by JUtiltLogger("MessageBridge-LinkingDaoImpl").withoutParentHandlers() {
-    private suspend fun requireDatabase() = databaseFlow.first()
+) : LinkingDao {
+    private val linkedPlayers = PlayerTable
+        .join(DiscordAccountTable, JoinType.LEFT, PlayerTable.uuid, DiscordAccountTable.playerUuid)
+        .join(TelegramAccountTable, JoinType.LEFT, PlayerTable.uuid, TelegramAccountTable.playerUuid)
 
-    private fun toLinkedPlayerModel(row: ResultRow): LinkedPlayerModel {
-        return LinkedPlayerModel(
-            uuid = UUID.fromString(row[LinkedPlayerTable.id].value),
-            lastMinecraftName = row[LinkedPlayerTable.lastMinecraftName],
-            discordLink = let {
-                LinkedPlayerModel.DiscordLink(
-                    discordId = row[LinkedPlayerTable.discordId] ?: return@let null,
-                    lastDiscordName = row[LinkedPlayerTable.lastDiscordName] ?: return@let null
-                )
+    private fun ResultRow.toLinkedPlayer(): LinkedPlayer {
+        val discordId = getOrNull(DiscordAccountTable.discordId)
+        val telegramId = getOrNull(TelegramAccountTable.telegramId)
+        return LinkedPlayer(
+            uuid = this[PlayerTable.uuid],
+            minecraftName = this[PlayerTable.minecraftName],
+            discord = discordId?.let { id ->
+                MessengerAccount.Discord(id = id, name = this[DiscordAccountTable.discordName])
             },
-            telegramLink = let {
-                LinkedPlayerModel.TelegramLink(
-                    telegramUsername = row[LinkedPlayerTable.lastTelegramName] ?: return@let null,
-                    telegramId = row[LinkedPlayerTable.telegramId] ?: return@let null
-                )
+            telegram = telegramId?.let { id ->
+                MessengerAccount.Telegram(id = id, username = this[TelegramAccountTable.telegramUsername])
             }
         )
     }
 
-    override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayerModel?> = kotlin.runCatching {
-        transaction(requireDatabase()) {
-            LinkedPlayerTable.selectAll()
-                .where { LinkedPlayerTable.id eq uuid.toString() }
-                .limit(1)
-                .map(::toLinkedPlayerModel)
-                .firstOrNull()
-        }
+    private fun findWhere(condition: Op<Boolean>): LinkedPlayer? {
+        return linkedPlayers.selectAll()
+            .where(condition)
+            .limit(1)
+            .map { row -> row.toLinkedPlayer() }
+            .firstOrNull()
     }
 
-    override suspend fun deleteByUuid(uuid: UUID): Result<Unit> = kotlin.runCatching {
-        transaction(requireDatabase()) {
-            LinkedPlayerTable.deleteWhere { LinkedPlayerTable.id eq uuid.toString() }
-        }
-        Unit
+    private suspend fun <T> query(action: String, statement: JdbcTransaction.() -> T): Result<T> {
+        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+            ?: return Result.failure(LinkedPlayerStorageError("Could not $action: the link database is not open", null))
+        return runCatching { suspendTransaction(database) { statement.invoke(this) } }
+            .propagateCancellationException()
+            .fold(
+                onSuccess = { value -> Result.success(value) },
+                onFailure = { t -> Result.failure(LinkedPlayerStorageError("Could not $action", t)) }
+            )
     }
 
-    override suspend fun findByDiscordId(id: Long): Result<LinkedPlayerModel> = kotlin.runCatching {
-        transaction(requireDatabase()) {
-            LinkedPlayerTable.selectAll()
-                .where { LinkedPlayerTable.discordId eq id }
-                .limit(1)
-                .map(::toLinkedPlayerModel)
-                .first()
-        }
+    override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?> = query("find player $uuid") {
+        findWhere(PlayerTable.uuid eq uuid)
     }
 
-    override suspend fun findByTelegramId(id: Long): Result<LinkedPlayerModel> = kotlin.runCatching {
-        transaction(requireDatabase()) {
-            LinkedPlayerTable.selectAll()
-                .where { LinkedPlayerTable.telegramId eq id }
-                .limit(1)
-                .map(::toLinkedPlayerModel)
-                .first()
+    override suspend fun findByDiscordId(discordId: Long): Result<LinkedPlayer?> =
+        query("find Discord account $discordId") {
+            findWhere(DiscordAccountTable.discordId eq discordId)
         }
-    }
 
-    override suspend fun upsert(linkedPlayerModel: LinkedPlayerModel): Result<LinkedPlayerModel> = kotlin.runCatching {
-        transaction(requireDatabase()) {
-            val isExists = LinkedPlayerTable.selectAll()
-                .where { LinkedPlayerTable.id eq linkedPlayerModel.uuid.toString() }
-                .count() >= 1
-            if (isExists) {
-                LinkedPlayerTable
-                    .update(
-                        where = {
-                            LinkedPlayerTable.id eq linkedPlayerModel.uuid.toString()
-                        },
-                        body = { statement ->
-                            statement[LinkedPlayerTable.lastMinecraftName] = linkedPlayerModel.lastMinecraftName
-                            statement[LinkedPlayerTable.discordId] = linkedPlayerModel.discordLink?.discordId
-                            statement[LinkedPlayerTable.lastDiscordName] =
-                                linkedPlayerModel.discordLink?.lastDiscordName
-                            statement[LinkedPlayerTable.telegramId] = linkedPlayerModel.telegramLink?.telegramId
-                            statement[LinkedPlayerTable.lastTelegramName] =
-                                linkedPlayerModel.telegramLink?.telegramUsername
-                        }
-                    )
-            } else {
-                LinkedPlayerTable.insert { statement ->
-                    statement[LinkedPlayerTable.id] = linkedPlayerModel.uuid.toString()
-                    statement[LinkedPlayerTable.lastMinecraftName] = linkedPlayerModel.lastMinecraftName
-                    statement[LinkedPlayerTable.discordId] = linkedPlayerModel.discordLink?.discordId
-                    statement[LinkedPlayerTable.lastDiscordName] = linkedPlayerModel.discordLink?.lastDiscordName
-                    statement[LinkedPlayerTable.telegramId] = linkedPlayerModel.telegramLink?.telegramId
-                    statement[LinkedPlayerTable.lastTelegramName] = linkedPlayerModel.telegramLink?.telegramUsername
+    override suspend fun findByTelegramId(telegramId: Long): Result<LinkedPlayer?> =
+        query("find Telegram account $telegramId") {
+            findWhere(TelegramAccountTable.telegramId eq telegramId)
+        }
+
+    override suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<Unit> =
+        query("link $account to $uuid") {
+            PlayerTable.upsert { statement ->
+                statement[PlayerTable.uuid] = uuid
+                statement[PlayerTable.minecraftName] = minecraftName
+            }
+            when (account) {
+                is MessengerAccount.Discord -> DiscordAccountTable.insert { statement ->
+                    statement[DiscordAccountTable.playerUuid] = uuid
+                    statement[DiscordAccountTable.discordId] = account.id
+                    statement[DiscordAccountTable.discordName] = account.name
+                }
+
+                is MessengerAccount.Telegram -> TelegramAccountTable.insert { statement ->
+                    statement[TelegramAccountTable.playerUuid] = uuid
+                    statement[TelegramAccountTable.telegramId] = account.id
+                    statement[TelegramAccountTable.telegramUsername] = account.username
                 }
             }
         }
-        findByUuid(linkedPlayerModel.uuid).getOrThrow() ?: error("Could not insert user somehow?")
+
+    override suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?> = query("unlink player $uuid") {
+        val player = findWhere(PlayerTable.uuid eq uuid)
+        PlayerTable.deleteWhere { PlayerTable.uuid eq uuid }
+        player
+    }
+
+    private companion object {
+        val DATABASE_TIMEOUT = 10.seconds
     }
 }

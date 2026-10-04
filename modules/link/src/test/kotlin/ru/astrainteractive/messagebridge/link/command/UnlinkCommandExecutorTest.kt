@@ -12,7 +12,7 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerModel
+import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,7 +46,11 @@ class UnlinkCommandExecutorTest {
     )
 
     private suspend fun linkSteve() {
-        linkingDao.upsert(LinkedPlayerModel(uuid = steve.uuid, lastMinecraftName = "Steve"))
+        linkingDao.link(
+            uuid = steve.uuid,
+            minecraftName = "Steve",
+            account = MessengerAccount.Discord(id = 42, name = "Stevie")
+        )
     }
 
     private fun assertReadOnly(player: RecordingOnlineKPlayer, message: LocalizableComponent) {
@@ -82,7 +86,7 @@ class UnlinkCommandExecutorTest {
     @Test
     fun GIVEN_unreadable_database_WHEN_player_unlinks_THEN_link_stays_and_player_reads_unknown_error() = runTest {
         linkSteve()
-        linkingDao.findFailure = IllegalStateException("Database is locked")
+        linkingDao.deleteFailure = IllegalStateException("Database is locked")
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
@@ -121,7 +125,7 @@ class UnlinkCommandExecutorTest {
 
     @Test
     fun GIVEN_unreadable_database_WHEN_admin_unlinks_a_player_THEN_admin_reads_unknown_error() = runTest {
-        linkingDao.findFailure = IllegalStateException("Database is locked")
+        linkingDao.deleteFailure = IllegalStateException("Database is locked")
 
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 

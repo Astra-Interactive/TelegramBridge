@@ -14,6 +14,6 @@ internal class LinkedDiscordAuthorResolver(
             is Text.Minecraft -> linkingDao.findByUuid(UUID.fromString(text.uuid)).getOrNull()
             is Text.Telegram -> linkingDao.findByTelegramId(text.authorId).getOrNull()
         }
-        return linkedPlayer?.discordLink?.discordId
+        return linkedPlayer?.discord?.id
     }
 }

@@ -48,8 +48,8 @@ internal class LinkCommandExecutor(
         }
         intent.sender.sendMessage(
             Component.text(
-                "DiscordID: ${user.discordLink?.discordId}; " +
-                    "telegramUsername: ${user.telegramLink?.telegramUsername}; " +
+                "DiscordID: ${user.discord?.id}; " +
+                    "telegramUsername: ${user.telegram?.username}; " +
                     "minecraftUUID: ${user.uuid}"
             )
         )
