@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.util
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import org.telegram.telegrambots.longpolling.interfaces.BackOff
 import java.util.concurrent.atomic.AtomicReference

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.messaging
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.mapping
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate

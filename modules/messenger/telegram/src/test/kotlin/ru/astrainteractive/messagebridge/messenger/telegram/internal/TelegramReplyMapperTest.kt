@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.telegram.mapping
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.test.runTest
 import org.telegram.telegrambots.meta.api.objects.TextQuote
@@ -12,7 +12,7 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

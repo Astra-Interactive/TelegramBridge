@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.mapping
+package ru.astrainteractive.messagebridge.messenger.telegram.command
 
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
 

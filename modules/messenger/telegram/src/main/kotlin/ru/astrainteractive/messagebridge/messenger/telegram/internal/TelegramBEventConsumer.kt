@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.messaging
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -21,7 +21,6 @@ import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEve
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 
 internal class TelegramBEventConsumer(
     configKrate: CachedKrate<PluginConfiguration>,

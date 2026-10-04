@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.events
+package ru.astrainteractive.messagebridge.messenger.telegram.event
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -16,11 +16,12 @@ import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.intercept
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.Interception
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageValidatorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 

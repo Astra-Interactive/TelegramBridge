@@ -1,7 +1,7 @@
 @file:Suppress("FunctionNaming")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package ru.astrainteractive.messagebridge.messenger.telegram.messaging
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf

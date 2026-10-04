@@ -1,7 +1,7 @@
 @file:Suppress("FunctionNaming")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package ru.astrainteractive.messagebridge.messenger.telegram.messaging
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
@@ -24,7 +24,6 @@ import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
 import kotlin.test.assertEquals

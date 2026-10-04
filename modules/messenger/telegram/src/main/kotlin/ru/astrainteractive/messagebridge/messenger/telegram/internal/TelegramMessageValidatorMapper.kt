@@ -1,9 +1,10 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.mapping
+package ru.astrainteractive.messagebridge.messenger.telegram.internal
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
 

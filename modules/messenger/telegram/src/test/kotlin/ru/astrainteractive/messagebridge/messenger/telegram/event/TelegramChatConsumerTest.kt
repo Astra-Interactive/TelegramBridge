@@ -1,7 +1,7 @@
 @file:Suppress("FunctionNaming")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package ru.astrainteractive.messagebridge.messenger.telegram.events
+package ru.astrainteractive.messagebridge.messenger.telegram.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,14 +44,15 @@ import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.fake.DirectExecutorService
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.fake.DirectExecutorService
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

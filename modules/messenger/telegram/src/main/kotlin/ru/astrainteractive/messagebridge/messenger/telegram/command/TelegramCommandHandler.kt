@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.events
+package ru.astrainteractive.messagebridge.messenger.telegram.command
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
@@ -9,7 +9,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
 
 internal class TelegramCommandHandler(

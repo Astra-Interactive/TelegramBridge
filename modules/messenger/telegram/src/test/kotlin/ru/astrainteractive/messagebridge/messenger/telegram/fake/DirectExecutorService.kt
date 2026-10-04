@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.messaging.fake
+package ru.astrainteractive.messagebridge.messenger.telegram.fake
 
 import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.TimeUnit
