@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.link.command
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.JDA
@@ -16,6 +17,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
@@ -32,7 +34,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import java.util.UUID
-import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -51,18 +53,27 @@ class DiscordLinkInterceptorTest {
     ).asCachedKrate()
     private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private var memberOnServer: Member? = null
+    private var memberRequestFailure: Throwable = IllegalStateException("10007: Unknown Member")
+    private val memberRequest: CacheRestAction<Member> = jdaFake(
+        mapOf(
+            "queue" to JdaAnswer { args ->
+                val member = memberOnServer
+                if (member == null) {
+                    args[1]
+                        ?.tryCast<Consumer<Throwable>>()
+                        ?.accept(memberRequestFailure)
+                } else {
+                    args.first()
+                        ?.tryCast<Consumer<Member>>()
+                        ?.accept(member)
+                }
+            }
+        )
+    )
     private val guild: Guild = jdaFake(
         mapOf(
             "getName" to "Bridge",
-            "retrieveMemberById" to JdaAnswer { _ ->
-                val member = memberOnServer
-                val future = if (member == null) {
-                    CompletableFuture.failedFuture(IllegalStateException("Unknown Member"))
-                } else {
-                    CompletableFuture.completedFuture(member)
-                }
-                jdaFake<CacheRestAction<Member>>(mapOf("submit" to future))
-            }
+            "retrieveMemberById" to memberRequest
         )
     )
     private val codeApi = CodeApiImpl()
@@ -160,6 +171,20 @@ class DiscordLinkInterceptorTest {
                 MessengerAccount.Discord(id = DISCORD_ID, name = "stevie_global"),
                 linkingDao.linkedPlayers[steve.uuid]?.discord
             )
+            assertTrue(roleChanges.tryReceive().isFailure)
+        }
+
+    @Test
+    fun GIVEN_member_request_that_jda_cancels_WHEN_code_is_sent_in_a_direct_message_THEN_reads_error_and_no_link() =
+        runTest {
+            memberRequestFailure = CancellationException("RestAction has been cancelled")
+            val code = codeApi.generateCodeForPlayer(steve)
+
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+
+            assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
+            assertTrue(linkingDao.linkedPlayers.isEmpty())
+            assertEquals(steve, codeApi.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
         }
 

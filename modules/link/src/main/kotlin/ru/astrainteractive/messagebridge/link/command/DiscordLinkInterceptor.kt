@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.link.command
 
-import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -19,6 +18,8 @@ import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRequestCancelledError
+import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
 internal class DiscordLinkInterceptor(
     private val linkAccountUseCase: LinkAccountUseCase,
@@ -37,21 +38,33 @@ internal class DiscordLinkInterceptor(
         return contentRaw.toLinkCode()
     }
 
-    private suspend fun bridgeMemberOf(event: MessageReceivedEvent): Member? {
-        event.member?.let { member -> return member }
+    private suspend fun bridgeMemberOf(event: MessageReceivedEvent): Result<Member?> {
+        event.member?.let { member -> return Result.success(member) }
         val guild = event.jda
             .getTextChannelById(config.jdaConfig.channelId)
             ?.guild
-            ?: return null
-        return runCatching { guild.retrieveMemberById(event.author.idLong).submit().await() }
+            ?: return Result.success(null)
+        return runCatching { guild.retrieveMemberById(event.author.idLong).await() }
             .propagateCancellationException()
-            .onFailure { t -> info { "#bridgeMemberOf ${event.author.idLong} is not on the server: ${t.message}" } }
-            .getOrNull()
+            .fold(
+                onSuccess = { member -> Result.success(member) },
+                onFailure = { t ->
+                    if (t is DiscordRequestCancelledError) {
+                        warn { "#bridgeMemberOf JDA cancelled the member request of ${event.author.idLong}" }
+                        Result.failure(t)
+                    } else {
+                        info { "#bridgeMemberOf ${event.author.idLong} is not on the server: ${t.message}" }
+                        Result.success(null)
+                    }
+                }
+            )
     }
 
     override suspend fun intercept(event: MessageReceivedEvent): Interception {
         val code = linkCode(event) ?: return Interception.Pass
-        val member = bridgeMemberOf(event)
+        val member = bridgeMemberOf(event).getOrElse { _ ->
+            return Interception.Reply(translation.link.unknownError.toMessengerText())
+        }
         val account = MessengerAccount.Discord(
             id = event.author.idLong,
             name = member?.effectiveName ?: event.author.effectiveName
