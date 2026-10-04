@@ -1,8 +1,6 @@
 package ru.astrainteractive.messagebridge.messenger.discord.util
 
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.dv8tion.jda.api.requests.RestAction
@@ -18,21 +16,5 @@ internal object RestActionExt {
                 continuation.resumeWithException(failure)
             }
         }
-    }
-
-    suspend fun <T> RestAction<T>.awaitCatching() = supervisorScope {
-        kotlin.runCatching {
-            suspendCancellableCoroutine<T> { continuation ->
-                queue(continuation::resume, continuation::resumeWithException)
-            }
-        }
-    }
-
-    suspend fun <T> RestAction<T>.async(): Deferred<T> = supervisorScope {
-        async { await() }
-    }
-
-    suspend fun <T> RestAction<T>.asyncResult(): Deferred<Result<T>> = supervisorScope {
-        async { kotlin.runCatching { await() } }
     }
 }
