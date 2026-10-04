@@ -7,6 +7,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRequestCancelledError
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
 internal class DiscordMemberResolver(
@@ -17,7 +18,13 @@ internal class DiscordMemberResolver(
         return channel.guild.getMemberById(discordId)
             ?: runCatching { channel.guild.retrieveMemberById(discordId).await() }
                 .propagateCancellationException()
-                .onFailure { t -> info { "#resolve Discord user $discordId is not on the server: ${t.message}" } }
+                .onFailure { t ->
+                    if (t is DiscordRequestCancelledError) {
+                        warn { "#resolve JDA cancelled the member request of Discord user $discordId" }
+                    } else {
+                        info { "#resolve Discord user $discordId is not on the server: ${t.message}" }
+                    }
+                }
                 .getOrNull()
     }
 }

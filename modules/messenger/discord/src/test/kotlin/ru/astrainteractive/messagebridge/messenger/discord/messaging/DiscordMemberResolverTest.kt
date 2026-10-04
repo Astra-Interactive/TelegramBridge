@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.messenger.discord.messaging
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
@@ -13,10 +14,18 @@ import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorReso
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.util.function.Consumer
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class DiscordMemberResolverTest {
     private val steveText = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hi")
@@ -43,6 +52,37 @@ class DiscordMemberResolverTest {
             }
         )
     )
+
+    private val cancelledRetrieval: CacheRestAction<Member> = jdaFake(
+        mapOf(
+            "queue" to JdaAnswer { args ->
+                args[1]
+                    ?.tryCast<Consumer<Throwable>>()
+                    ?.accept(CancellationException("RestAction has been cancelled"))
+            }
+        )
+    )
+    private val logRecords = mutableListOf<LogRecord>()
+    private val recordingHandler = object : Handler() {
+        override fun publish(record: LogRecord) {
+            logRecords += record
+        }
+
+        override fun flush() = Unit
+
+        override fun close() = Unit
+    }
+    private val resolverLogger: Logger = Logger.getLogger("MessageBridge-DiscordMemberResolver")
+
+    @BeforeTest
+    fun attachLogHandler() {
+        resolverLogger.addHandler(recordingHandler)
+    }
+
+    @AfterTest
+    fun detachLogHandler() {
+        resolverLogger.removeHandler(recordingHandler)
+    }
 
     private fun channel(cached: Member?, retrieval: CacheRestAction<Member> = memberRetrieval): TextChannel {
         val guild: Guild = jdaFake(
@@ -101,6 +141,28 @@ class DiscordMemberResolverTest {
 
         assertNull(member)
     }
+
+    @Test
+    fun GIVEN_linked_author_who_left_the_server_WHEN_resolved_THEN_it_is_logged_as_not_on_the_server() = runTest {
+        val channel = channel(cached = null, retrieval = failedRetrieval)
+
+        resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+
+        assertEquals(listOf(Level.INFO), logRecords.map { record -> record.level })
+        assertTrue("not on the server" in logRecords.single().message)
+    }
+
+    @Test
+    fun GIVEN_member_request_that_jda_cancels_WHEN_resolved_THEN_no_member_and_a_warning_not_a_missing_member() =
+        runTest {
+            val channel = channel(cached = null, retrieval = cancelledRetrieval)
+
+            val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+
+            assertNull(member)
+            assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
+            assertFalse("not on the server" in logRecords.single().message)
+        }
 
     private companion object {
         const val DISCORD_ID = 4242L
