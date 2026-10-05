@@ -11,14 +11,14 @@ import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRequestCancelledError
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import ru.astrainteractive.messagebridge.messenger.discord.util.await
 import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 
-class RestActionExtTest {
+class RestActionAwaitTest {
     private fun failingAction(failure: Throwable): RestAction<Unit> = jdaFake(
         mapOf(
             "queue" to JdaAnswer { args ->

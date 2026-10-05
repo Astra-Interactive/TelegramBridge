@@ -25,7 +25,7 @@ import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import ru.astrainteractive.messagebridge.messenger.discord.util.await
 import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordBEventConsumer(

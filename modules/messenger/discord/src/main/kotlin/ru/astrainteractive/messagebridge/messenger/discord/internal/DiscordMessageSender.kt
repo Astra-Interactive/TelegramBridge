@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.Message
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
 internal class DiscordMessageSender :
     Logger by JUtiltLogger("MessageBridge-DiscordMessageSender").withoutParentHandlers() {

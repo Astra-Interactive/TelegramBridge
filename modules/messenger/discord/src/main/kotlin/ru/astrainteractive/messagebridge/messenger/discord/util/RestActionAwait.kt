@@ -8,13 +8,11 @@ import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRequestC
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-object RestActionExt {
-    suspend fun <T> RestAction<T>.await() = supervisorScope {
-        suspendCancellableCoroutine<T> { continuation ->
-            queue(continuation::resume) { t ->
-                val failure = if (t is CancellationException) DiscordRequestCancelledError(t) else t
-                continuation.resumeWithException(failure)
-            }
+suspend fun <T> RestAction<T>.await() = supervisorScope {
+    suspendCancellableCoroutine<T> { continuation ->
+        queue(continuation::resume) { t ->
+            val failure = if (t is CancellationException) DiscordRequestCancelledError(t) else t
+            continuation.resumeWithException(failure)
         }
     }
 }
