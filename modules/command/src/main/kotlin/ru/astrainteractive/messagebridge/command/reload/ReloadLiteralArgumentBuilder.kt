@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.commands.reload
+package ru.astrainteractive.messagebridge.command.reload
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand

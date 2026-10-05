@@ -1,9 +1,9 @@
-package ru.astrainteractive.messagebridge.commands.di
+package ru.astrainteractive.messagebridge.command.di
 
 import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarContext
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.messagebridge.commands.reload.ReloadLiteralArgumentBuilder
+import ru.astrainteractive.messagebridge.command.reload.ReloadLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 
 class CommandModule(

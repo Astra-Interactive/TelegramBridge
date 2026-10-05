@@ -14,7 +14,7 @@ import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
-import ru.astrainteractive.messagebridge.commands.di.CommandModule
+import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
