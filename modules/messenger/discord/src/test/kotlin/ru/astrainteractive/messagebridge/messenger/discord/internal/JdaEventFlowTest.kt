@@ -16,31 +16,15 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.StatusChangeEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
-import net.dv8tion.jda.api.hooks.EventListener
-import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
+import net.dv8tion.jda.api.hooks.InterfacedEventManager
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class JdaEventFlowTest {
-    private val addedListeners = mutableListOf<EventListener>()
-    private val removedListeners = mutableListOf<EventListener>()
-    private val jda: JDA = jdaFake(
-        mapOf(
-            "addEventListener" to JdaAnswer { args -> addedListeners += listenersOf(args) },
-            "removeEventListener" to JdaAnswer { args -> removedListeners += listenersOf(args) },
-            "getResponseTotal" to 0L
-        )
-    )
-
-    private fun listenersOf(args: List<Any?>): List<EventListener> {
-        return args.first()
-            ?.tryCast<Array<*>>()
-            .orEmpty()
-            .filterIsInstance<EventListener>()
-    }
+    private val eventManager = InterfacedEventManager()
+    private val jda: JDA = jdaFake(mapOf("getResponseTotal" to 0L))
 
     private fun memberLeft(discordId: Long): GuildMemberRemoveEvent {
         return GuildMemberRemoveEvent(
@@ -55,7 +39,7 @@ class JdaEventFlowTest {
     private fun TestScope.collectMemberLeaves(onEach: suspend (GuildMemberRemoveEvent) -> Unit): List<Long> {
         val leftIds = mutableListOf<Long>()
         backgroundScope.launch {
-            jda.flowEvent<GuildMemberRemoveEvent>()
+            eventManager.flowEvent<GuildMemberRemoveEvent>()
                 .onEach { event -> onEach.invoke(event) }
                 .onEach { event -> leftIds += event.user.idLong }
                 .collect()
@@ -68,7 +52,7 @@ class JdaEventFlowTest {
     fun GIVEN_collected_flow_WHEN_jda_dispatches_event_of_that_type_THEN_it_is_emitted() = runTest {
         val leftIds = collectMemberLeaves { _ -> }
 
-        addedListeners.single().onEvent(memberLeft(STEVE_ID))
+        eventManager.handle(memberLeft(STEVE_ID))
         runCurrent()
 
         assertEquals(listOf(STEVE_ID), leftIds)
@@ -78,7 +62,7 @@ class JdaEventFlowTest {
     fun GIVEN_collected_flow_WHEN_event_of_another_type_is_dispatched_THEN_nothing_is_emitted() = runTest {
         val leftIds = collectMemberLeaves { _ -> }
 
-        addedListeners.single().onEvent(StatusChangeEvent(jda, JDA.Status.CONNECTED, JDA.Status.LOADING_SUBSYSTEMS))
+        eventManager.handle(StatusChangeEvent(jda, JDA.Status.CONNECTED, JDA.Status.LOADING_SUBSYSTEMS))
         runCurrent()
 
         assertTrue(leftIds.isEmpty())
@@ -86,14 +70,15 @@ class JdaEventFlowTest {
 
     @Test
     fun GIVEN_collected_flow_WHEN_collection_is_cancelled_THEN_the_registered_listener_is_removed() = runTest {
-        val collection = launch { jda.flowEvent<GuildMemberRemoveEvent>().collect() }
+        val collection = launch { eventManager.flowEvent<GuildMemberRemoveEvent>().collect() }
         runCurrent()
+        val registeredWhileCollecting = eventManager.registeredListeners.size
 
         collection.cancel()
         runCurrent()
 
-        assertEquals(addedListeners, removedListeners)
-        assertEquals(1, removedListeners.size)
+        assertEquals(1, registeredWhileCollecting)
+        assertTrue(eventManager.registeredListeners.isEmpty())
     }
 
     @Test
@@ -102,7 +87,7 @@ class JdaEventFlowTest {
             val gate = CompletableDeferred<Unit>()
             val leftIds = collectMemberLeaves { _ -> gate.await() }
 
-            repeat(EVENT_COUNT) { index -> addedListeners.single().onEvent(memberLeft(index.toLong())) }
+            repeat(EVENT_COUNT) { index -> eventManager.handle(memberLeft(index.toLong())) }
             gate.complete(Unit)
             runCurrent()
 

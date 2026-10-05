@@ -1,10 +1,14 @@
 package ru.astrainteractive.messagebridge.messenger.discord.di
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.job
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.hooks.InterfacedEventManager
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
@@ -18,6 +22,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordComman
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.DiscordChannelFactory
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.JdaSessionFactory
 import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookClientFactory
+import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordEvents
 import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordChannelProvider
@@ -64,10 +69,23 @@ class JdaMessengerModule(
         bEventConsumer = bEventChannel,
     )
 
-    private val jdaSessionFactory = JdaSessionFactory(
-        configKrate = coreModule.configKrate,
+    private val moduleIoScope = coreModule.ioScope.coroutineContext.job
+        .let(::SupervisorJob)
+        .let(coreModule.ioScope.coroutineContext::plus)
+        .let(::CoroutineScope)
+
+    private val jdaEventManager = InterfacedEventManager()
+
+    private val discordEvents = DiscordEvents(
+        eventManager = jdaEventManager,
         messageEventListener = messageEventListener,
         memberLeaveListeners = memberLeaveListeners,
+        ioScope = moduleIoScope,
+    )
+
+    private val jdaSessionFactory = JdaSessionFactory(
+        configKrate = coreModule.configKrate,
+        eventManager = jdaEventManager,
         ioScope = coreModule.ioScope,
     )
 
@@ -100,6 +118,7 @@ class JdaMessengerModule(
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
+            moduleIoScope.cancel()
             discordMessageController.cancel()
             messageEventListener.cancel()
             roleUpdater.cancel()

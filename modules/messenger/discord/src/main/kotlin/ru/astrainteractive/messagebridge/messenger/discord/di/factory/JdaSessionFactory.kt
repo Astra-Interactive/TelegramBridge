@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -20,9 +21,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ShutdownEvent
+import net.dv8tion.jda.api.hooks.IEventManager
 import net.dv8tion.jda.api.requests.CloseCode
 import net.dv8tion.jda.api.requests.GatewayIntent
 import okhttp3.ConnectionPool
@@ -34,8 +34,6 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
-import ru.astrainteractive.messagebridge.messenger.discord.event.MessageEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.internal.fallbackOnDisallowedIntents
 import ru.astrainteractive.messagebridge.messenger.discord.internal.flowEvent
 import ru.astrainteractive.messagebridge.messenger.discord.model.DisallowedIntentsError
@@ -47,9 +45,8 @@ import kotlin.time.toJavaDuration
 
 internal class JdaSessionFactory(
     configKrate: StateFlowKrate<PluginConfiguration>,
-    private val messageEventListener: MessageEventListener,
-    private val memberLeaveListeners: List<DiscordMemberLeaveListener>,
-    private val ioScope: CoroutineScope
+    private val eventManager: IEventManager,
+    ioScope: CoroutineScope
 ) : Logger by JUtiltLogger("MessageBridge-JdaSessionFactory").withoutParentHandlers() {
     private val okHttpClientFlow = configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
@@ -110,16 +107,13 @@ internal class JdaSessionFactory(
         intents: List<GatewayIntent>
     ): JDABuilder = JDABuilder.createLight(config.token).apply {
         enableIntents(intents)
+        setEventManager(eventManager)
         setActivity(Activity.playing(config.activity))
         setMaxReconnectDelay(MAX_RECONNECT_DELAY.inWholeSeconds.toInt())
         setHttpClient(okHttpClient)
         config.proxy?.let { proxy ->
             setWebsocketFactory(proxiedWebSocketFactory(proxy))
         }
-    }
-
-    private suspend fun notifyMemberLeave(discordUserId: Long) {
-        memberLeaveListeners.forEach { listener -> listener.onMemberLeave(discordUserId) }
     }
 
     private suspend fun sessionFailure(t: Throwable, shutdownCode: Deferred<CloseCode?>): Throwable {
@@ -134,16 +128,9 @@ internal class JdaSessionFactory(
         intents: List<GatewayIntent>
     ): Flow<JDA> = callbackFlow {
         val jda = jdaBuilder(okHttpClient, config, intents).build()
-        jda.flowEvent<MessageReceivedEvent>()
-            .onEach(messageEventListener::onMessageReceived)
-            .launchIn(this)
-        jda.flowEvent<GuildMemberRemoveEvent>()
-            .map { event -> event.user }
-            .map { user -> user.idLong }
-            .onEach { discordUserId -> ioScope.launch { notifyMemberLeave(discordUserId) } }
-            .launchIn(this)
         val shutdownCode = CompletableDeferred<CloseCode?>()
-        jda.flowEvent<ShutdownEvent>()
+        jda.eventManager.flowEvent<ShutdownEvent>()
+            .filter { event -> event.jda === jda }
             .onEach { event -> shutdownCode.complete(event.closeCode) }
             .launchIn(this)
         launch {
