@@ -1,11 +1,11 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.internal
+package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 
 internal class TelegramReplyMapper(
     configKrate: CachedKrate<PluginConfiguration>,

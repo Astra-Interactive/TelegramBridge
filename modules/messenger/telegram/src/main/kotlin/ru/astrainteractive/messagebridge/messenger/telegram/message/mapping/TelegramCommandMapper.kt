@@ -1,6 +1,6 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.command
+package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
-import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramCommand
+import ru.astrainteractive.messagebridge.messenger.telegram.message.model.TelegramCommand
 
 internal class TelegramCommandMapper {
 

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.event
+package ru.astrainteractive.messagebridge.messenger.telegram.message.event
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -16,14 +16,14 @@ import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.intercept
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandHandler
-import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageValidatorMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramReplyMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.model.MessageRelevance
-import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramMessageValidation
+import ru.astrainteractive.messagebridge.messenger.telegram.message.command.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageValidatorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramReplyMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.model.MessageRelevance
+import ru.astrainteractive.messagebridge.messenger.telegram.message.model.TelegramMessageValidation
 
 internal class TelegramChatConsumer(
     private val ioScope: CoroutineScope,

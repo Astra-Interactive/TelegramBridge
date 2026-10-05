@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.telegram.mapping
+package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.message.Message
@@ -6,7 +6,7 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
+import ru.astrainteractive.messagebridge.messenger.telegram.message.model.TelegramAuthor
 
 internal class TelegramAuthorMapper(
     translationKrate: CachedKrate<PluginTranslation>,
