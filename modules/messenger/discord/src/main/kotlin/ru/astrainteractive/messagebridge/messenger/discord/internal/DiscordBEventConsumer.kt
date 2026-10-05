@@ -28,6 +28,8 @@ import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
 import kotlin.time.Duration.Companion.seconds

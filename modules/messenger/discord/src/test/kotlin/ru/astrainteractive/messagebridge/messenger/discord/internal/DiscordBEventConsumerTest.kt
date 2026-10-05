@@ -33,6 +33,8 @@ import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeClock
 import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeWebhookClient
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import java.util.function.Consumer
 import kotlin.test.Test

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.internal
+package ru.astrainteractive.messagebridge.messenger.discord.util
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose

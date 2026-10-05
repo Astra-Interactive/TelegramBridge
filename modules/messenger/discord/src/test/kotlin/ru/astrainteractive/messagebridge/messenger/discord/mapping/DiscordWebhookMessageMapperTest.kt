@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.discord.internal
+package ru.astrainteractive.messagebridge.messenger.discord.mapping
 
 import net.dv8tion.jda.api.entities.Member
 import ru.astrainteractive.astralibs.localization.text.LocalizedText

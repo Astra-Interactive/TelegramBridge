@@ -22,11 +22,11 @@ import ru.astrainteractive.messagebridge.messenger.discord.di.factory.WebHookCli
 import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordEvents
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordChannelProvider
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordEmbedMapper
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRoleUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordTopicUpdater
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordWebhookMessageMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
+import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.message.event.MessageEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
