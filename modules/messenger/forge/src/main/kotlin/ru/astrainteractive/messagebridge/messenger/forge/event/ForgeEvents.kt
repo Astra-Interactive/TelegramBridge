@@ -22,7 +22,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
-class ForgeEvents(
+internal class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val bEventConsumer: BEventConsumer

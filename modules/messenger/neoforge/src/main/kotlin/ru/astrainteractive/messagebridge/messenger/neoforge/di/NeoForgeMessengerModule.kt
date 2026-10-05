@@ -12,7 +12,7 @@ class NeoForgeMessengerModule(
     bEventChannel: BEventChannel,
 ) {
 
-    val neoForgeEvents = NeoForgeEvents(
+    private val neoForgeEvents = NeoForgeEvents(
         configKrate = coreModule.configKrate,
         ioScope = coreModule.ioScope,
         bEventConsumer = bEventChannel
