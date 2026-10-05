@@ -16,22 +16,19 @@ import kotlin.time.Duration.Companion.seconds
 internal class DiscordChannelFactory(
     private val webHookClientFactory: WebHookClientFactory
 ) : Logger by JUtiltLogger("MessageBridge-DiscordChannelFactory").withoutParentHandlers() {
-    private fun readyChannel(jda: JDA, channelId: String): Flow<DiscordChannel> = callbackFlow<DiscordChannel> {
+    fun create(jda: JDA, channelId: String): Flow<DiscordChannel> = callbackFlow<DiscordChannel> {
         val textChannel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")
         val webhookClient = webHookClientFactory.create(jda, channelId).first()
         send(DiscordChannel.Ready(textChannel = textChannel, webhookClient = webhookClient))
         awaitClose {
             webhookClient.close()
         }
+    }.retryWhen { t, _ ->
+        error { "#create could not open channel $channelId: ${t.message}" }
+        emit(DiscordChannel.Failed)
+        delay(RETRY_DELAY)
+        t !is CancellationException
     }
-
-    fun create(jda: JDA, channelId: String): Flow<DiscordChannel> = readyChannel(jda, channelId)
-        .retryWhen { t, _ ->
-            error { "#create could not open channel $channelId: ${t.message}" }
-            emit(DiscordChannel.Failed)
-            delay(RETRY_DELAY)
-            t !is CancellationException
-        }
 
     private companion object {
         val RETRY_DELAY = 5.seconds
