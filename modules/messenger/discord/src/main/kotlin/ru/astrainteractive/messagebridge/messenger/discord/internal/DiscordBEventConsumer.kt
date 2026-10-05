@@ -45,12 +45,6 @@ internal class DiscordBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
     private val translation by translationKrate
 
-    private suspend fun readyChannel(): DiscordChannel.Ready? {
-        return withTimeoutOrNull(CONNECTING_TIMEOUT) {
-            discordChannel.first { state -> state != DiscordChannel.Connecting }
-        }?.tryCast<DiscordChannel.Ready>()
-    }
-
     private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
         val member = memberResolver.resolve(channel, event)
         val message = webhookMessageMapper.map(event, member)
@@ -84,7 +78,10 @@ internal class DiscordBEventConsumer(
 
     override suspend fun consume(bEvent: BEvent) {
         if (bEvent.from == MessageFrom.DISCORD) return
-        val ready = readyChannel() ?: run {
+        val channel = withTimeoutOrNull(CONNECTING_TIMEOUT) {
+            discordChannel.first { state -> state != DiscordChannel.Connecting }
+        }
+        val ready = channel?.tryCast<DiscordChannel.Ready>() ?: run {
             verbose { "#consume Discord is not ready, skipped $bEvent" }
             return
         }
