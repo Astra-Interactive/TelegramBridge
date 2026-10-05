@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 
-class RestActionAwaitTest {
+class RestActionExtTest {
     private fun failingAction(failure: Throwable): RestAction<Unit> = jdaFake(
         mapOf(
             "queue" to JdaAnswer { args ->
