@@ -22,8 +22,8 @@ import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.permission.LinkPermission
-import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

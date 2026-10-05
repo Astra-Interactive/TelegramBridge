@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.link.player.internal
+package ru.astrainteractive.messagebridge.link.dao.internal
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.di.LinkDatabaseModule
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerStorageError
-import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.di.LinkDatabaseModule
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayerStorageError
+import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import java.io.File
 import java.util.UUID
 import kotlin.io.path.createTempDirectory

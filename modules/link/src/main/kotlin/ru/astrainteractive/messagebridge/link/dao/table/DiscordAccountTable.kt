@@ -1,12 +1,12 @@
-package ru.astrainteractive.messagebridge.link.player.table
+package ru.astrainteractive.messagebridge.link.dao.table
 
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
-internal object TelegramAccountTable : Table("link_telegram_account") {
+internal object DiscordAccountTable : Table("link_discord_account") {
     val playerUuid = reference("player_uuid", PlayerTable.uuid, onDelete = ReferenceOption.CASCADE)
-    val telegramId = long("telegram_id").uniqueIndex()
-    val telegramUsername = text("telegram_username")
+    val discordId = long("discord_id").uniqueIndex()
+    val discordName = text("discord_name")
 
     override val primaryKey = PrimaryKey(playerUuid)
 }

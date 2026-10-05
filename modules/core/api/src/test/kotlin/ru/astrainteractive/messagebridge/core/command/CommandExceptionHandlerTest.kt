@@ -147,7 +147,7 @@ class CommandExceptionHandlerTest {
 
     @Test
     fun GIVEN_generic_command_exception_WHEN_command_fails_THEN_sender_reads_wrong_usage() {
-        executeFailing(CommandException("The source is not a player"))
+        executeFailing(CommandException("The source is not a dao"))
 
         assertSenderReadOnly(commandError.wrongUsage)
     }
@@ -171,7 +171,7 @@ class CommandExceptionHandlerTest {
     @Test
     fun GIVEN_argument_missing_from_the_node_WHEN_command_reads_it_THEN_sender_reads_unknown_error() {
         val missingArgument = MultiplatformCommand.BrigadierArgument(
-            alias = "player",
+            alias = "dao",
             type = StringArgumentType.string(),
             clazz = String::class.java
         )

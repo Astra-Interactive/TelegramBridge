@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.player.internal
+package ru.astrainteractive.messagebridge.link.dao.internal
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -15,13 +15,13 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayerStorageError
-import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.player.table.DiscordAccountTable
-import ru.astrainteractive.messagebridge.link.player.table.PlayerTable
-import ru.astrainteractive.messagebridge.link.player.table.TelegramAccountTable
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayerStorageError
+import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.dao.table.DiscordAccountTable
+import ru.astrainteractive.messagebridge.link.dao.table.PlayerTable
+import ru.astrainteractive.messagebridge.link.dao.table.TelegramAccountTable
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,7 +66,7 @@ internal class LinkingDaoImpl(
             )
     }
 
-    override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?> = query("find player $uuid") {
+    override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?> = query("find dao $uuid") {
         findWhere(PlayerTable.uuid eq uuid)
     }
 
@@ -101,7 +101,7 @@ internal class LinkingDaoImpl(
             }
         }
 
-    override suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?> = query("unlink player $uuid") {
+    override suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?> = query("unlink dao $uuid") {
         val player = findWhere(PlayerTable.uuid eq uuid)
         PlayerTable.deleteWhere { PlayerTable.uuid eq uuid }
         player

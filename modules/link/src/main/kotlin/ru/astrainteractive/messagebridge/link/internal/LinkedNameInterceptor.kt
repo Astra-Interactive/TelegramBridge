@@ -2,8 +2,8 @@ package ru.astrainteractive.messagebridge.link.internal
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 

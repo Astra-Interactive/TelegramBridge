@@ -21,7 +21,7 @@ data class PluginTranslation(
     val reload: Reload = Reload(),
     @SerialName("chat")
     val chat: Chat = Chat(),
-    @SerialName("player")
+    @SerialName("dao")
     val player: Player = Player(),
     @SerialName("server")
     val server: Server = Server(),
@@ -84,18 +84,18 @@ data class PluginTranslation(
     @Serializable
     data class Chat(
         @SerialName("to_minecraft")
-        private val toMinecraft: LocalizedText = LocalizedText.shared("[%from%] &#27A1E0%player%: &#FFFFFF%message%"),
+        private val toMinecraft: LocalizedText = LocalizedText.shared("[%from%] &#27A1E0%dao%: &#FFFFFF%message%"),
         @SerialName("to_minecraft_reply")
         private val toMinecraftReply: LocalizedText = LocalizedText.build {
             translation(
                 MinecraftLocales.EN_US,
-                "[%from%] &#27A1E0%player% " +
+                "[%from%] &#27A1E0%dao% " +
                     "<hover:show_text:'&#8A8A8AReply to &#27A1E0%reply_player%&#8A8A8A:<newline>" +
                     "&#FFFFFF%reply_message%'>&#8A8A8A↪ %reply_player%</hover>&#27A1E0: &#FFFFFF%message%"
             )
             translation(
                 MinecraftLocales.RU_RU,
-                "[%from%] &#27A1E0%player% " +
+                "[%from%] &#27A1E0%dao% " +
                     "<hover:show_text:'&#8A8A8AОтвет на сообщение &#27A1E0%reply_player%&#8A8A8A:<newline>" +
                     "&#FFFFFF%reply_message%'>&#8A8A8A↪ %reply_player%</hover>&#27A1E0: &#FFFFFF%message%"
             )
@@ -106,7 +106,7 @@ data class PluginTranslation(
             translation(MinecraftLocales.RU_RU, "[медиа]")
         },
         @SerialName("to_telegram")
-        private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %player%:\n%message%"),
+        private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %dao%:\n%message%"),
         @SerialName("illegal_display_name")
         val illegalDisplayName: LocalizedText = LocalizedText.build {
             translation(
@@ -121,14 +121,14 @@ data class PluginTranslation(
     ) {
         /**
          * [playerName] and [message] come from Telegram or Discord users, so they are inserted as plain text:
-         * otherwise anyone in the chat could broadcast a `<click:run_command:…>` to every player.
+         * otherwise anyone in the chat could broadcast a `<click:run_command:…>` to every dao.
          */
         fun toMinecraft(
             playerName: String,
             message: String,
             from: String
         ): LocalizableComponent = toMinecraft.replaceAll(
-            PlaceholderReplacement.plain("%player%", playerName),
+            PlaceholderReplacement.plain("%dao%", playerName),
             PlaceholderReplacement.plain("%message%", message),
             PlaceholderReplacement.plain("%from%", from)
         )
@@ -138,7 +138,7 @@ data class PluginTranslation(
             message: String,
             from: String
         ): LocalizableComponent = toTelegram.replaceAll(
-            PlaceholderReplacement.plain("%player%", playerName),
+            PlaceholderReplacement.plain("%dao%", playerName),
             PlaceholderReplacement.plain("%message%", message),
             PlaceholderReplacement.plain("%from%", from)
         )
@@ -166,7 +166,7 @@ data class PluginTranslation(
                 PlaceholderReplacement.plain("%reply_message%", replyMessage.toReplyPreview())
             }
             return toMinecraftReply.replaceAll(
-                PlaceholderReplacement.plain("%player%", playerName),
+                PlaceholderReplacement.plain("%dao%", playerName),
                 PlaceholderReplacement.plain("%message%", message),
                 PlaceholderReplacement.plain("%from%", from),
                 PlaceholderReplacement.plain("%reply_player%", replyPlayerName),
@@ -184,23 +184,23 @@ data class PluginTranslation(
     data class Player(
         @SerialName("joined")
         private val joined: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "Player %player% joined")
-            translation(MinecraftLocales.RU_RU, "Игрок %player% присоединился")
+            translation(MinecraftLocales.EN_US, "Player %dao% joined")
+            translation(MinecraftLocales.RU_RU, "Игрок %dao% присоединился")
         },
         @SerialName("joined_first_time")
         private val joinedFirstTime: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "🥳 Player %player% joined for the first time!")
-            translation(MinecraftLocales.RU_RU, "🥳 Игрок %player% присоединился впервые!")
+            translation(MinecraftLocales.EN_US, "🥳 Player %dao% joined for the first time!")
+            translation(MinecraftLocales.RU_RU, "🥳 Игрок %dao% присоединился впервые!")
         },
         @SerialName("left")
         private val left: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "Player %player% left")
-            translation(MinecraftLocales.RU_RU, "Игрок %player% покинул нас")
+            translation(MinecraftLocales.EN_US, "Player %dao% left")
+            translation(MinecraftLocales.RU_RU, "Игрок %dao% покинул нас")
         },
         @SerialName("died")
         private val died: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "Player %player% died: %cause%")
-            translation(MinecraftLocales.RU_RU, "Игрок %player% сдох от %cause%")
+            translation(MinecraftLocales.EN_US, "Player %dao% died: %cause%")
+            translation(MinecraftLocales.RU_RU, "Игрок %dao% сдох от %cause%")
         },
         @SerialName("unknown_death_cause")
         private val unknownDeathCause: LocalizedText = LocalizedText.build {
@@ -208,11 +208,11 @@ data class PluginTranslation(
             translation(MinecraftLocales.RU_RU, "Просто так")
         }
     ) {
-        fun joined(name: String): LocalizableComponent = joined.replace("%player%", name)
+        fun joined(name: String): LocalizableComponent = joined.replace("%dao%", name)
 
-        fun joinedFirstTime(name: String): LocalizableComponent = joinedFirstTime.replace("%player%", name)
+        fun joinedFirstTime(name: String): LocalizableComponent = joinedFirstTime.replace("%dao%", name)
 
-        fun left(name: String): LocalizableComponent = left.replace("%player%", name)
+        fun left(name: String): LocalizableComponent = left.replace("%dao%", name)
 
         /** A death without a known [cause] reads [unknownDeathCause] in the same language. */
         fun died(name: String, cause: String?): LocalizableComponent {
@@ -221,7 +221,7 @@ data class PluginTranslation(
             } else {
                 PlaceholderReplacement.plain("%cause%", cause)
             }
-            return died.replaceAll(PlaceholderReplacement.plain("%player%", name), causeReplacement)
+            return died.replaceAll(PlaceholderReplacement.plain("%dao%", name), causeReplacement)
         }
     }
 
@@ -269,7 +269,7 @@ data class PluginTranslation(
         },
         @SerialName("account_linked_to_another_player")
         val accountTaken: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "This account is already linked to another player")
+            translation(MinecraftLocales.EN_US, "This account is already linked to another dao")
             translation(MinecraftLocales.RU_RU, "Этот аккаунт уже привязан к другому игроку")
         },
         @SerialName("no_code_found")
@@ -321,12 +321,12 @@ data class PluginTranslation(
         },
         @SerialName("player_not_linked")
         val playerNotLinked: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "The player's account is not linked")
+            translation(MinecraftLocales.EN_US, "The dao's account is not linked")
             translation(MinecraftLocales.RU_RU, "Аккаунт игрока не привязан")
         },
         @SerialName("player_success")
         val playerSuccess: LocalizedText = LocalizedText.build {
-            translation(MinecraftLocales.EN_US, "&#42f596The player's account is unlinked")
+            translation(MinecraftLocales.EN_US, "&#42f596The dao's account is unlinked")
             translation(MinecraftLocales.RU_RU, "&#42f596Привязка игрока успешно удалена")
         }
     )

@@ -9,7 +9,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
 import ru.astrainteractive.messagebridge.link.code.api.CodeApi
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
 import java.util.UUID
 
 internal class LinkCommandExecutor(

@@ -17,7 +17,7 @@ import ru.astrainteractive.messagebridge.link.code.fake.FakeCodeApi
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
-import ru.astrainteractive.messagebridge.link.player.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
 import java.util.Locale
 import java.util.UUID
 import kotlin.test.Test

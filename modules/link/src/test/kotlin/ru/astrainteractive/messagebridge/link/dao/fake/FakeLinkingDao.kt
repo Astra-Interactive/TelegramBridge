@@ -1,8 +1,8 @@
-package ru.astrainteractive.messagebridge.link.player.fake
+package ru.astrainteractive.messagebridge.link.dao.fake
 
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import java.util.UUID
 
 internal class FakeLinkingDao : LinkingDao {

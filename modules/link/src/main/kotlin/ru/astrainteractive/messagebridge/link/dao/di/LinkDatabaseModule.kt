@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.player.di
+package ru.astrainteractive.messagebridge.link.dao.di
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -13,11 +13,11 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.klibs.mikro.exposed.model.DatabaseConfiguration
 import ru.astrainteractive.klibs.mikro.exposed.util.connectAsFlow
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.internal.LinkingDaoImpl
-import ru.astrainteractive.messagebridge.link.player.table.DiscordAccountTable
-import ru.astrainteractive.messagebridge.link.player.table.PlayerTable
-import ru.astrainteractive.messagebridge.link.player.table.TelegramAccountTable
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.internal.LinkingDaoImpl
+import ru.astrainteractive.messagebridge.link.dao.table.DiscordAccountTable
+import ru.astrainteractive.messagebridge.link.dao.table.PlayerTable
+import ru.astrainteractive.messagebridge.link.dao.table.TelegramAccountTable
 import java.io.File
 import java.sql.Connection
 

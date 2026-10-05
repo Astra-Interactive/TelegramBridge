@@ -5,9 +5,9 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.code.api.CodeApi
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
-import ru.astrainteractive.messagebridge.link.player.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 
 internal class LinkAccountUseCase(
     private val codeApi: CodeApi,

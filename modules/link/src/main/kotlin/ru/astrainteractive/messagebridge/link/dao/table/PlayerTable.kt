@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.player.table
+package ru.astrainteractive.messagebridge.link.dao.table
 
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID

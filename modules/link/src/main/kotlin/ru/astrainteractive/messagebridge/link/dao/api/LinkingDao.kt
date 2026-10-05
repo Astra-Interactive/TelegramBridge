@@ -1,7 +1,7 @@
-package ru.astrainteractive.messagebridge.link.player.api
+package ru.astrainteractive.messagebridge.link.dao.api
 
-import ru.astrainteractive.messagebridge.link.player.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.player.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import java.util.UUID
 
 internal interface LinkingDao {

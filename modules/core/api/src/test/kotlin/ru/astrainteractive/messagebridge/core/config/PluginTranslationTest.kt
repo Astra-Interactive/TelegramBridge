@@ -16,7 +16,7 @@ class PluginTranslationTest {
 
     private val translation = PluginTranslation()
 
-    /** Text a Telegram or Discord user can send: if it were parsed, every player would get a clickable command. */
+    /** Text a Telegram or Discord user can send: if it were parsed, every dao would get a clickable command. */
     private val clickText = "<click:run_command:'/op thief'>жми</click>"
 
     private fun Component.selfAndDescendants(): List<Component> {

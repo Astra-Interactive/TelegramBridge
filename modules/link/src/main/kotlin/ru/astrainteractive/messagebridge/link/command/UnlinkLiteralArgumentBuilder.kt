@@ -29,7 +29,7 @@ internal class UnlinkLiteralArgumentBuilder(
     fun create(): LiteralArgumentBuilder<Any> {
         return with(multiplatformCommand) {
             command("unlink") {
-                argument("player", StringArgumentType.string()) { playerArg ->
+                argument("dao", StringArgumentType.string()) { playerArg ->
                     hints { platformServer.getOnlinePlayers().map(OnlineKPlayer::name) }
                     runs(commandExceptionHandler::handle) { ctx ->
                         ctx.requirePermission(LinkPermission.UnlinkPlayer)

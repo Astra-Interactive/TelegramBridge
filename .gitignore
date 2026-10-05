@@ -37,3 +37,7 @@ astra.properties
 .gradle
 libs
 **/junit
+AGENTS.md
+AGENTS.kt.md
+.claude
+CLAUDE.md
