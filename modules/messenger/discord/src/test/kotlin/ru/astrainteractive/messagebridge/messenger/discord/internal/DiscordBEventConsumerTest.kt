@@ -114,7 +114,7 @@ class DiscordBEventConsumerTest {
             ),
             embedMapper = DiscordEmbedMapper(translationKrate),
             memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
-            webhookMessageMapper = DiscordWebhookMessageMapper(),
+            webhookMessageMapper = DiscordWebhookMessageMapper(translationKrate),
             translationKrate = translationKrate,
             bEventReceiver = FakeBEventReceiver(emptyFlow())
         )

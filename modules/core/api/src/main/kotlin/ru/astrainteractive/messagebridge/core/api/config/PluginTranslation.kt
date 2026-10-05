@@ -107,6 +107,8 @@ data class PluginTranslation(
         },
         @SerialName("to_telegram")
         private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %dao%:\n%message%"),
+        @SerialName("to_discord_username")
+        private val toDiscordUsername: LocalizedText = LocalizedText.shared("[%from%] %dao%"),
         @SerialName("illegal_display_name")
         val illegalDisplayName: LocalizedText = LocalizedText.build {
             translation(
@@ -145,6 +147,14 @@ data class PluginTranslation(
         ): LocalizableComponent = toTelegram.replaceAll(
             PlaceholderReplacement.plain("%dao%", playerName),
             PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%from%", from)
+        )
+
+        fun toDiscordUsername(
+            playerName: String,
+            from: String
+        ): LocalizableComponent = toDiscordUsername.replaceAll(
+            PlaceholderReplacement.plain("%dao%", playerName),
             PlaceholderReplacement.plain("%from%", from)
         )
 

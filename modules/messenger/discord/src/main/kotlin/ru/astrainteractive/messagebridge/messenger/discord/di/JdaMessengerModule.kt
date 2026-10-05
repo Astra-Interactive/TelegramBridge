@@ -110,7 +110,7 @@ class JdaMessengerModule(
         ),
         embedMapper = DiscordEmbedMapper(coreModule.translationKrate),
         memberResolver = DiscordMemberResolver(authorResolver),
-        webhookMessageMapper = DiscordWebhookMessageMapper(),
+        webhookMessageMapper = DiscordWebhookMessageMapper(coreModule.translationKrate),
         translationKrate = coreModule.translationKrate,
         bEventReceiver = bEventChannel,
     )
