@@ -20,6 +20,8 @@ import ru.astrainteractive.messagebridge.link.dao.table.PlayerTable
 import ru.astrainteractive.messagebridge.link.dao.table.TelegramAccountTable
 import java.io.File
 import java.sql.Connection
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 internal class LinkDatabaseModule(
     ioScope: CoroutineScope,
@@ -28,8 +30,8 @@ internal class LinkDatabaseModule(
     private val databaseConfig = DatabaseConfig {
         defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
         defaultMaxAttempts = MAX_ATTEMPTS
-        defaultMinRetryDelay = 0
-        defaultMaxRetryDelay = 0
+        defaultMinRetryDelay = MIN_RETRY_DELAY.inWholeMilliseconds
+        defaultMaxRetryDelay = MAX_RETRY_DELAY.inWholeMilliseconds
     }
 
     private val databaseFlow: Flow<Database> =
@@ -46,5 +48,7 @@ internal class LinkDatabaseModule(
 
     private companion object {
         const val MAX_ATTEMPTS = 3
+        val MIN_RETRY_DELAY = 100.milliseconds
+        val MAX_RETRY_DELAY = 1.seconds
     }
 }

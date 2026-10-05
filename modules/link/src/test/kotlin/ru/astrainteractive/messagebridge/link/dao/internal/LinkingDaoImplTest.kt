@@ -90,6 +90,20 @@ class LinkingDaoImplTest {
     }
 
     @Test
+    fun GIVEN_telegram_account_of_another_player_WHEN_linked_again_THEN_fails_at_once_and_owner_keeps_it() = runTest {
+        val dao = dao()
+        dao.link(uuid = alexUuid, minecraftName = "Alex", account = steveTelegram)
+        val start = TimeSource.Monotonic.markNow()
+
+        val result = dao.link(uuid = steveUuid, minecraftName = "Steve", account = steveTelegram)
+
+        assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
+        assertTrue(start.elapsedNow() < QUICK_FAILURE, "took ${start.elapsedNow()}")
+        assertEquals(alexUuid, dao.findByTelegramId(STEVE_TELEGRAM_ID).getOrThrow()?.uuid)
+        assertNull(dao.findByUuid(steveUuid).getOrThrow())
+    }
+
+    @Test
     fun GIVEN_player_with_a_discord_account_WHEN_another_discord_account_is_linked_THEN_fails() = runTest {
         val dao = dao()
         dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie)
@@ -193,6 +207,6 @@ class LinkingDaoImplTest {
         const val STEVE_DISCORD_ID = 4242L
         const val STEVE_TELEGRAM_ID = 77L
         const val OTHER_ID = 4343L
-        val QUICK_FAILURE = 5.seconds
+        val QUICK_FAILURE = 2.seconds
     }
 }

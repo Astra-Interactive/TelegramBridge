@@ -7,6 +7,7 @@ import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -110,6 +111,16 @@ internal class LinkingDaoImpl(
             )
         return runCatching {
             suspendTransaction(database) {
+                val alreadyLinked = when (account) {
+                    is MessengerAccount.Discord -> DiscordAccountTable.selectAll().where {
+                        (DiscordAccountTable.discordId eq account.id) or (DiscordAccountTable.playerUuid eq uuid)
+                    }
+
+                    is MessengerAccount.Telegram -> TelegramAccountTable.selectAll().where {
+                        (TelegramAccountTable.telegramId eq account.id) or (TelegramAccountTable.playerUuid eq uuid)
+                    }
+                }.empty().not()
+                if (alreadyLinked) return@suspendTransaction false
                 PlayerTable.upsert { statement ->
                     statement[PlayerTable.uuid] = uuid
                     statement[PlayerTable.minecraftName] = minecraftName
@@ -127,11 +138,20 @@ internal class LinkingDaoImpl(
                         statement[TelegramAccountTable.telegramUsername] = account.username
                     }
                 }
+                true
             }
         }
             .propagateCancellationException()
             .fold(
-                onSuccess = { _ -> Result.success(Unit) },
+                onSuccess = { linked ->
+                    if (linked) {
+                        Result.success(Unit)
+                    } else {
+                        Result.failure(
+                            LinkedPlayerStorageError("Could not link $account to $uuid: already linked", null)
+                        )
+                    }
+                },
                 onFailure = { t -> Result.failure(LinkedPlayerStorageError("Could not link $account to $uuid", t)) }
             )
     }
