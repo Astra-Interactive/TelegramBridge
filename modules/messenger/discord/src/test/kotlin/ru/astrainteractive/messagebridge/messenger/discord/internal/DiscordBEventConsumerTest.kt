@@ -25,6 +25,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeClock
 import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeWebhookClient
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
@@ -37,6 +38,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class DiscordBEventConsumerTest {
     private val sentMessages = mutableListOf<String>()
@@ -91,7 +93,10 @@ class DiscordBEventConsumerTest {
     private fun consumer(discordChannel: Flow<DiscordChannel>): DiscordBEventConsumer {
         return DiscordBEventConsumer(
             discordChannel = discordChannel,
-            topicUpdater = DiscordTopicUpdater(jdaFake(emptyMap())),
+            topicUpdater = DiscordTopicUpdater(
+                platformServer = jdaFake(emptyMap()),
+                clock = FakeClock(Instant.fromEpochSeconds(0))
+            ),
             embedMapper = DiscordEmbedMapper(),
             memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
             webhookMessageMapper = DiscordWebhookMessageMapper(),

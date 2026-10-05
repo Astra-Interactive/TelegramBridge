@@ -5,14 +5,15 @@ import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordTopicUpdater(
     private val platformServer: PlatformServer,
+    private val clock: Clock,
 ) : Logger by JUtiltLogger("MessageBridge-DiscordTopicUpdater") {
-    private var lastOnlineChanged = System.currentTimeMillis().milliseconds
+    private var lastOnlineChanged = clock.now()
 
     private fun setTopic(channel: TextChannel, topic: String) {
         runCatching {
@@ -24,7 +25,7 @@ internal class DiscordTopicUpdater(
     }
 
     fun updateOnlineCount(channel: TextChannel) {
-        val current = System.currentTimeMillis().milliseconds
+        val current = clock.now()
         if (current.minus(lastOnlineChanged) < THROTTLE) return
         lastOnlineChanged = current
         setTopic(channel, "Игроков в сети: ${platformServer.getOnlinePlayers().size}")

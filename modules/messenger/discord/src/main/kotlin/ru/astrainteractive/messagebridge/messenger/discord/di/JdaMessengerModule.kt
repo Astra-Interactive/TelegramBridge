@@ -34,6 +34,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRoleU
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import kotlin.time.Clock
 
 class JdaMessengerModule(
     coreModule: CoreModule,
@@ -103,7 +104,10 @@ class JdaMessengerModule(
 
     private val discordMessageController = DiscordBEventConsumer(
         discordChannel = channelProvider.channel,
-        topicUpdater = DiscordTopicUpdater(coreModule.platformServer),
+        topicUpdater = DiscordTopicUpdater(
+            platformServer = coreModule.platformServer,
+            clock = Clock.System,
+        ),
         embedMapper = DiscordEmbedMapper(),
         memberResolver = DiscordMemberResolver(authorResolver),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
