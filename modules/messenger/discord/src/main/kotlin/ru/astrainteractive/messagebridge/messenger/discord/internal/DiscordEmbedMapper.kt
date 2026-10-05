@@ -2,9 +2,9 @@ package ru.astrainteractive.messagebridge.messenger.discord.internal
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
-import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
 
 @Suppress("MagicNumber")
 internal class DiscordEmbedMapper {

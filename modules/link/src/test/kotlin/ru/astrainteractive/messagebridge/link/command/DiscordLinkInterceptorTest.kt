@@ -32,7 +32,7 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
-import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange

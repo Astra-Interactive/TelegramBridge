@@ -24,8 +24,8 @@ import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolv
 import ru.astrainteractive.messagebridge.link.internal.LinkedNameInterceptor
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
-import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange

@@ -20,10 +20,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeWebhookClient
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer

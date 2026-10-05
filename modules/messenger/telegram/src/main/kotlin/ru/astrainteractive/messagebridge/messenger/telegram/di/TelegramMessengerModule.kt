@@ -26,9 +26,9 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.event.TelegramChatConsumer

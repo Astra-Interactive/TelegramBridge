@@ -19,11 +19,11 @@ import ru.astrainteractive.astralibs.event.flowEvent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
 internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,

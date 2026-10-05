@@ -8,7 +8,7 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
 

@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse
 import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake

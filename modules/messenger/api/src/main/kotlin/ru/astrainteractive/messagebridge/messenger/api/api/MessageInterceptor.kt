@@ -1,6 +1,6 @@
-package ru.astrainteractive.messagebridge.messaging.api
+package ru.astrainteractive.messagebridge.messenger.api.api
 
-import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 
 fun interface MessageInterceptor<in M> {
     suspend fun intercept(event: M): Interception

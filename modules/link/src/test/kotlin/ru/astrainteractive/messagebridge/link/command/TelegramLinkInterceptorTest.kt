@@ -19,7 +19,7 @@ import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
-import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

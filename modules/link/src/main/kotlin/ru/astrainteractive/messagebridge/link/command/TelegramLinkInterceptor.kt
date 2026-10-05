@@ -8,8 +8,8 @@ import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
-import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 
 internal class TelegramLinkInterceptor(
     private val linkAccountUseCase: LinkAccountUseCase,

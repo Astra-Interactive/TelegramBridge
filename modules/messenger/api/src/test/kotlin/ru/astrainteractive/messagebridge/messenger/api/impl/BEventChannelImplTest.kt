@@ -1,7 +1,7 @@
 @file:Suppress("FunctionNaming")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package ru.astrainteractive.messagebridge.messaging.impl
+package ru.astrainteractive.messagebridge.messenger.api.impl
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,11 +11,11 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

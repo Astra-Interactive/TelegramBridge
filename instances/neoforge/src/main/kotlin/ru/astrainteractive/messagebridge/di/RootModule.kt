@@ -18,10 +18,10 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.impl.BEventChannelImpl
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannelImpl
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.neoforge.di.NeoForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule

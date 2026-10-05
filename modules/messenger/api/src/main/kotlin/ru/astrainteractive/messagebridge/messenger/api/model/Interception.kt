@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messaging.model
+package ru.astrainteractive.messagebridge.messenger.api.model
 
 sealed interface Interception {
     data object Pass : Interception

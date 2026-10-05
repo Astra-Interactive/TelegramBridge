@@ -39,11 +39,11 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.Interception
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.fake.DirectExecutorService

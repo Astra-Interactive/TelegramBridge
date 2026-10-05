@@ -6,11 +6,11 @@ import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messaging.api.intercept
-import ru.astrainteractive.messagebridge.messaging.model.Interception
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.api.intercept
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageRelevanceMapper

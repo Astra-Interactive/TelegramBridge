@@ -15,16 +15,16 @@ import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.MessageFrom
-import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
 internal class NeoForgeBEventConsumer(
     translationKrate: CachedKrate<PluginTranslation>,

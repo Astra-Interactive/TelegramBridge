@@ -1,9 +1,9 @@
-package ru.astrainteractive.messagebridge.messaging.fake
+package ru.astrainteractive.messagebridge.messenger.api.fake
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import ru.astrainteractive.messagebridge.messaging.api.BEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
 class FakeBEventReceiver(
     private val events: Flow<BEvent>

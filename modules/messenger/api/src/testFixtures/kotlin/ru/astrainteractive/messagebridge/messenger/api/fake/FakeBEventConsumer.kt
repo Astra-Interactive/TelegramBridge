@@ -1,7 +1,7 @@
-package ru.astrainteractive.messagebridge.messaging.fake
+package ru.astrainteractive.messagebridge.messenger.api.fake
 
-import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
 class FakeBEventConsumer(
     private val send: suspend (BEvent) -> Unit

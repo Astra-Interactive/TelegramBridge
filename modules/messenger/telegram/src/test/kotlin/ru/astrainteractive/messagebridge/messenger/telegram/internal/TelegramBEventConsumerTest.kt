@@ -20,10 +20,10 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventReceiver
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
 import kotlin.test.assertEquals

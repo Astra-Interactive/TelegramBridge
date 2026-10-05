@@ -9,8 +9,8 @@ import kotlinx.coroutines.job
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.bukkit.event.BukkitEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.internal.MinecraftBEventConsumer
 

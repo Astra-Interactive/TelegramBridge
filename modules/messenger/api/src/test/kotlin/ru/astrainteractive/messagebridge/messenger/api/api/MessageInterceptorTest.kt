@@ -1,9 +1,9 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messaging.api
+package ru.astrainteractive.messagebridge.messenger.api.api
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

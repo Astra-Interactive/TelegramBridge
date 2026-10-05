@@ -22,11 +22,11 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
-import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.Interception
-import ru.astrainteractive.messagebridge.messaging.model.Text
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer

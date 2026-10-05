@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messaging.impl
+package ru.astrainteractive.messagebridge.messenger.api.impl
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
 class BEventChannelImpl :
     BEventChannel,
