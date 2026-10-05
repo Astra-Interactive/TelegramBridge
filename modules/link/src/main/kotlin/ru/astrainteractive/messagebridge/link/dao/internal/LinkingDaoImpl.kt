@@ -1,8 +1,6 @@
 package ru.astrainteractive.messagebridge.link.dao.internal
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -23,10 +21,9 @@ import ru.astrainteractive.messagebridge.link.dao.table.DiscordAccountTable
 import ru.astrainteractive.messagebridge.link.dao.table.PlayerTable
 import ru.astrainteractive.messagebridge.link.dao.table.TelegramAccountTable
 import java.util.UUID
-import kotlin.time.Duration.Companion.seconds
 
 internal class LinkingDaoImpl(
-    private val databaseFlow: Flow<Database>
+    private val databaseState: StateFlow<Database?>
 ) : LinkingDao {
     private val linkedPlayers = PlayerTable
         .join(DiscordAccountTable, JoinType.LEFT, PlayerTable.uuid, DiscordAccountTable.playerUuid)
@@ -56,7 +53,7 @@ internal class LinkingDaoImpl(
     }
 
     override suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?> {
-        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+        val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError("Could not find player $uuid: the link database is not open", null)
             )
@@ -69,7 +66,7 @@ internal class LinkingDaoImpl(
     }
 
     override suspend fun findByDiscordId(discordId: Long): Result<LinkedPlayer?> {
-        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+        val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError(
                     "Could not find Discord account $discordId: the link database is not open",
@@ -87,7 +84,7 @@ internal class LinkingDaoImpl(
     }
 
     override suspend fun findByTelegramId(telegramId: Long): Result<LinkedPlayer?> {
-        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+        val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError(
                     "Could not find Telegram account $telegramId: the link database is not open",
@@ -105,7 +102,7 @@ internal class LinkingDaoImpl(
     }
 
     override suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<Unit> {
-        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+        val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError("Could not link $account to $uuid: the link database is not open", null)
             )
@@ -157,7 +154,7 @@ internal class LinkingDaoImpl(
     }
 
     override suspend fun deleteByUuid(uuid: UUID): Result<LinkedPlayer?> {
-        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+        val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError("Could not unlink player $uuid: the link database is not open", null)
             )
@@ -176,7 +173,7 @@ internal class LinkingDaoImpl(
     }
 
     override suspend fun unlinkDiscord(discordId: Long): Result<LinkedPlayer?> {
-        val database = withTimeoutOrNull(DATABASE_TIMEOUT) { databaseFlow.first() }
+        val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError(
                     "Could not unlink Discord account $discordId: the link database is not open",
@@ -201,9 +198,5 @@ internal class LinkingDaoImpl(
                     Result.failure(LinkedPlayerStorageError("Could not unlink Discord account $discordId", t))
                 }
             )
-    }
-
-    private companion object {
-        val DATABASE_TIMEOUT = 10.seconds
     }
 }

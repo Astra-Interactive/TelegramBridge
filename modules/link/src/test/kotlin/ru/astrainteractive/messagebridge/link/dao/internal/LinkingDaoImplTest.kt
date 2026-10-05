@@ -5,9 +5,10 @@ package ru.astrainteractive.messagebridge.link.dao.internal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
@@ -35,7 +36,9 @@ class LinkingDaoImplTest {
     private val steveTelegram = MessengerAccount.Telegram(id = STEVE_TELEGRAM_ID, username = "steve_tg")
 
     private fun TestScope.dao(): LinkingDao {
-        return LinkDatabaseModule(ioScope = backgroundScope, dataFolder = dataFolder).linkingDao
+        val module = LinkDatabaseModule(ioScope = backgroundScope, dataFolder = dataFolder)
+        runCurrent()
+        return module.linkingDao
     }
 
     @AfterTest
@@ -195,12 +198,13 @@ class LinkingDaoImplTest {
     }
 
     @Test
-    fun GIVEN_database_that_never_opens_WHEN_player_is_looked_up_THEN_fails_after_the_timeout() = runTest {
-        val dao = LinkingDaoImpl(flow { awaitCancellation() })
+    fun GIVEN_database_that_is_not_open_WHEN_player_is_looked_up_THEN_fails_at_once() = runTest {
+        val dao = LinkingDaoImpl(MutableStateFlow(null))
 
         val result = dao.findByUuid(steveUuid)
 
         assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
+        assertEquals(0L, currentTime)
     }
 
     private companion object {
