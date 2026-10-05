@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.datetime)
     implementation(libs.minecraft.astralibs.core)
+    implementation(libs.okhttp)
 
     implementation(projects.modules.core.api)
     implementation(projects.modules.messenger.api)

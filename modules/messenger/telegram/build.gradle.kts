@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.datetime)
     implementation(libs.minecraft.astralibs.core)
+    implementation(libs.okhttp)
     implementation(libs.telegrambots.client)
     implementation(libs.telegrambots.extensions)
     implementation(libs.telegrambots.longpolling)

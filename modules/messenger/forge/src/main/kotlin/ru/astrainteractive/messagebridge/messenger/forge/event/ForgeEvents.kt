@@ -17,10 +17,10 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.PlayerDeathBEvent
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.PlayerJoinedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.PlayerLeaveBEvent
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
+import ru.astrainteractive.messagebridge.messaging.model.PlayerDeathBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerJoinedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.PlayerLeaveBEvent
+import ru.astrainteractive.messagebridge.messaging.model.Text
 
 class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,

@@ -20,8 +20,8 @@ import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.impl.BEventChannelImpl
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.bukkit.di.BukkitMessengerModule
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule

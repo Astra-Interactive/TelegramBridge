@@ -5,7 +5,7 @@ package ru.astrainteractive.messagebridge.link.internal
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
+import ru.astrainteractive.messagebridge.messaging.model.Text
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

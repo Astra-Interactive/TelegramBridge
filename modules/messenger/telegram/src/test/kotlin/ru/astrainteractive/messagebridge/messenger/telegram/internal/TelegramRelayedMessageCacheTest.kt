@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
+import ru.astrainteractive.messagebridge.messaging.model.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

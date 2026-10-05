@@ -42,8 +42,8 @@ import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messaging.model.BEvent
-import ru.astrainteractive.messagebridge.messaging.model.BEvent.Text
 import ru.astrainteractive.messagebridge.messaging.model.Interception
+import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandHandler
 import ru.astrainteractive.messagebridge.messenger.telegram.command.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.fake.DirectExecutorService
