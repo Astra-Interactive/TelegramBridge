@@ -16,7 +16,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.commands.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.core.di.BukkitCoreModule
+import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannelImpl
