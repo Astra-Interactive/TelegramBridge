@@ -4,7 +4,7 @@ import ru.astrainteractive.astralibs.command.api.registrar.CommandRegistrarConte
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.commands.reload.ReloadLiteralArgumentBuilder
-import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 
 class CommandModule(
     lifecyclePlugin: Lifecycle,

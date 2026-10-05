@@ -33,7 +33,7 @@ import ru.astrainteractive.klibs.kstorage.api.StateFlowKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.discord.internal.fallbackOnDisallowedIntents
 import ru.astrainteractive.messagebridge.messenger.discord.internal.flowEvent
 import ru.astrainteractive.messagebridge.messenger.discord.model.DisallowedIntentsError

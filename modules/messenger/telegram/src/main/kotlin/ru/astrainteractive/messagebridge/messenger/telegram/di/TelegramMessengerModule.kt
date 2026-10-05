@@ -24,8 +24,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor

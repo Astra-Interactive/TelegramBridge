@@ -14,7 +14,7 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent

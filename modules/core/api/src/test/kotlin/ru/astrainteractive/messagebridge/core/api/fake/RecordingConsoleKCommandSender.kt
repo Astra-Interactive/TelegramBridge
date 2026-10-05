@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.fake
+package ru.astrainteractive.messagebridge.core.api.fake
 
 import net.kyori.adventure.text.Component
 import ru.astrainteractive.astralibs.command.api.brigadier.sender.ConsoleKCommandSender

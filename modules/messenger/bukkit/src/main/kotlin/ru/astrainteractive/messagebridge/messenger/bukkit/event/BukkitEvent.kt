@@ -18,7 +18,7 @@ import org.bukkit.plugin.Plugin
 import ru.astrainteractive.astralibs.event.flowEvent
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent

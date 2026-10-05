@@ -12,9 +12,9 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider

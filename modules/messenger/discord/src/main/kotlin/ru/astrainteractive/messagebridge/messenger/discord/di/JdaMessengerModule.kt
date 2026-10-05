@@ -10,7 +10,7 @@ import kotlinx.coroutines.job
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.InterfacedEventManager
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor

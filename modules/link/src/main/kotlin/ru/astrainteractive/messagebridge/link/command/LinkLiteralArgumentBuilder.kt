@@ -9,7 +9,7 @@ import ru.astrainteractive.astralibs.command.api.argumenttype.KPlayerArgumentCon
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
-import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
 
 internal class LinkLiteralArgumentBuilder(
     private val executor: LinkCommandExecutor,

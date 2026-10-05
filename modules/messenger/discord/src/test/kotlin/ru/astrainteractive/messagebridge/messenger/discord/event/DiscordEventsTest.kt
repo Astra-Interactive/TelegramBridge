@@ -24,8 +24,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.InterfacedEventManager
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception

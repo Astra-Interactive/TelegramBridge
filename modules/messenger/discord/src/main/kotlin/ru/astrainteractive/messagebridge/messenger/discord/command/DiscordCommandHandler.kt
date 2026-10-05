@@ -7,8 +7,8 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordCommand
 

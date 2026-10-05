@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
-import ru.astrainteractive.messagebridge.core.di.CoreModule
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.code.api.CodeApi
 import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
 import ru.astrainteractive.messagebridge.link.command.DiscordLinkInterceptor

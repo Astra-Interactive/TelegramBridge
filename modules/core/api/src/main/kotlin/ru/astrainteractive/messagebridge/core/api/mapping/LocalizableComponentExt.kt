@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.mapping
+package ru.astrainteractive.messagebridge.core.api.mapping
 
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent

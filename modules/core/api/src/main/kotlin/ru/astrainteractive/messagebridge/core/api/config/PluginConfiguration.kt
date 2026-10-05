@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.config
+package ru.astrainteractive.messagebridge.core.api.config
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

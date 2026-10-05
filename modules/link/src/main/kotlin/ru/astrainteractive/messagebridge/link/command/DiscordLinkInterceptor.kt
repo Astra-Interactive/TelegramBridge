@@ -11,9 +11,9 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.mapping.asMessage

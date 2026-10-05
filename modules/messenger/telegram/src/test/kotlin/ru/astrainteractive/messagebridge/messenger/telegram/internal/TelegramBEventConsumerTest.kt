@@ -18,8 +18,8 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent

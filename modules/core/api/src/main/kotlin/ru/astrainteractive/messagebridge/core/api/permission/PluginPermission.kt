@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.permission
+package ru.astrainteractive.messagebridge.core.api.permission
 
 import ru.astrainteractive.astralibs.server.permission.Permission
 

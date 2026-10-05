@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.command
+package ru.astrainteractive.messagebridge.core.api.command
 
 import com.mojang.brigadier.context.CommandContext
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -16,7 +16,7 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 
 class CommandExceptionHandler(
     private val multiplatformCommand: MultiplatformCommand,

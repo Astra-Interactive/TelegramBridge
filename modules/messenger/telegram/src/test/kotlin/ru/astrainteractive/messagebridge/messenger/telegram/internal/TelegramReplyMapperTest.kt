@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicCreated
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
 import kotlin.test.Test

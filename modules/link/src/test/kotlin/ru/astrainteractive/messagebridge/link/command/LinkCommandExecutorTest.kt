@@ -8,7 +8,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.link.code.fake.FakeCodeApi
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao

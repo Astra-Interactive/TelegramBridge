@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.di
+package ru.astrainteractive.messagebridge.core.api.di
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
@@ -17,9 +17,9 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.messagebridge.core.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import java.io.File
 
 class CoreModule(

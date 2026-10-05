@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.core.mapping
+package ru.astrainteractive.messagebridge.core.api.mapping
 
 import ru.astrainteractive.astralibs.localization.component.replace
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales

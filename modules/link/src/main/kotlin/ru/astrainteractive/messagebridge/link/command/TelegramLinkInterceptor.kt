@@ -3,8 +3,8 @@ package ru.astrainteractive.messagebridge.link.command
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.mapping.asMessage
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase

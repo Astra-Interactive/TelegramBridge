@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
