@@ -14,6 +14,9 @@ import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import net.dv8tion.jda.api.requests.ErrorResponse
+import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
@@ -33,8 +36,14 @@ import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import java.net.SocketTimeoutException
 import java.util.UUID
 import java.util.function.Consumer
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -53,7 +62,10 @@ class DiscordLinkInterceptorTest {
     ).asCachedKrate()
     private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private var memberOnServer: Member? = null
-    private var memberRequestFailure: Throwable = IllegalStateException("10007: Unknown Member")
+    private var memberRequestFailure: Throwable = ErrorResponseException.create(
+        ErrorResponse.UNKNOWN_MEMBER,
+        Response(null, 404, "Not Found", -1, emptySet())
+    )
     private val memberRequest: CacheRestAction<Member> = jdaFake(
         mapOf(
             "queue" to JdaAnswer { args ->
@@ -106,6 +118,27 @@ class DiscordLinkInterceptorTest {
             }
         )
     )
+    private val logRecords = mutableListOf<LogRecord>()
+    private val recordingHandler = object : Handler() {
+        override fun publish(record: LogRecord) {
+            logRecords += record
+        }
+
+        override fun flush() = Unit
+
+        override fun close() = Unit
+    }
+    private val interceptorLogger: Logger = Logger.getLogger("MessageBridge-DiscordLinkInterceptor")
+
+    @BeforeTest
+    fun attachLogHandler() {
+        interceptorLogger.addHandler(recordingHandler)
+    }
+
+    @AfterTest
+    fun detachLogHandler() {
+        interceptorLogger.removeHandler(recordingHandler)
+    }
 
     private fun event(content: String, member: Member?, channelType: ChannelType): MessageReceivedEvent {
         val message: Message = jdaFake(
@@ -211,6 +244,38 @@ class DiscordLinkInterceptorTest {
             assertTrue(linkingDao.linkedPlayers.isEmpty())
             assertEquals(steve, codeApi.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
+        }
+
+    @Test
+    fun GIVEN_member_request_timing_out_WHEN_code_is_sent_in_a_direct_message_THEN_reads_error_and_code_is_kept() =
+        runTest {
+            memberRequestFailure = SocketTimeoutException("Read timed out")
+            val code = codeApi.generateCodeForPlayer(steve)
+
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+
+            assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
+            assertTrue(linkingDao.linkedPlayers.isEmpty())
+            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(roleChanges.tryReceive().isFailure)
+            assertTrue("Read timed out" in logRecords.single().message)
+        }
+
+    @Test
+    fun GIVEN_discord_server_error_WHEN_code_is_sent_in_a_direct_message_THEN_reads_error_and_code_is_kept() =
+        runTest {
+            memberRequestFailure = ErrorResponseException.create(
+                ErrorResponse.SERVER_ERROR,
+                Response(null, 500, "Internal Server Error", -1, emptySet())
+            )
+            val code = codeApi.generateCodeForPlayer(steve)
+
+            val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
+
+            assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
+            assertTrue(linkingDao.linkedPlayers.isEmpty())
+            assertEquals(steve, codeApi.findUserByCode(code))
+            assertEquals(1, logRecords.size)
         }
 
     @Test

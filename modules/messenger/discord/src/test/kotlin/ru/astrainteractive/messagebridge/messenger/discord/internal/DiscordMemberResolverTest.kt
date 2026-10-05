@@ -7,12 +7,16 @@ import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import net.dv8tion.jda.api.requests.ErrorResponse
+import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messaging.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import java.net.SocketTimeoutException
 import java.util.function.Consumer
 import java.util.logging.Handler
 import java.util.logging.Level
@@ -43,14 +47,8 @@ class DiscordMemberResolverTest {
         )
     )
 
-    private val failedRetrieval: CacheRestAction<Member> = jdaFake(
-        mapOf(
-            "queue" to JdaAnswer { args ->
-                args[1]
-                    ?.tryCast<Consumer<Throwable>>()
-                    ?.accept(IllegalStateException("10007: Unknown Member"))
-            }
-        )
+    private val failedRetrieval: CacheRestAction<Member> = failingRetrieval(
+        ErrorResponseException.create(ErrorResponse.UNKNOWN_MEMBER, Response(null, 404, "Not Found", -1, emptySet()))
     )
 
     private val cancelledRetrieval: CacheRestAction<Member> = jdaFake(
@@ -83,6 +81,16 @@ class DiscordMemberResolverTest {
     fun detachLogHandler() {
         resolverLogger.removeHandler(recordingHandler)
     }
+
+    private fun failingRetrieval(t: Throwable): CacheRestAction<Member> = jdaFake(
+        mapOf(
+            "queue" to JdaAnswer { args ->
+                args[1]
+                    ?.tryCast<Consumer<Throwable>>()
+                    ?.accept(t)
+            }
+        )
+    )
 
     private fun channel(cached: Member?, retrieval: CacheRestAction<Member> = memberRetrieval): TextChannel {
         val guild: Guild = jdaFake(
@@ -163,6 +171,32 @@ class DiscordMemberResolverTest {
             assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
             assertFalse("not on the server" in logRecords.single().message)
         }
+
+    @Test
+    fun GIVEN_member_request_that_times_out_WHEN_resolved_THEN_no_member_and_a_warning_with_the_reason() = runTest {
+        val channel = channel(cached = null, retrieval = failingRetrieval(SocketTimeoutException("Read timed out")))
+
+        val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+
+        assertNull(member)
+        assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
+        assertTrue("Read timed out" in logRecords.single().message)
+    }
+
+    @Test
+    fun GIVEN_discord_server_error_WHEN_resolved_THEN_no_member_and_a_warning_not_a_missing_member() = runTest {
+        val serverError = ErrorResponseException.create(
+            ErrorResponse.SERVER_ERROR,
+            Response(null, 500, "Internal Server Error", -1, emptySet())
+        )
+        val channel = channel(cached = null, retrieval = failingRetrieval(serverError))
+
+        val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+
+        assertNull(member)
+        assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
+        assertFalse("not on the server" in logRecords.single().message)
+    }
 
     private companion object {
         const val DISCORD_ID = 4242L

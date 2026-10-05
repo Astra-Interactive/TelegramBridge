@@ -3,11 +3,14 @@ package ru.astrainteractive.messagebridge.link.command
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import net.dv8tion.jda.api.requests.ErrorResponse
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.mapping.toMessengerText
@@ -18,7 +21,6 @@ import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.model.Interception
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRequestCancelledError
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
 internal class DiscordLinkInterceptor(
@@ -49,12 +51,11 @@ internal class DiscordLinkInterceptor(
             .fold(
                 onSuccess = { member -> Result.success(member) },
                 onFailure = { t ->
-                    if (t is DiscordRequestCancelledError) {
-                        warn { "#bridgeMemberOf JDA cancelled the member request of ${event.author.idLong}" }
-                        Result.failure(t)
-                    } else {
+                    if (t.tryCast<ErrorResponseException>()?.errorResponse == ErrorResponse.UNKNOWN_MEMBER) {
                         info { "#bridgeMemberOf ${event.author.idLong} is not on the server: ${t.message}" }
                         Result.success(null)
+                    } else {
+                        Result.failure(t)
                     }
                 }
             )
@@ -62,7 +63,8 @@ internal class DiscordLinkInterceptor(
 
     override suspend fun intercept(event: MessageReceivedEvent): Interception {
         val code = linkCode(event) ?: return Interception.Pass
-        val member = bridgeMemberOf(event).getOrElse { _ ->
+        val member = bridgeMemberOf(event).getOrElse { t ->
+            error { "#intercept could not check that ${event.author.idLong} is on the server: ${t.message}" }
             return Interception.Reply(translation.link.unknownError.toMessengerText())
         }
         if (member == null) return Interception.Reply(translation.link.notServerMember.toMessengerText())
