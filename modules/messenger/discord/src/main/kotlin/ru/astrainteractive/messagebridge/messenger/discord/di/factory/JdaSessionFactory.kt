@@ -34,8 +34,8 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.messenger.discord.internal.fallbackOnDisallowedIntents
 import ru.astrainteractive.messagebridge.messenger.discord.model.DisallowedIntentsError
+import ru.astrainteractive.messagebridge.messenger.discord.util.fallbackOnDisallowedIntents
 import ru.astrainteractive.messagebridge.messenger.discord.util.flowEvent
 import java.net.InetSocketAddress
 import java.net.Proxy

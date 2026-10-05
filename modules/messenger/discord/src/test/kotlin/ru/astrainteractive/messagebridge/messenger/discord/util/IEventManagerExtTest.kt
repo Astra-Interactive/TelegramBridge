@@ -22,7 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class JdaEventFlowTest {
+class IEventManagerExtTest {
     private val eventManager = InterfacedEventManager()
     private val jda: JDA = jdaFake(mapOf("getResponseTotal" to 0L))
 
