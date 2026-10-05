@@ -2,9 +2,16 @@ package ru.astrainteractive.messagebridge.messenger.telegram.mapping
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.message.Message
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.api.getValue
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.telegram.model.TelegramAuthor
 
-internal class TelegramAuthorMapper {
+internal class TelegramAuthorMapper(
+    translationKrate: CachedKrate<PluginTranslation>,
+) {
+    private val translation by translationKrate
 
     fun map(update: Update): TelegramAuthor? {
         val message = update.message ?: return null
@@ -23,7 +30,8 @@ internal class TelegramAuthorMapper {
 
     private fun author(userName: String?, firstName: String?, lastName: String?): TelegramAuthor {
         userName?.let { name -> return TelegramAuthor.Username(name.toFixedName()) }
-        val displayName = "${firstName ?: ANONYMOUS} ${lastName ?: ""}".toFixedName()
+        val shownFirstName = firstName ?: translation.chat.anonymousAuthor.toMessengerText()
+        val displayName = "$shownFirstName ${lastName ?: ""}".toFixedName()
         return TelegramAuthor.DisplayName(displayName)
     }
 
@@ -36,7 +44,6 @@ internal class TelegramAuthorMapper {
 
     @Suppress("MagicNumber")
     private companion object {
-        const val ANONYMOUS = "Анонимус"
         const val MAX_NAME_LENGTH = 16
     }
 }

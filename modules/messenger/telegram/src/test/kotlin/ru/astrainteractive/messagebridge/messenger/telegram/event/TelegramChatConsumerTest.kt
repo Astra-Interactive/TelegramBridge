@@ -161,7 +161,7 @@ class TelegramChatConsumerTest {
             .let(backgroundScope.coroutineContext::plus)
             .plus(CoroutineExceptionHandler { _, t -> failures += t })
             .let(::CoroutineScope)
-        val authorMapper = TelegramAuthorMapper()
+        val authorMapper = TelegramAuthorMapper(translationKrate = translationKrate)
         return TelegramChatConsumer(
             ioScope = ioScope,
             dispatchers = TestDispatchers(StandardTestDispatcher(testScheduler)),

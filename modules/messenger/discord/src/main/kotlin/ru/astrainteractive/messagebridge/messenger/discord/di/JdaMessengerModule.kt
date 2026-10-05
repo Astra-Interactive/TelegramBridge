@@ -107,10 +107,12 @@ class JdaMessengerModule(
         topicUpdater = DiscordTopicUpdater(
             platformServer = coreModule.platformServer,
             clock = Clock.System,
+            translationKrate = coreModule.translationKrate,
         ),
-        embedMapper = DiscordEmbedMapper(),
+        embedMapper = DiscordEmbedMapper(coreModule.translationKrate),
         memberResolver = DiscordMemberResolver(authorResolver),
         webhookMessageMapper = DiscordWebhookMessageMapper(),
+        translationKrate = coreModule.translationKrate,
         bEventReceiver = bEventChannel,
     )
 

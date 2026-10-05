@@ -137,7 +137,9 @@ class TelegramMessengerModule(
 
     val bEventConsumer: BEventConsumer = telegramMessageController
 
-    private val authorMapper = TelegramAuthorMapper()
+    private val authorMapper = TelegramAuthorMapper(
+        translationKrate = coreModule.translationKrate,
+    )
 
     private val replyMapper = TelegramReplyMapper(
         configKrate = coreModule.configKrate,

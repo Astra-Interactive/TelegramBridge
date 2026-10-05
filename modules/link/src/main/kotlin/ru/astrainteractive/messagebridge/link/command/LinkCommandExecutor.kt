@@ -1,6 +1,5 @@
 package ru.astrainteractive.messagebridge.link.command
 
-import net.kyori.adventure.text.Component
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
@@ -47,10 +46,10 @@ internal class LinkCommandExecutor(
             return
         }
         intent.sender.sendMessage(
-            Component.text(
-                "DiscordID: ${user.discord?.id}; " +
-                    "telegramUsername: ${user.telegram?.username}; " +
-                    "minecraftUUID: ${user.uuid}"
+            translation.link.userInfo(
+                discordId = "${user.discord?.id}",
+                telegramUsername = "${user.telegram?.username}",
+                minecraftUuid = "${user.uuid}"
             )
         )
     }

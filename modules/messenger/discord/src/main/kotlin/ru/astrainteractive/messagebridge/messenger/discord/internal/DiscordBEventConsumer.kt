@@ -9,11 +9,15 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.coroutines.withTimings
+import ru.astrainteractive.klibs.kstorage.api.CachedKrate
+import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
@@ -34,10 +38,12 @@ internal class DiscordBEventConsumer(
     private val embedMapper: DiscordEmbedMapper,
     private val memberResolver: DiscordMemberResolver,
     private val webhookMessageMapper: DiscordWebhookMessageMapper,
+    translationKrate: CachedKrate<PluginTranslation>,
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
+    private val translation by translationKrate
 
     private suspend fun readyChannel(): DiscordChannel.Ready? {
         return withTimeoutOrNull(CONNECTING_TIMEOUT) {
@@ -71,8 +77,8 @@ internal class DiscordBEventConsumer(
             }
 
             is Text -> sendText(bEvent, channel, ready.webhookClient)
-            ServerClosedBEvent -> channel.sendMessage(SERVER_CLOSED_MESSAGE).await()
-            ServerOpenBEvent -> sendServerStatus(channel, SERVER_OPEN_MESSAGE)
+            ServerClosedBEvent -> channel.sendMessage(translation.server.discordStopped.toMessengerText()).await()
+            ServerOpenBEvent -> sendServerStatus(channel, translation.server.discordStarted.toMessengerText())
         }
     }
 
@@ -96,8 +102,6 @@ internal class DiscordBEventConsumer(
     }
 
     private companion object {
-        const val SERVER_CLOSED_MESSAGE = "🛑 **Сервер остановлен**"
-        const val SERVER_OPEN_MESSAGE = "✅ **Сервер успешно запущен**"
         val CONNECTING_TIMEOUT = 30.seconds
     }
 }

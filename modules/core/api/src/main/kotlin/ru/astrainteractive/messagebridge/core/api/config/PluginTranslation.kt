@@ -117,6 +117,10 @@ data class PluginTranslation(
                 MinecraftLocales.RU_RU,
                 "Ваше имя содержит недопустимые символы. Установите @username в настройках профиля Telegram."
             )
+        },
+        @SerialName("anonymous_author")
+        val anonymousAuthor: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Анонимус")
         }
     ) {
         /**
@@ -206,6 +210,22 @@ data class PluginTranslation(
         private val unknownDeathCause: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "unknown cause")
             translation(MinecraftLocales.RU_RU, "Просто так")
+        },
+        @SerialName("discord_joined")
+        private val discordJoined: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "%dao% присоединился")
+        },
+        @SerialName("discord_joined_first_time")
+        private val discordJoinedFirstTime: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "%dao% присоединился впервые!")
+        },
+        @SerialName("discord_left")
+        private val discordLeft: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "%dao% покинул нас")
+        },
+        @SerialName("discord_died_of_unknown_cause")
+        private val discordDiedOfUnknownCause: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "%dao% сдох =))")
         }
     ) {
         fun joined(name: String): LocalizableComponent = joined.replace("%dao%", name)
@@ -213,6 +233,16 @@ data class PluginTranslation(
         fun joinedFirstTime(name: String): LocalizableComponent = joinedFirstTime.replace("%dao%", name)
 
         fun left(name: String): LocalizableComponent = left.replace("%dao%", name)
+
+        fun discordJoined(name: String): LocalizableComponent = discordJoined.replace("%dao%", name)
+
+        fun discordJoinedFirstTime(name: String): LocalizableComponent = discordJoinedFirstTime.replace("%dao%", name)
+
+        fun discordLeft(name: String): LocalizableComponent = discordLeft.replace("%dao%", name)
+
+        fun discordDiedOfUnknownCause(name: String): LocalizableComponent {
+            return discordDiedOfUnknownCause.replace("%dao%", name)
+        }
 
         /** A death without a known [cause] reads [unknownDeathCause] in the same language. */
         fun died(name: String, cause: String?): LocalizableComponent {
@@ -237,6 +267,18 @@ data class PluginTranslation(
         val stopped: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "🛑 The server has stopped")
             translation(MinecraftLocales.RU_RU, "🛑 Сервер остановлен")
+        },
+        @SerialName("discord_started")
+        val discordStarted: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "✅ **Сервер успешно запущен**")
+        },
+        @SerialName("discord_stopped")
+        val discordStopped: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "🛑 **Сервер остановлен**")
+        },
+        @SerialName("discord_topic_starting")
+        val discordTopicStarting: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Сервер только запустился...")
         }
     )
 
@@ -247,12 +289,18 @@ data class PluginTranslation(
         private val message: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "%count% players online now\n%players%")
             translation(MinecraftLocales.RU_RU, "Сейчас онлайн %count% игроков\n%players%")
+        },
+        @SerialName("discord_topic")
+        private val discordTopic: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.RU_RU, "Игроков в сети: %count%")
         }
     ) {
         fun message(count: Int, players: String): LocalizableComponent = message.replaceAll(
             PlaceholderReplacement.plain("%count%", "$count"),
             PlaceholderReplacement.plain("%players%", players)
         )
+
+        fun discordTopic(count: Int): LocalizableComponent = discordTopic.replace("%count%", "$count")
     }
 
     @Serializable
@@ -302,9 +350,23 @@ data class PluginTranslation(
         val success: LocalizedText = LocalizedText.build {
             translation(MinecraftLocales.EN_US, "Your account is linked")
             translation(MinecraftLocales.RU_RU, "Привязка прошла успешно")
-        }
+        },
+        @SerialName("user_info")
+        private val userInfo: LocalizedText = LocalizedText.shared(
+            "DiscordID: %discord_id%; telegramUsername: %telegram_username%; minecraftUUID: %minecraft_uuid%"
+        )
     ) {
         fun codeCreated(code: Int): LocalizableComponent = codeCreated.replace("%code%", "$code")
+
+        fun userInfo(
+            discordId: String,
+            telegramUsername: String,
+            minecraftUuid: String
+        ): LocalizableComponent = userInfo.replaceAll(
+            PlaceholderReplacement.plain("%discord_id%", discordId),
+            PlaceholderReplacement.plain("%telegram_username%", telegramUsername),
+            PlaceholderReplacement.plain("%minecraft_uuid%", minecraftUuid)
+        )
     }
 
     @Serializable

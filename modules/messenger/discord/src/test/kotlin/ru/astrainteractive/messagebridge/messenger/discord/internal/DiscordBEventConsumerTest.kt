@@ -19,7 +19,11 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
+import ru.astrainteractive.astralibs.localization.text.LocalizedText
+import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
+import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
+import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
@@ -75,6 +79,12 @@ class DiscordBEventConsumerTest {
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
         text = "hello"
     )
+    private val translatedServerTexts = PluginTranslation(
+        server = PluginTranslation.Server(
+            discordStarted = LocalizedText.shared("Server is up"),
+            discordStopped = LocalizedText.shared("Server is down")
+        )
+    )
 
     private fun topicManagerHeldByRateLimit(): TextChannelManager {
         lateinit var manager: TextChannelManager
@@ -90,16 +100,22 @@ class DiscordBEventConsumerTest {
 
     private fun consumer(state: DiscordChannel): DiscordBEventConsumer = consumer(MutableStateFlow(state))
 
-    private fun consumer(discordChannel: Flow<DiscordChannel>): DiscordBEventConsumer {
+    private fun consumer(
+        discordChannel: Flow<DiscordChannel>,
+        translation: PluginTranslation = PluginTranslation()
+    ): DiscordBEventConsumer {
+        val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
         return DiscordBEventConsumer(
             discordChannel = discordChannel,
             topicUpdater = DiscordTopicUpdater(
                 platformServer = jdaFake(emptyMap()),
-                clock = FakeClock(Instant.fromEpochSeconds(0))
+                clock = FakeClock(Instant.fromEpochSeconds(0)),
+                translationKrate = translationKrate
             ),
-            embedMapper = DiscordEmbedMapper(),
+            embedMapper = DiscordEmbedMapper(translationKrate),
             memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
             webhookMessageMapper = DiscordWebhookMessageMapper(),
+            translationKrate = translationKrate,
             bEventReceiver = FakeBEventReceiver(emptyFlow())
         )
     }
@@ -240,6 +256,22 @@ class DiscordBEventConsumerTest {
 
             assertEquals(listOf(SERVER_OPEN_MESSAGE), sentMessages)
             assertEquals(Duration.ZERO, currentTime.milliseconds)
+        }
+
+    @Test
+    fun GIVEN_translated_server_texts_WHEN_server_open_is_consumed_THEN_the_translated_start_message_is_sent() =
+        runTest {
+            consumer(MutableStateFlow(ready), translatedServerTexts).consume(ServerOpenBEvent)
+
+            assertEquals(listOf("Server is up"), sentMessages)
+        }
+
+    @Test
+    fun GIVEN_translated_server_texts_WHEN_server_closed_is_consumed_THEN_the_translated_stop_message_is_sent() =
+        runTest {
+            consumer(MutableStateFlow(ready), translatedServerTexts).consume(ServerClosedBEvent)
+
+            assertEquals(listOf("Server is down"), sentMessages)
         }
 
     private companion object {
