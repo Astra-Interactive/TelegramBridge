@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
 import ru.astrainteractive.messagebridge.link.dao.di.LinkDatabaseModule
+import ru.astrainteractive.messagebridge.link.dao.model.LinkOutcome
 import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayerStorageError
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
@@ -79,45 +80,78 @@ class LinkingDaoImplTest {
     }
 
     @Test
-    fun GIVEN_discord_account_of_another_player_WHEN_linked_again_THEN_fails_at_once_and_owner_keeps_it() = runTest {
-        val dao = dao()
-        dao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie)
-        val start = TimeSource.Monotonic.markNow()
+    fun GIVEN_discord_account_of_another_player_WHEN_linked_again_THEN_account_taken_at_once_and_owner_keeps_it() =
+        runTest {
+            val dao = dao()
+            dao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie)
+            val start = TimeSource.Monotonic.markNow()
 
-        val result = dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie)
+            val outcome = dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie).getOrThrow()
 
-        assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
-        assertTrue(start.elapsedNow() < QUICK_FAILURE, "took ${start.elapsedNow()}")
-        assertEquals(alexUuid, dao.findByDiscordId(STEVE_DISCORD_ID).getOrThrow()?.uuid)
-        assertNull(dao.findByUuid(steveUuid).getOrThrow())
-    }
-
-    @Test
-    fun GIVEN_telegram_account_of_another_player_WHEN_linked_again_THEN_fails_at_once_and_owner_keeps_it() = runTest {
-        val dao = dao()
-        dao.link(uuid = alexUuid, minecraftName = "Alex", account = steveTelegram)
-        val start = TimeSource.Monotonic.markNow()
-
-        val result = dao.link(uuid = steveUuid, minecraftName = "Steve", account = steveTelegram)
-
-        assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
-        assertTrue(start.elapsedNow() < QUICK_FAILURE, "took ${start.elapsedNow()}")
-        assertEquals(alexUuid, dao.findByTelegramId(STEVE_TELEGRAM_ID).getOrThrow()?.uuid)
-        assertNull(dao.findByUuid(steveUuid).getOrThrow())
-    }
+            assertEquals(LinkOutcome.AccountTaken, outcome)
+            assertTrue(start.elapsedNow() < QUICK_FAILURE, "took ${start.elapsedNow()}")
+            assertEquals(alexUuid, dao.findByDiscordId(STEVE_DISCORD_ID).getOrThrow()?.uuid)
+            assertNull(dao.findByUuid(steveUuid).getOrThrow())
+        }
 
     @Test
-    fun GIVEN_player_with_a_discord_account_WHEN_another_discord_account_is_linked_THEN_fails() = runTest {
+    fun GIVEN_telegram_account_of_another_player_WHEN_linked_again_THEN_account_taken_at_once_and_owner_keeps_it() =
+        runTest {
+            val dao = dao()
+            dao.link(uuid = alexUuid, minecraftName = "Alex", account = steveTelegram)
+            val start = TimeSource.Monotonic.markNow()
+
+            val outcome = dao.link(uuid = steveUuid, minecraftName = "Steve", account = steveTelegram).getOrThrow()
+
+            assertEquals(LinkOutcome.AccountTaken, outcome)
+            assertTrue(start.elapsedNow() < QUICK_FAILURE, "took ${start.elapsedNow()}")
+            assertEquals(alexUuid, dao.findByTelegramId(STEVE_TELEGRAM_ID).getOrThrow()?.uuid)
+            assertNull(dao.findByUuid(steveUuid).getOrThrow())
+        }
+
+    @Test
+    fun GIVEN_player_with_a_discord_account_WHEN_another_discord_account_is_linked_THEN_already_linked() = runTest {
         val dao = dao()
         dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie)
 
         val otherAccount = MessengerAccount.Discord(id = OTHER_ID, name = "Steve2")
 
-        val result = dao.link(uuid = steveUuid, minecraftName = "Steve", account = otherAccount)
+        val outcome = dao.link(uuid = steveUuid, minecraftName = "Steve", account = otherAccount).getOrThrow()
 
-        assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
+        assertEquals(LinkOutcome.AlreadyLinked, outcome)
         assertEquals(stevie, dao.findByUuid(steveUuid).getOrThrow()?.discord)
     }
+
+    @Test
+    fun GIVEN_linked_discord_account_WHEN_its_player_links_it_again_THEN_already_linked() = runTest {
+        val dao = dao()
+        dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie)
+
+        val outcome = dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie).getOrThrow()
+
+        assertEquals(LinkOutcome.AlreadyLinked, outcome)
+    }
+
+    @Test
+    fun GIVEN_two_players_WHEN_both_link_the_same_account_at_once_THEN_one_is_linked_and_the_other_reads_taken() =
+        runTest {
+            val dao = dao()
+            dao.findByUuid(steveUuid).getOrThrow()
+
+            val outcomes = withContext(Dispatchers.Default) {
+                listOf(
+                    async { dao.link(uuid = steveUuid, minecraftName = "Steve", account = stevie) },
+                    async { dao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie) }
+                ).awaitAll()
+            }.map { result -> result.getOrThrow() }
+
+            assertEquals(setOf(LinkOutcome.Linked, LinkOutcome.AccountTaken), outcomes.toSet())
+            val linkedPlayers = listOfNotNull(
+                dao.findByUuid(steveUuid).getOrThrow(),
+                dao.findByUuid(alexUuid).getOrThrow()
+            )
+            assertEquals(listOf(stevie), linkedPlayers.map { player -> player.discord })
+        }
 
     @Test
     fun GIVEN_nothing_linked_WHEN_unknown_ids_are_looked_up_THEN_success_without_a_player() = runTest {
@@ -139,7 +173,8 @@ class LinkingDaoImplTest {
         assertEquals(LinkedPlayer(steveUuid, "Steve", discord = stevie, telegram = steveTelegram), deleted)
         assertNull(dao.findByDiscordId(STEVE_DISCORD_ID).getOrThrow())
         assertNull(dao.findByTelegramId(STEVE_TELEGRAM_ID).getOrThrow())
-        assertTrue(dao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie).isSuccess)
+        val relinked = dao.link(uuid = alexUuid, minecraftName = "Alex", account = stevie).getOrThrow()
+        assertEquals(LinkOutcome.Linked, relinked)
     }
 
     @Test

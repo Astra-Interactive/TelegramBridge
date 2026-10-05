@@ -14,6 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
 import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.dao.model.LinkOutcome
 import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayerStorageError
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
@@ -101,23 +102,23 @@ internal class LinkingDaoImpl(
             )
     }
 
-    override suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<Unit> {
+    override suspend fun link(uuid: UUID, minecraftName: String, account: MessengerAccount): Result<LinkOutcome> {
         val database = databaseState.value
             ?: return Result.failure(
                 LinkedPlayerStorageError("Could not link $account to $uuid: the link database is not open", null)
             )
         return runCatching {
             suspendTransaction(database) {
-                val alreadyLinked = when (account) {
-                    is MessengerAccount.Discord -> DiscordAccountTable.selectAll().where {
+                val sameAccountOrPlayer = when (account) {
+                    is MessengerAccount.Discord ->
                         (DiscordAccountTable.discordId eq account.id) or (DiscordAccountTable.playerUuid eq uuid)
-                    }
 
-                    is MessengerAccount.Telegram -> TelegramAccountTable.selectAll().where {
+                    is MessengerAccount.Telegram ->
                         (TelegramAccountTable.telegramId eq account.id) or (TelegramAccountTable.playerUuid eq uuid)
-                    }
-                }.empty().not()
-                if (alreadyLinked) return@suspendTransaction false
+                }
+                val holders = linkedPlayers.selectAll().where(sameAccountOrPlayer).map { row -> row[PlayerTable.uuid] }
+                if (uuid in holders) return@suspendTransaction LinkOutcome.AlreadyLinked
+                if (holders.isNotEmpty()) return@suspendTransaction LinkOutcome.AccountTaken
                 PlayerTable.upsert { statement ->
                     statement[PlayerTable.uuid] = uuid
                     statement[PlayerTable.minecraftName] = minecraftName
@@ -135,20 +136,12 @@ internal class LinkingDaoImpl(
                         statement[TelegramAccountTable.telegramUsername] = account.username
                     }
                 }
-                true
+                LinkOutcome.Linked
             }
         }
             .propagateCancellationException()
             .fold(
-                onSuccess = { linked ->
-                    if (linked) {
-                        Result.success(Unit)
-                    } else {
-                        Result.failure(
-                            LinkedPlayerStorageError("Could not link $account to $uuid: already linked", null)
-                        )
-                    }
-                },
+                onSuccess = { outcome -> Result.success(outcome) },
                 onFailure = { t -> Result.failure(LinkedPlayerStorageError("Could not link $account to $uuid", t)) }
             )
     }

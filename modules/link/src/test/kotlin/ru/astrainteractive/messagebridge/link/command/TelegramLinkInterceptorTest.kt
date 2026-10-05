@@ -151,7 +151,7 @@ class TelegramLinkInterceptorTest {
     @Test
     fun GIVEN_unreadable_database_WHEN_code_is_sent_THEN_user_reads_unknown_error() = runTest {
         val code = codeApi.generateCodeForPlayer(steve)
-        linkingDao.findFailure = IllegalStateException("Database is locked")
+        linkingDao.linkFailure = IllegalStateException("Database is locked")
 
         val interception = interceptor.intercept(update(text = "/link $code", from = telegramSteve))
 

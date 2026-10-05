@@ -101,17 +101,6 @@ class LinkAccountUseCaseTest {
         }
 
     @Test
-    fun GIVEN_unreadable_database_WHEN_account_sends_code_THEN_unknown_error_and_nothing_is_linked() = runTest {
-        val code = codeApi.generateCodeForPlayer(steve)
-        linkingDao.findFailure = IllegalStateException("Database is locked")
-
-        val response = useCase.link(code, stevie)
-
-        assertEquals(LinkResponse.UnknownError, response)
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
-    }
-
-    @Test
     fun GIVEN_database_that_can_not_write_WHEN_account_sends_code_THEN_unknown_error_and_no_group_is_requested() =
         runTest {
             val code = codeApi.generateCodeForPlayer(steve)
@@ -120,6 +109,7 @@ class LinkAccountUseCaseTest {
             val response = useCase.link(code, stevie)
 
             assertEquals(LinkResponse.UnknownError, response)
+            assertTrue(linkingDao.linkedPlayers.isEmpty())
             assertEquals(0, luckPermsProvider.provideCallCount)
         }
 
@@ -153,16 +143,6 @@ class LinkAccountUseCaseTest {
         useCase.link(code, stevie)
 
         assertEquals(LinkResponse.NoCode, useCase.link(code, steveTelegram))
-    }
-
-    @Test
-    fun GIVEN_unreadable_database_WHEN_code_is_sent_THEN_the_code_still_links_once_the_database_is_back() = runTest {
-        val code = codeApi.generateCodeForPlayer(steve)
-        linkingDao.findFailure = IllegalStateException("Database is locked")
-        useCase.link(code, stevie)
-        linkingDao.findFailure = null
-
-        assertEquals(LinkResponse.Linked, useCase.link(code, stevie))
     }
 
     @Test
