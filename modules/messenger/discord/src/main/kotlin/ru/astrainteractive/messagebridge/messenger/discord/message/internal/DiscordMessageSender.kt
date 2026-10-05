@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.internal
+package ru.astrainteractive.messagebridge.messenger.discord.message.internal
 
 import net.dv8tion.jda.api.entities.Message
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException

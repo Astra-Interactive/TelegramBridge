@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.model
+package ru.astrainteractive.messagebridge.messenger.discord.message.model
 
 internal sealed interface DiscordMessageRelevance {
     /** Guild message in the configured bridge channel — handle as a command or relay it. */

@@ -1,6 +1,6 @@
-package ru.astrainteractive.messagebridge.messenger.discord.command
+package ru.astrainteractive.messagebridge.messenger.discord.message.mapping
 
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordCommand
+import ru.astrainteractive.messagebridge.messenger.discord.message.model.DiscordCommand
 
 internal class DiscordCommandMapper {
 

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.event
+package ru.astrainteractive.messagebridge.messenger.discord.message.event
 
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -11,12 +11,12 @@ import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.intercept
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandHandler
-import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandMapper
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageSender
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordReplyMapper
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordMessageRelevance
+import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
+import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordCommandMapper
+import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordReplyMapper
+import ru.astrainteractive.messagebridge.messenger.discord.message.model.DiscordMessageRelevance
 
 internal class MessageEventListener(
     private val relevanceMapper: DiscordMessageRelevanceMapper,

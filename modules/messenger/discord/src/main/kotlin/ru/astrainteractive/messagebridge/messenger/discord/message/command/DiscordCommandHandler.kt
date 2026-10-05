@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.command
+package ru.astrainteractive.messagebridge.messenger.discord.message.command
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
@@ -9,8 +9,8 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageSender
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordCommand
+import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.message.model.DiscordCommand
 
 internal class DiscordCommandHandler(
     private val messageSender: DiscordMessageSender,

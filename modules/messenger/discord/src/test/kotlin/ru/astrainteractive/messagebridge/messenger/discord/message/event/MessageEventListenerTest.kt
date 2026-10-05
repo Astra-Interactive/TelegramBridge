@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.discord.event
+package ru.astrainteractive.messagebridge.messenger.discord.message.event
 
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
@@ -27,13 +27,13 @@ import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandHandler
-import ru.astrainteractive.messagebridge.messenger.discord.command.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMessageSender
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordReplyMapper
+import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
+import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
+import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordCommandMapper
+import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordReplyMapper
 import java.util.UUID
 import java.util.function.Consumer
 import kotlin.test.Test

@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.messenger.discord.internal
+package ru.astrainteractive.messagebridge.messenger.discord.message.internal
 
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.entities.Message

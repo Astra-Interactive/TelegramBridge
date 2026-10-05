@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.IEventManager
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.discord.internal.flowEvent
+import ru.astrainteractive.messagebridge.messenger.discord.message.event.MessageEventListener
 
 internal class DiscordEvents(
     eventManager: IEventManager,
