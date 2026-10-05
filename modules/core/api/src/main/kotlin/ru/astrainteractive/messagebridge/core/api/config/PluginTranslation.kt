@@ -120,6 +120,7 @@ data class PluginTranslation(
         },
         @SerialName("anonymous_author")
         val anonymousAuthor: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Anonymous")
             translation(MinecraftLocales.RU_RU, "Анонимус")
         }
     ) {
@@ -213,18 +214,22 @@ data class PluginTranslation(
         },
         @SerialName("discord_joined")
         private val discordJoined: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%dao% joined")
             translation(MinecraftLocales.RU_RU, "%dao% присоединился")
         },
         @SerialName("discord_joined_first_time")
         private val discordJoinedFirstTime: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%dao% joined for the first time!")
             translation(MinecraftLocales.RU_RU, "%dao% присоединился впервые!")
         },
         @SerialName("discord_left")
         private val discordLeft: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%dao% left")
             translation(MinecraftLocales.RU_RU, "%dao% покинул нас")
         },
         @SerialName("discord_died_of_unknown_cause")
         private val discordDiedOfUnknownCause: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "%dao% died =))")
             translation(MinecraftLocales.RU_RU, "%dao% сдох =))")
         }
     ) {
@@ -270,14 +275,17 @@ data class PluginTranslation(
         },
         @SerialName("discord_started")
         val discordStarted: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "✅ **The server has started**")
             translation(MinecraftLocales.RU_RU, "✅ **Сервер успешно запущен**")
         },
         @SerialName("discord_stopped")
         val discordStopped: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "🛑 **The server has stopped**")
             translation(MinecraftLocales.RU_RU, "🛑 **Сервер остановлен**")
         },
         @SerialName("discord_topic_starting")
         val discordTopicStarting: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "The server has just started...")
             translation(MinecraftLocales.RU_RU, "Сервер только запустился...")
         }
     )
@@ -292,6 +300,7 @@ data class PluginTranslation(
         },
         @SerialName("discord_topic")
         private val discordTopic: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "Players online: %count%")
             translation(MinecraftLocales.RU_RU, "Игроков в сети: %count%")
         }
     ) {

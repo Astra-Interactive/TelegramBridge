@@ -61,7 +61,7 @@ class DiscordEmbedMapperTest {
     }
 
     @Test
-    fun GIVEN_default_translation_WHEN_player_events_are_mapped_THEN_embeds_read_the_russian_texts() {
+    fun GIVEN_default_translation_WHEN_player_events_are_mapped_THEN_embeds_read_the_english_texts() {
         val authorNames = listOf(
             defaultMapper.map(returningSteve),
             defaultMapper.map(newSteve),
@@ -70,7 +70,7 @@ class DiscordEmbedMapperTest {
         ).map { embed -> embed.author?.name }
 
         assertEquals(
-            listOf("Steve присоединился", "Steve присоединился впервые!", "Steve покинул нас", "Steve сдох =))"),
+            listOf("Steve joined", "Steve joined for the first time!", "Steve left", "Steve died =))"),
             authorNames
         )
     }

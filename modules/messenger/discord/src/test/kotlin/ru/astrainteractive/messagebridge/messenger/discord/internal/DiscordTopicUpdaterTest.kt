@@ -92,13 +92,13 @@ class DiscordTopicUpdaterTest {
     }
 
     @Test
-    fun GIVEN_default_translation_WHEN_server_starts_and_online_count_changes_THEN_topics_read_the_russian_texts() {
+    fun GIVEN_default_translation_WHEN_server_starts_and_online_count_changes_THEN_topics_read_the_english_texts() {
         val defaultTopicUpdater = topicUpdater(PluginTranslation())
         clock.current += 1.minutes
 
         defaultTopicUpdater.setStarting(textChannel)
         defaultTopicUpdater.updateOnlineCount(textChannel)
 
-        assertEquals(listOf("Сервер только запустился...", "Игроков в сети: 2"), topics)
+        assertEquals(listOf("The server has just started...", "Players online: 2"), topics)
     }
 }

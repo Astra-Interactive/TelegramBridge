@@ -275,8 +275,8 @@ class DiscordBEventConsumerTest {
         }
 
     private companion object {
-        const val SERVER_OPEN_MESSAGE = "✅ **Сервер успешно запущен**"
-        const val SERVER_CLOSED_MESSAGE = "🛑 **Сервер остановлен**"
+        const val SERVER_OPEN_MESSAGE = "✅ **The server has started**"
+        const val SERVER_CLOSED_MESSAGE = "🛑 **The server has stopped**"
         val CONNECTING_TIMEOUT = 30.seconds
         val SHUTDOWN_TIMEOUT = 5.seconds
     }

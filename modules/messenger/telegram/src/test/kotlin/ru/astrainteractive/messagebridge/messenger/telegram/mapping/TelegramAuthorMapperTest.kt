@@ -39,7 +39,7 @@ class TelegramAuthorMapperTest {
     fun GIVEN_default_translation_WHEN_chat_without_any_name_posts_THEN_author_is_anonymous() {
         val author = mapper(PluginTranslation()).map(namelessChatPost)
 
-        assertEquals(TelegramAuthor.DisplayName("Анонимус"), author)
+        assertEquals(TelegramAuthor.DisplayName("Anonymous"), author)
     }
 
     private companion object {
