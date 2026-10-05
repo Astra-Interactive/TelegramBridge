@@ -3,11 +3,11 @@ package ru.astrainteractive.messagebridge.link.usecase
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.code.api.CodeApi
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
 import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.model.LinkResponse
 
 internal class LinkAccountUseCase(
     private val codeApi: CodeApi,

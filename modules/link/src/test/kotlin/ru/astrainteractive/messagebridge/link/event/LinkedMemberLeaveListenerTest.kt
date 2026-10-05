@@ -6,11 +6,11 @@ import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
+import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

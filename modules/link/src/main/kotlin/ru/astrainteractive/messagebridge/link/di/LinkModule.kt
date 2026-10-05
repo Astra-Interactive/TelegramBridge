@@ -17,12 +17,12 @@ import ru.astrainteractive.messagebridge.link.command.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.command.TelegramLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuilder
+import ru.astrainteractive.messagebridge.link.dao.di.LinkDatabaseModule
 import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.link.internal.LinkedNameInterceptor
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.dao.di.LinkDatabaseModule
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.api.TextInterceptor

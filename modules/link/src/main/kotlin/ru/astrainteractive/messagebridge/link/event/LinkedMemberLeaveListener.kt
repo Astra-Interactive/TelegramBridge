@@ -2,8 +2,8 @@ package ru.astrainteractive.messagebridge.link.event
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 
 internal class LinkedMemberLeaveListener(
