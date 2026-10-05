@@ -29,7 +29,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class RootModule(
     plugin: MessageBridge
-) : Logger by JUtiltLogger("MessageBridge-RootModule").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-RootModule") {
 
     val bukkitCoreModule = BukkitCoreModule(plugin)
 

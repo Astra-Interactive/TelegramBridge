@@ -15,7 +15,7 @@ import ru.astrainteractive.messagebridge.messaging.model.BEvent
 
 class BEventChannelImpl :
     BEventChannel,
-    Logger by JUtiltLogger("MessageBridge-BEventChannelImpl").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-BEventChannelImpl") {
     private val channel = MutableSharedFlow<BEvent>(1)
 
     override fun bEvents(scope: CoroutineScope): Flow<BEvent> {

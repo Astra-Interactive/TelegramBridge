@@ -37,7 +37,7 @@ internal class DiscordBEventConsumer(
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
 
     private suspend fun readyChannel(): DiscordChannel.Ready? {
         return withTimeoutOrNull(CONNECTING_TIMEOUT) {

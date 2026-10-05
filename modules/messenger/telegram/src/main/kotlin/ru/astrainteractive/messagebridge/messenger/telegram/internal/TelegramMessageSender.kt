@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class TelegramMessageSender(
     private val telegramClientFlow: Flow<OkHttpTelegramClient>,
-) : Logger by JUtiltLogger("MessageBridge-TelegramMessageSender").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-TelegramMessageSender") {
 
     private suspend fun <T : Serializable> execute(method: BotApiMethod<T>): Result<T> {
         return runCatching { telegramClientFlow.first().executeAsync(method).await() }

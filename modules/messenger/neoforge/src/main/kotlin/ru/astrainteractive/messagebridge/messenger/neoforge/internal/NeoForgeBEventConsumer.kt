@@ -32,7 +32,7 @@ internal class NeoForgeBEventConsumer(
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-NeoForgeBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-NeoForgeBEventConsumer") {
     private val translation by translationKrate
 
     private suspend fun show(bEvent: BEvent) {

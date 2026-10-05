@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordTopicUpdater(
     private val platformServer: PlatformServer,
-) : Logger by JUtiltLogger("MessageBridge-DiscordTopicUpdater").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordTopicUpdater") {
     private var lastOnlineChanged = System.currentTimeMillis().milliseconds
 
     private fun setTopic(channel: TextChannel, topic: String) {

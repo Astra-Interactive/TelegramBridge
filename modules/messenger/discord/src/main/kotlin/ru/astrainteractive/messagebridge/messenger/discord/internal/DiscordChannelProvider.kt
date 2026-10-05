@@ -25,7 +25,7 @@ internal class DiscordChannelProvider(
     jdaConfigFlow: Flow<PluginConfiguration.JdaConfig>,
     private val connect: (PluginConfiguration.JdaConfig) -> Flow<DiscordChannel>,
     scope: CoroutineScope,
-) : Logger by JUtiltLogger("MessageBridge-DiscordChannelProvider").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordChannelProvider") {
     val channel: SharedFlow<DiscordChannel> = jdaConfigFlow
         .distinctUntilChanged()
         .flatMapLatest { config -> channelOf(config) }

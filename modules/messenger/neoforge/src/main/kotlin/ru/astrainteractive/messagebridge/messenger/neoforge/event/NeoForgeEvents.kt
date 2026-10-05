@@ -24,7 +24,7 @@ class NeoForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val bEventConsumer: BEventConsumer
-) : Logger by JUtiltLogger("MessageBridge-NeoForgeEvents").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-NeoForgeEvents") {
     private val config by configKrate
 
     val playerLoggedOutEvent = flowEvent<PlayerEvent.PlayerLoggedOutEvent>()

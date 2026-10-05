@@ -11,7 +11,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChan
 internal class DiscordRoleController(
     configKrate: CachedKrate<PluginConfiguration>,
     private val roleChanges: SendChannel<DiscordRoleChange>
-) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordRoleController") {
     private val config by configKrate
 
     suspend fun addLinkedRole(discordUserId: Long) {

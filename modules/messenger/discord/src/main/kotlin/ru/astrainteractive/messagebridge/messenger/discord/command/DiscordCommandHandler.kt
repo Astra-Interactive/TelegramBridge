@@ -16,7 +16,7 @@ internal class DiscordCommandHandler(
     private val messageSender: DiscordMessageSender,
     private val platformServer: PlatformServer,
     translationKrate: CachedKrate<PluginTranslation>,
-) : Logger by JUtiltLogger("MessageBridge-DiscordCommandHandler").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordCommandHandler") {
     private val translation by translationKrate
 
     suspend fun handle(command: DiscordCommand, event: MessageReceivedEvent) {

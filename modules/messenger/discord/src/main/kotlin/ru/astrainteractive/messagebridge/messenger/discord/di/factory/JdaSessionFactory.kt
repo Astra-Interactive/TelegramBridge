@@ -47,7 +47,7 @@ internal class JdaSessionFactory(
     configKrate: StateFlowKrate<PluginConfiguration>,
     private val eventManager: IEventManager,
     ioScope: CoroutineScope
-) : Logger by JUtiltLogger("MessageBridge-JdaSessionFactory").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-JdaSessionFactory") {
     private val okHttpClientFlow = configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
         .distinctUntilChanged()

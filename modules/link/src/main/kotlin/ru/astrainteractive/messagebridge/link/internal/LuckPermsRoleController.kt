@@ -12,7 +12,7 @@ import java.util.UUID
 internal class LuckPermsRoleController(
     configKrate: CachedKrate<PluginConfiguration>,
     private val luckPermsProvider: LuckPermsProvider
-) : Logger by JUtiltLogger("MessageBridge-LuckPermsRoleController").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-LuckPermsRoleController") {
     private val config by configKrate
 
     private val luckPermsOrNull: LuckPerms?

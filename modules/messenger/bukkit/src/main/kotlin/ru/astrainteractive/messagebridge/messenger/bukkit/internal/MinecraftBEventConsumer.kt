@@ -34,7 +34,7 @@ internal class MinecraftBEventConsumer(
     private val bEventReceiver: BEventReceiver
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-MinecraftBEventConsumer") {
     private val translation by translationKrate
 
     internal suspend fun toMinecraftComponent(text: Text): LocalizableComponent {

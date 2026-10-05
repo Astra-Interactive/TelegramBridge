@@ -7,7 +7,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
 internal class DiscordMessageSender :
-    Logger by JUtiltLogger("MessageBridge-DiscordMessageSender").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-DiscordMessageSender") {
 
     suspend fun reply(message: Message, text: String) {
         runCatching { message.reply(text).await() }

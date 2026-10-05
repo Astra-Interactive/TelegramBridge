@@ -22,7 +22,7 @@ internal class DiscordRoleUpdater(
     private val discordChannel: Flow<DiscordChannel>,
     roleChanges: Flow<DiscordRoleChange>
 ) : CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-DiscordRoleUpdater").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-DiscordRoleUpdater") {
 
     private fun DiscordRoleChange.restAction(guild: Guild, role: Role): AuditableRestAction<Void> {
         val user = UserSnowflake.fromId(discordUserId)

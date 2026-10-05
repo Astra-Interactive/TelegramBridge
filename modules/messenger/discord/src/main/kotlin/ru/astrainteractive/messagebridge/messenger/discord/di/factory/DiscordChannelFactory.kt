@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class DiscordChannelFactory(
     private val webHookClientFactory: WebHookClientFactory
-) : Logger by JUtiltLogger("MessageBridge-DiscordChannelFactory").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-DiscordChannelFactory") {
     fun create(jda: JDA, channelId: String): Flow<DiscordChannel> = callbackFlow<DiscordChannel> {
         val textChannel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")
         val webhookClient = webHookClientFactory.create(jda, channelId).first()

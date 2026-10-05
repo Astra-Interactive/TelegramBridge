@@ -16,7 +16,7 @@ internal class TelegramCommandHandler(
     private val messageSender: TelegramMessageSender,
     private val platformServer: PlatformServer,
     translationKrate: CachedKrate<PluginTranslation>,
-) : Logger by JUtiltLogger("MessageBridge-TelegramCommandHandler").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-TelegramCommandHandler") {
     private val translation by translationKrate
 
     suspend fun handle(command: TelegramCommand, update: Update) {

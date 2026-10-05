@@ -8,7 +8,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
 internal class WebHookClientFactory :
-    Logger by JUtiltLogger("MessageBridge-WebHookClientFactory").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-WebHookClientFactory") {
     fun create(jda: JDA, channelId: String) = flow {
         jda.awaitReady()
         val channel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")

@@ -30,7 +30,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
-) : Logger by JUtiltLogger("MessageBridge-RootModule").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-RootModule") {
     val coreModule = CoreModule(
         dataFolder = FMLPaths.CONFIGDIR.get()
             .resolve("MessageBridge")

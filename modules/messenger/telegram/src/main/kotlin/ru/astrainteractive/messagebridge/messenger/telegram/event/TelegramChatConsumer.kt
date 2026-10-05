@@ -38,7 +38,7 @@ internal class TelegramChatConsumer(
     private val bEventConsumer: BEventConsumer,
     private val messageInterceptors: List<MessageInterceptor<Update>>,
 ) : LongPollingSingleThreadUpdateConsumer,
-    Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val translation by translationKrate
 
     override fun consume(update: Update?) {

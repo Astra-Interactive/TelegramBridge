@@ -30,7 +30,7 @@ internal class TelegramBEventConsumer(
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-TelegramBEventConsumer") {
     private val config by configKrate
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig

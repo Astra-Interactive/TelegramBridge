@@ -32,7 +32,7 @@ internal class ForgeBEventConsumer(
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
-    Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer").withoutParentHandlers() {
+    Logger by JUtiltLogger("MessageBridge-ForgeBEventConsumer") {
     private val translation by translationKrate
 
     private suspend fun show(bEvent: BEvent) {

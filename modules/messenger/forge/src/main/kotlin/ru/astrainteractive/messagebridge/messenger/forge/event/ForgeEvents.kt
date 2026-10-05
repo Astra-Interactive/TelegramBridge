@@ -26,7 +26,7 @@ class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
     private val bEventConsumer: BEventConsumer
-) : Logger by JUtiltLogger("MessageBridge-ForgeEvents").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
     private val config by configKrate
 
     val playerLoggedOutEvent = flowEvent<PlayerEvent.PlayerLoggedOutEvent>()
