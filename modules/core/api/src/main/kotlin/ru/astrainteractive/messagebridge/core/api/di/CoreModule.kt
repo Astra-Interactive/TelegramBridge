@@ -21,6 +21,7 @@ import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandle
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import java.io.File
+import kotlin.time.Clock
 
 class CoreModule(
     val dataFolder: File,
@@ -48,6 +49,8 @@ class CoreModule(
         .Default(dispatchers.Unconfined + SupervisorJob() + createCoroutineExceptionHandler())
         .withTimings()
     val commandRegistrarContext = commandRegistrarContextFactory.invoke(unconfinedScope)
+
+    val clock: Clock = Clock.System
 
     val configuration: YamlConfiguration = Yaml.default.configuration.copy(
         encodeDefaults = true,

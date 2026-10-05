@@ -34,7 +34,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRoleU
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
-import kotlin.time.Clock
 
 class JdaMessengerModule(
     coreModule: CoreModule,
@@ -106,7 +105,7 @@ class JdaMessengerModule(
         discordChannel = channelProvider.channel,
         topicUpdater = DiscordTopicUpdater(
             platformServer = coreModule.platformServer,
-            clock = Clock.System,
+            clock = coreModule.clock,
             translationKrate = coreModule.translationKrate,
         ),
         embedMapper = DiscordEmbedMapper(coreModule.translationKrate),
