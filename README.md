@@ -22,6 +22,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
   replied message. Change the look with `chat.to_minecraft_reply` in `translations.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Account linking** — `/link` in-game → code → `/link <code>` in TG or Discord
+    - Linking from Discord requires being a member of the Discord server
     - Grants a LuckPerms role and a Discord role on link
     - Revokes both roles on `/unlink`
     - Revokes the LuckPerms role when a player leaves the Discord server
