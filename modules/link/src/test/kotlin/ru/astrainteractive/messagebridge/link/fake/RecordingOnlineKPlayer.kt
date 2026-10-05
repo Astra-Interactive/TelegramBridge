@@ -17,7 +17,6 @@ internal class RecordingOnlineKPlayer(
     private val permissions: Set<Permission> = emptySet()
 ) : OnlineKPlayer {
     val messages = mutableListOf<LocalizableComponent>()
-    val components = mutableListOf<Component>()
 
     override val locale: Locale = Locale.ROOT
 
@@ -25,9 +24,7 @@ internal class RecordingOnlineKPlayer(
 
     override fun hasPlayedBefore(): Boolean = true
 
-    override fun sendMessage(component: Component) {
-        components.add(component)
-    }
+    override fun sendMessage(component: Component) = Unit
 
     override fun sendMessage(message: LocalizableComponent) {
         messages.add(message)
