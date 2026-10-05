@@ -40,6 +40,7 @@ import java.net.SocketTimeoutException
 import java.util.UUID
 import java.util.function.Consumer
 import java.util.logging.Handler
+import java.util.logging.Level
 import java.util.logging.LogRecord
 import java.util.logging.Logger
 import kotlin.test.AfterTest
@@ -220,7 +221,7 @@ class DiscordLinkInterceptorTest {
         }
 
     @Test
-    fun GIVEN_bridge_channel_the_bot_cannot_see_WHEN_code_is_sent_in_a_direct_message_THEN_refused_and_no_link() =
+    fun GIVEN_bridge_channel_the_bot_cannot_see_WHEN_code_is_sent_in_a_direct_message_THEN_reads_error_and_no_link() =
         runTest {
             visibleBridgeChannel = null
             memberOnServer = stevie
@@ -228,8 +229,12 @@ class DiscordLinkInterceptorTest {
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
-            assertEquals(Interception.Reply(translation.link.notServerMember.toMessengerText()), interception)
+            assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
             assertTrue(linkingDao.linkedPlayers.isEmpty())
+            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(roleChanges.tryReceive().isFailure)
+            assertEquals(listOf(Level.SEVERE), logRecords.map { record -> record.level })
+            assertTrue("bridge channel $BRIDGE_CHANNEL_ID" in logRecords.single().message)
         }
 
     @Test

@@ -23,6 +23,9 @@ import ru.astrainteractive.messagebridge.messaging.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messaging.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
 
+private class BridgeChannelNotFoundError(channelId: String) :
+    Exception("The bot cannot see the Discord bridge channel $channelId")
+
 internal class DiscordLinkInterceptor(
     private val linkAccountUseCase: LinkAccountUseCase,
     private val discordRoleController: DiscordRoleController,
@@ -42,10 +45,11 @@ internal class DiscordLinkInterceptor(
 
     private suspend fun bridgeMemberOf(event: MessageReceivedEvent): Result<Member?> {
         event.member?.let { member -> return Result.success(member) }
+        val channelId = config.jdaConfig.channelId
         val guild = event.jda
-            .getTextChannelById(config.jdaConfig.channelId)
+            .getTextChannelById(channelId)
             ?.guild
-            ?: return Result.success(null)
+            ?: return Result.failure(BridgeChannelNotFoundError(channelId))
         return runCatching { guild.retrieveMemberById(event.author.idLong).await() }
             .propagateCancellationException()
             .fold(
