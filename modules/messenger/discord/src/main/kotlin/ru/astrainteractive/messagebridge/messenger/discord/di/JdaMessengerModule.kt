@@ -10,7 +10,6 @@ import kotlinx.coroutines.job
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.InterfacedEventManager
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
-import ru.astrainteractive.messagebridge.core.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.di.CoreModule
 import ru.astrainteractive.messagebridge.messaging.api.BEventChannel
 import ru.astrainteractive.messagebridge.messaging.api.BEventConsumer
@@ -34,7 +33,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordReply
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRoleUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordWebhookMessageMapper
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 
 class JdaMessengerModule(
@@ -96,7 +94,10 @@ class JdaMessengerModule(
     private val channelProvider = DiscordChannelProvider(
         jdaConfigFlow = coreModule.configKrate.cachedStateFlow
             .map { pluginConfiguration -> pluginConfiguration.jdaConfig },
-        connect = ::connect,
+        connect = { config ->
+            jdaSessionFactory.create(config)
+                .flatMapLatest { jda -> discordChannelFactory.create(jda, config.channelId) }
+        },
         scope = coreModule.ioScope,
     )
 
@@ -124,7 +125,4 @@ class JdaMessengerModule(
             roleUpdater.cancel()
         }
     )
-
-    private fun connect(config: PluginConfiguration.JdaConfig): Flow<DiscordChannel> = jdaSessionFactory.create(config)
-        .flatMapLatest { jda -> discordChannelFactory.create(jda, config.channelId) }
 }
