@@ -46,6 +46,7 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.Executors
 import java.util.function.Supplier
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -146,6 +147,7 @@ class TelegramMessengerModule(
 
     private val relevanceChecker = TelegramMessageRelevanceMapper(
         configKrate = coreModule.configKrate,
+        clock = Clock.System,
     )
 
     private val messageValidator = TelegramMessageValidatorMapper(

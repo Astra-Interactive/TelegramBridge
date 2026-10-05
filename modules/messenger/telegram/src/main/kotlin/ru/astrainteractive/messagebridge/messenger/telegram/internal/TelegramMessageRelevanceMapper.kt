@@ -11,7 +11,7 @@ import kotlin.time.Instant
 
 internal class TelegramMessageRelevanceMapper(
     configKrate: CachedKrate<PluginConfiguration>,
-    private val clock: Clock = Clock.System,
+    private val clock: Clock,
 ) {
     private val config by configKrate
     private val tgConfig: PluginConfiguration.TelegramConfig
