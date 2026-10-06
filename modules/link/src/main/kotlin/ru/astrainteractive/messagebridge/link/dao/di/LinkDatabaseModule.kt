@@ -3,14 +3,12 @@ package ru.astrainteractive.messagebridge.link.dao.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import org.jetbrains.exposed.v1.core.DatabaseConfig
-import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
@@ -40,22 +38,23 @@ internal class LinkDatabaseModule(
         defaultMaxRetryDelay = MAX_RETRY_DELAY.inWholeMilliseconds
     }
 
-    private val databaseState: StateFlow<Database?> =
-        flowOf(DatabaseConfiguration.H2(dataFolder.resolve("linking").absolutePath))
-            .flatMapLatest { databaseConfiguration -> databaseConfiguration.connectAsFlow(databaseConfig) }
-            .onEach { database ->
-                transaction(database) {
-                    maxAttempts = 1
-                    SchemaUtils.create(PlayerTable, DiscordAccountTable, TelegramAccountTable)
-                }
+    private val databaseState = dataFolder.resolve("linking").absolutePath
+        .let(DatabaseConfiguration::H2)
+        .let(::flowOf)
+        .flatMapLatest { databaseConfiguration -> databaseConfiguration.connectAsFlow(databaseConfig) }
+        .onEach { database ->
+            transaction(database) {
+                maxAttempts = 1
+                SchemaUtils.create(PlayerTable, DiscordAccountTable, TelegramAccountTable)
             }
-            .retryWhen { t, attempt ->
-                val retryDelay = (OPEN_RETRY_DELAY * 2.0.pow(attempt.toInt())).coerceAtMost(MAX_OPEN_RETRY_DELAY)
-                warn { "#databaseState could not open the link database, retrying in $retryDelay: ${t.message}" }
-                delay(retryDelay)
-                true
-            }
-            .stateIn(ioScope, SharingStarted.Eagerly, null)
+        }
+        .retryWhen { t, attempt ->
+            val retryDelay = (OPEN_RETRY_DELAY * 2.0.pow(attempt.toInt())).coerceAtMost(MAX_OPEN_RETRY_DELAY)
+            warn { "#databaseState could not open the link database, retrying in $retryDelay: ${t.message}" }
+            delay(retryDelay)
+            true
+        }
+        .stateIn(ioScope, SharingStarted.Eagerly, null)
 
     val linkingDao: LinkingDao = LinkingDaoImpl(databaseState)
 

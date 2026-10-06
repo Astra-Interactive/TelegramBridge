@@ -26,10 +26,6 @@ import java.util.UUID
 internal class LinkingDaoImpl(
     private val databaseState: StateFlow<Database?>
 ) : LinkingDao {
-    private val linkedPlayers = PlayerTable
-        .join(DiscordAccountTable, JoinType.LEFT, PlayerTable.uuid, DiscordAccountTable.playerUuid)
-        .join(TelegramAccountTable, JoinType.LEFT, PlayerTable.uuid, TelegramAccountTable.playerUuid)
-
     private fun ResultRow.toLinkedPlayer(): LinkedPlayer {
         val discordId = getOrNull(DiscordAccountTable.discordId)
         val telegramId = getOrNull(TelegramAccountTable.telegramId)
@@ -46,7 +42,10 @@ internal class LinkingDaoImpl(
     }
 
     private fun findWhere(condition: Op<Boolean>): LinkedPlayer? {
-        return linkedPlayers.selectAll()
+        return PlayerTable
+            .join(DiscordAccountTable, JoinType.LEFT, PlayerTable.uuid, DiscordAccountTable.playerUuid)
+            .join(TelegramAccountTable, JoinType.LEFT, PlayerTable.uuid, TelegramAccountTable.playerUuid)
+            .selectAll()
             .where(condition)
             .limit(1)
             .map { row -> row.toLinkedPlayer() }
@@ -116,7 +115,11 @@ internal class LinkingDaoImpl(
                     is MessengerAccount.Telegram ->
                         (TelegramAccountTable.telegramId eq account.id) or (TelegramAccountTable.playerUuid eq uuid)
                 }
-                val holders = linkedPlayers.selectAll().where(sameAccountOrPlayer).map { row -> row[PlayerTable.uuid] }
+                val holders = PlayerTable
+                    .join(DiscordAccountTable, JoinType.LEFT, PlayerTable.uuid, DiscordAccountTable.playerUuid)
+                    .join(TelegramAccountTable, JoinType.LEFT, PlayerTable.uuid, TelegramAccountTable.playerUuid)
+                    .selectAll()
+                    .where(sameAccountOrPlayer).map { row -> row[PlayerTable.uuid] }
                 if (uuid in holders) return@suspendTransaction LinkOutcome.AlreadyLinked
                 if (holders.isNotEmpty()) return@suspendTransaction LinkOutcome.AccountTaken
                 PlayerTable.upsert { statement ->

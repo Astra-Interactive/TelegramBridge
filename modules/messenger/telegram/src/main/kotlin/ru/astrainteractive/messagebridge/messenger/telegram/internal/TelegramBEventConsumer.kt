@@ -96,7 +96,7 @@ internal class TelegramBEventConsumer(
 
     init {
         bEventReceiver
-            .bEvents(this)
+            .receiveAsFlow()
             .onEach { bEvent -> consume(bEvent) }
             .launchIn(this)
     }

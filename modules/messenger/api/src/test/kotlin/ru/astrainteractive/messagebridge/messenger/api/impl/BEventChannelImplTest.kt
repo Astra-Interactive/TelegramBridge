@@ -32,7 +32,7 @@ class BEventChannelImplTest {
     private fun TestScope.receive(channel: BEventReceiver): List<BEvent> {
         val received = mutableListOf<BEvent>()
         backgroundScope.launch {
-            channel.bEvents(backgroundScope).collect { bEvent -> received += bEvent }
+            channel.receiveAsFlow().collect { bEvent -> received += bEvent }
         }
         runCurrent()
         return received
@@ -70,7 +70,7 @@ class BEventChannelImplTest {
         val channel = BEventChannelImpl()
         val arrivals = mutableListOf<Duration>()
         backgroundScope.launch {
-            channel.bEvents(backgroundScope).collect { _ -> arrivals += currentTime.milliseconds }
+            channel.receiveAsFlow().collect { _ -> arrivals += currentTime.milliseconds }
         }
         runCurrent()
 
@@ -110,7 +110,7 @@ class BEventChannelImplTest {
         runTest {
             val channel = BEventChannelImpl()
             backgroundScope.launch {
-                channel.bEvents(backgroundScope).collect { _ -> awaitCancellation() }
+                channel.receiveAsFlow().collect { _ -> awaitCancellation() }
             }
             val received = receive(channel)
             val events = chatMessages()
@@ -128,7 +128,7 @@ class BEventChannelImplTest {
         val gate = CompletableDeferred<Unit>()
         val received = mutableListOf<BEvent>()
         backgroundScope.launch {
-            channel.bEvents(backgroundScope).collect { bEvent ->
+            channel.receiveAsFlow().collect { bEvent ->
                 gate.await()
                 received += bEvent
             }
