@@ -139,7 +139,7 @@ class TelegramChatConsumerTest {
             method = method,
             chatId = json.get("chat_id").asText(),
             text = json.get("text")?.asText(),
-            replyToMessageId = json.get("reply_to_message_id")?.asInt()
+            replyToMessageId = json.get("reply_parameters")?.get("message_id")?.asInt()
         )
         val result = if (method == "sendmessage") SENT_MESSAGE_JSON else "true"
         return Response.Builder()
@@ -171,8 +171,9 @@ class TelegramChatConsumerTest {
             validator = TelegramMessageValidatorMapper(configKrate = configKrate, authorMapper = authorMapper),
             replyMapper = TelegramReplyMapper(
                 configKrate = configKrate,
+                translationKrate = translationKrate,
                 authorMapper = authorMapper,
-                relayedMessageCache = TelegramRelayedMessageCache(capacity = 10)
+                relayedMessageCache = TelegramRelayedMessageCache(configKrate = configKrate)
             ),
             commandParser = TelegramCommandMapper(),
             commandHandler = TelegramCommandHandler(

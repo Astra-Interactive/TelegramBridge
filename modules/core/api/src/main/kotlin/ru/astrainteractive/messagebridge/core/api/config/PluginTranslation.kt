@@ -108,6 +108,15 @@ data class PluginTranslation(
         },
         @SerialName("to_telegram")
         private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %dao%:\n%message%"),
+        @SerialName("to_telegram_reply")
+        private val toTelegramReply: LocalizedText = LocalizedText.shared("[%from%] %dao%:\n%quote%\n%message%"),
+        @SerialName("reply_quote")
+        private val replyQuote: LocalizedText = LocalizedText.shared("%reply_player%: %reply_message%"),
+        @SerialName("reply_server")
+        val replyServer: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "[server]")
+            translation(MinecraftLocales.RU_RU, "[сервер]")
+        },
         @SerialName("to_discord_username")
         private val toDiscordUsername: LocalizedText = LocalizedText.shared("[%from%] %dao%"),
         @SerialName("illegal_display_name")
@@ -150,6 +159,33 @@ data class PluginTranslation(
             PlaceholderReplacement.plain("%message%", message),
             PlaceholderReplacement.plain("%from%", from)
         )
+
+        fun toTelegramReply(
+            playerName: String,
+            message: String,
+            from: String,
+            quote: String
+        ): LocalizableComponent = toTelegramReply.replaceAll(
+            PlaceholderReplacement.plain("%dao%", playerName),
+            PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%from%", from),
+            PlaceholderReplacement.plain("%quote%", quote)
+        )
+
+        fun replyQuote(
+            replyPlayerName: String,
+            replyMessage: String
+        ): LocalizableComponent {
+            val replyMessageReplacement = if (replyMessage.isBlank()) {
+                PlaceholderReplacement(placeholder = "%reply_message%", value = replyMedia)
+            } else {
+                PlaceholderReplacement.plain("%reply_message%", replyMessage)
+            }
+            return replyQuote.replaceAll(
+                PlaceholderReplacement.plain("%reply_player%", replyPlayerName),
+                replyMessageReplacement
+            )
+        }
 
         fun toDiscordUsername(
             playerName: String,

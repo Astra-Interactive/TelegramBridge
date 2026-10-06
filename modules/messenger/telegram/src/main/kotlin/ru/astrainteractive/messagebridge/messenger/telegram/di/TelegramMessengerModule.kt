@@ -119,7 +119,7 @@ class TelegramMessengerModule(
     ).shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     private val relayedMessageCache = TelegramRelayedMessageCache(
-        capacity = RELAYED_MESSAGE_CACHE_CAPACITY
+        configKrate = coreModule.configKrate
     )
 
     private val messageSender = TelegramMessageSender(
@@ -142,6 +142,7 @@ class TelegramMessengerModule(
 
     private val replyMapper = TelegramReplyMapper(
         configKrate = coreModule.configKrate,
+        translationKrate = coreModule.translationKrate,
         authorMapper = authorMapper,
         relayedMessageCache = relayedMessageCache,
     )
@@ -232,7 +233,5 @@ class TelegramMessengerModule(
         val READ_TIMEOUT = 100.seconds
 
         val PING_INTERVAL = 15.seconds
-
-        const val RELAYED_MESSAGE_CACHE_CAPACITY = 1000
     }
 }
