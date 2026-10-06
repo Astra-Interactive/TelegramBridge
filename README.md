@@ -18,8 +18,12 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 
 - **Bidirectional chat** — MC ↔ Telegram ↔ Discord, messages tagged with `[MC]` / `[TG]` / `[DS]`
 - **Discord webhooks** — messages show sender avatar and name, not the bot
-- **Replies** — a Telegram or Discord reply reads `[TG] Alex ↪ Steve: …` in game; hover `↪ Steve` to read the
-  replied message. Change the look with `chat.to_minecraft_reply` in `translations.yml`
+- **Replies** — a Telegram or Discord reply keeps its context on every side: in game it reads
+  `[TG] Alex ↪ Steve: …` with the replied message on hover; Telegram gets a native reply to the original message
+  or to the bridge's copy of it; Discord shows a small `↪ Steve: …` line above the message that links to the
+  original. When the bridge no longer remembers the original (restart, cache full) the replied text is quoted
+  instead. Change the look with `chat.to_minecraft_reply`, `chat.to_telegram_reply`, `chat.to_discord_reply` and
+  `chat.reply_quote` in `translations.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Account linking** — `/link` in-game → code → `/link <code>` in TG or Discord
     - Linking from Discord requires being a member of the Discord server
@@ -64,6 +68,8 @@ jdaConfig:
   token: ""
   activity: "play.example.com"
   channelId: ""
+  replyPreviewLength: 60          # characters of the replied text quoted under a reply
+  relayedMessageCacheSize: 1000   # relayed messages remembered to link replies to them
   # proxy:          # uncomment if Discord is blocked in your region
   #   host: "0.0.0.0"
   #   port: 2222
@@ -75,6 +81,8 @@ tgConfig:
   chat_id: "-1001234567890"
   topic_id: "12345"
   max_telegram_message_length: 140
+  reply_preview_length: 160          # characters of the replied text quoted when the original is unknown
+  relayed_message_cache_size: 1000   # relayed messages remembered to reply to them natively
   # proxy: ...
 
 displayJoinMessage: true
