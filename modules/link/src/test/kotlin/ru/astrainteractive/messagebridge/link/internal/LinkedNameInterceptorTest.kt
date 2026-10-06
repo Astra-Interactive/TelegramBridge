@@ -5,6 +5,7 @@ package ru.astrainteractive.messagebridge.link.internal
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.UUID
 import kotlin.test.Test
@@ -30,11 +31,11 @@ class LinkedNameInterceptorTest {
     }
 
     private fun telegram(author: String, authorId: Long, reply: Text.Reply?): Text.Telegram {
-        return Text.Telegram(author = author, text = "hi", authorId = authorId, reply = reply)
+        return Text.Telegram(author = author, text = "hi", authorId = authorId, reply = reply, ref = TG_REF)
     }
 
     private fun discord(author: String, authorId: Long, reply: Text.Reply?): Text.Discord {
-        return Text.Discord(author = author, text = "hi", authorId = authorId, reply = reply)
+        return Text.Discord(author = author, text = "hi", authorId = authorId, reply = reply, ref = DS_REF)
     }
 
     private suspend fun linkSteveAndAlex() {
@@ -71,7 +72,7 @@ class LinkedNameInterceptorTest {
     @Test
     fun GIVEN_telegram_reply_to_linked_author_WHEN_intercepted_THEN_reply_names_their_minecraft_name() = runTest {
         linkSteveAndAlex()
-        val reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello")
+        val reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello", target = null)
 
         val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
 
@@ -81,7 +82,7 @@ class LinkedNameInterceptorTest {
     @Test
     fun GIVEN_discord_reply_to_linked_author_WHEN_intercepted_THEN_reply_names_their_minecraft_name() = runTest {
         linkSteveAndAlex()
-        val reply = Text.Reply(author = "Alexa", authorId = ALEX_DS, text = "hello")
+        val reply = Text.Reply(author = "Alexa", authorId = ALEX_DS, text = "hello", target = null)
 
         val text = interceptor.intercept(discord(author = "Stevie", authorId = STEVE_DS, reply = reply))
 
@@ -91,7 +92,7 @@ class LinkedNameInterceptorTest {
     @Test
     fun GIVEN_reply_without_author_id_WHEN_intercepted_THEN_reply_is_unchanged() = runTest {
         linkSteveAndAlex()
-        val reply = Text.Reply(author = "Alex", authorId = null, text = "relayed from the game")
+        val reply = Text.Reply(author = "Alex", authorId = null, text = "relayed from the game", target = null)
 
         val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
 
@@ -101,7 +102,7 @@ class LinkedNameInterceptorTest {
     @Test
     fun GIVEN_reply_to_author_who_never_linked_WHEN_intercepted_THEN_reply_is_unchanged() = runTest {
         linkSteveAndAlex()
-        val reply = Text.Reply(author = "bob_tg", authorId = BOB_TG, text = "hello")
+        val reply = Text.Reply(author = "bob_tg", authorId = BOB_TG, text = "hello", target = null)
 
         val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
 
@@ -115,7 +116,7 @@ class LinkedNameInterceptorTest {
         val original = telegram(
             author = "s_tg",
             authorId = STEVE_TG,
-            reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello")
+            reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello", target = null)
         )
 
         assertEquals(original, interceptor.intercept(original))
@@ -124,12 +125,20 @@ class LinkedNameInterceptorTest {
     @Test
     fun GIVEN_message_from_the_game_WHEN_intercepted_THEN_same_text_is_returned() = runTest {
         linkSteveAndAlex()
-        val original = Text.Minecraft(author = "Steve", uuid = "5e4a7f7a-0000-4000-8000-000000000002", text = "hi")
+        val original = Text.Minecraft(
+            author = "Steve",
+            uuid = "5e4a7f7a-0000-4000-8000-000000000002",
+            text = "hi",
+            ref = MC_REF
+        )
 
         assertSame(original, interceptor.intercept(original))
     }
 
     private companion object {
+        val MC_REF = MessageRef.Minecraft(messageId = "mc-1")
+        val TG_REF = MessageRef.Telegram(chatId = -1001L, messageId = 1)
+        val DS_REF = MessageRef.Discord(messageId = 1L)
         const val STEVE_DS = 4242L
         const val STEVE_TG = 77L
         const val ALEX_DS = 4343L

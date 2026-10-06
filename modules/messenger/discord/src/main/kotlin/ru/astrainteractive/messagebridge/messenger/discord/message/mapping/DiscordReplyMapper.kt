@@ -3,6 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.discord.message.mapping
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
 internal class DiscordReplyMapper {
@@ -23,7 +24,8 @@ internal class DiscordReplyMapper {
         return Text.Reply(
             author = authorName(replied),
             authorId = if (replied.isWebhookMessage) null else replied.author.idLong,
-            text = replied.contentRaw
+            text = replied.contentRaw,
+            target = if (replied.isWebhookMessage) null else MessageRef.Discord(messageId = replied.idLong)
         )
     }
 }

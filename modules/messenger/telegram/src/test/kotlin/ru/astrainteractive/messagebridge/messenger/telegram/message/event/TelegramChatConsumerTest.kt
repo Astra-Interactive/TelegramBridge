@@ -43,6 +43,7 @@ import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.fake.DirectExecutorService
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
@@ -222,7 +223,13 @@ class TelegramChatConsumerTest {
             author = "steve_tg",
             text = "hello",
             authorId = STEVE_ID,
-            reply = Text.Reply(author = "alex_tg", authorId = ALEX_ID, text = "hi")
+            reply = Text.Reply(
+                author = "alex_tg",
+                authorId = ALEX_ID,
+                text = "hi",
+                target = MessageRef.Telegram(chatId = CHAT_ID, messageId = 10)
+            ),
+            ref = MessageRef.Telegram(chatId = CHAT_ID, messageId = MESSAGE_ID)
         )
         assertEquals(listOf<BEvent>(relayed), published.sent)
         assertEquals(listOf<String?>("hello"), interceptedTexts)

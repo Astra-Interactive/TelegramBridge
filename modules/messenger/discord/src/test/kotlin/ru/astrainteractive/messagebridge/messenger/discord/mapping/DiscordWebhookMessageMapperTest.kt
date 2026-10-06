@@ -7,6 +7,7 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import kotlin.test.Test
@@ -16,9 +17,16 @@ class DiscordWebhookMessageMapperTest {
     private val steveMessage = Text.Minecraft(
         author = "Steve",
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-        text = "hello"
+        text = "hello",
+        ref = MessageRef.Minecraft(messageId = "mc-1")
     )
-    private val telegramMessage = Text.Telegram(author = "steve_tg", text = "hi", authorId = 1L, reply = null)
+    private val telegramMessage = Text.Telegram(
+        author = "steve_tg",
+        text = "hi",
+        authorId = 1L,
+        reply = null,
+        ref = MessageRef.Telegram(chatId = -1001L, messageId = 1)
+    )
     private val linkedMember: Member = jdaFake(
         mapOf(
             "getEffectiveName" to "Stevie",

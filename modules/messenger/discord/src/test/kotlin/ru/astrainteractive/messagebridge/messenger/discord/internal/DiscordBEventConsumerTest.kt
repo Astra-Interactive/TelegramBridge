@@ -25,6 +25,7 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
@@ -79,7 +80,8 @@ class DiscordBEventConsumerTest {
     private val steveMessage = Text.Minecraft(
         author = "Steve",
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-        text = "hello"
+        text = "hello",
+        ref = MessageRef.Minecraft(messageId = "mc-1")
     )
     private val translatedServerTexts = PluginTranslation(
         server = PluginTranslation.Server(
@@ -232,7 +234,13 @@ class DiscordBEventConsumerTest {
 
     @Test
     fun GIVEN_ready_discord_WHEN_message_from_discord_is_consumed_THEN_it_is_not_sent_back() = runTest {
-        val discordMessage = Text.Discord(author = "Stevie", text = "hi", authorId = 1L, reply = null)
+        val discordMessage = Text.Discord(
+            author = "Stevie",
+            text = "hi",
+            authorId = 1L,
+            reply = null,
+            ref = MessageRef.Discord(messageId = 1L)
+        )
 
         consumer(ready).consume(discordMessage)
 

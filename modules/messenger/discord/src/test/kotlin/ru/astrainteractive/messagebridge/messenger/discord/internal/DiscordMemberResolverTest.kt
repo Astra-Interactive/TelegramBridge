@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse
 import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
@@ -32,7 +33,12 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class DiscordMemberResolverTest {
-    private val steveText = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hi")
+    private val steveText = Text.Minecraft(
+        author = "Steve",
+        uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+        text = "hi",
+        ref = MessageRef.Minecraft(messageId = "mc-1")
+    )
     private val resolvedTexts = mutableListOf<Text>()
     private val guildCalls = mutableListOf<String>()
     private val cachedMember: Member = jdaFake(emptyMap())

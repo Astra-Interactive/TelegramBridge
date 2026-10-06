@@ -17,10 +17,12 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import java.util.UUID
 
 internal class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
@@ -72,7 +74,8 @@ internal class ForgeEvents(
             val serverEvent = Text.Minecraft(
                 author = event.player.name.string,
                 text = event.message.toPlain(),
-                uuid = event.player.uuid.toString()
+                uuid = event.player.uuid.toString(),
+                ref = MessageRef.Minecraft(messageId = UUID.randomUUID().toString())
             )
             bEventConsumer.consume(serverEvent)
         }.launchIn(ioScope)

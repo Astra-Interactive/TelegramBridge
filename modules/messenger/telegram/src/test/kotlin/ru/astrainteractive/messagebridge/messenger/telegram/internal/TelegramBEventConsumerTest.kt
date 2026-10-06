@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.concurrent.CountDownLatch
@@ -98,7 +99,8 @@ class TelegramBEventConsumerTest {
         val steveMessage = Text.Minecraft(
             author = "Steve",
             uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-            text = "hello"
+            text = "hello",
+            ref = MessageRef.Minecraft(messageId = "mc-1")
         )
 
         consumer(configured).consume(steveMessage)

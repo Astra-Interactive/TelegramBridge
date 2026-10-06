@@ -4,6 +4,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 
@@ -23,7 +24,8 @@ internal class TelegramReplyMapper(
         return Text.Reply(
             author = relayed.author,
             authorId = null,
-            text = relayed.text
+            text = relayed.text,
+            target = relayed.ref
         )
     }
 
@@ -32,7 +34,8 @@ internal class TelegramReplyMapper(
         return Text.Reply(
             author = author.name,
             authorId = replied.from?.id,
-            text = replied.text ?: replied.caption.orEmpty()
+            text = replied.text ?: replied.caption.orEmpty(),
+            target = MessageRef.Telegram(chatId = replied.chatId, messageId = replied.messageId)
         )
     }
 

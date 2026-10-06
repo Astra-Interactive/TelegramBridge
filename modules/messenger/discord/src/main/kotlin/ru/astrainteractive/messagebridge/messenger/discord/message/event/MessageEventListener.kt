@@ -10,6 +10,7 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.intercept
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
@@ -64,6 +65,7 @@ internal class MessageEventListener(
                 text = event.message.contentRaw,
                 authorId = event.author.idLong,
                 reply = replyMapper.map(event.message),
+                ref = MessageRef.Discord(messageId = event.message.idLong),
             )
         )
     }

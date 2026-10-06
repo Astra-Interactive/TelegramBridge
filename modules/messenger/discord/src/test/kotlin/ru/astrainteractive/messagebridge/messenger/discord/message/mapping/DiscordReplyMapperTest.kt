@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import kotlin.test.Test
@@ -24,7 +25,8 @@ class DiscordReplyMapperTest {
             "getAuthor" to author,
             "getMember" to member,
             "isWebhookMessage" to isWebhook,
-            "getContentRaw" to "hello"
+            "getContentRaw" to "hello",
+            "getIdLong" to REPLIED_ID
         )
     )
 
@@ -51,7 +53,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "Stevie", authorId = STEVE_ID, text = "hello"), reply)
+        assertEquals(Text.Reply(author = "Stevie", authorId = STEVE_ID, text = "hello", target = REPLIED_REF), reply)
     }
 
     @Test
@@ -60,7 +62,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "steve", authorId = STEVE_ID, text = "hello"), reply)
+        assertEquals(Text.Reply(author = "steve", authorId = STEVE_ID, text = "hello", target = REPLIED_REF), reply)
     }
 
     @Test
@@ -69,7 +71,7 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello"), reply)
+        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello", target = null), reply)
     }
 
     @Test
@@ -78,10 +80,12 @@ class DiscordReplyMapperTest {
 
         val reply = mapper.map(message(type = MessageType.INLINE_REPLY, referenced = replied))
 
-        assertEquals(Text.Reply(author = "[CI] GitHub", authorId = null, text = "hello"), reply)
+        assertEquals(Text.Reply(author = "[CI] GitHub", authorId = null, text = "hello", target = null), reply)
     }
 
     private companion object {
+        const val REPLIED_ID = 500L
+        val REPLIED_REF = MessageRef.Discord(messageId = REPLIED_ID)
         const val STEVE_ID = 42L
         const val WEBHOOK_ID = 77L
     }

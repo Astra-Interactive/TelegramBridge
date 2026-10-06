@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +16,8 @@ class TelegramRelayedMessageCacheTest {
     private val text = Text.Minecraft(
         author = "Steve",
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-        text = "hello"
+        text = "hello",
+        ref = MessageRef.Minecraft(messageId = "mc-1")
     )
 
     @Test

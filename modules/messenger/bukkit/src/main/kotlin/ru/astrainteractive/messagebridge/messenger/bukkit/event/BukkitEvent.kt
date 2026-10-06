@@ -20,10 +20,12 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
+import java.util.UUID
 
 internal class BukkitEvent(
     configKrate: CachedKrate<PluginConfiguration>,
@@ -59,7 +61,8 @@ internal class BukkitEvent(
             Text.Minecraft(
                 author = event.player.name,
                 text = PlainTextComponentSerializer.plainText().serialize(event.message()),
-                uuid = event.player.uniqueId.toString()
+                uuid = event.player.uniqueId.toString(),
+                ref = MessageRef.Minecraft(messageId = UUID.randomUUID().toString())
             )
         }
 
