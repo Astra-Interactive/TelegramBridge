@@ -31,6 +31,8 @@ data class PluginConfiguration(
         val token: String = "",
         val activity: String = "",
         val channelId: String = "",
+        val replyPreviewLength: Int = 60,
+        val relayedMessageCacheSize: Int = 1000,
         val proxy: Proxy? = null
     )
 

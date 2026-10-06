@@ -119,6 +119,8 @@ data class PluginTranslation(
         },
         @SerialName("to_discord_username")
         private val toDiscordUsername: LocalizedText = LocalizedText.shared("[%from%] %dao%"),
+        @SerialName("to_discord_reply")
+        private val toDiscordReply: LocalizedText = LocalizedText.shared("-# ↪ %quote%\n%message%"),
         @SerialName("illegal_display_name")
         val illegalDisplayName: LocalizedText = LocalizedText.build {
             translation(
@@ -193,6 +195,14 @@ data class PluginTranslation(
         ): LocalizableComponent = toDiscordUsername.replaceAll(
             PlaceholderReplacement.plain("%dao%", playerName),
             PlaceholderReplacement.plain("%from%", from)
+        )
+
+        fun toDiscordReply(
+            message: String,
+            quote: String
+        ): LocalizableComponent = toDiscordReply.replaceAll(
+            PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%quote%", quote)
         )
 
         fun toMinecraftReply(

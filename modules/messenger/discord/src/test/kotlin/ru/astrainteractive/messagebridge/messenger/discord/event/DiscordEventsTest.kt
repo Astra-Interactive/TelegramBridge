@@ -31,6 +31,7 @@ import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.message.event.MessageEventListener
 import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
@@ -56,7 +57,14 @@ class DiscordEventsTest {
             platformServer = jdaFake(emptyMap()),
             translationKrate = DefaultMutableKrate(factory = { PluginTranslation() }, loader = { null }).asCachedKrate()
         ),
-        replyMapper = DiscordReplyMapper(),
+        replyMapper = DiscordReplyMapper(
+            translationKrate = DefaultMutableKrate(factory = { PluginTranslation() }, loader = { null })
+                .asCachedKrate(),
+            relayedMessageCache = DiscordRelayedMessageCache(
+                configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null })
+                    .asCachedKrate()
+            )
+        ),
         messageSender = DiscordMessageSender(),
         messageInterceptors = listOf(
             MessageInterceptor { event ->

@@ -30,6 +30,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordCommandMapper
@@ -117,7 +118,10 @@ class MessageEventListenerTest {
                 platformServer = EmptyPlatformServer,
                 translationKrate = translationKrate
             ),
-            replyMapper = DiscordReplyMapper(),
+            replyMapper = DiscordReplyMapper(
+                translationKrate = translationKrate,
+                relayedMessageCache = DiscordRelayedMessageCache(configKrate = configKrate)
+            ),
             messageSender = messageSender,
             messageInterceptors = interceptors.toList(),
             bEventConsumer = published
