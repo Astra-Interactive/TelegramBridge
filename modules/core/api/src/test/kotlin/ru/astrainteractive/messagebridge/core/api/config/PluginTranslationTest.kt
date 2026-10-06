@@ -152,4 +152,38 @@ class PluginTranslationTest {
         assertEquals("Reply to Steve:\n[media]", hoverTextOf(message))
         assertEquals("Ответ на сообщение Steve:\n[медиа]", hoverTextOf(message, MinecraftLocales.RU_RU))
     }
+
+    @Test
+    fun GIVEN_reply_WHEN_formatted_for_telegram_THEN_quote_stands_between_the_header_and_the_message() {
+        val message = translation.chat.toTelegramReply(
+            playerName = "Alex",
+            message = "hi",
+            from = "DS",
+            quote = "Steve: hello"
+        )
+
+        assertEquals("[DS] Alex:\nSteve: hello\nhi", plainText(message))
+    }
+
+    @Test
+    fun GIVEN_reply_WHEN_quoted_THEN_quote_names_the_replied_player_and_text() {
+        val quote = translation.chat.replyQuote(replyPlayerName = "Steve", replyMessage = "hello")
+
+        assertEquals("Steve: hello", plainText(quote))
+    }
+
+    @Test
+    fun GIVEN_reply_to_media_without_caption_WHEN_quoted_THEN_media_is_named() {
+        val quote = translation.chat.replyQuote(replyPlayerName = "Steve", replyMessage = "")
+
+        assertEquals("Steve: [media]", plainText(quote))
+    }
+
+    @Test
+    fun GIVEN_replied_message_with_click_tag_WHEN_quoted_THEN_tag_is_shown_as_text() {
+        val quote = translation.chat.replyQuote(replyPlayerName = "Steve", replyMessage = clickText)
+
+        assertEquals("Steve: $clickText", plainText(quote))
+        assertEquals(emptyList(), clickEventsOf(quote))
+    }
 }

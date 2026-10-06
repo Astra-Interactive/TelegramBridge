@@ -31,6 +31,8 @@ data class PluginConfiguration(
         val token: String = "",
         val activity: String = "",
         val channelId: String = "",
+        val replyPreviewLength: Int = 60,
+        val relayedMessageCacheSize: Int = 1000,
         val proxy: Proxy? = null
     )
 
@@ -44,6 +46,10 @@ data class PluginConfiguration(
         val topicID: String = "",
         @SerialName("max_telegram_message_length")
         val maxTelegramMessageLength: Int = 90,
+        @SerialName("reply_preview_length")
+        val replyPreviewLength: Int = 160,
+        @SerialName("relayed_message_cache_size")
+        val relayedMessageCacheSize: Int = 1000,
         @SerialName("display_name_regex")
         val displayNameRegex: String = ".*",
         @SerialName("proxy")

@@ -5,6 +5,7 @@ package ru.astrainteractive.messagebridge.link.internal
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
 import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.UUID
 import kotlin.test.Test
@@ -27,7 +28,9 @@ class LinkedDiscordAuthorResolverTest {
     fun GIVEN_player_linked_to_discord_WHEN_their_game_message_is_resolved_THEN_returns_their_discord_id() = runTest {
         linkSteve(discordAccount)
 
-        val discordId = resolver.discordUserId(Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi"))
+        val discordId = resolver.discordUserId(
+            Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi", ref = MC_REF)
+        )
 
         assertEquals(DISCORD_ID, discordId)
     }
@@ -37,7 +40,7 @@ class LinkedDiscordAuthorResolverTest {
         linkSteve(discordAccount)
 
         val discordId = resolver.discordUserId(
-            Text.Telegram(author = "steve_tg", text = "hi", authorId = TELEGRAM_ID, reply = null)
+            Text.Telegram(author = "steve_tg", text = "hi", authorId = TELEGRAM_ID, reply = null, ref = TG_REF)
         )
 
         assertEquals(DISCORD_ID, discordId)
@@ -48,7 +51,7 @@ class LinkedDiscordAuthorResolverTest {
         linkSteve(discordAccount)
 
         val discordId = resolver.discordUserId(
-            Text.Discord(author = "Stevie", text = "hi", authorId = DISCORD_ID, reply = null)
+            Text.Discord(author = "Stevie", text = "hi", authorId = DISCORD_ID, reply = null, ref = DS_REF)
         )
 
         assertEquals(DISCORD_ID, discordId)
@@ -59,7 +62,7 @@ class LinkedDiscordAuthorResolverTest {
         linkSteve(discordAccount = null)
 
         val discordId = resolver.discordUserId(
-            Text.Telegram(author = "steve_tg", text = "hi", authorId = TELEGRAM_ID, reply = null)
+            Text.Telegram(author = "steve_tg", text = "hi", authorId = TELEGRAM_ID, reply = null, ref = TG_REF)
         )
 
         assertNull(discordId)
@@ -68,7 +71,7 @@ class LinkedDiscordAuthorResolverTest {
     @Test
     fun GIVEN_author_who_never_linked_WHEN_resolved_THEN_returns_null() = runTest {
         val discordId = resolver.discordUserId(
-            Text.Telegram(author = "alex_tg", text = "hi", authorId = OTHER_TELEGRAM_ID, reply = null)
+            Text.Telegram(author = "alex_tg", text = "hi", authorId = OTHER_TELEGRAM_ID, reply = null, ref = TG_REF)
         )
 
         assertNull(discordId)
@@ -79,12 +82,17 @@ class LinkedDiscordAuthorResolverTest {
         linkSteve(discordAccount)
         linkingDao.findFailure = IllegalStateException("Database is locked")
 
-        val discordId = resolver.discordUserId(Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi"))
+        val discordId = resolver.discordUserId(
+            Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi", ref = MC_REF)
+        )
 
         assertNull(discordId)
     }
 
     private companion object {
+        val MC_REF = MessageRef.Minecraft(messageId = "mc-1")
+        val TG_REF = MessageRef.Telegram(chatId = -1001L, messageId = 1)
+        val DS_REF = MessageRef.Discord(messageId = 1L)
         const val DISCORD_ID = 4242L
         const val TELEGRAM_ID = 77L
         const val OTHER_TELEGRAM_ID = 78L

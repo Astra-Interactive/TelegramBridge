@@ -15,6 +15,7 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.intercept
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.message.command.TelegramCommandHandler
@@ -83,12 +84,14 @@ internal class TelegramChatConsumer(
             answer(update, interception.text)
         }
         if (interception != Interception.Pass) return
+        val message = update.message ?: return
         bEventConsumer.consume(
             Text.Telegram(
                 author = valid.author,
                 text = valid.text,
                 authorId = valid.authorId,
-                reply = update.message?.let { message -> replyMapper.map(message) },
+                reply = replyMapper.map(message),
+                ref = MessageRef.Telegram(chatId = message.chatId, messageId = message.messageId),
             )
         )
     }

@@ -58,11 +58,14 @@ sealed interface Text : BEvent {
 
     val reply: Reply?
 
+    val ref: MessageRef
+
     @Serializable
     data class Reply(
         val author: String,
         val authorId: Long?,
-        val text: String
+        val text: String,
+        val target: MessageRef?
     )
 
     @Serializable
@@ -71,7 +74,8 @@ sealed interface Text : BEvent {
         override val author: String,
         override val text: String,
         val authorId: Long,
-        override val reply: Reply?
+        override val reply: Reply?,
+        override val ref: MessageRef.Telegram
     ) : Text {
         override val from: MessageFrom = MessageFrom.TELEGRAM
     }
@@ -82,7 +86,8 @@ sealed interface Text : BEvent {
         override val author: String,
         override val text: String,
         val authorId: Long,
-        override val reply: Reply?
+        override val reply: Reply?,
+        override val ref: MessageRef.Discord
     ) : Text {
         override val from: MessageFrom = MessageFrom.DISCORD
     }
@@ -92,7 +97,8 @@ sealed interface Text : BEvent {
     data class Minecraft(
         override val author: String,
         val uuid: String,
-        override val text: String
+        override val text: String,
+        override val ref: MessageRef.Minecraft
     ) : Text {
         override val from: MessageFrom = MessageFrom.MINECRAFT
         override val reply: Reply? = null

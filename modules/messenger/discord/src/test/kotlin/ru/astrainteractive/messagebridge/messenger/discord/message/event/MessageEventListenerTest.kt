@@ -26,9 +26,11 @@ import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.discord.message.command.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.message.internal.DiscordMessageSender
 import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordCommandMapper
@@ -116,7 +118,10 @@ class MessageEventListenerTest {
                 platformServer = EmptyPlatformServer,
                 translationKrate = translationKrate
             ),
-            replyMapper = DiscordReplyMapper(),
+            replyMapper = DiscordReplyMapper(
+                translationKrate = translationKrate,
+                relayedMessageCache = DiscordRelayedMessageCache(configKrate = configKrate)
+            ),
             messageSender = messageSender,
             messageInterceptors = interceptors.toList(),
             bEventConsumer = published
@@ -132,7 +137,13 @@ class MessageEventListenerTest {
     fun GIVEN_interceptor_that_passes_WHEN_bridge_message_arrives_THEN_it_is_relayed() = runTest {
         receive(listener(recording(Interception.Pass)), message(content = "hello"))
 
-        val relayed = Text.Discord(author = "Stevie", text = "hello", authorId = STEVE_ID, reply = null)
+        val relayed = Text.Discord(
+            author = "Stevie",
+            text = "hello",
+            authorId = STEVE_ID,
+            reply = null,
+            ref = MessageRef.Discord(messageId = MESSAGE_ID)
+        )
         assertEquals(listOf<BEvent>(relayed), published.sent)
         assertEquals(listOf("hello"), interceptedContents)
         assertEquals(emptyList(), replies)

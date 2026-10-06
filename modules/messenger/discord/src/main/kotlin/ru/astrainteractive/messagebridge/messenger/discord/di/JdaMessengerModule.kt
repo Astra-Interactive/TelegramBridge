@@ -23,6 +23,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.event.DiscordEvents
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordChannelProvider
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordMemberResolver
+import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRoleUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
@@ -51,6 +52,10 @@ class JdaMessengerModule(
 
     private val messageSender = DiscordMessageSender()
 
+    private val relayedMessageCache = DiscordRelayedMessageCache(
+        configKrate = coreModule.configKrate,
+    )
+
     private val commandHandler = DiscordCommandHandler(
         messageSender = messageSender,
         platformServer = coreModule.platformServer,
@@ -61,7 +66,10 @@ class JdaMessengerModule(
         relevanceMapper = relevanceMapper,
         commandMapper = commandMapper,
         commandHandler = commandHandler,
-        replyMapper = DiscordReplyMapper(),
+        replyMapper = DiscordReplyMapper(
+            translationKrate = coreModule.translationKrate,
+            relayedMessageCache = relayedMessageCache,
+        ),
         messageSender = messageSender,
         messageInterceptors = messageInterceptors,
         bEventConsumer = bEventChannel,
@@ -110,7 +118,8 @@ class JdaMessengerModule(
         ),
         embedMapper = DiscordEmbedMapper(coreModule.translationKrate),
         memberResolver = DiscordMemberResolver(authorResolver),
-        webhookMessageMapper = DiscordWebhookMessageMapper(coreModule.translationKrate),
+        webhookMessageMapper = DiscordWebhookMessageMapper(coreModule.configKrate, coreModule.translationKrate),
+        relayedMessageCache = relayedMessageCache,
         translationKrate = coreModule.translationKrate,
         bEventReceiver = bEventChannel,
     )

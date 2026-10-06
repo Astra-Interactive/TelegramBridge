@@ -8,6 +8,7 @@ import ru.astrainteractive.astralibs.localization.component.replace
 import ru.astrainteractive.astralibs.localization.component.replaceAll
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
+import ru.astrainteractive.messagebridge.core.api.util.ellipsize
 
 /**
  * Texts of the plugin, grouped by the feature that sends them. Every text has a default, so the plugin works
@@ -107,8 +108,19 @@ data class PluginTranslation(
         },
         @SerialName("to_telegram")
         private val toTelegram: LocalizedText = LocalizedText.shared("[%from%] %dao%:\n%message%"),
+        @SerialName("to_telegram_reply")
+        private val toTelegramReply: LocalizedText = LocalizedText.shared("[%from%] %dao%:\n%quote%\n%message%"),
+        @SerialName("reply_quote")
+        private val replyQuote: LocalizedText = LocalizedText.shared("%reply_player%: %reply_message%"),
+        @SerialName("reply_server")
+        val replyServer: LocalizedText = LocalizedText.build {
+            translation(MinecraftLocales.EN_US, "[server]")
+            translation(MinecraftLocales.RU_RU, "[сервер]")
+        },
         @SerialName("to_discord_username")
         private val toDiscordUsername: LocalizedText = LocalizedText.shared("[%from%] %dao%"),
+        @SerialName("to_discord_reply")
+        private val toDiscordReply: LocalizedText = LocalizedText.shared("-# ↪ %quote%\n%message%"),
         @SerialName("illegal_display_name")
         val illegalDisplayName: LocalizedText = LocalizedText.build {
             translation(
@@ -150,6 +162,33 @@ data class PluginTranslation(
             PlaceholderReplacement.plain("%from%", from)
         )
 
+        fun toTelegramReply(
+            playerName: String,
+            message: String,
+            from: String,
+            quote: String
+        ): LocalizableComponent = toTelegramReply.replaceAll(
+            PlaceholderReplacement.plain("%dao%", playerName),
+            PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%from%", from),
+            PlaceholderReplacement.plain("%quote%", quote)
+        )
+
+        fun replyQuote(
+            replyPlayerName: String,
+            replyMessage: String
+        ): LocalizableComponent {
+            val replyMessageReplacement = if (replyMessage.isBlank()) {
+                PlaceholderReplacement(placeholder = "%reply_message%", value = replyMedia)
+            } else {
+                PlaceholderReplacement.plain("%reply_message%", replyMessage)
+            }
+            return replyQuote.replaceAll(
+                PlaceholderReplacement.plain("%reply_player%", replyPlayerName),
+                replyMessageReplacement
+            )
+        }
+
         fun toDiscordUsername(
             playerName: String,
             from: String
@@ -158,15 +197,13 @@ data class PluginTranslation(
             PlaceholderReplacement.plain("%from%", from)
         )
 
-        private fun String.toReplyPreview(): String {
-            if (length <= MAX_REPLY_PREVIEW_LENGTH) return this
-            val end = if (this[MAX_REPLY_PREVIEW_LENGTH - 1].isHighSurrogate()) {
-                MAX_REPLY_PREVIEW_LENGTH - 1
-            } else {
-                MAX_REPLY_PREVIEW_LENGTH
-            }
-            return substring(0, end).trimEnd() + "…"
-        }
+        fun toDiscordReply(
+            message: String,
+            quote: String
+        ): LocalizableComponent = toDiscordReply.replaceAll(
+            PlaceholderReplacement.plain("%message%", message),
+            PlaceholderReplacement.plain("%quote%", quote)
+        )
 
         fun toMinecraftReply(
             playerName: String,
@@ -178,7 +215,7 @@ data class PluginTranslation(
             val replyMessageReplacement = if (replyMessage.isBlank()) {
                 PlaceholderReplacement(placeholder = "%reply_message%", value = replyMedia)
             } else {
-                PlaceholderReplacement.plain("%reply_message%", replyMessage.toReplyPreview())
+                PlaceholderReplacement.plain("%reply_message%", replyMessage.ellipsize(MAX_REPLY_PREVIEW_LENGTH))
             }
             return toMinecraftReply.replaceAll(
                 PlaceholderReplacement.plain("%dao%", playerName),

@@ -12,6 +12,7 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
 import kotlin.test.Test
@@ -20,14 +21,20 @@ import kotlin.test.assertNull
 
 class TelegramReplyMapperTest {
     private val config = PluginConfiguration(
-        tgConfig = PluginConfiguration.TelegramConfig(chatID = "$CHAT_ID", topicID = "$TOPIC_ID")
+        tgConfig = PluginConfiguration.TelegramConfig(
+            token = "$BOT_ID:token",
+            chatID = "$CHAT_ID",
+            topicID = "$TOPIC_ID"
+        )
     )
-    private val relayedMessageCache = TelegramRelayedMessageCache(capacity = 10)
+    private val configKrate = DefaultMutableKrate(factory = { config }, loader = { null }).asCachedKrate()
+    private val translationKrate = DefaultMutableKrate(factory = { PluginTranslation() }, loader = { null })
+        .asCachedKrate()
+    private val relayedMessageCache = TelegramRelayedMessageCache(configKrate = configKrate)
     private val mapper = TelegramReplyMapper(
-        configKrate = DefaultMutableKrate(factory = { config }, loader = { null }).asCachedKrate(),
-        authorMapper = TelegramAuthorMapper(
-            translationKrate = DefaultMutableKrate(factory = { PluginTranslation() }, loader = { null }).asCachedKrate()
-        ),
+        configKrate = configKrate,
+        translationKrate = translationKrate,
+        authorMapper = TelegramAuthorMapper(translationKrate = translationKrate),
         relayedMessageCache = relayedMessageCache
     )
     private val steve = User(STEVE_ID, "Steve", false).apply { userName = "steve_tg" }
@@ -62,7 +69,10 @@ class TelegramReplyMapperTest {
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello"), reply)
+        assertEquals(
+            Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello", target = REPLIED_REF),
+            reply
+        )
     }
 
     @Test
@@ -90,38 +100,70 @@ class TelegramReplyMapperTest {
 
         val reply = mapper.map(message)
 
-        assertEquals(Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn"), reply)
+        assertEquals(
+            Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn", target = REPLIED_REF),
+            reply
+        )
     }
 
     @Test
     fun GIVEN_reply_to_message_bot_relayed_WHEN_mapped_THEN_reply_names_player_who_wrote_it() = runTest {
-        val relayed = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hello")
+        val relayed = Text.Minecraft(
+            author = "Steve",
+            uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+            text = "hello",
+            ref = RELAYED_REF
+        )
         relayedMessageCache.remember(chatId = CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello"), reply)
+        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello", target = RELAYED_REF), reply)
     }
 
     @Test
-    fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_names_bot() = runTest {
+    fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_is_labelled_as_the_server() = runTest {
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "MessageBridgeBot", authorId = BOT_ID, text = "[MC] Steve:\nhello"), reply)
+        assertEquals(
+            Text.Reply(author = "[server]", authorId = null, text = "[MC] Steve:\nhello", target = REPLIED_REF),
+            reply
+        )
+    }
+
+    @Test
+    fun GIVEN_reply_to_message_of_another_bot_WHEN_mapped_THEN_reply_names_that_bot() = runTest {
+        val otherBot = User(OTHER_BOT_ID, "Helper", true).apply { userName = "HelperBot" }
+        val replied = message(id = 10, from = otherBot, text = "pong")
+
+        val reply = mapper.map(replyTo(replied))
+
+        assertEquals(
+            Text.Reply(author = "HelperBot", authorId = OTHER_BOT_ID, text = "pong", target = REPLIED_REF),
+            reply
+        )
     }
 
     @Test
     fun GIVEN_message_relayed_in_another_chat_WHEN_reply_to_same_id_is_mapped_THEN_reply_names_its_author() = runTest {
-        val relayed = Text.Minecraft(author = "Steve", uuid = "8667ba71-b85a-4004-af54-457a9734eed7", text = "hello")
+        val relayed = Text.Minecraft(
+            author = "Steve",
+            uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+            text = "hello",
+            ref = RELAYED_REF
+        )
         relayedMessageCache.remember(chatId = OTHER_CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = steve, text = "different")
 
         val reply = mapper.map(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different"), reply)
+        assertEquals(
+            Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different", target = REPLIED_REF),
+            reply
+        )
     }
 
     @Test
@@ -146,11 +188,14 @@ class TelegramReplyMapperTest {
     }
 
     private companion object {
+        val REPLIED_REF = MessageRef.Telegram(chatId = CHAT_ID, messageId = 10)
+        val RELAYED_REF = MessageRef.Minecraft(messageId = "mc-1")
         const val CHAT_ID = -1001L
         const val OTHER_CHAT_ID = -1002L
         const val TOPIC_ID = 7
         const val STEVE_ID = 42L
         const val ALEX_ID = 43L
         const val BOT_ID = 99L
+        const val OTHER_BOT_ID = 98L
     }
 }

@@ -8,6 +8,8 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
+import org.telegram.telegrambots.meta.api.objects.MessageEntity
+import org.telegram.telegrambots.meta.api.objects.ReplyParameters
 import org.telegram.telegrambots.meta.api.objects.message.Message
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
@@ -40,8 +42,23 @@ internal class TelegramMessageSender(
         return execute(method)
     }
 
-    suspend fun send(chatId: String, text: String, replyToMessageId: Int? = null): Message? {
-        val sendMessage = SendMessage(chatId, text).apply { this.replyToMessageId = replyToMessageId }
+    suspend fun send(
+        chatId: String,
+        text: String,
+        replyToMessageId: Int? = null,
+        topicId: Int? = null,
+        entities: List<MessageEntity> = emptyList()
+    ): Message? {
+        val sendMessage = SendMessage(chatId, text).apply {
+            replyParameters = replyToMessageId?.let { messageId ->
+                ReplyParameters.builder()
+                    .messageId(messageId)
+                    .allowSendingWithoutReply(true)
+                    .build()
+            }
+            messageThreadId = topicId
+            if (entities.isNotEmpty()) this.entities = entities
+        }
         return executeAfterFloodWait(sendMessage)
             .onFailure { t -> error { "#send could not send a message to chat $chatId: $t" } }
             .getOrNull()

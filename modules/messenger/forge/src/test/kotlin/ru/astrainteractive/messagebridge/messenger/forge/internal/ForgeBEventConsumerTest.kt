@@ -11,6 +11,7 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import kotlin.test.Test
 
@@ -32,7 +33,8 @@ class ForgeBEventConsumerTest {
         author = "steve_tg",
         text = "hello",
         authorId = STEVE_TG,
-        reply = null
+        reply = null,
+        ref = MessageRef.Telegram(chatId = -1001L, messageId = 1)
     )
 
     private fun consumer(): ForgeBEventConsumer {

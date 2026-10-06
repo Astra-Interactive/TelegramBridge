@@ -22,6 +22,7 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
@@ -40,6 +41,7 @@ internal class DiscordBEventConsumer(
     private val embedMapper: DiscordEmbedMapper,
     private val memberResolver: DiscordMemberResolver,
     private val webhookMessageMapper: DiscordWebhookMessageMapper,
+    private val relayedMessageCache: DiscordRelayedMessageCache,
     translationKrate: CachedKrate<PluginTranslation>,
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
@@ -47,10 +49,22 @@ internal class DiscordBEventConsumer(
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
     private val translation by translationKrate
 
+    private suspend fun replyJumpUrl(reply: Text.Reply, channel: TextChannel): String? {
+        val target = reply.target ?: return null
+        val messageId = if (target is MessageRef.Discord) {
+            target.messageId
+        } else {
+            relayedMessageCache.copyOf(target) ?: return null
+        }
+        return "${channel.jumpUrl}/$messageId"
+    }
+
     private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
         val member = memberResolver.resolve(channel, event)
-        val message = webhookMessageMapper.map(event, member)
-        webhookClient.send(message).await()
+        val replyJumpUrl = event.reply?.let { reply -> replyJumpUrl(reply, channel) }
+        val message = webhookMessageMapper.map(event, member, replyJumpUrl)
+        val sentMessage = webhookClient.send(message).await()
+        relayedMessageCache.remember(sentMessage.id, event)
     }
 
     private suspend fun sendServerStatus(channel: TextChannel, text: String) {

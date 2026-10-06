@@ -23,8 +23,10 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
@@ -72,14 +74,31 @@ class DiscordBEventConsumerTest {
                 topicEdits += 1
                 topicManager.answer(args)
             },
+            "getJumpUrl" to CHANNEL_JUMP_URL,
             "toString" to "#bridge"
         )
     )
+    private val configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null })
+        .asCachedKrate()
+    private val relayedMessageCache = DiscordRelayedMessageCache(configKrate = configKrate)
     private val ready = DiscordChannel.Ready(textChannel = textChannel, webhookClient = webhookClient)
     private val steveMessage = Text.Minecraft(
         author = "Steve",
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-        text = "hello"
+        text = "hello",
+        ref = MessageRef.Minecraft(messageId = "mc-1")
+    )
+    private val alexReply = Text.Telegram(
+        author = "steve_tg",
+        text = "yes",
+        authorId = 1L,
+        reply = Text.Reply(
+            author = "Alex",
+            authorId = ALEX_ID,
+            text = "hi",
+            target = MessageRef.Discord(messageId = DISCORD_MESSAGE_ID)
+        ),
+        ref = MessageRef.Telegram(chatId = -1001L, messageId = 10)
     )
     private val translatedServerTexts = PluginTranslation(
         server = PluginTranslation.Server(
@@ -116,7 +135,8 @@ class DiscordBEventConsumerTest {
             ),
             embedMapper = DiscordEmbedMapper(translationKrate),
             memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
-            webhookMessageMapper = DiscordWebhookMessageMapper(translationKrate),
+            webhookMessageMapper = DiscordWebhookMessageMapper(configKrate, translationKrate),
+            relayedMessageCache = relayedMessageCache,
             translationKrate = translationKrate,
             bEventReceiver = FakeBEventReceiver(emptyFlow())
         )
@@ -179,6 +199,42 @@ class DiscordBEventConsumerTest {
     }
 
     @Test
+    fun GIVEN_ready_discord_WHEN_chat_message_is_sent_THEN_it_is_remembered_under_the_webhook_message_id() = runTest {
+        consumer(ready).consume(steveMessage)
+
+        assertEquals<Text?>(steveMessage, relayedMessageCache.find(messageId = 1L))
+    }
+
+    @Test
+    fun GIVEN_telegram_reply_to_a_discord_message_WHEN_consumed_THEN_the_subtext_links_to_that_message() = runTest {
+        consumer(ready).consume(alexReply)
+
+        val message = webhookClient.sent.single()
+        assertEquals("[TG] steve_tg", message.username)
+        assertEquals("-# ↪ [Alex]($CHANNEL_JUMP_URL/$DISCORD_MESSAGE_ID): hi\nyes", message.content)
+    }
+
+    @Test
+    fun GIVEN_telegram_reply_to_a_relayed_minecraft_message_WHEN_consumed_THEN_the_subtext_links_to_the_copy() =
+        runTest {
+            val consumer = consumer(ready)
+            consumer.consume(steveMessage)
+
+            consumer.consume(alexReply.copy(reply = alexReply.reply?.copy(target = steveMessage.ref)))
+
+            assertEquals("-# ↪ [Alex]($CHANNEL_JUMP_URL/1): hi\nyes", webhookClient.sent.last().content)
+        }
+
+    @Test
+    fun GIVEN_telegram_reply_to_a_message_discord_never_saw_WHEN_consumed_THEN_the_subtext_has_no_link() = runTest {
+        val unknown = MessageRef.Minecraft(messageId = "relayed-before-restart")
+
+        consumer(ready).consume(alexReply.copy(reply = alexReply.reply?.copy(target = unknown)))
+
+        assertEquals("-# ↪ Alex: hi\nyes", webhookClient.sent.single().content)
+    }
+
+    @Test
     fun GIVEN_webhook_that_fails_WHEN_chat_message_is_consumed_THEN_consume_returns() = runTest {
         webhookClient.failure = IllegalStateException("429: You are being rate limited")
 
@@ -232,7 +288,13 @@ class DiscordBEventConsumerTest {
 
     @Test
     fun GIVEN_ready_discord_WHEN_message_from_discord_is_consumed_THEN_it_is_not_sent_back() = runTest {
-        val discordMessage = Text.Discord(author = "Stevie", text = "hi", authorId = 1L, reply = null)
+        val discordMessage = Text.Discord(
+            author = "Stevie",
+            text = "hi",
+            authorId = 1L,
+            reply = null,
+            ref = MessageRef.Discord(messageId = 1L)
+        )
 
         consumer(ready).consume(discordMessage)
 
@@ -277,6 +339,9 @@ class DiscordBEventConsumerTest {
         }
 
     private companion object {
+        const val ALEX_ID = 43L
+        const val DISCORD_MESSAGE_ID = 55L
+        const val CHANNEL_JUMP_URL = "https://discord.com/channels/1/2"
         const val SERVER_OPEN_MESSAGE = "✅ **The server has started**"
         const val SERVER_CLOSED_MESSAGE = "🛑 **The server has stopped**"
         val CONNECTING_TIMEOUT = 30.seconds
