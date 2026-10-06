@@ -12,7 +12,7 @@ import javax.annotation.ParametersAreNonnullByDefault
 @ParametersAreNonnullByDefault
 class ForgeEntryPoint :
     ForgeLifecycleServer(),
-    Logger by JUtiltLogger("ForgeEntryPoint"),
+    Logger by JUtiltLogger("MessageBridge-ForgeEntryPoint"),
     Lifecycle {
     private val rootModule = RootModule(this)
 

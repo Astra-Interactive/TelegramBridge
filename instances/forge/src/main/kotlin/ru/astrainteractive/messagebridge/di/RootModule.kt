@@ -1,6 +1,9 @@
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import net.minecraftforge.fml.loading.FMLPaths
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.command.brigadier.command.MinecraftMultiplatformCommands
@@ -9,24 +12,25 @@ import ru.astrainteractive.astralibs.coroutines.MinecraftDispatchers
 import ru.astrainteractive.astralibs.lifecycle.ForgeLifecycleServer
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.bridge.MinecraftPlatformServer
+import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.commands.di.CommandModule
-import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.forge.core.api.ForgeLuckPermsProvider
-import ru.astrainteractive.messagebridge.forge.core.api.ForgeOnlinePlayersProvider
+import ru.astrainteractive.messagebridge.command.di.CommandModule
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messaging.internal.BEventChannel
-import ru.astrainteractive.messagebridge.messaging.model.ServerClosedBEvent
-import ru.astrainteractive.messagebridge.messaging.model.ServerOpenBEvent
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannelImpl
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
+import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.forge.di.ForgeMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 
 class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
-) : Logger by JUtiltLogger("MessageBridge-RootModuleImpl").withoutParentHandlers() {
+) : Logger by JUtiltLogger("MessageBridge-RootModule") {
     val coreModule = CoreModule(
         dataFolder = FMLPaths.CONFIGDIR.get()
             .resolve("MessageBridge")
@@ -39,48 +43,50 @@ class RootModule(
         commandRegistrarContextFactory = ::ForgeCommandRegistrarContext
     )
 
+    private val bEventChannel: BEventChannel = BEventChannelImpl()
+
     val commandModule by lazy {
         CommandModule(
             coreModule = coreModule,
-            linkModule = linkModule,
             lifecyclePlugin = forgeLifecycleServer,
             commandRegistrarContext = coreModule.commandRegistrarContext
         )
     }
 
-    val onlinePlayersProvider by lazy {
-        ForgeOnlinePlayersProvider()
-    }
-
     val linkModule by lazy {
-        LinkModule.Default(coreModule, ForgeLuckPermsProvider)
+        LinkModule(coreModule, LuckPermsProvider.Default)
     }
 
     val forgeMessengerModule by lazy {
         ForgeMessengerModule(
             coreModule = coreModule,
+            bEventChannel = bEventChannel,
         )
     }
 
     val jdaEventModule by lazy {
         JdaMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
-            linkModule = linkModule
+            bEventChannel = bEventChannel,
+            messageInterceptors = listOf(linkModule.discordLinkInterceptor),
+            authorResolver = linkModule.discordAuthorResolver,
+            memberLeaveListeners = listOf(linkModule.discordMemberLeaveListener),
+            roleChanges = linkModule.discordRoleChanges
         )
     }
 
     val tgEventModule by lazy {
         TelegramMessengerModule(
             coreModule = coreModule,
-            onlinePlayersProvider = onlinePlayersProvider,
-            linkModule = linkModule
+            bEventChannel = bEventChannel,
+            messageInterceptors = listOf(linkModule.telegramLinkInterceptor)
         )
     }
 
     private val lifecycles: List<Lifecycle>
         get() = listOf(
             coreModule.lifecycle,
+            linkModule.lifecycle,
             commandModule.lifecycle,
             jdaEventModule.lifecycle,
             tgEventModule.lifecycle,
@@ -90,7 +96,7 @@ class RootModule(
     val lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.ioScope.launch {
-                BEventChannel.consume(ServerOpenBEvent)
+                bEventChannel.consume(ServerOpenBEvent)
             }
             lifecycles.forEach(Lifecycle::onEnable)
         },
@@ -98,10 +104,18 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
-            coreModule.ioScope.launch {
-                BEventChannel.consume(ServerClosedBEvent)
+            runBlocking {
+                withTimeoutOrNull(SERVER_CLOSED_TIMEOUT) {
+                    listOf(tgEventModule.bEventConsumer, jdaEventModule.bEventConsumer)
+                        .map { consumer -> coreModule.ioScope.launch { consumer.consume(ServerClosedBEvent) } }
+                        .joinAll()
+                } ?: warn { "#onDisable messengers did not consume $ServerClosedBEvent within $SERVER_CLOSED_TIMEOUT" }
             }
             lifecycles.reversed().forEach(Lifecycle::onDisable)
         }
     )
+
+    private companion object {
+        val SERVER_CLOSED_TIMEOUT = 5.seconds
+    }
 }

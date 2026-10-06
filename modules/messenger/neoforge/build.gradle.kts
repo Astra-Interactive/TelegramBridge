@@ -19,9 +19,11 @@ dependencies {
     implementation(libs.minecraft.kyori.plain)
 
     implementation(projects.modules.core.api)
-    implementation(projects.modules.core.neoforge)
-    implementation(projects.modules.link)
     implementation(projects.modules.messenger.api)
+
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.tests.kotlin.test)
+    testImplementation(testFixtures(projects.modules.messenger.api))
 }
 
 dependencies {

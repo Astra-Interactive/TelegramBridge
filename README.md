@@ -22,7 +22,9 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
   replied message. Change the look with `chat.to_minecraft_reply` in `translations.yml`
 - **Events** — player join (first-time flag), leave, death, server start/stop
 - **Account linking** — `/link` in-game → code → `/link <code>` in TG or Discord
+    - Linking from Discord requires being a member of the Discord server
     - Grants a LuckPerms role and a Discord role on link
+    - Revokes both roles on `/unlink`
     - Revokes the LuckPerms role when a player leaves the Discord server
 - **Online list** — `/vanilla` (Telegram) or `!vanilla` (Discord) shows current players
 - **Proxy support** — HTTP proxy with auth for both bots
@@ -34,7 +36,7 @@ Chat messages, join/leave/death events, and server start/stop — all forwarded 
 
 | Platform       | File                           | Minecraft |
 |----------------|--------------------------------|-----------|
-| Paper / Spigot | `MessageBridge-bukkit-*.jar`   | 1.18+     |
+| Paper          | `MessageBridge-bukkit-*.jar`   | 1.18+     |
 | NeoForge       | `MessageBridge-neoforge-*.jar` | 1.20.1    |
 | Forge          | `MessageBridge-forge-*.jar`    | 1.20.1    |
 

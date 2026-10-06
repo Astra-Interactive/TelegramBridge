@@ -5,21 +5,20 @@ import kotlinx.coroutines.flow.flow
 import net.dv8tion.jda.api.JDA
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.messenger.discord.util.RestActionExt.await
+import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
-internal class WebHookClientFactory(
-    private val jda: JDA
-) : Logger by JUtiltLogger("WebHookClientFactory").withoutParentHandlers() {
-    fun create(channelId: String) = flow {
+internal class WebHookClientFactory :
+    Logger by JUtiltLogger("MessageBridge-WebHookClientFactory") {
+    fun create(jda: JDA, channelId: String) = flow {
         jda.awaitReady()
         val channel = jda.getTextChannelById(channelId) ?: error("Could not find channel $channelId")
         val webhook = channel.retrieveWebhooks()
             .await()
-            .firstOrNull { it.name == "BRIDGE_HOOK_$channelId" }
+            .firstOrNull { existingWebhook -> existingWebhook.name == "BRIDGE_HOOK_$channelId" }
             ?: channel
                 .createWebhook("BRIDGE_HOOK_$channelId")
                 .await()
-        info { "#create channel: $channelId, url: ${webhook.url}" }
+        verbose { "#create channel: $channelId, url: ${webhook.url}" }
         val client = WebhookClientBuilder(webhook.url)
             .setHttpClient(jda.httpClient)
             .setThreadFactory { job: Runnable? ->
@@ -28,7 +27,7 @@ internal class WebHookClientFactory(
                 thread.isDaemon = true
                 thread
             }.setWait(true).build()
-        info { "#create WebhookClientBuilder: created" }
+        verbose { "#create WebhookClientBuilder: created" }
         emit(client)
     }
 }

@@ -1,0 +1,12 @@
+package ru.astrainteractive.messagebridge.messenger.discord.message.model
+
+internal sealed interface DiscordMessageRelevance {
+    /** Guild message in the configured bridge channel — handle as a command or relay it. */
+    data object Relevant : DiscordMessageRelevance
+
+    data object PrivateMessage : DiscordMessageRelevance
+
+    data object WebhookMessage : DiscordMessageRelevance
+    data object BotAuthor : DiscordMessageRelevance
+    data object WrongChannel : DiscordMessageRelevance
+}

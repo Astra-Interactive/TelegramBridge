@@ -22,6 +22,7 @@ dependencies {
     compileOnly(libs.minecraft.paper.api)
     compileOnly(libs.minecraft.vaultapi)
 
+    shadow(libs.jda)
     shadow(libs.klibs.kstorage)
     shadow(libs.klibs.mikro.core)
     shadow(libs.kotlin.coroutines.core)
@@ -32,6 +33,7 @@ dependencies {
     shadow(libs.minecraft.astralibs.core.bukkit)
     shadow(libs.minecraft.astralibs.menu.bukkit)
     shadow(libs.minecraft.bstats)
+    shadow(libs.telegrambots.client)
     shadow(projects.modules.command)
     shadow(projects.modules.core.api)
     shadow(projects.modules.core.bukkit)

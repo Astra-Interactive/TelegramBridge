@@ -8,7 +8,6 @@ plugins {
 dependencies {
     compileOnly(libs.minecraft.brigadier)
     compileOnly(libs.minecraft.kyori.plain)
-    compileOnly(libs.minecraft.luckperms)
 
     implementation(libs.klibs.kstorage)
     implementation(libs.klibs.mikro.core)

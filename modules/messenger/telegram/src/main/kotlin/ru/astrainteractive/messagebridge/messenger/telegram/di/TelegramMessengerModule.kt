@@ -19,25 +19,27 @@ import okhttp3.Dns
 import okhttp3.OkHttpClient
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
+import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.OnlinePlayersProvider
-import ru.astrainteractive.messagebridge.core.di.CoreModule
-import ru.astrainteractive.messagebridge.link.di.LinkModule
-import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramChatConsumer
-import ru.astrainteractive.messagebridge.messenger.telegram.events.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.di.CoreModule
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
+import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.CappedBackOff
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramAuthorMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramCommandMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageRelevanceMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramMessageValidatorMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.mapping.TelegramReplyMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramBEventConsumer
-import ru.astrainteractive.messagebridge.messenger.telegram.messaging.TelegramMessageSender
-import ru.astrainteractive.messagebridge.messenger.telegram.util.CappedBackOff
+import ru.astrainteractive.messagebridge.messenger.telegram.message.command.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.message.event.TelegramChatConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramAuthorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramCommandMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageRelevanceMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageValidatorMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramReplyMapper
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -50,9 +52,9 @@ import kotlin.time.toJavaDuration
 
 class TelegramMessengerModule(
     coreModule: CoreModule,
-    onlinePlayersProvider: OnlinePlayersProvider,
-    linkModule: LinkModule,
-) : Logger by JUtiltLogger("MessageBridge-TelegramModule") {
+    bEventChannel: BEventChannel,
+    messageInterceptors: List<MessageInterceptor<Update>>,
+) : Logger by JUtiltLogger("MessageBridge-TelegramMessengerModule") {
 
     private val ipv4FirstDns = object : Dns {
         override fun lookup(hostname: String): List<InetAddress> {
@@ -103,7 +105,9 @@ class TelegramMessengerModule(
         .shareIn(coreModule.ioScope, SharingStarted.Lazily, 1)
 
     private val telegramClientFlow = combine(
-        flow = coreModule.configKrate.cachedStateFlow.map { it.tgConfig }.distinctUntilChanged(),
+        flow = coreModule.configKrate.cachedStateFlow
+            .map { pluginConfiguration -> pluginConfiguration.tgConfig }
+            .distinctUntilChanged(),
         flow2 = okHttpClientFlow,
         transform = { tgConfig, okHttpClient ->
             val client = OkHttpTelegramClient(
@@ -118,14 +122,23 @@ class TelegramMessengerModule(
         capacity = RELAYED_MESSAGE_CACHE_CAPACITY
     )
 
+    private val messageSender = TelegramMessageSender(
+        telegramClientFlow = telegramClientFlow,
+    )
+
     private val telegramMessageController = TelegramBEventConsumer(
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate,
-        telegramClientFlow = telegramClientFlow,
+        messageSender = messageSender,
         relayedMessageCache = relayedMessageCache,
+        bEventReceiver = bEventChannel,
     )
 
-    private val authorMapper = TelegramAuthorMapper()
+    val bEventConsumer: BEventConsumer = telegramMessageController
+
+    private val authorMapper = TelegramAuthorMapper(
+        translationKrate = coreModule.translationKrate,
+    )
 
     private val replyMapper = TelegramReplyMapper(
         configKrate = coreModule.configKrate,
@@ -135,6 +148,7 @@ class TelegramMessengerModule(
 
     private val relevanceChecker = TelegramMessageRelevanceMapper(
         configKrate = coreModule.configKrate,
+        clock = coreModule.clock,
     )
 
     private val messageValidator = TelegramMessageValidatorMapper(
@@ -144,14 +158,9 @@ class TelegramMessengerModule(
 
     private val commandParser = TelegramCommandMapper()
 
-    private val messageSender = TelegramMessageSender(
-        telegramClientFlow = telegramClientFlow,
-    )
-
     private val commandHandler = TelegramCommandHandler(
         messageSender = messageSender,
-        onlinePlayersProvider = onlinePlayersProvider,
-        linkApi = linkModule.linkApi,
+        platformServer = coreModule.platformServer,
         translationKrate = coreModule.translationKrate,
     )
 
@@ -165,6 +174,8 @@ class TelegramMessengerModule(
         commandParser = commandParser,
         commandHandler = commandHandler,
         messageSender = messageSender,
+        bEventConsumer = bEventChannel,
+        messageInterceptors = messageInterceptors,
     )
 
     private val bridgeBotFlow = coreModule.configKrate

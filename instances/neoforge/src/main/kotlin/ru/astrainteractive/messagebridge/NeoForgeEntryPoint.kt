@@ -12,7 +12,7 @@ import javax.annotation.ParametersAreNonnullByDefault
 @ParametersAreNonnullByDefault
 class NeoForgeEntryPoint :
     ForgeLifecycleServer(),
-    Logger by JUtiltLogger("NeoForgeEntryPoint"),
+    Logger by JUtiltLogger("MessageBridge-NeoForgeEntryPoint"),
     Lifecycle {
     private val rootModule = RootModule(this)
 
