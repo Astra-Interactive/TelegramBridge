@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.telegram.fake
 import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.TimeUnit
 
-internal object DirectExecutorService : AbstractExecutorService() {
+internal object DirectExecutor : AbstractExecutorService() {
     override fun execute(command: Runnable) {
         command.run()
     }

@@ -45,7 +45,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.fake.DirectExecutorService
+import ru.astrainteractive.messagebridge.messenger.telegram.fake.DirectExecutor
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageRelevanceMapper
@@ -116,7 +116,7 @@ class TelegramChatConsumerTest {
         telegramClientFlow = flowOf(
             OkHttpTelegramClient(
                 OkHttpClient.Builder()
-                    .dispatcher(Dispatcher(DirectExecutorService))
+                    .dispatcher(Dispatcher(DirectExecutor))
                     .addInterceptor { chain -> respond(chain) }
                     .build(),
                 "123:token"
