@@ -101,7 +101,9 @@ class ExposedLinkedPlayerRepositoryTest {
             repository.link(uuid = alexUuid, minecraftName = "Alex", account = steveTelegram)
             val start = TimeSource.Monotonic.markNow()
 
-            val outcome = repository.link(uuid = steveUuid, minecraftName = "Steve", account = steveTelegram).getOrThrow()
+            val outcome = repository
+                .link(uuid = steveUuid, minecraftName = "Steve", account = steveTelegram)
+                .getOrThrow()
 
             assertEquals(LinkOutcome.AccountTaken, outcome)
             assertTrue(start.elapsedNow() < QUICK_FAILURE, "took ${start.elapsedNow()}")

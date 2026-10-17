@@ -12,7 +12,7 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.link.code.fake.FakeLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
@@ -67,7 +67,10 @@ class LinkLiteralArgumentBuilderTest {
 
     @Test
     fun GIVEN_code_service_that_breaks_WHEN_player_runs_link_THEN_reads_unknown_error() {
-        val brokenCodeRepository = FakeLinkCodeRepository(code = 4821, failure = IllegalStateException("Code storage is full"))
+        val brokenCodeRepository = FakeLinkCodeRepository(
+            code = 4821,
+            failure = IllegalStateException("Code storage is full")
+        )
 
         executeAsSteve(input = "link", linkCodeRepository = brokenCodeRepository)
 

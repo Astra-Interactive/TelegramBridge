@@ -23,10 +23,10 @@ import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.klibs.kstorage.api.asCachedMutableKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.core.api.fake.RecordingConsoleKCommandSender
-import ru.astrainteractive.messagebridge.core.api.permission.PluginPermission
+import ru.astrainteractive.messagebridge.core.api.permission.model.PluginPermission
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.message.model.MessageRelevance
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
