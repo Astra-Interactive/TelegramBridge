@@ -1,0 +1,1 @@
+InMemoryPlacement	src/test/kotlin/ru/astrainteractive/messagebridge/messenger/api/memory/InMemoryBEventChannelTest.kt	InMemoryBEventChannelTest
