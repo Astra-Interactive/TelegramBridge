@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.dao.table
+package ru.astrainteractive.messagebridge.link.exposed.table
 
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table

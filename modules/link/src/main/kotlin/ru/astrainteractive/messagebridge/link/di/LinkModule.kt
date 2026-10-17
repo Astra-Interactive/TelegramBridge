@@ -9,15 +9,14 @@ import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.link.code.api.CodeApi
-import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
+import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
+import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.command.DiscordLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.command.TelegramLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuilder
-import ru.astrainteractive.messagebridge.link.dao.di.LinkDatabaseModule
 import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolver
@@ -39,9 +38,9 @@ class LinkModule(
         dataFolder = coreModule.dataFolder
     )
 
-    private val linkingDao = linkDatabaseModule.linkingDao
+    private val linkedPlayerRepository = linkDatabaseModule.linkedPlayerRepository
 
-    private val codeApi: CodeApi = CodeApiImpl()
+    private val linkCodeRepository: LinkCodeRepository = InMemoryLinkCodeRepository()
 
     private val luckPermsRoleController = LuckPermsRoleController(
         configKrate = coreModule.configKrate,
@@ -49,8 +48,8 @@ class LinkModule(
     )
 
     private val linkAccountUseCase = LinkAccountUseCase(
-        codeApi = codeApi,
-        linkingDao = linkingDao,
+        linkCodeRepository = linkCodeRepository,
+        linkedPlayerRepository = linkedPlayerRepository,
         luckPermsRoleController = luckPermsRoleController
     )
 
@@ -76,20 +75,20 @@ class LinkModule(
     )
 
     val discordMemberLeaveListener: DiscordMemberLeaveListener = LinkedMemberLeaveListener(
-        linkingDao = linkingDao,
+        linkedPlayerRepository = linkedPlayerRepository,
         luckPermsRoleController = luckPermsRoleController
     )
 
-    val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkingDao)
+    val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkedPlayerRepository)
 
-    val linkedNameInterceptor: TextInterceptor = LinkedNameInterceptor(linkingDao)
+    val linkedNameInterceptor: TextInterceptor = LinkedNameInterceptor(linkedPlayerRepository)
 
     private val commandNodes by lazy {
         listOf(
             LinkLiteralArgumentBuilder(
                 executor = LinkCommandExecutor(
-                    codeApi = codeApi,
-                    linkingDao = linkingDao,
+                    linkCodeRepository = linkCodeRepository,
+                    linkedPlayerRepository = linkedPlayerRepository,
                     translationKrate = coreModule.translationKrate
                 ),
                 ioScope = coreModule.ioScope,
@@ -99,7 +98,7 @@ class LinkModule(
             ).create(),
             UnlinkLiteralArgumentBuilder(
                 executor = UnlinkCommandExecutor(
-                    linkingDao = linkingDao,
+                    linkedPlayerRepository = linkedPlayerRepository,
                     luckPermsRoleController = luckPermsRoleController,
                     discordRoleController = discordRoleController,
                     translationKrate = coreModule.translationKrate

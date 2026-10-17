@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.api.impl
+package ru.astrainteractive.messagebridge.messenger.api.memory
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -10,9 +10,9 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
-class BEventChannelImpl :
+class InMemoryBEventChannel :
     BEventChannel,
-    Logger by JUtiltLogger("MessageBridge-BEventChannelImpl") {
+    Logger by JUtiltLogger("MessageBridge-InMemoryBEventChannel") {
     private val eventsChannel = MutableSharedFlow<BEvent>(1)
 
     override fun receiveAsFlow(): Flow<BEvent> = eventsChannel

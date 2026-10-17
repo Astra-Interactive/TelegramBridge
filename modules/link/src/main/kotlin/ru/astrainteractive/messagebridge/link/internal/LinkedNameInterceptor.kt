@@ -2,13 +2,13 @@ package ru.astrainteractive.messagebridge.link.internal
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
+import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
 internal class LinkedNameInterceptor(
-    private val linkingDao: LinkingDao
+    private val linkedPlayerRepository: LinkedPlayerRepository
 ) : TextInterceptor, Logger by JUtiltLogger("MessageBridge-LinkedNameInterceptor") {
     private suspend fun linkedName(
         authorId: Long,
@@ -32,13 +32,13 @@ internal class LinkedNameInterceptor(
     override suspend fun intercept(text: Text): Text {
         return when (text) {
             is Text.Discord -> text.copy(
-                author = linkedName(text.authorId, linkingDao::findByDiscordId) ?: text.author,
-                reply = linkedReply(text.reply, linkingDao::findByDiscordId)
+                author = linkedName(text.authorId, linkedPlayerRepository::findByDiscordId) ?: text.author,
+                reply = linkedReply(text.reply, linkedPlayerRepository::findByDiscordId)
             )
 
             is Text.Telegram -> text.copy(
-                author = linkedName(text.authorId, linkingDao::findByTelegramId) ?: text.author,
-                reply = linkedReply(text.reply, linkingDao::findByTelegramId)
+                author = linkedName(text.authorId, linkedPlayerRepository::findByTelegramId) ?: text.author,
+                reply = linkedReply(text.reply, linkedPlayerRepository::findByTelegramId)
             )
 
             is Text.Minecraft -> text

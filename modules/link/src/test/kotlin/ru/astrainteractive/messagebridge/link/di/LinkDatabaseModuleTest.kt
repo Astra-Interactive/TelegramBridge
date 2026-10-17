@@ -1,13 +1,13 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.link.dao.di
+package ru.astrainteractive.messagebridge.link.di
 
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayerStorageError
+import ru.astrainteractive.messagebridge.link.model.LinkedPlayerStorageError
 import java.io.File
 import java.util.UUID
 import kotlin.io.path.createTempDirectory
@@ -53,7 +53,7 @@ class LinkDatabaseModuleTest {
     fun GIVEN_folder_that_can_not_hold_the_database_WHEN_player_is_looked_up_THEN_fails_without_waiting() = runTest {
         val module = startModule(blockedFolder())
 
-        val result = module.linkingDao.findByUuid(steveUuid)
+        val result = module.linkedPlayerRepository.findByUuid(steveUuid)
 
         assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
         assertEquals(0L, currentTime)
@@ -66,10 +66,10 @@ class LinkDatabaseModuleTest {
         blocked.free()
 
         advanceTimeBy(1.seconds)
-        assertIs<LinkedPlayerStorageError>(module.linkingDao.findByUuid(steveUuid).exceptionOrNull())
+        assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
         runCurrent()
 
-        assertNull(module.linkingDao.findByUuid(steveUuid).getOrThrow())
+        assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
     }
 
     @Test
@@ -81,10 +81,10 @@ class LinkDatabaseModuleTest {
         blocked.free()
 
         advanceTimeBy(4.seconds)
-        assertIs<LinkedPlayerStorageError>(module.linkingDao.findByUuid(steveUuid).exceptionOrNull())
+        assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
         runCurrent()
 
-        assertNull(module.linkingDao.findByUuid(steveUuid).getOrThrow())
+        assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
         assertEquals(7.seconds, currentTime.milliseconds)
     }
 
@@ -96,10 +96,10 @@ class LinkDatabaseModuleTest {
         blocked.free()
 
         advanceTimeBy(60.seconds)
-        assertIs<LinkedPlayerStorageError>(module.linkingDao.findByUuid(steveUuid).exceptionOrNull())
+        assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
         runCurrent()
 
-        assertNull(module.linkingDao.findByUuid(steveUuid).getOrThrow())
+        assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
         assertEquals(123.seconds, currentTime.milliseconds)
     }
 }

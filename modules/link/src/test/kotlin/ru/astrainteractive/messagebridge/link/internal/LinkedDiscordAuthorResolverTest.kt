@@ -3,8 +3,8 @@
 package ru.astrainteractive.messagebridge.link.internal
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.UUID
@@ -13,15 +13,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class LinkedDiscordAuthorResolverTest {
-    private val linkingDao = FakeLinkingDao()
-    private val resolver = LinkedDiscordAuthorResolver(linkingDao)
+    private val linkedPlayerRepository = FakeLinkedPlayerRepository()
+    private val resolver = LinkedDiscordAuthorResolver(linkedPlayerRepository)
     private val steveUuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002")
     private val discordAccount = MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie")
     private val telegramAccount = MessengerAccount.Telegram(id = TELEGRAM_ID, username = "steve_tg")
 
     private suspend fun linkSteve(discordAccount: MessengerAccount.Discord?) {
-        linkingDao.link(uuid = steveUuid, minecraftName = "Steve", account = telegramAccount)
-        discordAccount?.let { account -> linkingDao.link(uuid = steveUuid, minecraftName = "Steve", account = account) }
+        linkedPlayerRepository.link(uuid = steveUuid, minecraftName = "Steve", account = telegramAccount)
+        discordAccount?.let { account -> linkedPlayerRepository.link(uuid = steveUuid, minecraftName = "Steve", account = account) }
     }
 
     @Test
@@ -80,7 +80,7 @@ class LinkedDiscordAuthorResolverTest {
     @Test
     fun GIVEN_unreadable_database_WHEN_game_message_is_resolved_THEN_returns_null() = runTest {
         linkSteve(discordAccount)
-        linkingDao.findFailure = IllegalStateException("Database is locked")
+        linkedPlayerRepository.findFailure = IllegalStateException("Database is locked")
 
         val discordId = resolver.discordUserId(
             Text.Minecraft(author = "Steve", uuid = "$steveUuid", text = "hi", ref = MC_REF)

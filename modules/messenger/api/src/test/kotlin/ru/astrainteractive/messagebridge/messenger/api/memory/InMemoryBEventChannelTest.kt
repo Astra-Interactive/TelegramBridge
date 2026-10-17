@@ -1,7 +1,7 @@
 @file:Suppress("FunctionNaming")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package ru.astrainteractive.messagebridge.messenger.api.impl
+package ru.astrainteractive.messagebridge.messenger.api.memory
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-class BEventChannelImplTest {
+class InMemoryBEventChannelTest {
     private val chatMessage = Text.Minecraft(
         author = "Steve",
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
@@ -46,7 +46,7 @@ class BEventChannelImplTest {
 
     @Test
     fun GIVEN_event_consumed_before_any_receiver_WHEN_receiver_subscribes_THEN_it_gets_that_event() = runTest {
-        val channel = BEventChannelImpl()
+        val channel = InMemoryBEventChannel()
         channel.consume(ServerOpenBEvent)
 
         val received = receive(channel)
@@ -57,7 +57,7 @@ class BEventChannelImplTest {
 
     @Test
     fun GIVEN_subscribed_receiver_WHEN_events_are_consumed_THEN_it_gets_them_in_order() = runTest {
-        val channel = BEventChannelImpl()
+        val channel = InMemoryBEventChannel()
         val received = receive(channel)
 
         channel.consume(ServerOpenBEvent)
@@ -69,7 +69,7 @@ class BEventChannelImplTest {
 
     @Test
     fun GIVEN_burst_of_events_WHEN_consumed_THEN_receiver_gets_them_all_at_once() = runTest {
-        val channel = BEventChannelImpl()
+        val channel = InMemoryBEventChannel()
         val arrivals = mutableListOf<Duration>()
         backgroundScope.launch {
             channel.receiveAsFlow().collect { _ -> arrivals += currentTime.milliseconds }
@@ -84,7 +84,7 @@ class BEventChannelImplTest {
 
     @Test
     fun GIVEN_two_receivers_WHEN_event_is_consumed_THEN_each_gets_it() = runTest {
-        val channel = BEventChannelImpl()
+        val channel = InMemoryBEventChannel()
         val first = receive(channel)
         val second = receive(channel)
 
@@ -97,8 +97,8 @@ class BEventChannelImplTest {
 
     @Test
     fun GIVEN_two_channels_WHEN_event_is_consumed_by_one_THEN_the_other_gets_nothing() = runTest {
-        val busy = BEventChannelImpl()
-        val idle = BEventChannelImpl()
+        val busy = InMemoryBEventChannel()
+        val idle = InMemoryBEventChannel()
         val received = receive(idle)
 
         busy.consume(ServerOpenBEvent)
@@ -110,7 +110,7 @@ class BEventChannelImplTest {
     @Test
     fun GIVEN_receiver_stuck_on_an_event_WHEN_more_events_than_it_buffers_are_consumed_THEN_others_still_get_them() =
         runTest {
-            val channel = BEventChannelImpl()
+            val channel = InMemoryBEventChannel()
             backgroundScope.launch {
                 channel.receiveAsFlow().collect { _ -> awaitCancellation() }
             }
@@ -126,7 +126,7 @@ class BEventChannelImplTest {
 
     @Test
     fun GIVEN_receiver_stuck_on_an_event_WHEN_it_resumes_THEN_it_gets_only_the_newest_buffered_events() = runTest {
-        val channel = BEventChannelImpl()
+        val channel = InMemoryBEventChannel()
         val gate = CompletableDeferred<Unit>()
         val received = mutableListOf<BEvent>()
         backgroundScope.launch {

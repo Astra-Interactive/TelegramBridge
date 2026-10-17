@@ -19,7 +19,7 @@ import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
-import ru.astrainteractive.messagebridge.messenger.api.impl.BEventChannelImpl
+import ru.astrainteractive.messagebridge.messenger.api.memory.InMemoryBEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
@@ -43,7 +43,7 @@ class RootModule(
         commandRegistrarContextFactory = ::NeoForgeCommandRegistrarContext
     )
 
-    private val bEventChannel: BEventChannel = BEventChannelImpl()
+    private val bEventChannel: BEventChannel = InMemoryBEventChannel()
 
     val linkModule by lazy {
         LinkModule(coreModule, LuckPermsProvider.Default)

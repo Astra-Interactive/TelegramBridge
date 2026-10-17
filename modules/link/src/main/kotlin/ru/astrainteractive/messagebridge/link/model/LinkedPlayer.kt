@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.dao.model
+package ru.astrainteractive.messagebridge.link.model
 
 import java.util.UUID
 

@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.dao.internal
+package ru.astrainteractive.messagebridge.link.exposed
 
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.exposed.v1.core.JoinType
@@ -13,19 +13,19 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationException
-import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.LinkOutcome
-import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayerStorageError
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.dao.table.DiscordAccountTable
-import ru.astrainteractive.messagebridge.link.dao.table.PlayerTable
-import ru.astrainteractive.messagebridge.link.dao.table.TelegramAccountTable
+import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
+import ru.astrainteractive.messagebridge.link.exposed.table.DiscordAccountTable
+import ru.astrainteractive.messagebridge.link.exposed.table.PlayerTable
+import ru.astrainteractive.messagebridge.link.exposed.table.TelegramAccountTable
+import ru.astrainteractive.messagebridge.link.model.LinkOutcome
+import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.model.LinkedPlayerStorageError
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import java.util.UUID
 
-internal class LinkingDaoImpl(
+internal class ExposedLinkedPlayerRepository(
     private val databaseState: StateFlow<Database?>
-) : LinkingDao {
+) : LinkedPlayerRepository {
     private fun ResultRow.toLinkedPlayer(): LinkedPlayer {
         val discordId = getOrNull(DiscordAccountTable.discordId)
         val telegramId = getOrNull(TelegramAccountTable.telegramId)

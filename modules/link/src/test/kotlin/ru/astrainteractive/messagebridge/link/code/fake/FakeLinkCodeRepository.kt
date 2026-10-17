@@ -1,12 +1,12 @@
 package ru.astrainteractive.messagebridge.link.code.fake
 
-import ru.astrainteractive.messagebridge.link.code.api.CodeApi
+import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 
-internal class FakeCodeApi(
+internal class FakeLinkCodeRepository(
     private val code: Int,
     private val failure: Throwable? = null
-) : CodeApi {
+) : LinkCodeRepository {
     val codeUsers = mutableListOf<CodeUser>()
 
     override suspend fun generateCodeForPlayer(codeUser: CodeUser): Int {

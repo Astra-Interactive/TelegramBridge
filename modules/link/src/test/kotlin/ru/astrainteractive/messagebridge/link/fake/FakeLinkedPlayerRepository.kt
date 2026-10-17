@@ -1,12 +1,12 @@
-package ru.astrainteractive.messagebridge.link.dao.fake
+package ru.astrainteractive.messagebridge.link.fake
 
-import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.LinkOutcome
-import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
+import ru.astrainteractive.messagebridge.link.model.LinkOutcome
+import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import java.util.UUID
 
-internal class FakeLinkingDao : LinkingDao {
+internal class FakeLinkedPlayerRepository : LinkedPlayerRepository {
     val linkedPlayers = mutableMapOf<UUID, LinkedPlayer>()
     var findFailure: Throwable? = null
     var linkFailure: Throwable? = null

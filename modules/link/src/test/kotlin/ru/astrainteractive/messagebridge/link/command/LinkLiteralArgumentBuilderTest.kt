@@ -13,8 +13,8 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.code.fake.FakeCodeApi
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
+import ru.astrainteractive.messagebridge.link.code.fake.FakeLinkCodeRepository
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
@@ -38,11 +38,11 @@ class LinkLiteralArgumentBuilderTest {
         return PlainTextComponentSerializer.plainText().serialize(message.toComponent(Locale.ROOT))
     }
 
-    private fun executeAsSteve(input: String, codeApi: FakeCodeApi) {
+    private fun executeAsSteve(input: String, linkCodeRepository: FakeLinkCodeRepository) {
         val builder = LinkLiteralArgumentBuilder(
             executor = LinkCommandExecutor(
-                codeApi = codeApi,
-                linkingDao = FakeLinkingDao(),
+                linkCodeRepository = linkCodeRepository,
+                linkedPlayerRepository = FakeLinkedPlayerRepository(),
                 translationKrate = translationKrate
             ),
             ioScope = ioScope,
@@ -60,23 +60,23 @@ class LinkLiteralArgumentBuilderTest {
 
     @Test
     fun GIVEN_player_WHEN_runs_link_THEN_reads_the_created_code() {
-        executeAsSteve(input = "link", codeApi = FakeCodeApi(code = 4821))
+        executeAsSteve(input = "link", linkCodeRepository = FakeLinkCodeRepository(code = 4821))
 
         assertEquals(listOf(plainTextOf(translation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
     }
 
     @Test
     fun GIVEN_code_service_that_breaks_WHEN_player_runs_link_THEN_reads_unknown_error() {
-        val brokenCodeApi = FakeCodeApi(code = 4821, failure = IllegalStateException("Code storage is full"))
+        val brokenCodeRepository = FakeLinkCodeRepository(code = 4821, failure = IllegalStateException("Code storage is full"))
 
-        executeAsSteve(input = "link", codeApi = brokenCodeApi)
+        executeAsSteve(input = "link", linkCodeRepository = brokenCodeRepository)
 
         assertEquals(listOf<LocalizableComponent>(translation.commandError.unknownError), steve.messages)
     }
 
     @Test
     fun GIVEN_player_without_links_WHEN_someone_asks_for_their_links_THEN_reads_player_not_linked() {
-        executeAsSteve(input = "link Steve", codeApi = FakeCodeApi(code = 4821))
+        executeAsSteve(input = "link Steve", linkCodeRepository = FakeLinkCodeRepository(code = 4821))
 
         assertEquals(listOf<LocalizableComponent>(translation.unlink.playerNotLinked), steve.messages)
     }

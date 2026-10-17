@@ -1,11 +1,11 @@
-package ru.astrainteractive.messagebridge.link.dao.api
+package ru.astrainteractive.messagebridge.link.api
 
-import ru.astrainteractive.messagebridge.link.dao.model.LinkOutcome
-import ru.astrainteractive.messagebridge.link.dao.model.LinkedPlayer
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.model.LinkOutcome
+import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import java.util.UUID
 
-internal interface LinkingDao {
+internal interface LinkedPlayerRepository {
     suspend fun findByUuid(uuid: UUID): Result<LinkedPlayer?>
     suspend fun findByDiscordId(discordId: Long): Result<LinkedPlayer?>
     suspend fun findByTelegramId(telegramId: Long): Result<LinkedPlayer?>

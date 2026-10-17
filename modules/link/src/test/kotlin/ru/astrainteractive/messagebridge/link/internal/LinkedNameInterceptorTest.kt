@@ -3,8 +3,8 @@
 package ru.astrainteractive.messagebridge.link.internal
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import java.util.UUID
@@ -13,17 +13,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 
 class LinkedNameInterceptorTest {
-    private val linkingDao = FakeLinkingDao()
-    private val interceptor = LinkedNameInterceptor(linkingDao)
+    private val linkedPlayerRepository = FakeLinkedPlayerRepository()
+    private val interceptor = LinkedNameInterceptor(linkedPlayerRepository)
 
     private suspend fun link(name: String, uuid: String, discordId: Long, telegramId: Long) {
         val playerUuid = UUID.fromString(uuid)
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = playerUuid,
             minecraftName = name,
             account = MessengerAccount.Discord(id = discordId, name = name)
         )
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = playerUuid,
             minecraftName = name,
             account = MessengerAccount.Telegram(id = telegramId, username = name)
@@ -112,7 +112,7 @@ class LinkedNameInterceptorTest {
     @Test
     fun GIVEN_unreadable_database_WHEN_intercepted_THEN_names_are_unchanged() = runTest {
         linkSteveAndAlex()
-        linkingDao.findFailure = IllegalStateException("Database is locked")
+        linkedPlayerRepository.findFailure = IllegalStateException("Database is locked")
         val original = telegram(
             author = "s_tg",
             authorId = STEVE_TG,

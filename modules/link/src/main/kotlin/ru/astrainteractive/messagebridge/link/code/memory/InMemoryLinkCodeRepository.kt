@@ -1,12 +1,12 @@
-package ru.astrainteractive.messagebridge.link.code.internal
+package ru.astrainteractive.messagebridge.link.code.memory
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import ru.astrainteractive.messagebridge.link.code.api.CodeApi
+import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import kotlin.random.Random
 
-internal class CodeApiImpl : CodeApi {
+internal class InMemoryLinkCodeRepository : LinkCodeRepository {
     private val cache = HashMap<CodeUser, Int>()
 
     private val mutex = Mutex()

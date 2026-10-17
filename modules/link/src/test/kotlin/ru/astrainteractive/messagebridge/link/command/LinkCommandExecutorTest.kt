@@ -10,11 +10,11 @@ import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.code.fake.FakeCodeApi
+import ru.astrainteractive.messagebridge.link.code.fake.FakeLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import java.util.Locale
 import java.util.UUID
 import kotlin.test.Test
@@ -22,11 +22,11 @@ import kotlin.test.assertEquals
 
 class LinkCommandExecutorTest {
     private val translation = PluginTranslation()
-    private val codeApi = FakeCodeApi(code = 4821)
-    private val linkingDao = FakeLinkingDao()
+    private val linkCodeRepository = FakeLinkCodeRepository(code = 4821)
+    private val linkedPlayerRepository = FakeLinkedPlayerRepository()
     private val executor = LinkCommandExecutor(
-        codeApi = codeApi,
-        linkingDao = linkingDao,
+        linkCodeRepository = linkCodeRepository,
+        linkedPlayerRepository = linkedPlayerRepository,
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )
     private val admin = RecordingOnlineKPlayer(
@@ -54,18 +54,18 @@ class LinkCommandExecutorTest {
     fun GIVEN_player_WHEN_links_THEN_code_is_bound_to_them_and_they_read_it() = runTest {
         executor.onIntent(LinkCommandExecutor.Intent.Link(steve))
 
-        assertEquals(listOf(CodeUser(name = "Steve", uuid = steve.uuid)), codeApi.codeUsers)
+        assertEquals(listOf(CodeUser(name = "Steve", uuid = steve.uuid)), linkCodeRepository.codeUsers)
         assertEquals(listOf(plainTextOf(translation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
     }
 
     @Test
     fun GIVEN_linked_player_WHEN_admin_asks_for_their_links_THEN_admin_reads_them() = runTest {
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Discord(id = 42, name = "steve")
         )
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
@@ -87,16 +87,16 @@ class LinkCommandExecutorTest {
             )
         )
         val translatedExecutor = LinkCommandExecutor(
-            codeApi = codeApi,
-            linkingDao = linkingDao,
+            linkCodeRepository = linkCodeRepository,
+            linkedPlayerRepository = linkedPlayerRepository,
             translationKrate = DefaultMutableKrate(factory = { userInfoTranslation }, loader = { null }).asCachedKrate()
         )
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Discord(id = 42, name = "steve")
         )
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
@@ -117,7 +117,7 @@ class LinkCommandExecutorTest {
     @Test
     fun GIVEN_unreadable_database_WHEN_admin_asks_for_links_THEN_admin_reads_unknown_error_not_player_not_linked() =
         runTest {
-            linkingDao.findFailure = IllegalStateException("Database is locked")
+            linkedPlayerRepository.findFailure = IllegalStateException("Database is locked")
 
             executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
 

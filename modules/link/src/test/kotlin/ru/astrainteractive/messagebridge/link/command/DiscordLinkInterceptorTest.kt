@@ -24,13 +24,13 @@ import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
+import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
@@ -89,12 +89,12 @@ class DiscordLinkInterceptorTest {
             "retrieveMemberById" to memberRequest
         )
     )
-    private val codeApi = CodeApiImpl()
-    private val linkingDao = FakeLinkingDao()
+    private val linkCodeRepository = InMemoryLinkCodeRepository()
+    private val linkedPlayerRepository = FakeLinkedPlayerRepository()
     private val interceptor = DiscordLinkInterceptor(
         linkAccountUseCase = LinkAccountUseCase(
-            codeApi = codeApi,
-            linkingDao = linkingDao,
+            linkCodeRepository = linkCodeRepository,
+            linkedPlayerRepository = linkedPlayerRepository,
             luckPermsRoleController = LuckPermsRoleController(
                 configKrate = configKrate,
                 luckPermsProvider = FakeLuckPermsProvider()
@@ -157,39 +157,39 @@ class DiscordLinkInterceptorTest {
     @Test
     fun GIVEN_code_created_in_game_WHEN_member_sends_it_in_bridge_channel_THEN_discord_is_linked_and_reads_success() =
         runTest {
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("/link $code", stevie, ChannelType.TEXT))
 
             assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
             assertEquals(
                 MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie"),
-                linkingDao.linkedPlayers[steve.uuid]?.discord
+                linkedPlayerRepository.linkedPlayers[steve.uuid]?.discord
             )
         }
 
     @Test
     fun GIVEN_ordinary_text_in_bridge_channel_WHEN_intercepted_THEN_it_passes_and_nothing_is_linked() = runTest {
-        codeApi.generateCodeForPlayer(steve)
+        linkCodeRepository.generateCodeForPlayer(steve)
 
         val interception = interceptor.intercept(event("hello", stevie, ChannelType.TEXT))
 
         assertEquals(Interception.Pass, interception)
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
     }
 
     @Test
     fun GIVEN_code_created_in_game_WHEN_server_member_sends_it_in_a_direct_message_THEN_linked_with_the_role() =
         runTest {
             memberOnServer = stevie
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
             assertEquals(Interception.Reply(translation.link.success.toMessengerText()), interception)
             assertEquals(
                 MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie"),
-                linkingDao.linkedPlayers[steve.uuid]?.discord
+                linkedPlayerRepository.linkedPlayers[steve.uuid]?.discord
             )
             assertEquals(stevieGrant, roleChanges.tryReceive().getOrNull())
         }
@@ -197,20 +197,20 @@ class DiscordLinkInterceptorTest {
     @Test
     fun GIVEN_user_who_is_not_on_the_server_WHEN_sends_code_in_a_direct_message_THEN_refused_and_code_is_kept() =
         runTest {
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
             assertEquals(Interception.Reply(translation.link.notServerMember.toMessengerText()), interception)
-            assertTrue(linkingDao.linkedPlayers.isEmpty())
-            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(steve, linkCodeRepository.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
         }
 
     @Test
     fun GIVEN_user_refused_as_not_on_the_server_WHEN_joins_and_sends_the_same_code_THEN_linked_with_the_role() =
         runTest {
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
             interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
             memberOnServer = stevie
 
@@ -225,13 +225,13 @@ class DiscordLinkInterceptorTest {
         runTest {
             visibleBridgeChannel = null
             memberOnServer = stevie
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
             assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
-            assertTrue(linkingDao.linkedPlayers.isEmpty())
-            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(steve, linkCodeRepository.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
             assertEquals(listOf(Level.SEVERE), logRecords.map { record -> record.level })
             assertTrue("bridge channel $BRIDGE_CHANNEL_ID" in logRecords.single().message)
@@ -241,13 +241,13 @@ class DiscordLinkInterceptorTest {
     fun GIVEN_member_request_that_jda_cancels_WHEN_code_is_sent_in_a_direct_message_THEN_reads_error_and_no_link() =
         runTest {
             memberRequestFailure = CancellationException("RestAction has been cancelled")
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
             assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
-            assertTrue(linkingDao.linkedPlayers.isEmpty())
-            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(steve, linkCodeRepository.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
         }
 
@@ -255,13 +255,13 @@ class DiscordLinkInterceptorTest {
     fun GIVEN_member_request_timing_out_WHEN_code_is_sent_in_a_direct_message_THEN_reads_error_and_code_is_kept() =
         runTest {
             memberRequestFailure = SocketTimeoutException("Read timed out")
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
             assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
-            assertTrue(linkingDao.linkedPlayers.isEmpty())
-            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(steve, linkCodeRepository.findUserByCode(code))
             assertTrue(roleChanges.tryReceive().isFailure)
             assertTrue("Read timed out" in logRecords.single().message)
         }
@@ -273,19 +273,19 @@ class DiscordLinkInterceptorTest {
                 ErrorResponse.SERVER_ERROR,
                 Response(null, 500, "Internal Server Error", -1, emptySet())
             )
-            val code = codeApi.generateCodeForPlayer(steve)
+            val code = linkCodeRepository.generateCodeForPlayer(steve)
 
             val interception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
 
             assertEquals(Interception.Reply(translation.link.unknownError.toMessengerText()), interception)
-            assertTrue(linkingDao.linkedPlayers.isEmpty())
-            assertEquals(steve, codeApi.findUserByCode(code))
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(steve, linkCodeRepository.findUserByCode(code))
             assertEquals(1, logRecords.size)
         }
 
     @Test
     fun GIVEN_direct_message_WHEN_intercepted_THEN_it_never_passes() = runTest {
-        val code = codeApi.generateCodeForPlayer(steve)
+        val code = linkCodeRepository.generateCodeForPlayer(steve)
 
         val codeInterception = interceptor.intercept(event("$code", null, ChannelType.PRIVATE))
         val textInterception = interceptor.intercept(event("hello", null, ChannelType.PRIVATE))
@@ -296,7 +296,7 @@ class DiscordLinkInterceptorTest {
 
     @Test
     fun GIVEN_code_created_in_game_WHEN_member_links_THEN_member_gets_the_linked_role() = runTest {
-        val code = codeApi.generateCodeForPlayer(steve)
+        val code = linkCodeRepository.generateCodeForPlayer(steve)
 
         interceptor.intercept(event("/link $code", stevie, ChannelType.TEXT))
 

@@ -8,13 +8,13 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
+import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
-    private val linkingDao: LinkingDao,
+    private val linkedPlayerRepository: LinkedPlayerRepository,
     private val luckPermsRoleController: LuckPermsRoleController,
     private val discordRoleController: DiscordRoleController,
     translationKrate: CachedKrate<PluginTranslation>
@@ -40,7 +40,7 @@ internal class UnlinkCommandExecutor(
         notLinkedText: LocalizableComponent,
         unlinkedText: LocalizableComponent
     ) {
-        val unlinked = linkingDao.deleteByUuid(uuid).getOrElse { t ->
+        val unlinked = linkedPlayerRepository.deleteByUuid(uuid).getOrElse { t ->
             reportFailure(sender, uuid, t)
             return
         }
