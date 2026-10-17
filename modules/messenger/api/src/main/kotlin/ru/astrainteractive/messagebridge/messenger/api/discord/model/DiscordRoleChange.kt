@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.model
+package ru.astrainteractive.messagebridge.messenger.api.discord.model
 
 sealed interface DiscordRoleChange {
     val discordUserId: Long

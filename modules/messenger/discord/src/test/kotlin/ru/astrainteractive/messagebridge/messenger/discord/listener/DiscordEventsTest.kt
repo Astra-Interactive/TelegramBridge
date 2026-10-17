@@ -27,9 +27,9 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.message.DiscordCommandHandler
 import ru.astrainteractive.messagebridge.messenger.discord.message.DiscordMessageSender

@@ -4,7 +4,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
 
 internal class LinkedMemberLeaveListener(
     private val linkedPlayerRepository: LinkedPlayerRepository,

@@ -26,9 +26,9 @@ import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 
 class LinkModule(
     coreModule: CoreModule,

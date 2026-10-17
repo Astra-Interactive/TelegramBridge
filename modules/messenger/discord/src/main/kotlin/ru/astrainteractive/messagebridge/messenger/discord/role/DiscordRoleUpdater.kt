@@ -14,8 +14,8 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
 internal class DiscordRoleUpdater(

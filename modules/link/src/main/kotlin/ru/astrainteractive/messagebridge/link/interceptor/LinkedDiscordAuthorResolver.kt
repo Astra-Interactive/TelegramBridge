@@ -3,8 +3,8 @@ package ru.astrainteractive.messagebridge.link.interceptor
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
 import java.util.UUID
 
 internal class LinkedDiscordAuthorResolver(

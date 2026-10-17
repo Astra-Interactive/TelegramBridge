@@ -32,10 +32,10 @@ import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import java.net.SocketTimeoutException
 import java.util.UUID
 import java.util.function.Consumer

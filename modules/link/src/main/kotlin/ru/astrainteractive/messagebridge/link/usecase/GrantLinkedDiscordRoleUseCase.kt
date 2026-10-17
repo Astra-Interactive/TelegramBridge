@@ -7,7 +7,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.link.util.discordRoleIdOrNull
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 
 internal class GrantLinkedDiscordRoleUseCase(
     configKrate: CachedKrate<PluginConfiguration>,

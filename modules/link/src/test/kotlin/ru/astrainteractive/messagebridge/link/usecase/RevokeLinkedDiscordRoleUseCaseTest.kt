@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -15,7 +15,7 @@ import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals

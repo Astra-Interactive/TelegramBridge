@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.messenger.discord.api
+package ru.astrainteractive.messagebridge.messenger.api.discord.api
 
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 

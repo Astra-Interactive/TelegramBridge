@@ -22,11 +22,11 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.exceptions.HierarchyException
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.discord.fake.FakeWebhookClient
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertEquals

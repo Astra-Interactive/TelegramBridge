@@ -14,8 +14,9 @@ import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelFactory
 import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelProvider
 import ru.astrainteractive.messagebridge.messenger.discord.connection.JdaSessionFactory
@@ -29,7 +30,6 @@ import ru.astrainteractive.messagebridge.messenger.discord.message.MessageEventL
 import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordCommandMapper
 import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.DiscordReplyMapper
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordRelayedMessageCache
