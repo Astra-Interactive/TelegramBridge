@@ -16,6 +16,8 @@ internal class DiscordEmbedMapper(
 ) {
     private val translation by translationKrate
 
+    private fun avatarUrl(uuid: String): String = "$MC_HEADS_AVATAR_URL$uuid"
+
     fun map(event: PlayerDeathBEvent): MessageEmbed {
         val text = event.cause ?: translation.player.discordDiedOfUnknownCause(event.name).toMessengerText()
         return EmbedBuilder()
@@ -41,8 +43,6 @@ internal class DiscordEmbedMapper(
         .setColor(LEAVE_COLOR)
         .setAuthor(translation.player.discordLeft(event.name).toMessengerText(), null, avatarUrl(event.uuid))
         .build()
-
-    private fun avatarUrl(uuid: String): String = "$MC_HEADS_AVATAR_URL$uuid"
 
     private companion object {
         const val MC_HEADS_AVATAR_URL = "https://mc-heads.net/avatar/"

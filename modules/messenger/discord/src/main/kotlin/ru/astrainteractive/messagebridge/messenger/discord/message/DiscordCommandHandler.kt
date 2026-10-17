@@ -18,12 +18,6 @@ internal class DiscordCommandHandler(
 ) : Logger by JUtiltLogger("MessageBridge-DiscordCommandHandler") {
     private val translation by translationKrate
 
-    suspend fun handle(command: DiscordCommand, event: MessageReceivedEvent) {
-        when (command) {
-            DiscordCommand.Vanilla -> sendVanilla(event)
-        }
-    }
-
     private suspend fun sendVanilla(event: MessageReceivedEvent) {
         verbose { "#sendVanilla !vanilla executed" }
         val players = platformServer
@@ -34,5 +28,11 @@ internal class DiscordCommandHandler(
             players = players.joinToString(separator = ", "),
         ).toMessengerText()
         messageSender.reply(event.message, text)
+    }
+
+    suspend fun handle(command: DiscordCommand, event: MessageReceivedEvent) {
+        when (command) {
+            DiscordCommand.Vanilla -> sendVanilla(event)
+        }
     }
 }

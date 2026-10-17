@@ -25,6 +25,16 @@ internal class CappedBackOff(
 ) : BackOff {
     private val currentInterval = AtomicReference(initialInterval)
 
+    private fun Duration.randomized(): Duration {
+        val delta = this * randomizationFactor
+        val min = (this - delta).coerceAtLeast(Duration.ZERO)
+        val max = this + delta
+        if (max <= min) return this
+        return Random
+            .nextLong(from = min.inWholeMilliseconds, until = max.inWholeMilliseconds)
+            .milliseconds
+    }
+
     override fun reset() {
         currentInterval.set(initialInterval)
     }
@@ -38,16 +48,6 @@ internal class CappedBackOff(
             (previous * multiplier).coerceAtMost(maxInterval)
         }
         return current.randomized().inWholeMilliseconds
-    }
-
-    private fun Duration.randomized(): Duration {
-        val delta = this * randomizationFactor
-        val min = (this - delta).coerceAtLeast(Duration.ZERO)
-        val max = this + delta
-        if (max <= min) return this
-        return Random
-            .nextLong(from = min.inWholeMilliseconds, until = max.inWholeMilliseconds)
-            .milliseconds
     }
 
     private companion object {

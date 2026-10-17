@@ -15,6 +15,9 @@ internal class TelegramMessageValidatorMapper(
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 
+    private fun isDisplayNameAllowed(name: String): Boolean =
+        tgConfig.displayNameRegex.toRegex().matches(name)
+
     fun map(update: Update): TelegramMessageValidation {
         val author = authorMapper.map(update) ?: return TelegramMessageValidation.NoAuthor
         if (author is TelegramAuthor.DisplayName && !isDisplayNameAllowed(author.name)) {
@@ -33,7 +36,4 @@ internal class TelegramMessageValidatorMapper(
             authorId = update.message?.from?.id ?: 0L,
         )
     }
-
-    private fun isDisplayNameAllowed(name: String): Boolean =
-        tgConfig.displayNameRegex.toRegex().matches(name)
 }

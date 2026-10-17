@@ -18,6 +18,17 @@ internal class TelegramCommandHandler(
 ) : Logger by JUtiltLogger("MessageBridge-TelegramCommandHandler") {
     private val translation by translationKrate
 
+    private suspend fun sendVanilla(chatId: String, originalMessageId: Int?) {
+        val players = platformServer
+            .getOnlinePlayers()
+            .map(OnlineKPlayer::name)
+        val text = translation.onlinePlayers.message(
+            count = players.size,
+            players = players.joinToString(separator = ", "),
+        ).toMessengerText()
+        messageSender.send(chatId, text, originalMessageId)
+    }
+
     suspend fun handle(command: TelegramCommand, update: Update) {
         val message = update.message ?: return
         val chatId = message.chatId.toString()
@@ -37,17 +48,6 @@ internal class TelegramCommandHandler(
         info {
             "#logChatInfo chatID is ${message.chatId}; originalMessageId: ${message.replyToMessage?.messageId}"
         }
-    }
-
-    private suspend fun sendVanilla(chatId: String, originalMessageId: Int?) {
-        val players = platformServer
-            .getOnlinePlayers()
-            .map(OnlineKPlayer::name)
-        val text = translation.onlinePlayers.message(
-            count = players.size,
-            players = players.joinToString(separator = ", "),
-        ).toMessengerText()
-        messageSender.send(chatId, text, originalMessageId)
     }
 
     private companion object {

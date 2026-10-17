@@ -13,6 +13,20 @@ internal class TelegramAuthorMapper(
 ) {
     private val translation by translationKrate
 
+    private fun String.toFixedName(): String {
+        val name = trim()
+            .replace("\n", "")
+            .replace("\t", "")
+        return if (name.length > MAX_NAME_LENGTH) name.substring(0, MAX_NAME_LENGTH) else name
+    }
+
+    private fun author(userName: String?, firstName: String?, lastName: String?): TelegramAuthor {
+        userName?.let { name -> return TelegramAuthor.Username(name.toFixedName()) }
+        val shownFirstName = firstName ?: translation.chat.anonymousAuthor.toMessengerText()
+        val displayName = "$shownFirstName ${lastName ?: ""}".toFixedName()
+        return TelegramAuthor.DisplayName(displayName)
+    }
+
     fun map(update: Update): TelegramAuthor? {
         val message = update.message ?: return null
         return map(message)
@@ -26,20 +40,6 @@ internal class TelegramAuthorMapper(
             return author(user.userName, user.firstName, user.lastName)
         }
         return null
-    }
-
-    private fun author(userName: String?, firstName: String?, lastName: String?): TelegramAuthor {
-        userName?.let { name -> return TelegramAuthor.Username(name.toFixedName()) }
-        val shownFirstName = firstName ?: translation.chat.anonymousAuthor.toMessengerText()
-        val displayName = "$shownFirstName ${lastName ?: ""}".toFixedName()
-        return TelegramAuthor.DisplayName(displayName)
-    }
-
-    private fun String.toFixedName(): String {
-        val name = trim()
-            .replace("\n", "")
-            .replace("\t", "")
-        return if (name.length > MAX_NAME_LENGTH) name.substring(0, MAX_NAME_LENGTH) else name
     }
 
     @Suppress("MagicNumber")

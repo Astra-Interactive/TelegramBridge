@@ -63,29 +63,6 @@ class TelegramMessengerModule(
         }
     }
 
-    private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-            .connectTimeout(CONNECT_TIMEOUT.toJavaDuration())
-            .writeTimeout(WRITE_TIMEOUT.toJavaDuration())
-            .readTimeout(READ_TIMEOUT.toJavaDuration())
-            .pingInterval(PING_INTERVAL.toJavaDuration())
-            .retryOnConnectionFailure(true)
-            .dns(ipv4FirstDns)
-        if (proxy != null) {
-            builder
-                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                .proxyAuthenticator { route, response ->
-                    val requestBuilder = response.request.newBuilder()
-                    if (route?.socketAddress?.hostString == proxy.host) {
-                        val credential: String = Credentials.basic(proxy.username, proxy.password)
-                        requestBuilder.header("Proxy-Authorization", credential)
-                    }
-                    requestBuilder.build()
-                }
-        }
-        return builder.build()
-    }
-
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.tgConfig.proxy }
         .distinctUntilChanged()
@@ -222,6 +199,29 @@ class TelegramMessengerModule(
             telegramMessageController.cancel()
         }
     )
+
+    private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+            .connectTimeout(CONNECT_TIMEOUT.toJavaDuration())
+            .writeTimeout(WRITE_TIMEOUT.toJavaDuration())
+            .readTimeout(READ_TIMEOUT.toJavaDuration())
+            .pingInterval(PING_INTERVAL.toJavaDuration())
+            .retryOnConnectionFailure(true)
+            .dns(ipv4FirstDns)
+        if (proxy != null) {
+            builder
+                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                .proxyAuthenticator { route, response ->
+                    val requestBuilder = response.request.newBuilder()
+                    if (route?.socketAddress?.hostString == proxy.host) {
+                        val credential: String = Credentials.basic(proxy.username, proxy.password)
+                        requestBuilder.header("Proxy-Authorization", credential)
+                    }
+                    requestBuilder.build()
+                }
+        }
+        return builder.build()
+    }
 
     private companion object {
         /** Spent on every unreachable address before the next one is tried. */

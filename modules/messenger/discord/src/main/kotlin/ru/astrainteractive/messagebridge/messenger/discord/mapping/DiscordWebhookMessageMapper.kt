@@ -40,12 +40,6 @@ internal class DiscordWebhookMessageMapper(
             .replace("@", "")
     }
 
-    fun map(event: Text, member: Member?, replyJumpUrl: String?): WebhookMessage = WebhookMessageBuilder()
-        .setUsername(username(event, member))
-        .setAvatarUrl(avatarUrl(event, member))
-        .setContent(content(event, replyJumpUrl))
-        .build()
-
     private fun username(event: Text, member: Member?): String = translation.chat
         .toDiscordUsername(playerName = member?.effectiveName ?: event.author, from = event.from.short)
         .toMessengerText()
@@ -55,6 +49,12 @@ internal class DiscordWebhookMessageMapper(
         is Text.Minecraft -> member?.effectiveAvatarUrl ?: "$MC_HEADS_AVATAR_URL${event.uuid}"
         is Text.Telegram -> member?.effectiveAvatarUrl ?: TELEGRAM_AVATAR_URL
     }
+
+    fun map(event: Text, member: Member?, replyJumpUrl: String?): WebhookMessage = WebhookMessageBuilder()
+        .setUsername(username(event, member))
+        .setAvatarUrl(avatarUrl(event, member))
+        .setContent(content(event, replyJumpUrl))
+        .build()
 
     private companion object {
         val MARKDOWN_REGEX = Regex("""[\\*_~`|\[\]]""")

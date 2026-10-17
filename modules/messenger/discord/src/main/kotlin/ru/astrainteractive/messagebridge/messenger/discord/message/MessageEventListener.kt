@@ -27,33 +27,12 @@ internal class MessageEventListener(
     private val bEventConsumer: BEventConsumer,
 ) : CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-MessageEventListener") {
-
     private suspend fun runInterceptors(event: MessageReceivedEvent): Interception {
         val interception = messageInterceptors.intercept(event)
         if (interception is Interception.Reply) {
             messageSender.reply(event.message, interception.text)
         }
         return interception
-    }
-
-    fun onMessageReceived(event: MessageReceivedEvent) {
-        when (relevanceMapper.map(event)) {
-            DiscordMessageRelevance.Relevant -> launch { process(event) }
-            DiscordMessageRelevance.PrivateMessage -> launch { runInterceptors(event) }
-            DiscordMessageRelevance.WebhookMessage,
-            DiscordMessageRelevance.BotAuthor,
-            DiscordMessageRelevance.WrongChannel -> Unit
-        }
-    }
-
-    private suspend fun process(event: MessageReceivedEvent) {
-        val command = commandMapper.map(event.message.contentRaw)
-        if (command != null) {
-            commandHandler.handle(command, event)
-            return
-        }
-        if (runInterceptors(event) != Interception.Pass) return
-        relay(event)
     }
 
     private suspend fun relay(event: MessageReceivedEvent) {
@@ -66,5 +45,25 @@ internal class MessageEventListener(
                 ref = MessageRef.Discord(messageId = event.message.idLong),
             )
         )
+    }
+
+    private suspend fun process(event: MessageReceivedEvent) {
+        val command = commandMapper.map(event.message.contentRaw)
+        if (command != null) {
+            commandHandler.handle(command, event)
+            return
+        }
+        if (runInterceptors(event) != Interception.Pass) return
+        relay(event)
+    }
+
+    fun onMessageReceived(event: MessageReceivedEvent) {
+        when (relevanceMapper.map(event)) {
+            DiscordMessageRelevance.Relevant -> launch { process(event) }
+            DiscordMessageRelevance.PrivateMessage -> launch { runInterceptors(event) }
+            DiscordMessageRelevance.WebhookMessage,
+            DiscordMessageRelevance.BotAuthor,
+            DiscordMessageRelevance.WrongChannel -> Unit
+        }
     }
 }

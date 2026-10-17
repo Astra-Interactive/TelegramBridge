@@ -40,35 +40,24 @@ internal class TelegramChatConsumer(
     Logger by JUtiltLogger("MessageBridge-TelegramChatConsumer") {
     private val translation by translationKrate
 
-    override fun consume(update: Update?) {
-        update ?: return
-        commandHandler.logChatInfo(update)
-        when (relevanceChecker.map(update)) {
-            MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { process(update) }
-            MessageRelevance.WrongChat -> verbose { "#consume update is not from the configured chat" }
-            MessageRelevance.NoDate -> verbose { "#consume message date is null" }
-            MessageRelevance.TooOld -> verbose { "#consume message is too old" }
-            MessageRelevance.WrongTopic -> Unit
-        }
+    private suspend fun delete(update: Update) {
+        val message = update.message ?: return
+        messageSender.delete(message.chatId.toString(), message.messageId)
     }
 
-    private suspend fun process(update: Update) {
-        when (val validation = validator.map(update)) {
-            is TelegramMessageValidation.Valid -> relay(update, validation)
-            TelegramMessageValidation.NoAuthor -> reject(update) { "#consume author name is null" }
-            TelegramMessageValidation.NoText -> reject(update) { "#consume text is null" }
-            TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
-            TelegramMessageValidation.IllegalDisplayName -> {
-                verbose { "#consume display name rejected by regex" }
-                reply(update, translation.chat.illegalDisplayName.toMessengerText())
-                delete(update)
-            }
-        }
+    private suspend fun reply(update: Update, text: String) {
+        val message = update.message ?: return
+        messageSender.send(message.chatId.toString(), text, replyToMessageId = message.messageId)
     }
 
     private suspend fun answer(update: Update, text: String) {
         val message = update.message ?: return
         messageSender.send(message.chatId.toString(), text, message.replyToMessage?.messageId)
+    }
+
+    private suspend fun reject(update: Update, reason: () -> String) {
+        verbose(reason)
+        delete(update)
     }
 
     private suspend fun relay(update: Update, valid: TelegramMessageValidation.Valid) {
@@ -94,18 +83,29 @@ internal class TelegramChatConsumer(
         )
     }
 
-    private suspend fun reject(update: Update, reason: () -> String) {
-        verbose(reason)
-        delete(update)
+    private suspend fun process(update: Update) {
+        when (val validation = validator.map(update)) {
+            is TelegramMessageValidation.Valid -> relay(update, validation)
+            TelegramMessageValidation.NoAuthor -> reject(update) { "#consume author name is null" }
+            TelegramMessageValidation.NoText -> reject(update) { "#consume text is null" }
+            TelegramMessageValidation.TooLong -> reject(update) { "#consume message exceeds max length" }
+            TelegramMessageValidation.IllegalDisplayName -> {
+                verbose { "#consume display name rejected by regex" }
+                reply(update, translation.chat.illegalDisplayName.toMessengerText())
+                delete(update)
+            }
+        }
     }
 
-    private suspend fun reply(update: Update, text: String) {
-        val message = update.message ?: return
-        messageSender.send(message.chatId.toString(), text, replyToMessageId = message.messageId)
-    }
-
-    private suspend fun delete(update: Update) {
-        val message = update.message ?: return
-        messageSender.delete(message.chatId.toString(), message.messageId)
+    override fun consume(update: Update?) {
+        update ?: return
+        commandHandler.logChatInfo(update)
+        when (relevanceChecker.map(update)) {
+            MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { process(update) }
+            MessageRelevance.WrongChat -> verbose { "#consume update is not from the configured chat" }
+            MessageRelevance.NoDate -> verbose { "#consume message date is null" }
+            MessageRelevance.TooOld -> verbose { "#consume message is too old" }
+            MessageRelevance.WrongTopic -> Unit
+        }
     }
 }
