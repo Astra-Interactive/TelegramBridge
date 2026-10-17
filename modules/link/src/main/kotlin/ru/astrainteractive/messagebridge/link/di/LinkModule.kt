@@ -20,9 +20,10 @@ import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuild
 import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.interceptor.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.link.interceptor.LinkedNameInterceptor
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
@@ -55,7 +56,12 @@ class LinkModule(
 
     private val discordRoleChannel = Channel<DiscordRoleChange>(Channel.UNLIMITED)
 
-    private val discordRoleController = DiscordRoleController(
+    private val grantLinkedDiscordRoleUseCase = GrantLinkedDiscordRoleUseCase(
+        configKrate = coreModule.configKrate,
+        roleChanges = discordRoleChannel
+    )
+
+    private val revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
         configKrate = coreModule.configKrate,
         roleChanges = discordRoleChannel
     )
@@ -69,7 +75,7 @@ class LinkModule(
 
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent> = DiscordLinkInterceptor(
         linkAccountUseCase = linkAccountUseCase,
-        discordRoleController = discordRoleController,
+        grantLinkedDiscordRoleUseCase = grantLinkedDiscordRoleUseCase,
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate
     )
@@ -100,7 +106,7 @@ class LinkModule(
                 executor = UnlinkCommandExecutor(
                     linkedPlayerRepository = linkedPlayerRepository,
                     luckPermsRoleController = luckPermsRoleController,
-                    discordRoleController = discordRoleController,
+                    revokeLinkedDiscordRoleUseCase = revokeLinkedDiscordRoleUseCase,
                     translationKrate = coreModule.translationKrate
                 ),
                 ioScope = coreModule.ioScope,

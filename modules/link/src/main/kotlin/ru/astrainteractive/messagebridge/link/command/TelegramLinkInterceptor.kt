@@ -23,7 +23,7 @@ internal class TelegramLinkInterceptor(
         val code = message.text?.toLinkCode() ?: return Interception.Pass
         val user = message.from ?: return Interception.Consumed
         val username = user.userName ?: return Interception.Reply(translation.link.noUsername.toMessengerText())
-        val response = linkAccountUseCase.link(code, MessengerAccount.Telegram(id = user.id, username = username))
+        val response = linkAccountUseCase(code, MessengerAccount.Telegram(id = user.id, username = username))
         return Interception.Reply(response.asMessage(translation.link).toMessengerText())
     }
 }

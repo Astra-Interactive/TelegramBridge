@@ -28,9 +28,9 @@ import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeReposi
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
@@ -100,7 +100,10 @@ class DiscordLinkInterceptorTest {
                 luckPermsProvider = FakeLuckPermsProvider()
             )
         ),
-        discordRoleController = DiscordRoleController(configKrate = configKrate, roleChanges = roleChanges),
+        grantLinkedDiscordRoleUseCase = GrantLinkedDiscordRoleUseCase(
+            configKrate = configKrate,
+            roleChanges = roleChanges
+        ),
         configKrate = configKrate,
         translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     )

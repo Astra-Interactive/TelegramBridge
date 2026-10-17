@@ -20,10 +20,10 @@ import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.model.LinkPermission
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -37,7 +37,7 @@ class UnlinkLiteralArgumentBuilderTest {
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
         luckPermsProvider = FakeLuckPermsProvider()
     )
-    private val discordRoleController = DiscordRoleController(
+    private val revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
         roleChanges = Channel(Channel.UNLIMITED)
     )
@@ -67,7 +67,7 @@ class UnlinkLiteralArgumentBuilderTest {
             executor = UnlinkCommandExecutor(
                 linkedPlayerRepository = linkedPlayerRepository,
                 luckPermsRoleController = luckPermsRoleController,
-                discordRoleController = discordRoleController,
+                revokeLinkedDiscordRoleUseCase = revokeLinkedDiscordRoleUseCase,
                 translationKrate = translationKrate
             ),
             ioScope = ioScope,

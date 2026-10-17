@@ -12,9 +12,9 @@ import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
 import java.util.UUID
 import kotlin.test.Test
@@ -38,7 +38,7 @@ class UnlinkCommandExecutorTest {
             configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
             luckPermsProvider = luckPermsProvider
         ),
-        discordRoleController = DiscordRoleController(
+        revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
             configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
             roleChanges = roleChanges
         ),

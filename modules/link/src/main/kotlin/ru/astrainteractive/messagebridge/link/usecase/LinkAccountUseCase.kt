@@ -15,11 +15,11 @@ internal class LinkAccountUseCase(
     private val luckPermsRoleController: LuckPermsRoleController
 ) : Logger by JUtiltLogger("MessageBridge-LinkAccountUseCase") {
     private fun reportFailure(t: Throwable, account: MessengerAccount): LinkResponse {
-        error(t) { "#link could not link $account" }
+        error(t) { "#invoke could not link $account" }
         return LinkResponse.UnknownError
     }
 
-    suspend fun link(code: Int, account: MessengerAccount): LinkResponse {
+    suspend operator fun invoke(code: Int, account: MessengerAccount): LinkResponse {
         val codeUser = linkCodeRepository.findUserByCode(code) ?: return LinkResponse.NoCode
         val outcome = linkedPlayerRepository
             .link(uuid = codeUser.uuid, minecraftName = codeUser.name, account = account)
