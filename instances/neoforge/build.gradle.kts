@@ -5,7 +5,7 @@ import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("ru.astrainteractive.gradleplugin.detekt")
+    alias(libs.plugins.klibs.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.gradle.neoforgegradle)
     alias(libs.plugins.gradle.shadow)
