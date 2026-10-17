@@ -6,6 +6,10 @@ plugins {
     id("java-test-fixtures")
 }
 
+linter {
+    unitKind.set("technology")
+}
+
 dependencies {
     implementation(libs.discord.webhook)
     implementation(libs.jda)

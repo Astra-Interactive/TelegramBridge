@@ -5,6 +5,10 @@ plugins {
     id("ru.astrainteractive.gradleplugin.java.version")
 }
 
+linter {
+    unitKind.set("technology")
+}
+
 dependencies {
     implementation(libs.klibs.kstorage)
     implementation(libs.klibs.mikro.core)
