@@ -12,7 +12,7 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.command.fake.FakeCommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
@@ -73,10 +73,7 @@ class UnlinkLiteralArgumentBuilderTest {
             ioScope = ioScope,
             multiplatformCommand = multiplatformCommand,
             platformServer = FakePlatformServer(onlinePlayers = listOf(admin, steve)),
-            commandExceptionHandler = CommandExceptionHandler(
-                multiplatformCommand = multiplatformCommand,
-                translationKrate = translationKrate
-            )
+            commandExceptionHandler = FakeCommandExceptionHandler()
         )
         val dispatcher = CommandDispatcher<Any>()
         dispatcher.register(builder.create())

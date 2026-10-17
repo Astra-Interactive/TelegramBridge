@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.core.api.command
+package ru.astrainteractive.messagebridge.core.api.command.error
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -31,14 +31,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class CommandExceptionHandlerTest {
+class TranslationCommandExceptionHandlerTest {
     private val sender = RecordingConsoleKCommandSender()
     private val multiplatformCommand = MultiplatformCommand(FakeMultiplatformCommands(sender))
     private val translationKrate = DefaultMutableKrate(
         factory = ::PluginTranslation,
         loader = { null }
     ).asCachedMutableKrate()
-    private val handler = CommandExceptionHandler(
+    private val handler = TranslationCommandExceptionHandler(
         multiplatformCommand = multiplatformCommand,
         translationKrate = translationKrate
     )
@@ -58,7 +58,7 @@ class CommandExceptionHandlerTest {
 
     private fun failingCommand(
         multiplatformCommand: MultiplatformCommand,
-        handler: CommandExceptionHandler,
+        handler: TranslationCommandExceptionHandler,
         failure: Throwable
     ): LiteralArgumentBuilder<Any> {
         return with(multiplatformCommand) {
@@ -201,7 +201,7 @@ class CommandExceptionHandlerTest {
     @Test
     fun GIVEN_sender_the_platform_can_not_wrap_WHEN_command_fails_THEN_command_still_completes() {
         val commandBlockCommand = MultiplatformCommand(FakeMultiplatformCommands(sender = null))
-        val commandBlockHandler = CommandExceptionHandler(
+        val commandBlockHandler = TranslationCommandExceptionHandler(
             multiplatformCommand = commandBlockCommand,
             translationKrate = translationKrate
         )
@@ -240,7 +240,7 @@ class CommandExceptionHandlerTest {
     @Test
     fun GIVEN_sender_the_platform_can_not_wrap_WHEN_command_starts_background_work_THEN_command_still_completes() {
         val commandBlockCommand = MultiplatformCommand(FakeMultiplatformCommands(sender = null))
-        val commandBlockHandler = CommandExceptionHandler(
+        val commandBlockHandler = TranslationCommandExceptionHandler(
             multiplatformCommand = commandBlockCommand,
             translationKrate = translationKrate
         )

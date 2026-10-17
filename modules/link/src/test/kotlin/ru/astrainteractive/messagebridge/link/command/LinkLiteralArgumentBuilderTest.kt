@@ -11,7 +11,7 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.command.fake.FakeCommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.link.code.fake.FakeLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
@@ -33,6 +33,7 @@ class LinkLiteralArgumentBuilderTest {
     private val multiplatformCommand = MultiplatformCommand(FakeMultiplatformCommands(steve))
 
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+    private val commandExceptionHandler = FakeCommandExceptionHandler()
 
     private fun plainTextOf(message: LocalizableComponent): String {
         return PlainTextComponentSerializer.plainText().serialize(message.toComponent(Locale.ROOT))
@@ -48,10 +49,7 @@ class LinkLiteralArgumentBuilderTest {
             ioScope = ioScope,
             multiplatformCommand = multiplatformCommand,
             platformServer = FakePlatformServer(onlinePlayers = listOf(steve)),
-            commandExceptionHandler = CommandExceptionHandler(
-                multiplatformCommand = multiplatformCommand,
-                translationKrate = translationKrate
-            )
+            commandExceptionHandler = commandExceptionHandler
         )
         val dispatcher = CommandDispatcher<Any>()
         dispatcher.register(builder.create())
@@ -66,7 +64,7 @@ class LinkLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_code_service_that_breaks_WHEN_player_runs_link_THEN_reads_unknown_error() {
+    fun GIVEN_code_service_that_breaks_WHEN_player_runs_link_THEN_the_failure_goes_to_the_exception_handler() {
         val brokenCodeRepository = FakeLinkCodeRepository(
             code = 4821,
             failure = IllegalStateException("Code storage is full")
@@ -74,7 +72,7 @@ class LinkLiteralArgumentBuilderTest {
 
         executeAsSteve(input = "link", linkCodeRepository = brokenCodeRepository)
 
-        assertEquals(listOf<LocalizableComponent>(translation.commandError.unknownError), steve.messages)
+        assertEquals(listOf("Code storage is full"), commandExceptionHandler.failures.map(Throwable::message))
     }
 
     @Test

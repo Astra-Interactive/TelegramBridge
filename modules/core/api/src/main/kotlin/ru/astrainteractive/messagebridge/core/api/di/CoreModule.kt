@@ -17,7 +17,8 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.klibs.mikro.core.coroutines.CoroutineFeature
 import ru.astrainteractive.klibs.mikro.core.dispatchers.KotlinDispatchers
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
-import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.command.api.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.command.error.TranslationCommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import java.io.File
@@ -84,7 +85,7 @@ class CoreModule(
         }
     ).asStateFlowKrate()
 
-    val commandExceptionHandler = CommandExceptionHandler(
+    val commandExceptionHandler: CommandExceptionHandler = TranslationCommandExceptionHandler(
         multiplatformCommand = multiplatformCommand,
         translationKrate = translationKrate
     )

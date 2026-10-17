@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.core.api.command
+package ru.astrainteractive.messagebridge.core.api.command.error
 
 import com.mojang.brigadier.context.CommandContext
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -16,12 +16,13 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.core.api.command.api.CommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 
-class CommandExceptionHandler(
+internal class TranslationCommandExceptionHandler(
     private val multiplatformCommand: MultiplatformCommand,
     translationKrate: CachedKrate<PluginTranslation>
-) : Logger by JUtiltLogger("MessageBridge-CommandExceptionHandler") {
+) : CommandExceptionHandler, Logger by JUtiltLogger("MessageBridge-CommandExceptionHandler") {
     private val translation by translationKrate
 
     private fun commandNameOf(ctx: CommandContext<Any>): String = ctx.input.substringBefore(' ')
@@ -44,7 +45,7 @@ class CommandExceptionHandler(
         }
     }
 
-    fun handle(ctx: CommandContext<Any>, throwable: Throwable) {
+    override fun handle(ctx: CommandContext<Any>, throwable: Throwable) {
         val commandName = commandNameOf(ctx)
         val sender = runCatching { with(multiplatformCommand) { ctx.getSender() } }
             .getOrElse { senderError ->
@@ -56,7 +57,7 @@ class CommandExceptionHandler(
         sender.sendMessage(messageOf(throwable, commandName))
     }
 
-    fun coroutineExceptionHandler(ctx: CommandContext<Any>): CoroutineExceptionHandler {
+    override fun coroutineExceptionHandler(ctx: CommandContext<Any>): CoroutineExceptionHandler {
         val commandName = commandNameOf(ctx)
         val sender = with(multiplatformCommand) { ctx.getSender() }
         return CoroutineExceptionHandler { _, throwable ->
