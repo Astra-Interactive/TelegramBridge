@@ -12,7 +12,7 @@ import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.bukkit.event.BukkitEvent
-import ru.astrainteractive.messagebridge.messenger.bukkit.internal.MinecraftBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.bukkit.event.MinecraftBEventConsumer
 
 class BukkitMessengerModule(
     coreModule: CoreModule,

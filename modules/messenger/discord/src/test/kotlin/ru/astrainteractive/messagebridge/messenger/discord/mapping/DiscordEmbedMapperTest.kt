@@ -5,7 +5,7 @@ package ru.astrainteractive.messagebridge.messenger.discord.mapping
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent

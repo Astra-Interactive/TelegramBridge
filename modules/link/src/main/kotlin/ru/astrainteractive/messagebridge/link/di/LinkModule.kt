@@ -9,26 +9,26 @@ import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
-import ru.astrainteractive.messagebridge.link.code.api.CodeApi
-import ru.astrainteractive.messagebridge.link.code.internal.CodeApiImpl
+import ru.astrainteractive.messagebridge.integration.luckperms.di.LuckPermsModule
+import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
+import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.command.DiscordLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.LinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.LinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.command.TelegramLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuilder
-import ru.astrainteractive.messagebridge.link.dao.di.LinkDatabaseModule
+import ru.astrainteractive.messagebridge.link.event.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LinkedDiscordAuthorResolver
-import ru.astrainteractive.messagebridge.link.internal.LinkedNameInterceptor
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.link.event.LinkedNameInterceptor
+import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordAuthorResolver
-import ru.astrainteractive.messagebridge.messenger.discord.api.DiscordMemberLeaveListener
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
+import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 
 class LinkModule(
     coreModule: CoreModule,
@@ -39,24 +39,29 @@ class LinkModule(
         dataFolder = coreModule.dataFolder
     )
 
-    private val linkingDao = linkDatabaseModule.linkingDao
+    private val linkedPlayerRepository = linkDatabaseModule.linkedPlayerRepository
 
-    private val codeApi: CodeApi = CodeApiImpl()
+    private val linkCodeRepository: LinkCodeRepository = InMemoryLinkCodeRepository()
 
-    private val luckPermsRoleController = LuckPermsRoleController(
-        configKrate = coreModule.configKrate,
+    private val luckPermsModule = LuckPermsModule(
+        coreModule = coreModule,
         luckPermsProvider = luckPermsProvider
     )
 
     private val linkAccountUseCase = LinkAccountUseCase(
-        codeApi = codeApi,
-        linkingDao = linkingDao,
-        luckPermsRoleController = luckPermsRoleController
+        linkCodeRepository = linkCodeRepository,
+        linkedPlayerRepository = linkedPlayerRepository,
+        linkRoleRepository = luckPermsModule.linkRoleRepository
     )
 
     private val discordRoleChannel = Channel<DiscordRoleChange>(Channel.UNLIMITED)
 
-    private val discordRoleController = DiscordRoleController(
+    private val grantLinkedDiscordRoleUseCase = GrantLinkedDiscordRoleUseCase(
+        configKrate = coreModule.configKrate,
+        roleChanges = discordRoleChannel
+    )
+
+    private val revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
         configKrate = coreModule.configKrate,
         roleChanges = discordRoleChannel
     )
@@ -70,26 +75,26 @@ class LinkModule(
 
     val discordLinkInterceptor: MessageInterceptor<MessageReceivedEvent> = DiscordLinkInterceptor(
         linkAccountUseCase = linkAccountUseCase,
-        discordRoleController = discordRoleController,
+        grantLinkedDiscordRoleUseCase = grantLinkedDiscordRoleUseCase,
         configKrate = coreModule.configKrate,
         translationKrate = coreModule.translationKrate
     )
 
     val discordMemberLeaveListener: DiscordMemberLeaveListener = LinkedMemberLeaveListener(
-        linkingDao = linkingDao,
-        luckPermsRoleController = luckPermsRoleController
+        linkedPlayerRepository = linkedPlayerRepository,
+        linkRoleRepository = luckPermsModule.linkRoleRepository
     )
 
-    val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkingDao)
+    val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkedPlayerRepository)
 
-    val linkedNameInterceptor: TextInterceptor = LinkedNameInterceptor(linkingDao)
+    val linkedNameInterceptor: TextInterceptor = LinkedNameInterceptor(linkedPlayerRepository)
 
     private val commandNodes by lazy {
         listOf(
             LinkLiteralArgumentBuilder(
                 executor = LinkCommandExecutor(
-                    codeApi = codeApi,
-                    linkingDao = linkingDao,
+                    linkCodeRepository = linkCodeRepository,
+                    linkedPlayerRepository = linkedPlayerRepository,
                     translationKrate = coreModule.translationKrate
                 ),
                 ioScope = coreModule.ioScope,
@@ -99,9 +104,9 @@ class LinkModule(
             ).create(),
             UnlinkLiteralArgumentBuilder(
                 executor = UnlinkCommandExecutor(
-                    linkingDao = linkingDao,
-                    luckPermsRoleController = luckPermsRoleController,
-                    discordRoleController = discordRoleController,
+                    linkedPlayerRepository = linkedPlayerRepository,
+                    linkRoleRepository = luckPermsModule.linkRoleRepository,
+                    revokeLinkedDiscordRoleUseCase = revokeLinkedDiscordRoleUseCase,
                     translationKrate = coreModule.translationKrate
                 ),
                 ioScope = coreModule.ioScope,

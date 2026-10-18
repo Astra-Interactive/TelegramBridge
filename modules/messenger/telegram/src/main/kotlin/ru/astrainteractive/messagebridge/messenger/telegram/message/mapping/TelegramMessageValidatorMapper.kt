@@ -3,7 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.messenger.telegram.message.model.TelegramAuthor
 import ru.astrainteractive.messagebridge.messenger.telegram.message.model.TelegramMessageValidation
 
@@ -14,6 +14,9 @@ internal class TelegramMessageValidatorMapper(
     private val config by configKrate
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
+
+    private fun isDisplayNameAllowed(name: String): Boolean =
+        tgConfig.displayNameRegex.toRegex().matches(name)
 
     fun map(update: Update): TelegramMessageValidation {
         val author = authorMapper.map(update) ?: return TelegramMessageValidation.NoAuthor
@@ -33,7 +36,4 @@ internal class TelegramMessageValidatorMapper(
             authorId = update.message?.from?.id ?: 0L,
         )
     }
-
-    private fun isDisplayNameAllowed(name: String): Boolean =
-        tgConfig.displayNameRegex.toRegex().matches(name)
 }

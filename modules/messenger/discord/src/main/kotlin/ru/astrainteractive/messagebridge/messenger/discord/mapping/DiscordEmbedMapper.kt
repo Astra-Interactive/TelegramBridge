@@ -4,8 +4,8 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
@@ -15,6 +15,8 @@ internal class DiscordEmbedMapper(
     translationKrate: CachedKrate<PluginTranslation>,
 ) {
     private val translation by translationKrate
+
+    private fun avatarUrl(uuid: String): String = "$MC_HEADS_AVATAR_URL$uuid"
 
     fun map(event: PlayerDeathBEvent): MessageEmbed {
         val text = event.cause ?: translation.player.discordDiedOfUnknownCause(event.name).toMessengerText()
@@ -41,8 +43,6 @@ internal class DiscordEmbedMapper(
         .setColor(LEAVE_COLOR)
         .setAuthor(translation.player.discordLeft(event.name).toMessengerText(), null, avatarUrl(event.uuid))
         .build()
-
-    private fun avatarUrl(uuid: String): String = "$MC_HEADS_AVATAR_URL$uuid"
 
     private companion object {
         const val MC_HEADS_AVATAR_URL = "https://mc-heads.net/avatar/"

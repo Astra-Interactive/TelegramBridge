@@ -7,16 +7,16 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.dao.api.LinkingDao
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.integration.luckperms.role.api.LinkRoleRepository
+import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
-    private val linkingDao: LinkingDao,
-    private val luckPermsRoleController: LuckPermsRoleController,
-    private val discordRoleController: DiscordRoleController,
+    private val linkedPlayerRepository: LinkedPlayerRepository,
+    private val linkRoleRepository: LinkRoleRepository,
+    private val revokeLinkedDiscordRoleUseCase: RevokeLinkedDiscordRoleUseCase,
     translationKrate: CachedKrate<PluginTranslation>
 ) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
     private val translation by translationKrate
@@ -40,12 +40,12 @@ internal class UnlinkCommandExecutor(
         notLinkedText: LocalizableComponent,
         unlinkedText: LocalizableComponent
     ) {
-        val unlinked = linkingDao.deleteByUuid(uuid).getOrElse { t ->
+        val unlinked = linkedPlayerRepository.deleteByUuid(uuid).getOrElse { t ->
             reportFailure(sender, uuid, t)
             return
         }
-        luckPermsRoleController.removeLinkedRole(uuid)
-        unlinked?.discord?.let { discord -> discordRoleController.removeLinkedRole(discord.id) }
+        linkRoleRepository.removeLinkedRole(uuid)
+        unlinked?.discord?.let { discord -> revokeLinkedDiscordRoleUseCase(discord.id) }
         if (unlinked == null) {
             sender.sendMessage(notLinkedText)
             return

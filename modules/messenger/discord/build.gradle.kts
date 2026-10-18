@@ -1,9 +1,13 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("ru.astrainteractive.gradleplugin.detekt")
+    alias(libs.plugins.klibs.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     id("java-test-fixtures")
+}
+
+linter {
+    unitKind.set("technology")
 }
 
 dependencies {

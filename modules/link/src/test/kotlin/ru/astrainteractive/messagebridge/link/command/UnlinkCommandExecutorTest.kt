@@ -7,15 +7,14 @@ import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordRoleChange
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,8 +22,8 @@ import kotlin.test.assertTrue
 
 class UnlinkCommandExecutorTest {
     private val translation = PluginTranslation()
-    private val linkingDao = FakeLinkingDao()
-    private val luckPermsProvider = FakeLuckPermsProvider()
+    private val linkedPlayerRepository = FakeLinkedPlayerRepository()
+    private val linkRoleRepository = FakeLinkRoleRepository()
     private val pluginConfiguration = PluginConfiguration(
         link = PluginConfiguration.Link(
             linkDiscordRole = "123456789012345678",
@@ -33,12 +32,9 @@ class UnlinkCommandExecutorTest {
     )
     private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private val executor = UnlinkCommandExecutor(
-        linkingDao = linkingDao,
-        luckPermsRoleController = LuckPermsRoleController(
-            configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
-            luckPermsProvider = luckPermsProvider
-        ),
-        discordRoleController = DiscordRoleController(
+        linkedPlayerRepository = linkedPlayerRepository,
+        linkRoleRepository = linkRoleRepository,
+        revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
             configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
             roleChanges = roleChanges
         ),
@@ -55,7 +51,7 @@ class UnlinkCommandExecutorTest {
     )
 
     private suspend fun linkSteve() {
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Discord(id = 42, name = "Stevie")
@@ -72,7 +68,7 @@ class UnlinkCommandExecutorTest {
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
         assertReadOnly(steve, translation.unlink.success)
     }
 
@@ -82,7 +78,7 @@ class UnlinkCommandExecutorTest {
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
     }
 
     @Test
@@ -95,23 +91,23 @@ class UnlinkCommandExecutorTest {
     @Test
     fun GIVEN_unreadable_database_WHEN_player_unlinks_THEN_link_stays_and_player_reads_unknown_error() = runTest {
         linkSteve()
-        linkingDao.deleteFailure = IllegalStateException("Database is locked")
+        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is locked")
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(setOf(steve.uuid), linkingDao.linkedPlayers.keys)
+        assertEquals(setOf(steve.uuid), linkedPlayerRepository.linkedPlayers.keys)
         assertReadOnly(steve, translation.commandError.unknownError)
     }
 
     @Test
     fun GIVEN_database_that_can_not_delete_WHEN_player_unlinks_THEN_player_reads_unknown_error() = runTest {
         linkSteve()
-        linkingDao.deleteFailure = IllegalStateException("Database is read-only")
+        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is read-only")
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
         assertReadOnly(steve, translation.commandError.unknownError)
-        assertEquals(0, luckPermsProvider.provideCallCount)
+        assertTrue(linkRoleRepository.removed.isEmpty())
     }
 
     @Test
@@ -120,7 +116,7 @@ class UnlinkCommandExecutorTest {
 
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
         assertReadOnly(admin, translation.unlink.playerSuccess)
         assertTrue(steve.messages.isEmpty())
     }
@@ -129,14 +125,14 @@ class UnlinkCommandExecutorTest {
     fun GIVEN_player_without_link_WHEN_unlinks_THEN_their_luckperms_group_is_still_revoked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
     }
 
     @Test
     fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_their_luckperms_group_is_still_revoked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
     }
 
     @Test
@@ -148,7 +144,7 @@ class UnlinkCommandExecutorTest {
 
     @Test
     fun GIVEN_unreadable_database_WHEN_admin_unlinks_a_player_THEN_admin_reads_unknown_error() = runTest {
-        linkingDao.deleteFailure = IllegalStateException("Database is locked")
+        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is locked")
 
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
@@ -175,7 +171,7 @@ class UnlinkCommandExecutorTest {
 
     @Test
     fun GIVEN_player_linked_only_to_telegram_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Telegram(id = 77, username = "steve_tg")
@@ -196,7 +192,7 @@ class UnlinkCommandExecutorTest {
     @Test
     fun GIVEN_database_that_can_not_delete_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
         linkSteve()
-        linkingDao.deleteFailure = IllegalStateException("Database is read-only")
+        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is read-only")
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 

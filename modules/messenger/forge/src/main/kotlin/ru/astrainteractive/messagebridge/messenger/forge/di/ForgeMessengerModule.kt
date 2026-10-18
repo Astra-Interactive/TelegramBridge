@@ -4,8 +4,8 @@ import kotlinx.coroutines.cancel
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.forge.event.ForgeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.forge.event.ForgeEvents
-import ru.astrainteractive.messagebridge.messenger.forge.internal.ForgeBEventConsumer
 
 class ForgeMessengerModule(
     coreModule: CoreModule,

@@ -24,22 +24,22 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.CappedBackOff
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramBEventConsumer
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramMessageSender
-import ru.astrainteractive.messagebridge.messenger.telegram.internal.TelegramRelayedMessageCache
-import ru.astrainteractive.messagebridge.messenger.telegram.message.command.TelegramCommandHandler
-import ru.astrainteractive.messagebridge.messenger.telegram.message.event.TelegramChatConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramChatConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramCommandMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramReplyMapper
+import ru.astrainteractive.messagebridge.messenger.telegram.polling.CappedBackOff
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramBEventConsumer
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramRelayedMessageCache
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -61,29 +61,6 @@ class TelegramMessengerModule(
             val resolved = Dns.SYSTEM.lookup(hostname)
             return resolved.filterIsInstance<Inet4Address>().ifEmpty { resolved }
         }
-    }
-
-    private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-            .connectTimeout(CONNECT_TIMEOUT.toJavaDuration())
-            .writeTimeout(WRITE_TIMEOUT.toJavaDuration())
-            .readTimeout(READ_TIMEOUT.toJavaDuration())
-            .pingInterval(PING_INTERVAL.toJavaDuration())
-            .retryOnConnectionFailure(true)
-            .dns(ipv4FirstDns)
-        if (proxy != null) {
-            builder
-                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                .proxyAuthenticator { route, response ->
-                    val requestBuilder = response.request.newBuilder()
-                    if (route?.socketAddress?.hostString == proxy.host) {
-                        val credential: String = Credentials.basic(proxy.username, proxy.password)
-                        requestBuilder.header("Proxy-Authorization", credential)
-                    }
-                    requestBuilder.build()
-                }
-        }
-        return builder.build()
     }
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
@@ -222,6 +199,29 @@ class TelegramMessengerModule(
             telegramMessageController.cancel()
         }
     )
+
+    private fun createOkHttpClient(proxy: PluginConfiguration.Proxy?): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+            .connectTimeout(CONNECT_TIMEOUT.toJavaDuration())
+            .writeTimeout(WRITE_TIMEOUT.toJavaDuration())
+            .readTimeout(READ_TIMEOUT.toJavaDuration())
+            .pingInterval(PING_INTERVAL.toJavaDuration())
+            .retryOnConnectionFailure(true)
+            .dns(ipv4FirstDns)
+        if (proxy != null) {
+            builder
+                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                .proxyAuthenticator { route, response ->
+                    val requestBuilder = response.request.newBuilder()
+                    if (route?.socketAddress?.hostString == proxy.host) {
+                        val credential: String = Credentials.basic(proxy.username, proxy.password)
+                        requestBuilder.header("Proxy-Authorization", credential)
+                    }
+                    requestBuilder.build()
+                }
+        }
+        return builder.build()
+    }
 
     private companion object {
         /** Spent on every unreachable address before the next one is tried. */

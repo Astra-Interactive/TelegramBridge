@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.entities.SelfUser
 import net.dv8tion.jda.api.entities.User
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordRelayedMessageCache
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

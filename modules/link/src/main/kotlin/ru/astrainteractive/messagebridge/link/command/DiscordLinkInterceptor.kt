@@ -11,24 +11,24 @@ import ru.astrainteractive.klibs.mikro.core.coroutines.propagateCancellationExce
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.mapping.asMessage
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
+import ru.astrainteractive.messagebridge.link.model.BridgeChannelNotFoundError
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
+import ru.astrainteractive.messagebridge.link.util.INVALID_LINK_CODE
+import ru.astrainteractive.messagebridge.link.util.asMessage
+import ru.astrainteractive.messagebridge.link.util.toLinkCode
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
-private class BridgeChannelNotFoundError(channelId: String) :
-    Exception("The bot cannot see the Discord bridge channel $channelId")
-
 internal class DiscordLinkInterceptor(
     private val linkAccountUseCase: LinkAccountUseCase,
-    private val discordRoleController: DiscordRoleController,
+    private val grantLinkedDiscordRoleUseCase: GrantLinkedDiscordRoleUseCase,
     configKrate: CachedKrate<PluginConfiguration>,
     translationKrate: CachedKrate<PluginTranslation>
 ) : MessageInterceptor<MessageReceivedEvent>, Logger by JUtiltLogger("MessageBridge-DiscordLinkInterceptor") {
@@ -76,9 +76,9 @@ internal class DiscordLinkInterceptor(
             id = event.author.idLong,
             name = member.effectiveName
         )
-        val response = linkAccountUseCase.link(code, account)
+        val response = linkAccountUseCase(code, account)
         if (response == LinkResponse.Linked) {
-            discordRoleController.addLinkedRole(account.id)
+            grantLinkedDiscordRoleUseCase(account.id)
         }
         return Interception.Reply(response.asMessage(translation.link).toMessengerText())
     }

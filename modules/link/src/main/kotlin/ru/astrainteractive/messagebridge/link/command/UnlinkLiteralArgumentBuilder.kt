@@ -9,8 +9,8 @@ import ru.astrainteractive.astralibs.command.api.argumenttype.KPlayerArgumentCon
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.server.bridge.PlatformServer
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer
-import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.link.permission.LinkPermission
+import ru.astrainteractive.messagebridge.core.api.command.api.CommandExceptionHandler
+import ru.astrainteractive.messagebridge.link.model.LinkPermission
 
 internal class UnlinkLiteralArgumentBuilder(
     private val executor: UnlinkCommandExecutor,

@@ -4,12 +4,12 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageType
 import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.mapping.toMessengerText
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.discord.internal.DiscordRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordRelayedMessageCache
 
 internal class DiscordReplyMapper(
     translationKrate: CachedKrate<PluginTranslation>,

@@ -12,18 +12,17 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.Multiplatform
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.command.CommandExceptionHandler
-import ru.astrainteractive.messagebridge.core.api.config.PluginConfiguration
-import ru.astrainteractive.messagebridge.core.api.config.PluginTranslation
-import ru.astrainteractive.messagebridge.link.dao.fake.FakeLinkingDao
-import ru.astrainteractive.messagebridge.link.dao.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
+import ru.astrainteractive.messagebridge.core.api.command.fake.FakeCommandExceptionHandler
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
-import ru.astrainteractive.messagebridge.link.internal.DiscordRoleController
-import ru.astrainteractive.messagebridge.link.internal.LuckPermsRoleController
-import ru.astrainteractive.messagebridge.link.permission.LinkPermission
+import ru.astrainteractive.messagebridge.link.model.LinkPermission
+import ru.astrainteractive.messagebridge.link.model.MessengerAccount
+import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,12 +31,9 @@ import kotlin.test.assertTrue
 class UnlinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
-    private val linkingDao = FakeLinkingDao()
-    private val luckPermsRoleController = LuckPermsRoleController(
-        configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
-        luckPermsProvider = FakeLuckPermsProvider()
-    )
-    private val discordRoleController = DiscordRoleController(
+    private val linkedPlayerRepository = FakeLinkedPlayerRepository()
+    private val linkRoleRepository = FakeLinkRoleRepository()
+    private val revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
         roleChanges = Channel(Channel.UNLIMITED)
     )
@@ -54,7 +50,7 @@ class UnlinkLiteralArgumentBuilderTest {
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
     private suspend fun linkSteve() {
-        linkingDao.link(
+        linkedPlayerRepository.link(
             uuid = steve.uuid,
             minecraftName = "Steve",
             account = MessengerAccount.Discord(id = 42, name = "Stevie")
@@ -65,18 +61,15 @@ class UnlinkLiteralArgumentBuilderTest {
         val multiplatformCommand = MultiplatformCommand(FakeMultiplatformCommands(sender))
         val builder = UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
-                linkingDao = linkingDao,
-                luckPermsRoleController = luckPermsRoleController,
-                discordRoleController = discordRoleController,
+                linkedPlayerRepository = linkedPlayerRepository,
+                linkRoleRepository = linkRoleRepository,
+                revokeLinkedDiscordRoleUseCase = revokeLinkedDiscordRoleUseCase,
                 translationKrate = translationKrate
             ),
             ioScope = ioScope,
             multiplatformCommand = multiplatformCommand,
             platformServer = FakePlatformServer(onlinePlayers = listOf(admin, steve)),
-            commandExceptionHandler = CommandExceptionHandler(
-                multiplatformCommand = multiplatformCommand,
-                translationKrate = translationKrate
-            )
+            commandExceptionHandler = FakeCommandExceptionHandler()
         )
         val dispatcher = CommandDispatcher<Any>()
         dispatcher.register(builder.create())
@@ -89,7 +82,7 @@ class UnlinkLiteralArgumentBuilderTest {
 
         execute(input = "unlink", sender = steve)
 
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
         assertEquals(listOf<LocalizableComponent>(translation.unlink.success), steve.messages)
     }
 
@@ -99,7 +92,7 @@ class UnlinkLiteralArgumentBuilderTest {
 
         execute(input = "unlink Steve", sender = admin)
 
-        assertTrue(linkingDao.linkedPlayers.isEmpty())
+        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
         assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
     }
 }
