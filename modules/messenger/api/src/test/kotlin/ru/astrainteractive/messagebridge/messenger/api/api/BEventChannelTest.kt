@@ -1,7 +1,7 @@
 @file:Suppress("FunctionNaming")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package ru.astrainteractive.messagebridge.messenger.api.memory
+package ru.astrainteractive.messagebridge.messenger.api.api
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,7 +11,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
+import ru.astrainteractive.messagebridge.messenger.api.memory.InMemoryBEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-class InMemoryBEventChannelTest {
+class BEventChannelTest {
     private val chatMessage = Text.Minecraft(
         author = "Steve",
         uuid = "8667ba71-b85a-4004-af54-457a9734eed7",

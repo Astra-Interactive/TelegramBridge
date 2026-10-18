@@ -1,12 +1,13 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.link.code.memory
+package ru.astrainteractive.messagebridge.link.code.api
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import java.util.UUID
 import kotlin.test.Test
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 
-class InMemoryLinkCodeRepositoryTest {
+class LinkCodeRepositoryTest {
     private val linkCodeRepository = InMemoryLinkCodeRepository()
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val alex = CodeUser(name = "Alex", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000003"))
