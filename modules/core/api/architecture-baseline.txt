@@ -1,1 +1,0 @@
-KindImportDirection	src/main/kotlin/ru/astrainteractive/messagebridge/core/api/config/model/PluginTranslation.kt	ru.astrainteractive.messagebridge.core.api.util.ellipsize

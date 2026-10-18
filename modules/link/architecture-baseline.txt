@@ -1,4 +1,0 @@
-InMemoryPlacement	src/test/kotlin/ru/astrainteractive/messagebridge/link/code/memory/InMemoryLinkCodeRepositoryTest.kt	InMemoryLinkCodeRepositoryTest
-KindShape	src/main/kotlin/ru/astrainteractive/messagebridge/link/interceptor/LinkedDiscordAuthorResolver.kt	LinkedDiscordAuthorResolver
-KindShape	src/main/kotlin/ru/astrainteractive/messagebridge/link/interceptor/LinkedNameInterceptor.kt	LinkedNameInterceptor
-KindShape	src/main/kotlin/ru/astrainteractive/messagebridge/link/role/luckperms/LuckPermsRoleController.kt	LuckPermsRoleController
