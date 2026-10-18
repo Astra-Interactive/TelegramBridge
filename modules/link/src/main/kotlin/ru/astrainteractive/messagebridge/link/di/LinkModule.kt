@@ -9,6 +9,7 @@ import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
+import ru.astrainteractive.messagebridge.integration.luckperms.di.LuckPermsModule
 import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.command.DiscordLinkInterceptor
@@ -20,7 +21,6 @@ import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuild
 import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.interceptor.LinkedDiscordAuthorResolver
 import ru.astrainteractive.messagebridge.link.interceptor.LinkedNameInterceptor
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
@@ -43,15 +43,15 @@ class LinkModule(
 
     private val linkCodeRepository: LinkCodeRepository = InMemoryLinkCodeRepository()
 
-    private val luckPermsRoleController = LuckPermsRoleController(
-        configKrate = coreModule.configKrate,
+    private val luckPermsModule = LuckPermsModule(
+        coreModule = coreModule,
         luckPermsProvider = luckPermsProvider
     )
 
     private val linkAccountUseCase = LinkAccountUseCase(
         linkCodeRepository = linkCodeRepository,
         linkedPlayerRepository = linkedPlayerRepository,
-        luckPermsRoleController = luckPermsRoleController
+        linkRoleRepository = luckPermsModule.linkRoleRepository
     )
 
     private val discordRoleChannel = Channel<DiscordRoleChange>(Channel.UNLIMITED)
@@ -82,7 +82,7 @@ class LinkModule(
 
     val discordMemberLeaveListener: DiscordMemberLeaveListener = LinkedMemberLeaveListener(
         linkedPlayerRepository = linkedPlayerRepository,
-        luckPermsRoleController = luckPermsRoleController
+        linkRoleRepository = luckPermsModule.linkRoleRepository
     )
 
     val discordAuthorResolver: DiscordAuthorResolver = LinkedDiscordAuthorResolver(linkedPlayerRepository)
@@ -105,7 +105,7 @@ class LinkModule(
             UnlinkLiteralArgumentBuilder(
                 executor = UnlinkCommandExecutor(
                     linkedPlayerRepository = linkedPlayerRepository,
-                    luckPermsRoleController = luckPermsRoleController,
+                    linkRoleRepository = luckPermsModule.linkRoleRepository,
                     revokeLinkedDiscordRoleUseCase = revokeLinkedDiscordRoleUseCase,
                     translationKrate = coreModule.translationKrate
                 ),

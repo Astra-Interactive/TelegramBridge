@@ -2,17 +2,17 @@ package ru.astrainteractive.messagebridge.link.usecase
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
+import ru.astrainteractive.messagebridge.integration.luckperms.role.api.LinkRoleRepository
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
 import ru.astrainteractive.messagebridge.link.model.LinkOutcome
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 
 internal class LinkAccountUseCase(
     private val linkCodeRepository: LinkCodeRepository,
     private val linkedPlayerRepository: LinkedPlayerRepository,
-    private val luckPermsRoleController: LuckPermsRoleController
+    private val linkRoleRepository: LinkRoleRepository
 ) : Logger by JUtiltLogger("MessageBridge-LinkAccountUseCase") {
     private fun reportFailure(t: Throwable, account: MessengerAccount): LinkResponse {
         error(t) { "#invoke could not link $account" }
@@ -27,7 +27,7 @@ internal class LinkAccountUseCase(
         return when (outcome) {
             LinkOutcome.Linked -> {
                 linkCodeRepository.clearCode(code)
-                luckPermsRoleController.addLinkRole(codeUser.uuid)
+                linkRoleRepository.addLinkRole(codeUser.uuid)
                 LinkResponse.Linked
             }
 

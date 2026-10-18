@@ -9,11 +9,10 @@ import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import java.util.UUID
@@ -24,7 +23,7 @@ import kotlin.test.assertTrue
 class UnlinkCommandExecutorTest {
     private val translation = PluginTranslation()
     private val linkedPlayerRepository = FakeLinkedPlayerRepository()
-    private val luckPermsProvider = FakeLuckPermsProvider()
+    private val linkRoleRepository = FakeLinkRoleRepository()
     private val pluginConfiguration = PluginConfiguration(
         link = PluginConfiguration.Link(
             linkDiscordRole = "123456789012345678",
@@ -34,10 +33,7 @@ class UnlinkCommandExecutorTest {
     private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private val executor = UnlinkCommandExecutor(
         linkedPlayerRepository = linkedPlayerRepository,
-        luckPermsRoleController = LuckPermsRoleController(
-            configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
-            luckPermsProvider = luckPermsProvider
-        ),
+        linkRoleRepository = linkRoleRepository,
         revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
             configKrate = DefaultMutableKrate(factory = { pluginConfiguration }, loader = { null }).asCachedKrate(),
             roleChanges = roleChanges
@@ -82,7 +78,7 @@ class UnlinkCommandExecutorTest {
 
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
     }
 
     @Test
@@ -111,7 +107,7 @@ class UnlinkCommandExecutorTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
         assertReadOnly(steve, translation.commandError.unknownError)
-        assertEquals(0, luckPermsProvider.provideCallCount)
+        assertTrue(linkRoleRepository.removed.isEmpty())
     }
 
     @Test
@@ -129,14 +125,14 @@ class UnlinkCommandExecutorTest {
     fun GIVEN_player_without_link_WHEN_unlinks_THEN_their_luckperms_group_is_still_revoked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
     }
 
     @Test
     fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_their_luckperms_group_is_still_revoked() = runTest {
         executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
     }
 
     @Test

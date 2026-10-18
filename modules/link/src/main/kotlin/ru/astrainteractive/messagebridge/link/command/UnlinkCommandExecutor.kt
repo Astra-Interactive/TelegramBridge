@@ -8,14 +8,14 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.integration.luckperms.role.api.LinkRoleRepository
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import java.util.UUID
 
 internal class UnlinkCommandExecutor(
     private val linkedPlayerRepository: LinkedPlayerRepository,
-    private val luckPermsRoleController: LuckPermsRoleController,
+    private val linkRoleRepository: LinkRoleRepository,
     private val revokeLinkedDiscordRoleUseCase: RevokeLinkedDiscordRoleUseCase,
     translationKrate: CachedKrate<PluginTranslation>
 ) : Logger by JUtiltLogger("MessageBridge-UnlinkCommandExecutor") {
@@ -44,7 +44,7 @@ internal class UnlinkCommandExecutor(
             reportFailure(sender, uuid, t)
             return
         }
-        luckPermsRoleController.removeLinkedRole(uuid)
+        linkRoleRepository.removeLinkedRole(uuid)
         unlinked?.discord?.let { discord -> revokeLinkedDiscordRoleUseCase(discord.id) }
         if (unlinked == null) {
             sender.sendMessage(notLinkedText)

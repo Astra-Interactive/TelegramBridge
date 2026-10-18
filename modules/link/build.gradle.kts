@@ -8,7 +8,6 @@ plugins {
 dependencies {
     compileOnly(libs.minecraft.brigadier)
     compileOnly(libs.minecraft.kyori.api)
-    compileOnly(libs.minecraft.luckperms)
 
     implementation(libs.cache4k)
     implementation(libs.exposed.core)
@@ -24,6 +23,7 @@ dependencies {
     implementation(libs.telegrambots.client)
 
     implementation(projects.modules.core.api)
+    implementation(projects.modules.integrationLuckperms)
     implementation(projects.modules.messenger.api)
     implementation(projects.modules.messenger.discord)
 
@@ -34,8 +34,8 @@ dependencies {
     testImplementation(libs.minecraft.kyori.legacy)
     testImplementation(libs.minecraft.kyori.minimessage)
     testImplementation(libs.minecraft.kyori.plain)
-    testImplementation(libs.minecraft.luckperms)
     testImplementation(libs.tests.kotlin.test)
     testImplementation(testFixtures(projects.modules.core.api))
+    testImplementation(testFixtures(projects.modules.integrationLuckperms))
     testImplementation(testFixtures(projects.modules.messenger.discord))
 }

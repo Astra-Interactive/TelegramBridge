@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.role.luckperms
+package ru.astrainteractive.messagebridge.integration.luckperms.role
 
 import net.luckperms.api.LuckPerms
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
@@ -7,18 +7,19 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.integration.luckperms.role.api.LinkRoleRepository
 import java.util.UUID
 
-internal class LuckPermsRoleController(
+internal class LuckPermsLinkRoleRepository(
     configKrate: CachedKrate<PluginConfiguration>,
     private val luckPermsProvider: LuckPermsProvider
-) : Logger by JUtiltLogger("MessageBridge-LuckPermsRoleController") {
+) : LinkRoleRepository, Logger by JUtiltLogger("MessageBridge-LuckPermsLinkRoleRepository") {
     private val config by configKrate
 
     private val luckPermsOrNull: LuckPerms?
         get() = luckPermsProvider.provide().getOrNull()
 
-    fun addLinkRole(uuid: UUID) {
+    override fun addLinkRole(uuid: UUID) {
         val link = config.link ?: return
         val luckPerms = luckPermsOrNull ?: run {
             error { "LuckPerms not found!" }
@@ -37,7 +38,7 @@ internal class LuckPermsRoleController(
         }
     }
 
-    fun removeLinkedRole(uuid: UUID) {
+    override fun removeLinkedRole(uuid: UUID) {
         val link = config.link ?: return
         val luckPerms = luckPermsOrNull ?: run {
             error { "LuckPerms not found!" }

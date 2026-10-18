@@ -3,41 +3,26 @@
 package ru.astrainteractive.messagebridge.link.usecase
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class LinkAccountUseCaseTest {
-    private val configKrate = DefaultMutableKrate(
-        factory = {
-            PluginConfiguration(
-                link = PluginConfiguration.Link(linkDiscordRole = "123456789012345678", linkLuckPermsRole = "verified")
-            )
-        },
-        loader = { null }
-    ).asCachedKrate()
     private val linkCodeRepository = InMemoryLinkCodeRepository()
     private val linkedPlayerRepository = FakeLinkedPlayerRepository()
-    private val luckPermsProvider = FakeLuckPermsProvider()
+    private val linkRoleRepository = FakeLinkRoleRepository()
     private val useCase = LinkAccountUseCase(
         linkCodeRepository = linkCodeRepository,
         linkedPlayerRepository = linkedPlayerRepository,
-        luckPermsRoleController = LuckPermsRoleController(
-            configKrate = configKrate,
-            luckPermsProvider = luckPermsProvider
-        )
+        linkRoleRepository = linkRoleRepository
     )
     private val steve = CodeUser(name = "Steve", uuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002"))
     private val stevie = MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie")
@@ -75,7 +60,7 @@ class LinkAccountUseCaseTest {
     fun GIVEN_account_linked_WHEN_link_succeeds_THEN_luckperms_group_is_requested() = runTest {
         useCase(linkCodeRepository.generateCodeForPlayer(steve), stevie)
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steve.uuid), linkRoleRepository.added)
     }
 
     @Test
@@ -84,7 +69,7 @@ class LinkAccountUseCaseTest {
 
         assertEquals(LinkResponse.NoCode, response)
         assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
-        assertEquals(0, luckPermsProvider.provideCallCount)
+        assertTrue(linkRoleRepository.added.isEmpty())
     }
 
     @Test
@@ -110,7 +95,7 @@ class LinkAccountUseCaseTest {
 
             assertEquals(LinkResponse.UnknownError, response)
             assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
-            assertEquals(0, luckPermsProvider.provideCallCount)
+            assertTrue(linkRoleRepository.added.isEmpty())
         }
 
     @Test
@@ -134,7 +119,7 @@ class LinkAccountUseCaseTest {
         val response = useCase(code, steveTelegram)
 
         assertEquals(LinkResponse.AccountTaken, response)
-        assertEquals(0, luckPermsProvider.provideCallCount)
+        assertTrue(linkRoleRepository.added.isEmpty())
     }
 
     @Test

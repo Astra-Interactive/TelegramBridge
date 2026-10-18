@@ -3,39 +3,25 @@
 package ru.astrainteractive.messagebridge.link.event
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
-import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
-import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
+import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class LinkedMemberLeaveListenerTest {
-    private val configKrate = DefaultMutableKrate(
-        factory = {
-            PluginConfiguration(
-                link = PluginConfiguration.Link(linkDiscordRole = "123456789012345678", linkLuckPermsRole = "verified")
-            )
-        },
-        loader = { null }
-    ).asCachedKrate()
-    private val luckPermsProvider = FakeLuckPermsProvider()
+    private val linkRoleRepository = FakeLinkRoleRepository()
     private val linkedPlayerRepository = FakeLinkedPlayerRepository()
     private val steveUuid = UUID.fromString("5e4a7f7a-0000-4000-8000-000000000002")
     private val stevie = MessengerAccount.Discord(id = DISCORD_ID, name = "Stevie")
     private val steveTelegram = MessengerAccount.Telegram(id = TELEGRAM_ID, username = "steve_tg")
     private val listener = LinkedMemberLeaveListener(
         linkedPlayerRepository = linkedPlayerRepository,
-        luckPermsRoleController = LuckPermsRoleController(
-            configKrate = configKrate,
-            luckPermsProvider = luckPermsProvider
-        )
+        linkRoleRepository = linkRoleRepository
     )
 
     @Test
@@ -48,7 +34,7 @@ class LinkedMemberLeaveListenerTest {
 
         listener.onMemberLeave(DISCORD_ID)
 
-        assertEquals(1, luckPermsProvider.provideCallCount)
+        assertEquals(listOf(steveUuid), linkRoleRepository.removed)
     }
 
     @Test
@@ -72,14 +58,14 @@ class LinkedMemberLeaveListenerTest {
                 LinkedPlayer(uuid = steveUuid, minecraftName = "Steve", discord = null, telegram = steveTelegram),
                 linkedPlayerRepository.linkedPlayers[steveUuid]
             )
-            assertEquals(0, luckPermsProvider.provideCallCount)
+            assertTrue(linkRoleRepository.removed.isEmpty())
         }
 
     @Test
     fun GIVEN_member_who_never_linked_WHEN_leaves_discord_server_THEN_luckperms_is_not_touched() = runTest {
         listener.onMemberLeave(DISCORD_ID)
 
-        assertEquals(0, luckPermsProvider.provideCallCount)
+        assertTrue(linkRoleRepository.removed.isEmpty())
     }
 
     private companion object {

@@ -15,14 +15,13 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.command.fake.FakeCommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
+import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
-import ru.astrainteractive.messagebridge.link.fake.FakeLuckPermsProvider
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer
 import ru.astrainteractive.messagebridge.link.fake.RecordingOnlineKPlayer
 import ru.astrainteractive.messagebridge.link.model.LinkPermission
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
-import ru.astrainteractive.messagebridge.link.role.luckperms.LuckPermsRoleController
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import java.util.UUID
 import kotlin.test.Test
@@ -33,10 +32,7 @@ class UnlinkLiteralArgumentBuilderTest {
     private val translation = PluginTranslation()
     private val translationKrate = DefaultMutableKrate(factory = { translation }, loader = { null }).asCachedKrate()
     private val linkedPlayerRepository = FakeLinkedPlayerRepository()
-    private val luckPermsRoleController = LuckPermsRoleController(
-        configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
-        luckPermsProvider = FakeLuckPermsProvider()
-    )
+    private val linkRoleRepository = FakeLinkRoleRepository()
     private val revokeLinkedDiscordRoleUseCase = RevokeLinkedDiscordRoleUseCase(
         configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate(),
         roleChanges = Channel(Channel.UNLIMITED)
@@ -66,7 +62,7 @@ class UnlinkLiteralArgumentBuilderTest {
         val builder = UnlinkLiteralArgumentBuilder(
             executor = UnlinkCommandExecutor(
                 linkedPlayerRepository = linkedPlayerRepository,
-                luckPermsRoleController = luckPermsRoleController,
+                linkRoleRepository = linkRoleRepository,
                 revokeLinkedDiscordRoleUseCase = revokeLinkedDiscordRoleUseCase,
                 translationKrate = translationKrate
             ),
