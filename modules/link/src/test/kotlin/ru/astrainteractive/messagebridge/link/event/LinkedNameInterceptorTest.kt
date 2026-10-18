@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming")
 
-package ru.astrainteractive.messagebridge.link.interceptor
+package ru.astrainteractive.messagebridge.link.event
 
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository

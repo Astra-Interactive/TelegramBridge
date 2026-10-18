@@ -1,4 +1,4 @@
-package ru.astrainteractive.messagebridge.link.interceptor
+package ru.astrainteractive.messagebridge.link.event
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
