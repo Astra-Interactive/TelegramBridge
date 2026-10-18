@@ -12,7 +12,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.util.ellipsize
+import ru.astrainteractive.messagebridge.core.api.text.model.TextPreview
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
@@ -72,7 +72,7 @@ internal class TelegramBEventConsumer(
             messageSender.send(tgConfig.chatID, text, replyToMessageId = replyTarget, topicId = topicId)
         } else {
             val quote = translation.chat
-                .replyQuote(reply.author, reply.text.ellipsize(tgConfig.replyPreviewLength))
+                .replyQuote(reply.author, TextPreview.of(reply.text, tgConfig.replyPreviewLength).value)
                 .toMessengerText()
             val text = translation.chat
                 .toTelegramReply(

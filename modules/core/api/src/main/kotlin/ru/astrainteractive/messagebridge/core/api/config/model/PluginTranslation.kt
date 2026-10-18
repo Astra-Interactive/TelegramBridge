@@ -8,7 +8,7 @@ import ru.astrainteractive.astralibs.localization.component.replace
 import ru.astrainteractive.astralibs.localization.component.replaceAll
 import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
-import ru.astrainteractive.messagebridge.core.api.util.ellipsize
+import ru.astrainteractive.messagebridge.core.api.text.model.TextPreview
 
 /**
  * Texts of the plugin, grouped by the feature that sends them. Every text has a default, so the plugin works
@@ -215,7 +215,10 @@ data class PluginTranslation(
             val replyMessageReplacement = if (replyMessage.isBlank()) {
                 PlaceholderReplacement(placeholder = "%reply_message%", value = replyMedia)
             } else {
-                PlaceholderReplacement.plain("%reply_message%", replyMessage.ellipsize(MAX_REPLY_PREVIEW_LENGTH))
+                PlaceholderReplacement.plain(
+                    "%reply_message%",
+                    TextPreview.of(replyMessage, MAX_REPLY_PREVIEW_LENGTH).value
+                )
             }
             return toMinecraftReply.replaceAll(
                 PlaceholderReplacement.plain("%dao%", playerName),

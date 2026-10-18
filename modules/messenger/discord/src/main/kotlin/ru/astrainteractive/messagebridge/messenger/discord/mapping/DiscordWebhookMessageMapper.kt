@@ -7,7 +7,7 @@ import ru.astrainteractive.klibs.kstorage.api.CachedKrate
 import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
-import ru.astrainteractive.messagebridge.core.api.util.ellipsize
+import ru.astrainteractive.messagebridge.core.api.text.model.TextPreview
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 
@@ -29,9 +29,8 @@ internal class DiscordWebhookMessageMapper(
         val reply = event.reply ?: return event.text.replace("@", "")
         val replyPlayerName = reply.author.escapeMarkdown()
         val shownReplyPlayerName = replyJumpUrl?.let { url -> "[$replyPlayerName]($url)" } ?: replyPlayerName
-        val replyMessage = reply.text
-            .toSingleLine()
-            .ellipsize(config.jdaConfig.replyPreviewLength)
+        val replyMessage = TextPreview.of(reply.text.toSingleLine(), config.jdaConfig.replyPreviewLength)
+            .value
             .escapeMarkdown()
         val quote = translation.chat.replyQuote(shownReplyPlayerName, replyMessage).toMessengerText()
         return translation.chat
