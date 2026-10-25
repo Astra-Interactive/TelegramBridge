@@ -6,13 +6,20 @@ import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    alias(libs.plugins.klibs.gradle.linter)
+    alias(libs.plugins.klibs.rules.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.klibs.minecraft.resource.processor)
     alias(libs.plugins.gradle.shadow)
 }
 
+configurations.api {
+    dependencies.removeIf { dependency ->
+        dependency.group == "org.jetbrains.kotlin" && dependency.name == "kotlin-stdlib"
+    }
+}
+
 dependencies {
+    implementation(kotlin("stdlib"))
     compileOnly(libs.driver.h2)
     compileOnly(libs.driver.jdbc)
     compileOnly(libs.driver.mysql)
@@ -52,7 +59,11 @@ minecraftProcessResource {
                 libs.driver.jdbc.get(),
                 libs.driver.mysql.get(),
                 libs.driver.mariadb.get()
-            ).joinToString("\",\"", "[\"", "\"]")
+            ).joinToString(
+                "\",\"",
+                "[\"",
+                "\"]"
+            )
         )
     )
 }

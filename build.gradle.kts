@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.gradle.forgegradle) apply false
     alias(libs.plugins.gradle.neoforgegradle) apply false
     alias(libs.plugins.klibs.gradle.java.version) apply false
-    alias(libs.plugins.klibs.gradle.linter) apply false
+    alias(libs.plugins.klibs.rules.gradle.linter)
     alias(libs.plugins.klibs.gradle.publication) apply false
     alias(libs.plugins.klibs.gradle.rootinfo) apply false
     alias(libs.plugins.klibs.minecraft.resource.processor) apply false

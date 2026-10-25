@@ -1,6 +1,6 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
-    alias(libs.plugins.klibs.gradle.linter)
+    alias(libs.plugins.klibs.rules.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     id("java-test-fixtures")
 }
@@ -9,7 +9,14 @@ linter {
     unitKind.set("technology")
 }
 
+configurations.api {
+    dependencies.removeIf { dependency ->
+        dependency.group == "org.jetbrains.kotlin" && dependency.name == "kotlin-stdlib"
+    }
+}
+
 dependencies {
+    implementation(kotlin("stdlib"))
     compileOnly(libs.minecraft.luckperms)
 
     implementation(libs.klibs.kstorage)
