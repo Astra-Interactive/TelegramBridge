@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ArgumentPerLine:FakeLuckPerms.kt:FakeLuckPerms$newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java), handler)</ID>
+    <ID>ClassSignature:FakeLuckPerms.kt:FakeLuckPerms</ID>
+    <ID>ClassSignature:FakeLuckPermsProvider.kt:FakeLuckPermsProvider : LuckPermsProvider</ID>
+    <ID>ClassSignature:LuckPermsLinkRoleRepository.kt:LuckPermsLinkRoleRepository : LinkRoleRepositoryLogger</ID>
+    <ID>ClassSignature:LuckPermsModule.kt:LuckPermsModule</ID>
+    <ID>ExpressionBodyOnOneLine:FakeLuckPerms.kt:FakeLuckPerms$private fun groupNode: InheritanceNode</ID>
+    <ID>ExpressionBodyOnOneLine:FakeLuckPerms.kt:FakeLuckPerms$private fun nodeMap: NodeMap</ID>
+    <ID>ExpressionBodyOnOneLine:FakeLuckPerms.kt:FakeLuckPerms$private fun user: User</ID>
+    <ID>ExpressionBodyOnOneLine:LuckPermsLinkRoleRepositoryTest.kt:LuckPermsLinkRoleRepositoryTest$private fun linkConfiguration: PluginConfiguration</ID>
+    <ID>ExpressionBodyOnOneLine:LuckPermsLinkRoleRepositoryTest.kt:LuckPermsLinkRoleRepositoryTest$private fun repository: LuckPermsLinkRoleRepository</ID>
+    <ID>FunctionExpressionBody:FakeLuckPerms.kt:FakeLuckPerms${ throw UnsupportedOperationException("FakeLuckPerms does not answer ${method.name}") }</ID>
+    <ID>FunctionVerb:FakeLuckPerms.kt:FakeLuckPerms$private fun nodeMap: NodeMap</ID>
+    <ID>LambdaSingleIfGuard:LuckPermsLinkRoleRepository.kt:LuckPermsLinkRoleRepository$if (failure != null) error(failure) { "Could not grant ${link.linkLuckPermsRole} to $uuid" }</ID>
+    <ID>LambdaSingleIfGuard:LuckPermsLinkRoleRepository.kt:LuckPermsLinkRoleRepository$if (failure != null) error(failure) { "Could not revoke ${link.linkLuckPermsRole} from $uuid" }</ID>
+    <ID>TrailingCommaOnCallSite:LuckPermsLinkRoleRepositoryTest.kt:LuckPermsLinkRoleRepositoryTest$( configKrate = DefaultMutableKrate(factory = { configuration }, loader = { null }).asCachedKrate(), luckPermsProvider = luckPermsProvider )</ID>
+    <ID>TrailingCommaOnCallSite:LuckPermsLinkRoleRepositoryTest.kt:LuckPermsLinkRoleRepositoryTest$( link = PluginConfiguration.Link(linkDiscordRole = "123456789012345678", linkLuckPermsRole = LINKED_GROUP) )</ID>
+    <ID>TrailingCommaOnCallSite:LuckPermsModule.kt:LuckPermsModule$( configKrate = coreModule.configKrate, luckPermsProvider = luckPermsProvider )</ID>
+    <ID>TrailingCommaOnDeclarationSite:FakeLuckPerms.kt:FakeLuckPerms$( private val saveFailure: Throwable? )</ID>
+    <ID>TrailingCommaOnDeclarationSite:FakeLuckPermsProvider.kt:FakeLuckPermsProvider$( private val luckPerms: LuckPerms? )</ID>
+    <ID>TrailingCommaOnDeclarationSite:LuckPermsLinkRoleRepository.kt:LuckPermsLinkRoleRepository$( configKrate: CachedKrate&lt;PluginConfiguration>, private val luckPermsProvider: LuckPermsProvider )</ID>
+    <ID>TrailingCommaOnDeclarationSite:LuckPermsLinkRoleRepositoryTest.kt:LuckPermsLinkRoleRepositoryTest$( luckPermsProvider: FakeLuckPermsProvider, configuration: PluginConfiguration = linkConfiguration() )</ID>
+    <ID>TrailingCommaOnDeclarationSite:LuckPermsModule.kt:LuckPermsModule$( coreModule: CoreModule, luckPermsProvider: LuckPermsProvider )</ID>
+    <ID>TrivialLambdaReference:FakeLuckPerms.kt:FakeLuckPerms${ group -> groupNode(group) }</ID>
+    <ID>TrivialLambdaReference:FakeLuckPerms.kt:FakeLuckPerms${ groups, group -> groups.add(group) }</ID>
+    <ID>TrivialLambdaReference:FakeLuckPerms.kt:FakeLuckPerms${ groups, group -> groups.remove(group) }</ID>
+  </CurrentIssues>
+</SmellBaseline>

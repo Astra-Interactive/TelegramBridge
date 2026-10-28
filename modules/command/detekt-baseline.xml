@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionExpressionBody:ReloadLiteralArgumentBuilder.kt:ReloadLiteralArgumentBuilder${ return with(multiplatformCommand) { command("mbreload") { runs(commandExceptionHandler::handle) { ctx -> ctx.requirePermission(PluginPermission.Reload) ctx.getSender().sendMessage(translation.reload.started) plugin.onReload() ctx.getSender().sendMessage(translation.reload.completed) } } } }</ID>
+    <ID>TrailingCommaOnCallSite:CommandModule.kt:CommandModule$( ReloadLiteralArgumentBuilder( plugin = lifecyclePlugin, translationKrate = coreModule.translationKrate, multiplatformCommand = coreModule.multiplatformCommand, commandExceptionHandler = coreModule.commandExceptionHandler ).create() )</ID>
+    <ID>TrailingCommaOnCallSite:CommandModule.kt:CommandModule$( onEnable = { commandRegistrarContext.registerWhenReady(nodes, coreModule.unconfinedScope) } )</ID>
+    <ID>TrailingCommaOnCallSite:CommandModule.kt:CommandModule$( plugin = lifecyclePlugin, translationKrate = coreModule.translationKrate, multiplatformCommand = coreModule.multiplatformCommand, commandExceptionHandler = coreModule.commandExceptionHandler )</ID>
+    <ID>TrailingCommaOnDeclarationSite:CommandModule.kt:CommandModule$( lifecyclePlugin: Lifecycle, private val coreModule: CoreModule, private val commandRegistrarContext: CommandRegistrarContext )</ID>
+    <ID>TrailingCommaOnDeclarationSite:ReloadLiteralArgumentBuilder.kt:ReloadLiteralArgumentBuilder$( private val plugin: Lifecycle, private val multiplatformCommand: MultiplatformCommand, private val commandExceptionHandler: CommandExceptionHandler, translationKrate: CachedKrate&lt;PluginTranslation> )</ID>
+  </CurrentIssues>
+</SmellBaseline>

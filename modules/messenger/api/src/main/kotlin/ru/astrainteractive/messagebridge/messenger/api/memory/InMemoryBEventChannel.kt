@@ -10,7 +10,8 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
-internal class InMemoryBEventChannel :
+@Suppress("ImplementationVisibility")
+class InMemoryBEventChannel :
     BEventChannel,
     Logger by JUtiltLogger("MessageBridge-InMemoryBEventChannel") {
     private val eventsChannel = MutableSharedFlow<BEvent>(1)

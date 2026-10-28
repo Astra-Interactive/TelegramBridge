@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ClassSignature:ForgeMessengerModule.kt:ForgeMessengerModule</ID>
+    <ID>ConstantOutsideCompanion:ForgeBEventConsumerTest.kt:UnusedDispatchers : KotlinDispatchers</ID>
+    <ID>ExpressionBodyOnOneLine:ForgeBEventConsumerTest.kt:ForgeBEventConsumerTest$@Test fun GIVEN_main_thread_unavailable_WHEN_chat_message_is_consumed_THEN_consume_returns</ID>
+    <ID>FunctionExpressionBody:ForgeBEventConsumerTest.kt:ForgeBEventConsumerTest${ return ForgeBEventConsumer( translationKrate = translationKrate, dispatchers = UnusedDispatchers, bEventReceiver = FakeBEventReceiver(emptyFlow()) ) }</ID>
+    <ID>OneTypeFamilyPerFile:ForgeBEventConsumerTest.kt:ForgeBEventConsumerTest</ID>
+    <ID>TrailingCommaOnCallSite:ForgeBEventConsumer.kt:ForgeBEventConsumer$( playerName = bEvent.author, message = bEvent.text, from = bEvent.from.short )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeBEventConsumer.kt:ForgeBEventConsumer$( playerName = bEvent.author, message = bEvent.text, from = bEvent.from.short, replyPlayerName = reply.author, replyMessage = reply.text )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeBEventConsumerTest.kt:ForgeBEventConsumerTest$( author = "steve_tg", text = "hello", authorId = STEVE_TG, reply = null, ref = MessageRef.Telegram(chatId = -1001L, messageId = 1) )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeBEventConsumerTest.kt:ForgeBEventConsumerTest$( translationKrate = translationKrate, dispatchers = UnusedDispatchers, bEventReceiver = FakeBEventReceiver(emptyFlow()) )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeEvents.kt:ForgeEvents$( author = event.player.name.string, text = event.message.toPlain(), uuid = event.player.uuid.toString(), ref = MessageRef.Minecraft(messageId = UUID.randomUUID().toString()) )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeEvents.kt:ForgeEvents$( name = event.entity.name.string, cause = deathCause, uuid = event.entity.uuid.toString() )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeEvents.kt:ForgeEvents$( name = event.entity.name.string, uuid = event.entity.uuid.toString() )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeEvents.kt:ForgeEvents$( name = event.entity.name.string, uuid = event.entity.uuid.toString(), hasPlayedBefore = true )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeMessengerModule.kt:ForgeMessengerModule$( configKrate = coreModule.configKrate, ioScope = coreModule.ioScope, bEventConsumer = bEventChannel )</ID>
+    <ID>TrailingCommaOnCallSite:ForgeMessengerModule.kt:ForgeMessengerModule$( onDisable = { minecraftMessageController.cancel() } )</ID>
+    <ID>TrailingCommaOnDeclarationSite:ForgeBEventConsumer.kt:ForgeBEventConsumer$ServerOpenBEvent, ServerClosedBEvent, is PlayerLeaveBEvent, is PlayerJoinedBEvent, is PlayerDeathBEvent -> null</ID>
+    <ID>TrailingCommaOnDeclarationSite:ForgeEvents.kt:ForgeEvents$( configKrate: CachedKrate&lt;PluginConfiguration>, private val ioScope: CoroutineScope, private val bEventConsumer: BEventConsumer )</ID>
+    <ID>TrivialLambdaReference:ForgeMessengerModule.kt:ForgeMessengerModule${ minecraftMessageController.cancel() }</ID>
+  </CurrentIssues>
+</SmellBaseline>

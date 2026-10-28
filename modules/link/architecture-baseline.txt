@@ -1,0 +1,2 @@
+UnitDependency	build.gradle.kts	:modules:integration-luckperms
+UnitDependency	build.gradle.kts	:modules:messenger:discord
