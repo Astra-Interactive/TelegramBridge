@@ -1,3 +1,5 @@
+@file:Suppress("RootModuleConstruction")
+
 package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.joinAll
