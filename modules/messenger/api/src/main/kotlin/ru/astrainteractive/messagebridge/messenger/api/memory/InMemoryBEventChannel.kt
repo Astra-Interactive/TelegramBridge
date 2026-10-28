@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine")
+
 package ru.astrainteractive.messagebridge.messenger.api.memory
 
 import kotlinx.coroutines.channels.BufferOverflow

@@ -1,3 +1,5 @@
+@file:Suppress("RememberInName")
+
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 
 import kotlinx.coroutines.sync.Mutex

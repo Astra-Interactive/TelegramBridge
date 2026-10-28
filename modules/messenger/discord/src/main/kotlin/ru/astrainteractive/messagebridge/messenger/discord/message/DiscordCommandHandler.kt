@@ -1,3 +1,5 @@
+@file:Suppress("FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.discord.message
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent

@@ -1,4 +1,4 @@
-@file:Suppress("KindImportDirection")
+@file:Suppress("KindImportDirection", "ArgumentPerLine")
 
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 

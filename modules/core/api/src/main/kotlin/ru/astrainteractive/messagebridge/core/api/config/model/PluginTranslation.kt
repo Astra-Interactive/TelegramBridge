@@ -1,4 +1,4 @@
-@file:Suppress("DataClassContainsFunctions")
+@file:Suppress("DataClassContainsFunctions", "ExpressionBodyOnOneLine")
 
 package ru.astrainteractive.messagebridge.core.api.config.model
 

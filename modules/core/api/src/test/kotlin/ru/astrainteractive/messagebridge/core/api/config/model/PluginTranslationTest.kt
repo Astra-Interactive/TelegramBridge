@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ConstantOutsideCompanion", "TrivialLambdaReference")
 
 package ru.astrainteractive.messagebridge.core.api.config.model
 

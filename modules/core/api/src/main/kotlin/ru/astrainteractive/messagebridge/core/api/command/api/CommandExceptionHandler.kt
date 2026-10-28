@@ -1,3 +1,5 @@
+@file:Suppress("FunctionVerb")
+
 package ru.astrainteractive.messagebridge.core.api.command.api
 
 import com.mojang.brigadier.context.CommandContext

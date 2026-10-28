@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine")
+
 package ru.astrainteractive.messagebridge.core.api.di
 
 import com.charleskorn.kaml.Yaml

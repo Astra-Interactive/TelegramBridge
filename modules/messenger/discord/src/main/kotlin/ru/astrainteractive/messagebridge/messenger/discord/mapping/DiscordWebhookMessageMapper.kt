@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine", "FunctionVerb", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.discord.mapping
 
 import club.minnced.discord.webhook.send.WebhookMessage

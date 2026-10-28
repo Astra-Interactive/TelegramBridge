@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine", "FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
 import ru.astrainteractive.messagebridge.messenger.telegram.message.model.TelegramCommand

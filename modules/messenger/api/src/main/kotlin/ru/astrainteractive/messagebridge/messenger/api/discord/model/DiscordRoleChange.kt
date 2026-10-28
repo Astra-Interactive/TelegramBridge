@@ -1,3 +1,5 @@
+@file:Suppress("BareIdentifier")
+
 package ru.astrainteractive.messagebridge.messenger.api.discord.model
 
 sealed interface DiscordRoleChange {

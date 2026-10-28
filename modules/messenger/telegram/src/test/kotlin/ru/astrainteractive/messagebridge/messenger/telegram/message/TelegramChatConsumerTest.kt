@@ -1,4 +1,11 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress(
+    "FunctionNaming",
+    "ArgumentPerLine",
+    "BareIdentifier",
+    "ExpressionBodyOnOneLine",
+    "OneTypeFamilyPerFile",
+    "TrivialLambdaReference"
+)
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message

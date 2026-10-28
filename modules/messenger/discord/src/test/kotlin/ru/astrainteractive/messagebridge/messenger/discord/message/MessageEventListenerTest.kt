@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ExpressionBodyOnOneLine", "OneTypeFamilyPerFile")
 
 package ru.astrainteractive.messagebridge.messenger.discord.message
 

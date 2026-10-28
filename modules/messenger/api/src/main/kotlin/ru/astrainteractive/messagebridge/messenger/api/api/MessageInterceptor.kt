@@ -1,4 +1,4 @@
-@file:Suppress("UtilShape")
+@file:Suppress("UtilShape", "OneTypeFamilyPerFile")
 
 package ru.astrainteractive.messagebridge.messenger.api.api
 

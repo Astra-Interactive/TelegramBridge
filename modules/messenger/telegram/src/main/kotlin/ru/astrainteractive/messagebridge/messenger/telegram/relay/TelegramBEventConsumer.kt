@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine")
+
 package ru.astrainteractive.messagebridge.messenger.telegram.relay
 
 import kotlinx.coroutines.flow.launchIn

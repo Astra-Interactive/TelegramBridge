@@ -1,4 +1,10 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress(
+    "FunctionNaming",
+    "ArgumentPerLine",
+    "ConstantOutsideCompanion",
+    "ExpressionBodyOnOneLine",
+    "OneTypeFamilyPerFile"
+)
 
 package ru.astrainteractive.messagebridge.messenger.bukkit.event
 

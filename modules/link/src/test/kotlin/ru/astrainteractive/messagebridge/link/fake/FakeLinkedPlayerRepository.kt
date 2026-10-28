@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine")
+
 package ru.astrainteractive.messagebridge.link.fake
 
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository

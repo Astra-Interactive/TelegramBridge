@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "ExpressionBodyOnOneLine", "FunctionVerb", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.integration.luckperms.fake
 
 import net.luckperms.api.LuckPerms

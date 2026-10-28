@@ -1,3 +1,5 @@
+@file:Suppress("BareIdentifier")
+
 package ru.astrainteractive.messagebridge.link.model
 
 internal sealed interface MessengerAccount {

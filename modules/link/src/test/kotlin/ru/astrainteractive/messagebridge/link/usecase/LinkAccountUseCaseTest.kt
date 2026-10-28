@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ExplicitInvoke", "ExpressionBodyOnOneLine")
 
 package ru.astrainteractive.messagebridge.link.usecase
 

@@ -1,4 +1,4 @@
-@file:Suppress("KindImportDirection")
+@file:Suppress("KindImportDirection", "TrivialLambdaReference")
 
 package ru.astrainteractive.messagebridge.messenger.discord.listener
 

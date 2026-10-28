@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine", "FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.discord.message.mapping
 
 import ru.astrainteractive.messagebridge.messenger.discord.message.model.DiscordCommand

@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "ExplicitInvoke")
+
 package ru.astrainteractive.messagebridge.link.command
 
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent

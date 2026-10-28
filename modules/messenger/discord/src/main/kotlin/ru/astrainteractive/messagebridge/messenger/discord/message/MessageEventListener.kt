@@ -1,3 +1,5 @@
+@file:Suppress("FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.discord.message
 
 import kotlinx.coroutines.launch

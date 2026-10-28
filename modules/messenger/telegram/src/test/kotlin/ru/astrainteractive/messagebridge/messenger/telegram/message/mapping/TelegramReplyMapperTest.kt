@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ExpressionBodyOnOneLine")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 

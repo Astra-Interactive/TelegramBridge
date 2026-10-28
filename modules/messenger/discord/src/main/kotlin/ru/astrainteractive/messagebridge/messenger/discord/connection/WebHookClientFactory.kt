@@ -1,4 +1,4 @@
-@file:Suppress("KindImportDirection")
+@file:Suppress("KindImportDirection", "ExpressionBodyOnOneLine", "RolelessClassName")
 
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 

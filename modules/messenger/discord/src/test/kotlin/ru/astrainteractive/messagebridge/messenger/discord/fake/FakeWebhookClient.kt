@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "ExpressionBodyOnOneLine")
+
 package ru.astrainteractive.messagebridge.messenger.discord.fake
 
 import club.minnced.discord.webhook.WebhookClient

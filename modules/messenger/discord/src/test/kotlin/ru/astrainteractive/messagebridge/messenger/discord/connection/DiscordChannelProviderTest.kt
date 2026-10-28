@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ExpressionBodyOnOneLine", "OperatorBeforeTrailingCall")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
 package ru.astrainteractive.messagebridge.messenger.discord.connection

@@ -1,3 +1,5 @@
+@file:Suppress("FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
 import org.telegram.telegrambots.meta.api.objects.Update

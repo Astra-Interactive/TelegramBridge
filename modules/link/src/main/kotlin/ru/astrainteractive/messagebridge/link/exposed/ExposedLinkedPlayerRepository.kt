@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.link.exposed
 
 import kotlinx.coroutines.flow.StateFlow

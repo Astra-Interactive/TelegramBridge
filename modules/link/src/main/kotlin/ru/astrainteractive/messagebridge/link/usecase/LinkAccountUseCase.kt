@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine")
+
 package ru.astrainteractive.messagebridge.link.usecase
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger

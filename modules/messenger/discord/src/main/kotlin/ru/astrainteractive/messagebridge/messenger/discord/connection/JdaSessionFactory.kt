@@ -1,4 +1,10 @@
-@file:Suppress("KindImportDirection")
+@file:Suppress(
+    "KindImportDirection",
+    "ArgumentPerLine",
+    "ExpressionBodyOnOneLine",
+    "RolelessClassName",
+    "TrivialLambdaReference"
+)
 
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 

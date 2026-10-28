@@ -1,3 +1,5 @@
+@file:Suppress("ExplicitInvoke")
+
 package ru.astrainteractive.messagebridge.link.command
 
 import org.telegram.telegrambots.meta.api.objects.Update

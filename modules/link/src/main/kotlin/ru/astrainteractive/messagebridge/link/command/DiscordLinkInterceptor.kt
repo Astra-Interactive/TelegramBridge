@@ -1,3 +1,5 @@
+@file:Suppress("ExplicitInvoke")
+
 package ru.astrainteractive.messagebridge.link.command
 
 import net.dv8tion.jda.api.entities.Member
