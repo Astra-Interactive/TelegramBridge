@@ -37,6 +37,7 @@ dependencies {
     shadow(projects.modules.command)
     shadow(projects.modules.core.api)
     shadow(projects.modules.core.bukkit)
+    shadow(projects.modules.integrationLuckperms)
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.bukkit)

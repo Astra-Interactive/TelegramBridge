@@ -3,7 +3,7 @@
 package ru.astrainteractive.messagebridge.link.event
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.model.LinkedPlayer
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount

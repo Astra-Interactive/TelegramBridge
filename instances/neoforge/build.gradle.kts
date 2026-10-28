@@ -38,6 +38,7 @@ dependencies {
     shadow(libs.minecraft.kyori.plain)
     shadow(libs.telegrambots.client)
     shadow(projects.modules.core.api)
+    shadow(projects.modules.integrationLuckperms)
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.discord)

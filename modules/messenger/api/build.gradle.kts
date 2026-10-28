@@ -7,6 +7,8 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.jda)
+
     implementation(libs.klibs.mikro.core)
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.serialization.json)

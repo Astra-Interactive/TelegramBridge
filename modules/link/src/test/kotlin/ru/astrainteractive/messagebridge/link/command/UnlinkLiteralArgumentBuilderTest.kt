@@ -15,7 +15,7 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.command.fake.FakeCommandExceptionHandler
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
-import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeMultiplatformCommands
 import ru.astrainteractive.messagebridge.link.fake.FakePlatformServer

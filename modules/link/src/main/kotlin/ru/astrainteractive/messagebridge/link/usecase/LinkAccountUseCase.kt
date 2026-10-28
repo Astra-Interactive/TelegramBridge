@@ -2,7 +2,7 @@ package ru.astrainteractive.messagebridge.link.usecase
 
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.integration.luckperms.role.api.LinkRoleRepository
+import ru.astrainteractive.messagebridge.link.api.LinkRoleRepository
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.code.api.LinkCodeRepository
 import ru.astrainteractive.messagebridge.link.model.LinkOutcome
