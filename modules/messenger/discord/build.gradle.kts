@@ -10,14 +10,7 @@ linter {
     unitKind.set("technology")
 }
 
-configurations.api {
-    dependencies.removeIf { dependency ->
-        dependency.group == "org.jetbrains.kotlin" && dependency.name == "kotlin-stdlib"
-    }
-}
-
 dependencies {
-    implementation(kotlin("stdlib"))
     implementation(libs.discord.webhook)
     implementation(libs.jda)
     implementation(libs.klibs.kstorage)

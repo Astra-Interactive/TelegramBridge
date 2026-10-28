@@ -1,2 +1,3 @@
+ApiConfiguration	build.gradle.kts	api: org.jetbrains.kotlin:kotlin-stdlib
 UnitDependency	build.gradle.kts	:modules:integration-luckperms
 UnitDependency	build.gradle.kts	:modules:messenger:discord
