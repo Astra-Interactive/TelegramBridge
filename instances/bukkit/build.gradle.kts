@@ -6,7 +6,7 @@ import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    alias(libs.plugins.klibs.gradle.linter)
+    alias(libs.plugins.klibs.rules.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.klibs.minecraft.resource.processor)
     alias(libs.plugins.gradle.shadow)
@@ -37,6 +37,7 @@ dependencies {
     shadow(projects.modules.command)
     shadow(projects.modules.core.api)
     shadow(projects.modules.core.bukkit)
+    shadow(projects.modules.integrationLuckperms)
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.bukkit)
@@ -52,7 +53,11 @@ minecraftProcessResource {
                 libs.driver.jdbc.get(),
                 libs.driver.mysql.get(),
                 libs.driver.mariadb.get()
-            ).joinToString("\",\"", "[\"", "\"]")
+            ).joinToString(
+                "\",\"",
+                "[\"",
+                "\"]"
+            )
         )
     )
 }

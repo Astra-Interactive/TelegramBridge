@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "OperatorBeforeTrailingCall")
+
 package ru.astrainteractive.messagebridge.link.di
 
 import kotlinx.coroutines.CoroutineScope

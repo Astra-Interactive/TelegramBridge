@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ExpressionBodyOnOneLine")
 
 package ru.astrainteractive.messagebridge.link.command
 
@@ -24,9 +24,9 @@ import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
-import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
 import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase

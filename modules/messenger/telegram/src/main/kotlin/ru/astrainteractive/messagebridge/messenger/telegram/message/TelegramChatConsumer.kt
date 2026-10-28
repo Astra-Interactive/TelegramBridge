@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.telegram.message
 
 import kotlinx.coroutines.CoroutineScope

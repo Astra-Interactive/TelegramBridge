@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ConstantOutsideCompanion", "ExpressionBodyOnOneLine", "OneTypeFamilyPerFile")
 
 package ru.astrainteractive.messagebridge.messenger.neoforge.event
 

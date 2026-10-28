@@ -1,11 +1,11 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "ExplicitInvoke", "ExpressionBodyOnOneLine")
 
 package ru.astrainteractive.messagebridge.link.usecase
 
 import kotlinx.coroutines.test.runTest
-import ru.astrainteractive.messagebridge.integration.luckperms.role.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.code.memory.InMemoryLinkCodeRepository
 import ru.astrainteractive.messagebridge.link.code.model.CodeUser
+import ru.astrainteractive.messagebridge.link.fake.FakeLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.model.LinkResponse
 import ru.astrainteractive.messagebridge.link.model.LinkedPlayer

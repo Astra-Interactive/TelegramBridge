@@ -8,6 +8,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.di.RootModule
 import javax.annotation.ParametersAreNonnullByDefault
 
+@Suppress("FieldDependencyConstruction")
 @Mod("messagebridge")
 @ParametersAreNonnullByDefault
 class NeoForgeEntryPoint :

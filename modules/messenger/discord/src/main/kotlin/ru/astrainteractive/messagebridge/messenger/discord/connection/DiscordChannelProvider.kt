@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "LambdaSingleIfGuard", "OperatorBeforeTrailingCall", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 
 import kotlinx.coroutines.CancellationException

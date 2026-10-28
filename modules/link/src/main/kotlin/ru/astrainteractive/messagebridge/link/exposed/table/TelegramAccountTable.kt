@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine")
+
 package ru.astrainteractive.messagebridge.link.exposed.table
 
 import org.jetbrains.exposed.v1.core.ReferenceOption

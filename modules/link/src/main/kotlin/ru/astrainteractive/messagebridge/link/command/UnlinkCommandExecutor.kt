@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "ExplicitInvoke")
+
 package ru.astrainteractive.messagebridge.link.command
 
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -8,7 +10,7 @@ import ru.astrainteractive.klibs.kstorage.api.getValue
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
-import ru.astrainteractive.messagebridge.integration.luckperms.role.api.LinkRoleRepository
+import ru.astrainteractive.messagebridge.link.api.LinkRoleRepository
 import ru.astrainteractive.messagebridge.link.api.LinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
 import java.util.UUID

@@ -1,3 +1,5 @@
+@file:Suppress("UtilFileName")
+
 package ru.astrainteractive.messagebridge.link.util
 
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration

@@ -1,3 +1,5 @@
+@file:Suppress("KindImportDirection", "ExpressionBodyOnOneLine", "RolelessClassName")
+
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 
 import club.minnced.discord.webhook.WebhookClientBuilder

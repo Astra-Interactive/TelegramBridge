@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ArgumentPerLine", "TrivialLambdaReference")
 
 package ru.astrainteractive.messagebridge.core.api.command.error
 

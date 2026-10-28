@@ -1,3 +1,5 @@
+@file:Suppress("KindImportDirection", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.discord.listener
 
 import kotlinx.coroutines.CoroutineScope

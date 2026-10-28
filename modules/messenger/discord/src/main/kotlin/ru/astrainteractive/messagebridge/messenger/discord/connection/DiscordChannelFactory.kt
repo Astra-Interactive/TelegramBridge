@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine", "RolelessClassName")
+
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 
 import kotlinx.coroutines.CancellationException

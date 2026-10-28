@@ -1,5 +1,5 @@
 package ru.astrainteractive.messagebridge.messenger.discord.model
 
-class DiscordRequestCancelledError(
-    cause: Throwable
-) : Exception("JDA cancelled the Discord request", cause)
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRequestCancelledError as ApiError
+
+typealias DiscordRequestCancelledError = ApiError

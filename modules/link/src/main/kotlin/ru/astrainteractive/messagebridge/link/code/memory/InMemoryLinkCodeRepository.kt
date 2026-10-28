@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine")
+
 package ru.astrainteractive.messagebridge.link.code.memory
 
 import kotlinx.coroutines.sync.Mutex

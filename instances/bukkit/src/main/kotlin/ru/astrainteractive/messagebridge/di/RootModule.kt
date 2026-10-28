@@ -1,3 +1,5 @@
+@file:Suppress("RootModuleConstruction")
+
 package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.joinAll
@@ -17,6 +19,7 @@ import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
+import ru.astrainteractive.messagebridge.integration.luckperms.di.LuckPermsModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.memory.InMemoryBEventChannel
@@ -48,7 +51,13 @@ class RootModule(
 
     private val bEventChannel: BEventChannel = InMemoryBEventChannel()
 
-    val linkModule = LinkModule(coreModule, LuckPermsProvider.Default)
+    private val luckPermsModule = LuckPermsModule(coreModule, LuckPermsProvider.Default)
+
+    val linkModule = LinkModule(
+        coreModule = coreModule,
+        addLinkRole = luckPermsModule.linkRoleRepository::addLinkRole,
+        removeLinkedRole = luckPermsModule.linkRoleRepository::removeLinkedRole
+    )
 
     val bukkitMessengerModule = BukkitMessengerModule(
         coreModule = coreModule,

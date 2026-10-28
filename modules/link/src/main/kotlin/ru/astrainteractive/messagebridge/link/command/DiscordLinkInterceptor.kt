@@ -1,3 +1,5 @@
+@file:Suppress("ExplicitInvoke")
+
 package ru.astrainteractive.messagebridge.link.command
 
 import net.dv8tion.jda.api.entities.Member
@@ -23,8 +25,8 @@ import ru.astrainteractive.messagebridge.link.util.INVALID_LINK_CODE
 import ru.astrainteractive.messagebridge.link.util.asMessage
 import ru.astrainteractive.messagebridge.link.util.toLinkCode
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
+import ru.astrainteractive.messagebridge.messenger.api.discord.util.await
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
-import ru.astrainteractive.messagebridge.messenger.discord.util.await
 
 internal class DiscordLinkInterceptor(
     private val linkAccountUseCase: LinkAccountUseCase,

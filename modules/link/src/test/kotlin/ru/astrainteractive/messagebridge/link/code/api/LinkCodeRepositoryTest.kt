@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ExpressionBodyOnOneLine")
 
 package ru.astrainteractive.messagebridge.link.code.api
 

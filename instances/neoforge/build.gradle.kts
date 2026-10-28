@@ -5,7 +5,7 @@ import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    alias(libs.plugins.klibs.gradle.linter)
+    alias(libs.plugins.klibs.rules.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.gradle.neoforgegradle)
     alias(libs.plugins.gradle.shadow)
@@ -38,6 +38,7 @@ dependencies {
     shadow(libs.minecraft.kyori.plain)
     shadow(libs.telegrambots.client)
     shadow(projects.modules.core.api)
+    shadow(projects.modules.integrationLuckperms)
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.discord)
@@ -191,9 +192,8 @@ dependencies {
 }
 
 tasks.configureEach {
-    if (javaClass.name.startsWith("net.neoforged.gradle")) {
-        notCompatibleWithConfigurationCache("NeoGradle tasks access Task.project at execution time")
-    }
+    if (!javaClass.name.startsWith("net.neoforged.gradle")) return@configureEach
+    notCompatibleWithConfigurationCache("NeoGradle tasks access Task.project at execution time")
 }
 
 tasks.register("generateNeoforgeJar") {

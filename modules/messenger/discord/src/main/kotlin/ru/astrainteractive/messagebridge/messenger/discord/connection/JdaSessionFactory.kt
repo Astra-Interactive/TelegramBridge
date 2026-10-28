@@ -1,3 +1,11 @@
+@file:Suppress(
+    "KindImportDirection",
+    "ArgumentPerLine",
+    "ExpressionBodyOnOneLine",
+    "RolelessClassName",
+    "TrivialLambdaReference"
+)
+
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 
 import com.neovisionaries.ws.client.WebSocketFactory

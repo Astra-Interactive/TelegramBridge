@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.bukkit.event
 
 import io.papermc.paper.event.player.AsyncChatEvent

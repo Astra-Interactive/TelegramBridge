@@ -1,3 +1,5 @@
+@file:Suppress("SealedFamilyFile")
+
 package ru.astrainteractive.messagebridge.link.command
 
 import ru.astrainteractive.astralibs.server.player.OnlineKPlayer

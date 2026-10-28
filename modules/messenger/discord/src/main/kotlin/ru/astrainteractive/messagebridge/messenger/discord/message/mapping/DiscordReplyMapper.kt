@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "ExpressionBodyOnOneLine", "FunctionVerb")
+
 package ru.astrainteractive.messagebridge.messenger.discord.message.mapping
 
 import net.dv8tion.jda.api.entities.Message

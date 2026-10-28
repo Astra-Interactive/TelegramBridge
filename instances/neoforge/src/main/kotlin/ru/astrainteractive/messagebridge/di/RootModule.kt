@@ -1,3 +1,5 @@
+@file:Suppress("RootModuleConstruction")
+
 package ru.astrainteractive.messagebridge.di
 
 import kotlinx.coroutines.joinAll
@@ -17,6 +19,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
+import ru.astrainteractive.messagebridge.integration.luckperms.di.LuckPermsModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.memory.InMemoryBEventChannel
@@ -45,8 +48,16 @@ class RootModule(
 
     private val bEventChannel: BEventChannel = InMemoryBEventChannel()
 
+    private val luckPermsModule by lazy {
+        LuckPermsModule(coreModule, LuckPermsProvider.Default)
+    }
+
     val linkModule by lazy {
-        LinkModule(coreModule, LuckPermsProvider.Default)
+        LinkModule(
+            coreModule = coreModule,
+            addLinkRole = luckPermsModule.linkRoleRepository::addLinkRole,
+            removeLinkedRole = luckPermsModule.linkRoleRepository::removeLinkedRole
+        )
     }
 
     val neoForgeMessengerModule by lazy {

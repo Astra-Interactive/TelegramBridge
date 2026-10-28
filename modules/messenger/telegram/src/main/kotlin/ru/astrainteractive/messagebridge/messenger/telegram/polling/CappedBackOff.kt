@@ -1,3 +1,5 @@
+@file:Suppress("OperatorBeforeTrailingCall")
+
 package ru.astrainteractive.messagebridge.messenger.telegram.polling
 
 import org.telegram.telegrambots.longpolling.interfaces.BackOff

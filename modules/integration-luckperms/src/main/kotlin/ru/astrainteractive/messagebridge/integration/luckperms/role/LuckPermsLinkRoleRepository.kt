@@ -1,3 +1,5 @@
+@file:Suppress("LambdaSingleIfGuard")
+
 package ru.astrainteractive.messagebridge.integration.luckperms.role
 
 import net.luckperms.api.LuckPerms

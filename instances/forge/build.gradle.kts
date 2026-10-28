@@ -6,7 +6,7 @@ import ru.astrainteractive.gradleplugin.property.util.requireProjectInfo
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    alias(libs.plugins.klibs.gradle.linter)
+    alias(libs.plugins.klibs.rules.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
     alias(libs.plugins.gradle.forgegradle)
     alias(libs.plugins.gradle.shadow)
@@ -43,6 +43,7 @@ dependencies {
     shadow(libs.minecraft.kyori.plain)
     shadow(libs.telegrambots.client)
     shadow(projects.modules.core.api)
+    shadow(projects.modules.integrationLuckperms)
     shadow(projects.modules.link)
     shadow(projects.modules.messenger.api)
     shadow(projects.modules.messenger.discord)
@@ -71,8 +72,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
     dependsOn(tasks.withType<JarJar>())
     from(
         tasks.withType<JarJar>()
-            .map { task -> task.archiveFile }
-            .map { archiveFile -> project.zipTree(archiveFile) },
+            .map(JarJar::getArchiveFile)
+            .map(project::zipTree),
         { include("META-INF/jarjar/**") }
     )
 

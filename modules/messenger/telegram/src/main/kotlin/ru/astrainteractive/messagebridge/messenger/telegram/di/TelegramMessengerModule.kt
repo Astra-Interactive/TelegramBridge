@@ -1,3 +1,5 @@
+@file:Suppress("ArgumentPerLine", "GetOrThrowInMain", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
 import com.fasterxml.jackson.databind.ObjectMapper

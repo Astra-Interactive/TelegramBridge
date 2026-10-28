@@ -1,3 +1,5 @@
+@file:Suppress("KindImportDirection", "ArgumentPerLine")
+
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 
 import club.minnced.discord.webhook.WebhookClient

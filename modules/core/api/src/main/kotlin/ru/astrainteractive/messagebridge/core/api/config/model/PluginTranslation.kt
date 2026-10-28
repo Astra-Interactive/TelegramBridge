@@ -1,3 +1,5 @@
+@file:Suppress("DataClassContainsFunctions", "ExpressionBodyOnOneLine")
+
 package ru.astrainteractive.messagebridge.core.api.config.model
 
 import kotlinx.serialization.SerialName

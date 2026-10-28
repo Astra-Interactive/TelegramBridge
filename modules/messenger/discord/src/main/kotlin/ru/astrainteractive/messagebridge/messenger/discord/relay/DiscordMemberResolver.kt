@@ -1,3 +1,5 @@
+@file:Suppress("KindImportDirection")
+
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 
 import net.dv8tion.jda.api.entities.Member

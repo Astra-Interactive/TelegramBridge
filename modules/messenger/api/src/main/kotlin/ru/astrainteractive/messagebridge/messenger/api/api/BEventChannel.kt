@@ -1,3 +1,5 @@
+@file:Suppress("OneTypeFamilyPerFile")
+
 package ru.astrainteractive.messagebridge.messenger.api.api
 
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ExpressionBodyOnOneLine", "OperatorBeforeTrailingCall")
 
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 

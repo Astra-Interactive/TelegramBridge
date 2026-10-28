@@ -1,7 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.kotlin.plugin.serialization")
-    alias(libs.plugins.klibs.gradle.linter)
+    alias(libs.plugins.klibs.rules.gradle.linter)
     id("ru.astrainteractive.gradleplugin.java.version")
 }
 
@@ -23,9 +23,7 @@ dependencies {
     implementation(libs.telegrambots.client)
 
     implementation(projects.modules.core.api)
-    implementation(projects.modules.integrationLuckperms)
     implementation(projects.modules.messenger.api)
-    implementation(projects.modules.messenger.discord)
 
     testImplementation(libs.driver.h2)
     testImplementation(libs.kotlin.coroutines.test)
@@ -36,6 +34,5 @@ dependencies {
     testImplementation(libs.minecraft.kyori.plain)
     testImplementation(libs.tests.kotlin.test)
     testImplementation(testFixtures(projects.modules.core.api))
-    testImplementation(testFixtures(projects.modules.integrationLuckperms))
     testImplementation(testFixtures(projects.modules.messenger.discord))
 }

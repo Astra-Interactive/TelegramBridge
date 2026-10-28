@@ -1,3 +1,5 @@
+@file:Suppress("UtilShape", "OneTypeFamilyPerFile")
+
 package ru.astrainteractive.messagebridge.messenger.api.api
 
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception

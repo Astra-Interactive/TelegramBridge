@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine")
+
 package ru.astrainteractive.messagebridge.messenger.api.memory
 
 import kotlinx.coroutines.channels.BufferOverflow
@@ -10,6 +12,7 @@ import ru.astrainteractive.klibs.mikro.core.logging.Logger
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 
+@Suppress("ImplementationVisibility")
 class InMemoryBEventChannel :
     BEventChannel,
     Logger by JUtiltLogger("MessageBridge-InMemoryBEventChannel") {

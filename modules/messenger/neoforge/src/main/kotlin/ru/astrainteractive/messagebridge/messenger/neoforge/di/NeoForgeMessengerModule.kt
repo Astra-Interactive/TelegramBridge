@@ -1,3 +1,5 @@
+@file:Suppress("TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.neoforge.di
 
 import kotlinx.coroutines.cancel

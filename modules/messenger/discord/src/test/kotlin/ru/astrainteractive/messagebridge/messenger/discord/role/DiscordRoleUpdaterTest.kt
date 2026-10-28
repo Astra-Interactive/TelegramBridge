@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming")
+@file:Suppress("FunctionNaming", "ExpressionBodyOnOneLine")
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
 package ru.astrainteractive.messagebridge.messenger.discord.role

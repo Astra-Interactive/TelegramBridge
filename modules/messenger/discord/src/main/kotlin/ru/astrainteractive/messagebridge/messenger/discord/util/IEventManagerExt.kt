@@ -1,3 +1,5 @@
+@file:Suppress("ExpressionBodyOnOneLine", "TrivialLambdaReference")
+
 package ru.astrainteractive.messagebridge.messenger.discord.util
 
 import kotlinx.coroutines.channels.Channel

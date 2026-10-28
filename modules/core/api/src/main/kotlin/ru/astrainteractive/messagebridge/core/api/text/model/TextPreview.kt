@@ -1,3 +1,5 @@
+@file:Suppress("CompanionFactoryFunction")
+
 package ru.astrainteractive.messagebridge.core.api.text.model
 
 @JvmInline
