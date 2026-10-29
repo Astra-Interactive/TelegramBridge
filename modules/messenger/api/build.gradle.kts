@@ -6,6 +6,11 @@ plugins {
     id("java-test-fixtures")
 }
 
+linter {
+    unitKind.set("api")
+    rootPackage.set("ru.astrainteractive.messagebridge.messenger.api")
+}
+
 dependencies {
     compileOnly(libs.jda)
 

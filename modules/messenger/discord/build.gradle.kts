@@ -8,6 +8,7 @@ plugins {
 
 linter {
     unitKind.set("technology")
+    rootPackage.set("ru.astrainteractive.messagebridge.messenger.discord")
 }
 
 dependencies {

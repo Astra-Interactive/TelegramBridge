@@ -12,6 +12,11 @@ plugins {
     alias(libs.plugins.klibs.minecraft.resource.processor)
 }
 
+linter {
+    unitKind.set("entry-point")
+    rootPackage.set("ru.astrainteractive.messagebridge")
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
