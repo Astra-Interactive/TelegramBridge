@@ -60,14 +60,14 @@ class TelegramReplyMapperTest {
 
     @Test
     fun GIVEN_message_that_replies_to_nothing_WHEN_mapped_THEN_returns_null() = runTest {
-        assertNull(mapper.map(message(id = 100, from = steve, text = "hi")))
+        assertNull(mapper.toReply(message(id = 100, from = steve, text = "hi")))
     }
 
     @Test
     fun GIVEN_reply_to_user_WHEN_mapped_THEN_reply_names_user_and_text() = runTest {
         val replied = message(id = 10, from = steve, text = "hello")
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals(
             Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello", target = REPLIED_REF),
@@ -79,7 +79,7 @@ class TelegramReplyMapperTest {
     fun GIVEN_reply_to_photo_with_caption_WHEN_mapped_THEN_text_is_caption() = runTest {
         val replied = message(id = 10, from = steve).apply { caption = "my base" }
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals("my base", reply?.text)
     }
@@ -88,7 +88,7 @@ class TelegramReplyMapperTest {
     fun GIVEN_reply_to_media_without_caption_WHEN_mapped_THEN_text_is_empty() = runTest {
         val replied = message(id = 10, from = steve)
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals("", reply?.text)
     }
@@ -98,7 +98,7 @@ class TelegramReplyMapperTest {
         val replied = message(id = 10, from = steve, text = "hello, meet me at spawn")
         val message = replyTo(replied).apply { quote = TextQuote().apply { text = "at spawn" } }
 
-        val reply = mapper.map(message)
+        val reply = mapper.toReply(message)
 
         assertEquals(
             Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn", target = REPLIED_REF),
@@ -117,7 +117,7 @@ class TelegramReplyMapperTest {
         relayedMessageCache.remember(chatId = CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello", target = RELAYED_REF), reply)
     }
@@ -126,7 +126,7 @@ class TelegramReplyMapperTest {
     fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_is_labelled_as_the_server() = runTest {
         val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals(
             Text.Reply(author = "[server]", authorId = null, text = "[MC] Steve:\nhello", target = REPLIED_REF),
@@ -139,7 +139,7 @@ class TelegramReplyMapperTest {
         val otherBot = User(OTHER_BOT_ID, "Helper", true).apply { userName = "HelperBot" }
         val replied = message(id = 10, from = otherBot, text = "pong")
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals(
             Text.Reply(author = "HelperBot", authorId = OTHER_BOT_ID, text = "pong", target = REPLIED_REF),
@@ -158,7 +158,7 @@ class TelegramReplyMapperTest {
         relayedMessageCache.remember(chatId = OTHER_CHAT_ID, messageId = 10, text = relayed)
         val replied = message(id = 10, from = steve, text = "different")
 
-        val reply = mapper.map(replyTo(replied))
+        val reply = mapper.toReply(replyTo(replied))
 
         assertEquals(
             Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different", target = REPLIED_REF),
@@ -170,21 +170,21 @@ class TelegramReplyMapperTest {
     fun GIVEN_message_in_forum_topic_WHEN_mapped_THEN_topic_start_is_not_a_reply() = runTest {
         val topicStart = message(id = 50, from = steve).apply { forumTopicCreated = ForumTopicCreated() }
 
-        assertNull(mapper.map(replyTo(topicStart)))
+        assertNull(mapper.toReply(replyTo(topicStart)))
     }
 
     @Test
     fun GIVEN_message_under_configured_topic_message_WHEN_mapped_THEN_topic_message_is_not_a_reply() = runTest {
         val topicMessage = message(id = TOPIC_ID, from = steve, text = "Minecraft chat")
 
-        assertNull(mapper.map(replyTo(topicMessage)))
+        assertNull(mapper.toReply(replyTo(topicMessage)))
     }
 
     @Test
     fun GIVEN_reply_to_message_without_author_WHEN_mapped_THEN_returns_null() = runTest {
         val replied = message(id = 10, from = null, text = "hello")
 
-        assertNull(mapper.map(replyTo(replied)))
+        assertNull(mapper.toReply(replyTo(replied)))
     }
 
     private companion object {

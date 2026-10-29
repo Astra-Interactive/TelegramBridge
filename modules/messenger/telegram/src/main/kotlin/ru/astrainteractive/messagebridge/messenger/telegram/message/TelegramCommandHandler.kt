@@ -1,4 +1,4 @@
-@file:Suppress("ArgumentPerLine", "FunctionVerb")
+@file:Suppress("ArgumentPerLine")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message
 
@@ -31,7 +31,7 @@ internal class TelegramCommandHandler(
         messageSender.send(chatId, text, originalMessageId)
     }
 
-    suspend fun handle(command: TelegramCommand, update: Update) {
+    suspend fun replyToCommand(command: TelegramCommand, update: Update) {
         val message = update.message ?: return
         val chatId = message.chatId.toString()
         val originalMessageId = message.replyToMessage?.messageId

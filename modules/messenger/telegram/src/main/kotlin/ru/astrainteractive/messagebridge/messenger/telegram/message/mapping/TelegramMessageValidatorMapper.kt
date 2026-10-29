@@ -1,5 +1,3 @@
-@file:Suppress("ExpressionBodyOnOneLine", "FunctionVerb")
-
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -17,11 +15,12 @@ internal class TelegramMessageValidatorMapper(
     private val tgConfig: PluginConfiguration.TelegramConfig
         get() = config.tgConfig
 
-    private fun isDisplayNameAllowed(name: String): Boolean =
-        tgConfig.displayNameRegex.toRegex().matches(name)
+    private fun isDisplayNameAllowed(name: String): Boolean {
+        return tgConfig.displayNameRegex.toRegex().matches(name)
+    }
 
-    fun map(update: Update): TelegramMessageValidation {
-        val author = authorMapper.map(update) ?: return TelegramMessageValidation.NoAuthor
+    fun toValidation(update: Update): TelegramMessageValidation {
+        val author = authorMapper.toAuthor(update) ?: return TelegramMessageValidation.NoAuthor
         if (author is TelegramAuthor.DisplayName && !isDisplayNameAllowed(author.name)) {
             return TelegramMessageValidation.IllegalDisplayName
         }

@@ -1,4 +1,4 @@
-@file:Suppress("BareIdentifier", "FunctionVerb")
+@file:Suppress("BareIdentifier")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
@@ -53,7 +53,7 @@ internal class TelegramReplyMapper(
                 target = target
             )
         }
-        val author = authorMapper.map(replied) ?: return null
+        val author = authorMapper.toAuthor(replied) ?: return null
         return Text.Reply(
             author = author.name,
             authorId = replied.from?.id,
@@ -62,7 +62,7 @@ internal class TelegramReplyMapper(
         )
     }
 
-    suspend fun map(message: Message): Text.Reply? {
+    suspend fun toReply(message: Message): Text.Reply? {
         val replied = message.replyToMessage ?: return null
         if (isTopicStart(replied)) return null
         val reply = relayedReply(message.chatId, replied) ?: authoredReply(replied) ?: return null

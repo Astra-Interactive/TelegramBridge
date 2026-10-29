@@ -65,7 +65,7 @@ internal class DiscordBEventConsumer(
     private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
         val member = memberResolver.resolve(channel, event)
         val replyJumpUrl = event.reply?.let { reply -> replyJumpUrl(reply, channel) }
-        val message = webhookMessageMapper.map(event, member, replyJumpUrl)
+        val message = webhookMessageMapper.toWebhookMessage(event, member, replyJumpUrl)
         val sentMessage = webhookClient.send(message).await()
         relayedMessageCache.remember(sentMessage.id, event)
     }
@@ -78,15 +78,15 @@ internal class DiscordBEventConsumer(
     private suspend fun send(bEvent: BEvent, ready: DiscordChannel.Ready) {
         val channel = ready.textChannel
         when (bEvent) {
-            is PlayerDeathBEvent -> channel.sendMessageEmbeds(embedMapper.map(bEvent)).await()
+            is PlayerDeathBEvent -> channel.sendMessageEmbeds(embedMapper.toEmbed(bEvent)).await()
             is PlayerJoinedBEvent -> {
                 topicUpdater.updateOnlineCount(channel)
-                channel.sendMessageEmbeds(embedMapper.map(bEvent)).await()
+                channel.sendMessageEmbeds(embedMapper.toEmbed(bEvent)).await()
             }
 
             is PlayerLeaveBEvent -> {
                 topicUpdater.updateOnlineCount(channel)
-                channel.sendMessageEmbeds(embedMapper.map(bEvent)).await()
+                channel.sendMessageEmbeds(embedMapper.toEmbed(bEvent)).await()
             }
 
             is Text -> sendText(bEvent, channel, ready.webhookClient)

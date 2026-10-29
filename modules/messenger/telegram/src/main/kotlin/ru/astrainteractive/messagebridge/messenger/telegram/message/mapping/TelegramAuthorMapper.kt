@@ -1,4 +1,4 @@
-@file:Suppress("ArgumentPerLine", "FunctionVerb")
+@file:Suppress("ArgumentPerLine")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
@@ -29,12 +29,12 @@ internal class TelegramAuthorMapper(
         return TelegramAuthor.DisplayName(displayName)
     }
 
-    fun map(update: Update): TelegramAuthor? {
+    fun toAuthor(update: Update): TelegramAuthor? {
         val message = update.message ?: return null
-        return map(message)
+        return toAuthor(message)
     }
 
-    fun map(message: Message): TelegramAuthor? {
+    fun toAuthor(message: Message): TelegramAuthor? {
         message.senderChat?.let { chat ->
             return author(chat.userName, chat.firstName, chat.lastName)
         }

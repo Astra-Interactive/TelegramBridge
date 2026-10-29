@@ -1,4 +1,4 @@
-@file:Suppress("ArgumentPerLine", "FunctionVerb")
+@file:Suppress("ArgumentPerLine")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message
 
@@ -63,9 +63,9 @@ internal class TelegramChatConsumer(
     }
 
     private suspend fun relay(update: Update, valid: TelegramMessageValidation.Valid) {
-        val command = commandParser.map(valid.text)
+        val command = commandParser.toCommand(valid.text)
         if (command != null) {
-            commandHandler.handle(command, update)
+            commandHandler.replyToCommand(command, update)
             return
         }
         val interception = messageInterceptors.intercept(update)
@@ -79,14 +79,14 @@ internal class TelegramChatConsumer(
                 author = valid.author,
                 text = valid.text,
                 authorId = valid.authorId,
-                reply = replyMapper.map(message),
+                reply = replyMapper.toReply(message),
                 ref = MessageRef.Telegram(chatId = message.chatId, messageId = message.messageId),
             )
         )
     }
 
-    private suspend fun process(update: Update) {
-        when (val validation = validator.map(update)) {
+    private suspend fun dispatchMessage(update: Update) {
+        when (val validation = validator.toValidation(update)) {
             is TelegramMessageValidation.Valid -> relay(update, validation)
             TelegramMessageValidation.NoAuthor -> reject(update) { "#consume author name is null" }
             TelegramMessageValidation.NoText -> reject(update) { "#consume text is null" }
@@ -102,8 +102,8 @@ internal class TelegramChatConsumer(
     override fun consume(update: Update?) {
         update ?: return
         commandHandler.logChatInfo(update)
-        when (relevanceChecker.map(update)) {
-            MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { process(update) }
+        when (relevanceChecker.toRelevance(update)) {
+            MessageRelevance.Relevant -> ioScope.launch(dispatchers.IO) { dispatchMessage(update) }
             MessageRelevance.WrongChat -> verbose { "#consume update is not from the configured chat" }
             MessageRelevance.NoDate -> verbose { "#consume message date is null" }
             MessageRelevance.TooOld -> verbose { "#consume message is too old" }
