@@ -32,8 +32,8 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-class DiscordChannelFactoryTest {
-    private val factory = DiscordChannelFactory(WebHookClientFactory())
+class DiscordChannelConnectorTest {
+    private val connector = DiscordChannelConnector(DiscordWebhookConnector())
     private val states = mutableListOf<DiscordChannel>()
     private val bridgeWebhook: Webhook = jdaFake(
         mapOf(
@@ -75,7 +75,7 @@ class DiscordChannelFactoryTest {
 
     private fun TestScope.collectChannel(scope: CoroutineScope): Job {
         val collection = scope.launch {
-            factory.create(jda, CHANNEL_ID)
+            connector.connect(jda, CHANNEL_ID)
                 .onEach { state -> states += state }
                 .collect()
         }
@@ -84,7 +84,7 @@ class DiscordChannelFactoryTest {
     }
 
     @Test
-    fun GIVEN_channel_with_bridge_webhook_WHEN_created_THEN_it_is_ready_with_that_channel_and_webhook() = runTest {
+    fun GIVEN_channel_with_bridge_webhook_WHEN_connected_THEN_it_is_ready_with_that_channel_and_webhook() = runTest {
         collectChannel(backgroundScope)
 
         val ready = assertIs<DiscordChannel.Ready>(states.single())
@@ -105,7 +105,7 @@ class DiscordChannelFactoryTest {
     }
 
     @Test
-    fun GIVEN_missing_channel_WHEN_created_THEN_it_is_failed_until_retried_five_seconds_later() = runTest {
+    fun GIVEN_missing_channel_WHEN_connected_THEN_it_is_failed_until_retried_five_seconds_later() = runTest {
         textChannel = null
         collectChannel(backgroundScope)
 
@@ -137,7 +137,7 @@ class DiscordChannelFactoryTest {
     }
 
     @Test
-    fun GIVEN_webhooks_that_cannot_be_retrieved_WHEN_created_THEN_it_is_failed() = runTest {
+    fun GIVEN_webhooks_that_cannot_be_retrieved_WHEN_connected_THEN_it_is_failed() = runTest {
         textChannel = jdaFake(mapOf("retrieveWebhooks" to failedWebhooksRetrieval))
         collectChannel(backgroundScope)
 

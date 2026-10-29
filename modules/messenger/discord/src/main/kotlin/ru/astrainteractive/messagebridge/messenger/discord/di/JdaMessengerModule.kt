@@ -6,8 +6,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.job
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.InterfacedEventManager
@@ -19,10 +22,10 @@ import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
 import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
-import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelFactory
+import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelConnector
 import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelProvider
-import ru.astrainteractive.messagebridge.messenger.discord.connection.JdaSessionFactory
-import ru.astrainteractive.messagebridge.messenger.discord.connection.WebHookClientFactory
+import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordWebhookConnector
+import ru.astrainteractive.messagebridge.messenger.discord.connection.JdaSessionConnector
 import ru.astrainteractive.messagebridge.messenger.discord.listener.DiscordEvents
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
@@ -37,6 +40,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordMemberRe
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordRelayedMessageCache
 import ru.astrainteractive.messagebridge.messenger.discord.role.DiscordRoleUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.topic.DiscordTopicUpdater
+import ru.astrainteractive.messagebridge.messenger.discord.util.openOkHttpClient
 
 class JdaMessengerModule(
     coreModule: CoreModule,
@@ -91,22 +95,31 @@ class JdaMessengerModule(
         ioScope = moduleIoScope,
     )
 
-    private val jdaSessionFactory = JdaSessionFactory(
-        configKrate = coreModule.configKrate,
+    private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
+        .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
+        .distinctUntilChanged()
+        .flatMapLatest { proxy -> proxy.openOkHttpClient() }
+        .shareIn(
+            scope = coreModule.ioScope,
+            started = SharingStarted.Lazily,
+            replay = 1
+        )
+
+    private val jdaSessionConnector = JdaSessionConnector(
+        okHttpClientFlow = okHttpClientFlow,
         eventManager = jdaEventManager,
-        ioScope = coreModule.ioScope,
     )
 
-    private val discordChannelFactory = DiscordChannelFactory(
-        webHookClientFactory = WebHookClientFactory(),
+    private val discordChannelConnector = DiscordChannelConnector(
+        webhookConnector = DiscordWebhookConnector(),
     )
 
     private val channelProvider = DiscordChannelProvider(
         jdaConfigFlow = coreModule.configKrate.cachedStateFlow
             .map { pluginConfiguration -> pluginConfiguration.jdaConfig },
         connect = { config ->
-            jdaSessionFactory.create(config)
-                .flatMapLatest { jda -> discordChannelFactory.create(jda, config.channelId) }
+            jdaSessionConnector.connect(config)
+                .flatMapLatest { jda -> discordChannelConnector.connect(jda, config.channelId) }
         },
         scope = coreModule.ioScope,
     )
