@@ -7,6 +7,11 @@ plugins {
     id("ru.astrainteractive.gradleplugin.java.version")
 }
 
+linter {
+    unitKind.set("context")
+    rootPackage.set("ru.astrainteractive.messagebridge.messenger.neoforge")
+}
+
 dependencies {
     implementation(libs.klibs.kstorage)
     implementation(libs.klibs.mikro.core)

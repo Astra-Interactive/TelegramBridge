@@ -1,5 +1,3 @@
-@file:Suppress("ExpressionBodyOnOneLine", "FunctionVerb")
-
 package ru.astrainteractive.messagebridge.messenger.discord.message.mapping
 
 import net.dv8tion.jda.api.entities.channel.ChannelType
@@ -14,11 +12,13 @@ internal class DiscordMessageRelevanceMapper(
 ) {
     private val config by configKrate
 
-    fun map(event: MessageReceivedEvent): DiscordMessageRelevance = when {
-        event.isWebhookMessage -> DiscordMessageRelevance.WebhookMessage
-        event.author.isBot -> DiscordMessageRelevance.BotAuthor
-        event.channelType == ChannelType.PRIVATE -> DiscordMessageRelevance.PrivateMessage
-        event.message.channelId != config.jdaConfig.channelId -> DiscordMessageRelevance.WrongChannel
-        else -> DiscordMessageRelevance.Relevant
+    fun toRelevance(event: MessageReceivedEvent): DiscordMessageRelevance {
+        return when {
+            event.isWebhookMessage -> DiscordMessageRelevance.WebhookMessage
+            event.author.isBot -> DiscordMessageRelevance.BotAuthor
+            event.channelType == ChannelType.PRIVATE -> DiscordMessageRelevance.PrivateMessage
+            event.message.channelId != config.jdaConfig.channelId -> DiscordMessageRelevance.WrongChannel
+            else -> DiscordMessageRelevance.Relevant
+        }
     }
 }

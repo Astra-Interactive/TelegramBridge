@@ -50,14 +50,14 @@ class DiscordWebhookMessageMapperTest {
 
     @Test
     fun GIVEN_default_translation_WHEN_minecraft_message_is_mapped_THEN_username_is_the_source_tag_and_the_author() {
-        val message = mapper().map(steveMessage, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(steveMessage, member = null, replyJumpUrl = null)
 
         assertEquals("[MC] Steve", message.username)
     }
 
     @Test
     fun GIVEN_author_linked_to_a_server_member_WHEN_message_is_mapped_THEN_username_is_the_member_name() {
-        val message = mapper().map(telegramMessage, linkedMember, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(telegramMessage, linkedMember, replyJumpUrl = null)
 
         assertEquals("[TG] Stevie", message.username)
     }
@@ -68,7 +68,7 @@ class DiscordWebhookMessageMapperTest {
             chat = PluginTranslation.Chat(toDiscordUsername = LocalizedText.shared("%dao% via %from%"))
         )
 
-        val message = mapper(translation).map(steveMessage, member = null, replyJumpUrl = null)
+        val message = mapper(translation).toWebhookMessage(steveMessage, member = null, replyJumpUrl = null)
 
         assertEquals("Steve via MC", message.username)
     }
@@ -77,28 +77,28 @@ class DiscordWebhookMessageMapperTest {
     fun GIVEN_author_name_with_markup_WHEN_message_is_mapped_THEN_username_shows_the_markup_as_text() {
         val markupAuthor = telegramMessage.copy(author = "<red>Tom & &aJerry")
 
-        val message = mapper().map(markupAuthor, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(markupAuthor, member = null, replyJumpUrl = null)
 
         assertEquals("[TG] <red>Tom & &aJerry", message.username)
     }
 
     @Test
     fun GIVEN_message_without_reply_WHEN_mapped_THEN_content_is_its_text() {
-        val message = mapper().map(steveMessage, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(steveMessage, member = null, replyJumpUrl = null)
 
         assertEquals("hello", message.content)
     }
 
     @Test
     fun GIVEN_reply_with_jump_url_WHEN_mapped_THEN_subtext_line_links_the_replied_player_above_the_text() {
-        val message = mapper().map(telegramReply, member = null, replyJumpUrl = JUMP_URL)
+        val message = mapper().toWebhookMessage(telegramReply, member = null, replyJumpUrl = JUMP_URL)
 
         assertEquals("-# ↪ [Alex]($JUMP_URL): see you at spawn\nhi", message.content)
     }
 
     @Test
     fun GIVEN_reply_without_jump_url_WHEN_mapped_THEN_subtext_line_names_the_replied_player() {
-        val message = mapper().map(telegramReply, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(telegramReply, member = null, replyJumpUrl = null)
 
         assertEquals("-# ↪ Alex: see you at spawn\nhi", message.content)
     }
@@ -107,7 +107,7 @@ class DiscordWebhookMessageMapperTest {
     fun GIVEN_replied_text_with_markdown_and_line_breaks_WHEN_mapped_THEN_quote_is_one_escaped_line() {
         val reply = telegramReply.copy(reply = telegramReply.reply?.copy(text = "*bold*\n\n_it_ [x] `c`"))
 
-        val message = mapper().map(reply, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(reply, member = null, replyJumpUrl = null)
 
         assertEquals("""-# ↪ Alex: \*bold\* \_it\_ \[x\] \`c\`""" + "\nhi", message.content)
     }
@@ -116,7 +116,7 @@ class DiscordWebhookMessageMapperTest {
     fun GIVEN_replied_text_longer_than_the_preview_length_WHEN_mapped_THEN_quote_is_cut() {
         val config = PluginConfiguration(jdaConfig = PluginConfiguration.JdaConfig(replyPreviewLength = 5))
 
-        val message = mapper(config = config).map(telegramReply, member = null, replyJumpUrl = null)
+        val message = mapper(config = config).toWebhookMessage(telegramReply, member = null, replyJumpUrl = null)
 
         assertEquals("-# ↪ Alex: see y…\nhi", message.content)
     }
@@ -125,7 +125,7 @@ class DiscordWebhookMessageMapperTest {
     fun GIVEN_reply_to_media_without_caption_WHEN_mapped_THEN_quote_names_the_media() {
         val reply = telegramReply.copy(reply = telegramReply.reply?.copy(text = ""))
 
-        val message = mapper().map(reply, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(reply, member = null, replyJumpUrl = null)
 
         assertEquals("-# ↪ Alex: [media]\nhi", message.content)
     }
@@ -134,7 +134,7 @@ class DiscordWebhookMessageMapperTest {
     fun GIVEN_replied_player_named_like_a_mention_WHEN_mapped_THEN_quote_cannot_ping() {
         val reply = telegramReply.copy(reply = telegramReply.reply?.copy(author = "@every_one"))
 
-        val message = mapper().map(reply, member = null, replyJumpUrl = null)
+        val message = mapper().toWebhookMessage(reply, member = null, replyJumpUrl = null)
 
         assertEquals("-# ↪ every\\_one: see you at spawn\nhi", message.content)
     }
@@ -145,7 +145,7 @@ class DiscordWebhookMessageMapperTest {
             chat = PluginTranslation.Chat(toDiscordReply = LocalizedText.shared("> %quote%\n%message%"))
         )
 
-        val message = mapper(translation).map(telegramReply, member = null, replyJumpUrl = null)
+        val message = mapper(translation).toWebhookMessage(telegramReply, member = null, replyJumpUrl = null)
 
         assertEquals("> Alex: see you at spawn\nhi", message.content)
     }

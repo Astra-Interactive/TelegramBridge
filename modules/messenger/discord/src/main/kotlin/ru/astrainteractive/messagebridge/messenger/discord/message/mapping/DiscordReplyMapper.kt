@@ -1,4 +1,4 @@
-@file:Suppress("ArgumentPerLine", "ExpressionBodyOnOneLine", "FunctionVerb")
+@file:Suppress("ArgumentPerLine")
 
 package ru.astrainteractive.messagebridge.messenger.discord.message.mapping
 
@@ -46,21 +46,25 @@ internal class DiscordReplyMapper(
         )
     }
 
-    private fun serverReply(replied: Message): Text.Reply = Text.Reply(
-        author = translation.chat.replyServer.toMessengerText(),
-        authorId = null,
-        text = replied.embeds.firstOrNull()?.author?.name ?: replied.contentRaw,
-        target = null
-    )
+    private fun serverReply(replied: Message): Text.Reply {
+        return Text.Reply(
+            author = translation.chat.replyServer.toMessengerText(),
+            authorId = null,
+            text = replied.embeds.firstOrNull()?.author?.name ?: replied.contentRaw,
+            target = null
+        )
+    }
 
-    private fun authoredReply(replied: Message): Text.Reply = Text.Reply(
-        author = replied.member?.nickname ?: replied.author.name,
-        authorId = replied.author.idLong,
-        text = replied.contentRaw,
-        target = MessageRef.Discord(messageId = replied.idLong)
-    )
+    private fun authoredReply(replied: Message): Text.Reply {
+        return Text.Reply(
+            author = replied.member?.nickname ?: replied.author.name,
+            authorId = replied.author.idLong,
+            text = replied.contentRaw,
+            target = MessageRef.Discord(messageId = replied.idLong)
+        )
+    }
 
-    suspend fun map(message: Message): Text.Reply? {
+    suspend fun toReply(message: Message): Text.Reply? {
         if (message.type != MessageType.INLINE_REPLY) return null
         val replied = message.referencedMessage ?: return null
         return when {

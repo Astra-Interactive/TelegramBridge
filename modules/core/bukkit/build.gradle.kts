@@ -5,6 +5,11 @@ plugins {
     id("ru.astrainteractive.gradleplugin.java.version")
 }
 
+linter {
+    unitKind.set("context")
+    rootPackage.set("ru.astrainteractive.messagebridge.core.bukkit")
+}
+
 dependencies {
     compileOnly(libs.minecraft.paper.api)
 

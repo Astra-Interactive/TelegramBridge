@@ -6,6 +6,11 @@ plugins {
     id("java-test-fixtures")
 }
 
+linter {
+    unitKind.set("api")
+    rootPackage.set("ru.astrainteractive.messagebridge.core.api")
+}
+
 dependencies {
     compileOnly(libs.minecraft.brigadier)
     compileOnly(libs.minecraft.kyori.plain)

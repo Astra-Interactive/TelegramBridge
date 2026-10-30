@@ -7,6 +7,7 @@ plugins {
 
 linter {
     unitKind.set("technology")
+    rootPackage.set("ru.astrainteractive.messagebridge.integration.luckperms")
 }
 
 dependencies {

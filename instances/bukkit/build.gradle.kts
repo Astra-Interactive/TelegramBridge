@@ -12,6 +12,11 @@ plugins {
     alias(libs.plugins.gradle.shadow)
 }
 
+linter {
+    unitKind.set("entry-point")
+    rootPackage.set("ru.astrainteractive.messagebridge")
+}
+
 dependencies {
     compileOnly(libs.driver.h2)
     compileOnly(libs.driver.jdbc)

@@ -1,4 +1,4 @@
-@file:Suppress("ArgumentPerLine", "ExpressionBodyOnOneLine", "FunctionVerb")
+@file:Suppress("ArgumentPerLine")
 
 package ru.astrainteractive.messagebridge.messenger.discord.mapping
 
@@ -20,7 +20,7 @@ internal class DiscordEmbedMapper(
 
     private fun avatarUrl(uuid: String): String = "$MC_HEADS_AVATAR_URL$uuid"
 
-    fun map(event: PlayerDeathBEvent): MessageEmbed {
+    fun toEmbed(event: PlayerDeathBEvent): MessageEmbed {
         val text = event.cause ?: translation.player.discordDiedOfUnknownCause(event.name).toMessengerText()
         return EmbedBuilder()
             .setColor(DEATH_COLOR)
@@ -28,7 +28,7 @@ internal class DiscordEmbedMapper(
             .build()
     }
 
-    fun map(event: PlayerJoinedBEvent): MessageEmbed {
+    fun toEmbed(event: PlayerJoinedBEvent): MessageEmbed {
         val text = if (event.hasPlayedBefore) {
             translation.player.discordJoined(event.name).toMessengerText()
         } else {
@@ -41,10 +41,12 @@ internal class DiscordEmbedMapper(
             .build()
     }
 
-    fun map(event: PlayerLeaveBEvent): MessageEmbed = EmbedBuilder()
-        .setColor(LEAVE_COLOR)
-        .setAuthor(translation.player.discordLeft(event.name).toMessengerText(), null, avatarUrl(event.uuid))
-        .build()
+    fun toEmbed(event: PlayerLeaveBEvent): MessageEmbed {
+        return EmbedBuilder()
+            .setColor(LEAVE_COLOR)
+            .setAuthor(translation.player.discordLeft(event.name).toMessengerText(), null, avatarUrl(event.uuid))
+            .build()
+    }
 
     private companion object {
         const val MC_HEADS_AVATAR_URL = "https://mc-heads.net/avatar/"
