@@ -1,4 +1,4 @@
-@file:Suppress("ArgumentPerLine", "GetOrThrowInMain", "TrivialLambdaReference")
+@file:Suppress("ArgumentPerLine", "GetOrThrowInMain", "TrivialLambdaReference", "ForbiddenImport/executor")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
