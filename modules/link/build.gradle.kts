@@ -8,6 +8,7 @@ plugins {
 linter {
     unitKind.set("context")
     rootPackage.set("ru.astrainteractive.messagebridge.link")
+    technologyWords.add("lambda")
 }
 
 dependencies {
