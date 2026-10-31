@@ -1,5 +1,3 @@
-@file:Suppress("KindImportDirection")
-
 package ru.astrainteractive.messagebridge.messenger.discord.connection
 
 import com.neovisionaries.ws.client.WebSocketFactory
