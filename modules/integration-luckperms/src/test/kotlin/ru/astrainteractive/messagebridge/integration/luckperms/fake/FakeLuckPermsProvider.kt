@@ -11,9 +11,7 @@ internal class FakeLuckPermsProvider(
 
     override fun provide(): Result<LuckPerms> {
         provideCallCount++
-        if (luckPerms == null) {
-            return Result.failure(IllegalStateException("LuckPerms is not installed"))
-        }
+        if (luckPerms == null) return Result.failure(IllegalStateException("LuckPerms is not installed"))
         return Result.success(luckPerms)
     }
 }

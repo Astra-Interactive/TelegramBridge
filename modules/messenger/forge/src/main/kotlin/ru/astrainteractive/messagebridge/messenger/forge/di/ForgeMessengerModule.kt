@@ -14,11 +14,6 @@ class ForgeMessengerModule(
     bEventChannel: BEventChannel,
 ) {
 
-    private val forgeEvents = ForgeEvents(
-        configKrate = coreModule.configKrate,
-        ioScope = coreModule.ioScope,
-        bEventConsumer = bEventChannel
-    )
     private val minecraftMessageController = ForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
         dispatchers = coreModule.dispatchers,
@@ -30,4 +25,12 @@ class ForgeMessengerModule(
             minecraftMessageController.cancel()
         }
     )
+
+    init {
+        ForgeEvents(
+            configKrate = coreModule.configKrate,
+            ioScope = coreModule.ioScope,
+            bEventConsumer = bEventChannel
+        )
+    }
 }

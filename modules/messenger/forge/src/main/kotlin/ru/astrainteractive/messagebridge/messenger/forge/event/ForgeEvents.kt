@@ -27,7 +27,7 @@ import java.util.UUID
 internal class ForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
-    private val bEventConsumer: BEventConsumer
+    bEventConsumer: BEventConsumer
 ) : Logger by JUtiltLogger("MessageBridge-ForgeEvents") {
     private val config by configKrate
 

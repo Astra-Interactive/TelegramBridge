@@ -11,6 +11,7 @@ package ru.astrainteractive.messagebridge.messenger.bukkit.event
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -62,8 +63,8 @@ class MinecraftBEventConsumerTest {
     }
 
     @Test
-    fun GIVEN_interceptor_that_renames_author_and_reply_author_WHEN_shown_in_game_THEN_line_has_new_names() =
-        runTest {
+    fun GIVEN_interceptor_renaming_author_and_reply_author_WHEN_shown_in_game_THEN_line_has_new_names(): TestResult {
+        return runTest {
             val renamed = telegramText.copy(
                 author = "Steve",
                 reply = Text.Reply(author = "Alex", authorId = ALEX_TG, text = "hi", target = null)
@@ -73,47 +74,56 @@ class MinecraftBEventConsumerTest {
 
             assertEquals("[TG] Steve ↪ Alex: hello", plainText(component))
         }
-
-    @Test
-    fun GIVEN_no_interceptors_WHEN_shown_in_game_THEN_line_has_names_from_the_message() = runTest {
-        val component = consumer().toMinecraftComponent(telegramText)
-
-        assertEquals("[TG] steve_tg ↪ alex_tg: hello", plainText(component))
     }
 
     @Test
-    fun GIVEN_two_interceptors_WHEN_shown_in_game_THEN_second_gets_what_first_returned() = runTest {
-        val renamedAuthor = telegramText.copy(author = "Steve")
-        val receivedBySecond = mutableListOf<Text>()
-        val second = TextInterceptor { text ->
-            receivedBySecond += text
-            text
+    fun GIVEN_no_interceptors_WHEN_shown_in_game_THEN_line_has_names_from_the_message(): TestResult {
+        return runTest {
+            val component = consumer().toMinecraftComponent(telegramText)
+
+            assertEquals("[TG] steve_tg ↪ alex_tg: hello", plainText(component))
         }
-
-        val component = consumer(TextInterceptor { _ -> renamedAuthor }, second).toMinecraftComponent(telegramText)
-
-        assertEquals(listOf<Text>(renamedAuthor), receivedBySecond)
-        assertEquals("[TG] Steve ↪ alex_tg: hello", plainText(component))
     }
 
     @Test
-    fun GIVEN_message_without_reply_WHEN_shown_in_game_THEN_line_has_no_reply_marker() = runTest {
-        val discordText = Text.Discord(
-            author = "Stevie",
-            text = "hello",
-            authorId = STEVE_DS,
-            reply = null,
-            ref = DS_REF
-        )
+    fun GIVEN_two_interceptors_WHEN_shown_in_game_THEN_second_gets_what_first_returned(): TestResult {
+        return runTest {
+            val renamedAuthor = telegramText.copy(author = "Steve")
+            val receivedBySecond = mutableListOf<Text>()
+            val second = TextInterceptor { text ->
+                receivedBySecond += text
+                text
+            }
 
-        val component = consumer().toMinecraftComponent(discordText)
+            val component = consumer(TextInterceptor { _ -> renamedAuthor }, second).toMinecraftComponent(telegramText)
 
-        assertEquals("[DS] Stevie: hello", plainText(component))
+            assertEquals(listOf<Text>(renamedAuthor), receivedBySecond)
+            assertEquals("[TG] Steve ↪ alex_tg: hello", plainText(component))
+        }
     }
 
     @Test
-    fun GIVEN_main_thread_unavailable_WHEN_chat_message_is_consumed_THEN_consume_returns() = runTest {
-        consumer().consume(telegramText)
+    fun GIVEN_message_without_reply_WHEN_shown_in_game_THEN_line_has_no_reply_marker(): TestResult {
+        return runTest {
+            val discordText = Text.Discord(
+                author = "Stevie",
+                text = "hello",
+                authorId = STEVE_DS,
+                reply = null,
+                ref = DS_REF
+            )
+
+            val component = consumer().toMinecraftComponent(discordText)
+
+            assertEquals("[DS] Stevie: hello", plainText(component))
+        }
+    }
+
+    @Test
+    fun GIVEN_main_thread_unavailable_WHEN_chat_message_is_consumed_THEN_consume_returns(): TestResult {
+        return runTest {
+            consumer().consume(telegramText)
+        }
     }
 
     private companion object {

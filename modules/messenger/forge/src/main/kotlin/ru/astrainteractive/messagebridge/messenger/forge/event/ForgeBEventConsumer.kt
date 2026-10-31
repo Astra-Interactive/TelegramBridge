@@ -3,6 +3,7 @@ package ru.astrainteractive.messagebridge.messenger.forge.event
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import net.minecraft.server.level.ServerPlayer
 import ru.astrainteractive.astralibs.coroutines.withTimings
 import ru.astrainteractive.astralibs.server.sendMessage
 import ru.astrainteractive.astralibs.server.util.MinecraftUtil
@@ -65,7 +66,7 @@ internal class ForgeBEventConsumer(
 
         withContext(dispatchers.Main) {
             MinecraftUtil.serverOrNull?.playerList?.players.orEmpty()
-                .map { player -> player.asKAudience() }
+                .map(ServerPlayer::asKAudience)
                 .sendMessage(text)
         }
     }

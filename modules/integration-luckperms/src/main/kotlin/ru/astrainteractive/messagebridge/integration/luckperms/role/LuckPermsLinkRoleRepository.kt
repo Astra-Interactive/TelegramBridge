@@ -29,9 +29,7 @@ internal class LuckPermsLinkRoleRepository(
         }
         luckPerms.userManager.modifyUser(uuid) { user ->
             val groupNode = luckPerms.nodeBuilderRegistry.forInheritance().group(link.linkLuckPermsRole).build()
-            if (user.nodes.contains(groupNode)) {
-                return@modifyUser
-            }
+            if (user.nodes.contains(groupNode)) return@modifyUser
 
             val result = user.data().add(groupNode)
             info { "Игроку $uuid выдана роль ${link.linkLuckPermsRole}: $result" }
@@ -48,9 +46,7 @@ internal class LuckPermsLinkRoleRepository(
         }
         luckPerms.userManager.modifyUser(uuid) { user ->
             val groupNode = luckPerms.nodeBuilderRegistry.forInheritance().group(link.linkLuckPermsRole).build()
-            if (!user.nodes.contains(groupNode)) {
-                return@modifyUser
-            }
+            if (!user.nodes.contains(groupNode)) return@modifyUser
 
             val result = user.data().remove(groupNode)
             info { "У игрока $uuid снята роль ${link.linkLuckPermsRole}: $result" }
