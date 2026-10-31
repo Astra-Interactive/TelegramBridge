@@ -40,10 +40,6 @@ internal class TelegramCommandHandler(
         }
     }
 
-    /**
-     * Logs the chat/topic identifiers when the diagnostic `/minfo` command is received.
-     * Runs regardless of the configured chat so operators can discover a chat's id.
-     */
     fun logChatInfo(update: Update) {
         val message = update.message ?: return
         if (message.text != INFO_COMMAND) return

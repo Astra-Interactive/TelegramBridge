@@ -46,9 +46,7 @@ internal class TelegramBEventConsumer(
     private suspend fun replyTargetOf(reply: Text.Reply): Int? {
         val target = reply.target ?: return null
         val chatId = tgConfig.chatID.toLongOrNull() ?: return null
-        if (target is MessageRef.Telegram) {
-            return target.messageId.takeIf { target.chatId == chatId }
-        }
+        if (target is MessageRef.Telegram) return target.messageId.takeIf { target.chatId == chatId }
         return relayedMessageCache.copyOf(target, chatId)
     }
 

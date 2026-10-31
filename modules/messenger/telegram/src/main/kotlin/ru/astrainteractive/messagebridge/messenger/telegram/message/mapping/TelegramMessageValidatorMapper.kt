@@ -25,12 +25,8 @@ internal class TelegramMessageValidatorMapper(
             return TelegramMessageValidation.IllegalDisplayName
         }
         val text = update.message?.text
-        if (text.isNullOrBlank()) {
-            return TelegramMessageValidation.NoText
-        }
-        if (text.length > tgConfig.maxTelegramMessageLength) {
-            return TelegramMessageValidation.TooLong
-        }
+        if (text.isNullOrBlank()) return TelegramMessageValidation.NoText
+        if (text.length > tgConfig.maxTelegramMessageLength) return TelegramMessageValidation.TooLong
         return TelegramMessageValidation.Valid(
             author = author.name,
             text = text,

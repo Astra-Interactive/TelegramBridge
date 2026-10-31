@@ -19,19 +19,13 @@ internal class TelegramMessageRelevanceMapper(
 
     fun toRelevance(update: Update): MessageRelevance {
         val message = update.message
-        if (tgConfig.chatID != message?.chatId?.toString()) {
-            return MessageRelevance.WrongChat
-        }
+        if (tgConfig.chatID != message?.chatId?.toString()) return MessageRelevance.WrongChat
         val date = message.date?.toLong() ?: return MessageRelevance.NoDate
         val age = clock.now().minus(Instant.fromEpochSeconds(date))
-        if (age > MAX_MESSAGE_AGE) {
-            return MessageRelevance.TooOld
-        }
+        if (age > MAX_MESSAGE_AGE) return MessageRelevance.TooOld
         val replyMessageId = message.replyToMessage?.messageId?.toString()
         val messageThreadId = message.messageThreadId?.toString()
-        if (tgConfig.topicID != (messageThreadId ?: replyMessageId)) {
-            return MessageRelevance.WrongTopic
-        }
+        if (tgConfig.topicID != (messageThreadId ?: replyMessageId)) return MessageRelevance.WrongTopic
         return MessageRelevance.Relevant
     }
 

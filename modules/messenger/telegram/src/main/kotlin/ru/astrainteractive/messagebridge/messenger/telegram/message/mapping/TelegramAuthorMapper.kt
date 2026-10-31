@@ -25,7 +25,7 @@ internal class TelegramAuthorMapper(
     private fun author(userName: String?, firstName: String?, lastName: String?): TelegramAuthor {
         userName?.let { name -> return TelegramAuthor.Username(name.toFixedName()) }
         val shownFirstName = firstName ?: translation.chat.anonymousAuthor.toMessengerText()
-        val displayName = "$shownFirstName ${lastName ?: ""}".toFixedName()
+        val displayName = "$shownFirstName ${lastName.orEmpty()}".toFixedName()
         return TelegramAuthor.DisplayName(displayName)
     }
 

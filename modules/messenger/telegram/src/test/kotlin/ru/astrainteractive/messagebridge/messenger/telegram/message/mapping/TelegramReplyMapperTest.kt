@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.messenger.telegram.message.mapping
 
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import org.telegram.telegrambots.meta.api.objects.TextQuote
 import org.telegram.telegrambots.meta.api.objects.User
@@ -59,132 +60,156 @@ class TelegramReplyMapperTest {
     }
 
     @Test
-    fun GIVEN_message_that_replies_to_nothing_WHEN_mapped_THEN_returns_null() = runTest {
-        assertNull(mapper.toReply(message(id = 100, from = steve, text = "hi")))
+    fun GIVEN_message_that_replies_to_nothing_WHEN_mapped_THEN_returns_null(): TestResult {
+        return runTest {
+            assertNull(mapper.toReply(message(id = 100, from = steve, text = "hi")))
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_user_WHEN_mapped_THEN_reply_names_user_and_text() = runTest {
-        val replied = message(id = 10, from = steve, text = "hello")
+    fun GIVEN_reply_to_user_WHEN_mapped_THEN_reply_names_user_and_text(): TestResult {
+        return runTest {
+            val replied = message(id = 10, from = steve, text = "hello")
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals(
-            Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello", target = REPLIED_REF),
-            reply
-        )
+            assertEquals(
+                Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "hello", target = REPLIED_REF),
+                reply
+            )
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_photo_with_caption_WHEN_mapped_THEN_text_is_caption() = runTest {
-        val replied = message(id = 10, from = steve).apply { caption = "my base" }
+    fun GIVEN_reply_to_photo_with_caption_WHEN_mapped_THEN_text_is_caption(): TestResult {
+        return runTest {
+            val replied = message(id = 10, from = steve).apply { caption = "my base" }
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals("my base", reply?.text)
+            assertEquals("my base", reply?.text)
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_media_without_caption_WHEN_mapped_THEN_text_is_empty() = runTest {
-        val replied = message(id = 10, from = steve)
+    fun GIVEN_reply_to_media_without_caption_WHEN_mapped_THEN_text_is_empty(): TestResult {
+        return runTest {
+            val replied = message(id = 10, from = steve)
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals("", reply?.text)
+            assertEquals("", reply?.text)
+        }
     }
 
     @Test
-    fun GIVEN_reply_that_quotes_part_of_message_WHEN_mapped_THEN_text_is_quote() = runTest {
-        val replied = message(id = 10, from = steve, text = "hello, meet me at spawn")
-        val message = replyTo(replied).apply { quote = TextQuote().apply { text = "at spawn" } }
+    fun GIVEN_reply_that_quotes_part_of_message_WHEN_mapped_THEN_text_is_quote(): TestResult {
+        return runTest {
+            val replied = message(id = 10, from = steve, text = "hello, meet me at spawn")
+            val message = replyTo(replied).apply { quote = TextQuote().apply { text = "at spawn" } }
 
-        val reply = mapper.toReply(message)
+            val reply = mapper.toReply(message)
 
-        assertEquals(
-            Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn", target = REPLIED_REF),
-            reply
-        )
+            assertEquals(
+                Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "at spawn", target = REPLIED_REF),
+                reply
+            )
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_message_bot_relayed_WHEN_mapped_THEN_reply_names_player_who_wrote_it() = runTest {
-        val relayed = Text.Minecraft(
-            author = "Steve",
-            uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-            text = "hello",
-            ref = RELAYED_REF
-        )
-        relayedMessageCache.remember(chatId = CHAT_ID, messageId = 10, text = relayed)
-        val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
+    fun GIVEN_reply_to_message_bot_relayed_WHEN_mapped_THEN_reply_names_player_who_wrote_it(): TestResult {
+        return runTest {
+            val relayed = Text.Minecraft(
+                author = "Steve",
+                uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+                text = "hello",
+                ref = RELAYED_REF
+            )
+            relayedMessageCache.remember(chatId = CHAT_ID, messageId = 10, text = relayed)
+            val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello", target = RELAYED_REF), reply)
+            assertEquals(Text.Reply(author = "Steve", authorId = null, text = "hello", target = RELAYED_REF), reply)
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_is_labelled_as_the_server() = runTest {
-        val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
+    fun GIVEN_reply_to_bot_message_relayed_before_restart_WHEN_mapped_THEN_reply_is_labelled_server(): TestResult {
+        return runTest {
+            val replied = message(id = 10, from = bot, text = "[MC] Steve:\nhello")
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals(
-            Text.Reply(author = "[server]", authorId = null, text = "[MC] Steve:\nhello", target = REPLIED_REF),
-            reply
-        )
+            assertEquals(
+                Text.Reply(author = "[server]", authorId = null, text = "[MC] Steve:\nhello", target = REPLIED_REF),
+                reply
+            )
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_message_of_another_bot_WHEN_mapped_THEN_reply_names_that_bot() = runTest {
-        val otherBot = User(OTHER_BOT_ID, "Helper", true).apply { userName = "HelperBot" }
-        val replied = message(id = 10, from = otherBot, text = "pong")
+    fun GIVEN_reply_to_message_of_another_bot_WHEN_mapped_THEN_reply_names_that_bot(): TestResult {
+        return runTest {
+            val otherBot = User(OTHER_BOT_ID, "Helper", true).apply { userName = "HelperBot" }
+            val replied = message(id = 10, from = otherBot, text = "pong")
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals(
-            Text.Reply(author = "HelperBot", authorId = OTHER_BOT_ID, text = "pong", target = REPLIED_REF),
-            reply
-        )
+            assertEquals(
+                Text.Reply(author = "HelperBot", authorId = OTHER_BOT_ID, text = "pong", target = REPLIED_REF),
+                reply
+            )
+        }
     }
 
     @Test
-    fun GIVEN_message_relayed_in_another_chat_WHEN_reply_to_same_id_is_mapped_THEN_reply_names_its_author() = runTest {
-        val relayed = Text.Minecraft(
-            author = "Steve",
-            uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
-            text = "hello",
-            ref = RELAYED_REF
-        )
-        relayedMessageCache.remember(chatId = OTHER_CHAT_ID, messageId = 10, text = relayed)
-        val replied = message(id = 10, from = steve, text = "different")
+    fun GIVEN_message_from_another_chat_WHEN_reply_to_same_id_is_mapped_THEN_reply_names_its_author(): TestResult {
+        return runTest {
+            val relayed = Text.Minecraft(
+                author = "Steve",
+                uuid = "8667ba71-b85a-4004-af54-457a9734eed7",
+                text = "hello",
+                ref = RELAYED_REF
+            )
+            relayedMessageCache.remember(chatId = OTHER_CHAT_ID, messageId = 10, text = relayed)
+            val replied = message(id = 10, from = steve, text = "different")
 
-        val reply = mapper.toReply(replyTo(replied))
+            val reply = mapper.toReply(replyTo(replied))
 
-        assertEquals(
-            Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different", target = REPLIED_REF),
-            reply
-        )
+            assertEquals(
+                Text.Reply(author = "steve_tg", authorId = STEVE_ID, text = "different", target = REPLIED_REF),
+                reply
+            )
+        }
     }
 
     @Test
-    fun GIVEN_message_in_forum_topic_WHEN_mapped_THEN_topic_start_is_not_a_reply() = runTest {
-        val topicStart = message(id = 50, from = steve).apply { forumTopicCreated = ForumTopicCreated() }
+    fun GIVEN_message_in_forum_topic_WHEN_mapped_THEN_topic_start_is_not_a_reply(): TestResult {
+        return runTest {
+            val topicStart = message(id = 50, from = steve).apply { forumTopicCreated = ForumTopicCreated() }
 
-        assertNull(mapper.toReply(replyTo(topicStart)))
+            assertNull(mapper.toReply(replyTo(topicStart)))
+        }
     }
 
     @Test
-    fun GIVEN_message_under_configured_topic_message_WHEN_mapped_THEN_topic_message_is_not_a_reply() = runTest {
-        val topicMessage = message(id = TOPIC_ID, from = steve, text = "Minecraft chat")
+    fun GIVEN_message_under_configured_topic_message_WHEN_mapped_THEN_topic_message_is_not_a_reply(): TestResult {
+        return runTest {
+            val topicMessage = message(id = TOPIC_ID, from = steve, text = "Minecraft chat")
 
-        assertNull(mapper.toReply(replyTo(topicMessage)))
+            assertNull(mapper.toReply(replyTo(topicMessage)))
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_message_without_author_WHEN_mapped_THEN_returns_null() = runTest {
-        val replied = message(id = 10, from = null, text = "hello")
+    fun GIVEN_reply_to_message_without_author_WHEN_mapped_THEN_returns_null(): TestResult {
+        return runTest {
+            val replied = message(id = 10, from = null, text = "hello")
 
-        assertNull(mapper.toReply(replyTo(replied)))
+            assertNull(mapper.toReply(replyTo(replied)))
+        }
     }
 
     private companion object {

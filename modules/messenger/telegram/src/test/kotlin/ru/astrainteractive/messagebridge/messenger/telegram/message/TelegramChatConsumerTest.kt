@@ -20,6 +20,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.job
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -124,7 +125,7 @@ class TelegramChatConsumerTest {
             OkHttpTelegramClient(
                 OkHttpClient.Builder()
                     .dispatcher(Dispatcher(DirectExecutor))
-                    .addInterceptor { chain -> respond(chain) }
+                    .addInterceptor(Interceptor(::respond))
                     .build(),
                 "123:token"
             )
@@ -147,13 +148,15 @@ class TelegramChatConsumerTest {
             replyToMessageId = json.get("reply_parameters")?.get("message_id")?.asInt()
         )
         val result = if (method == "sendmessage") SENT_MESSAGE_JSON else "true"
-        return Response.Builder()
-            .request(request)
-            .protocol(Protocol.HTTP_1_1)
-            .code(200)
-            .message("OK")
-            .body("""{"ok":true,"result":$result}""".toResponseBody("application/json".toMediaType()))
-            .build()
+        return """{"ok":true,"result":$result}""".toResponseBody("application/json".toMediaType()).use { responseBody ->
+            Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(responseBody)
+                .build()
+        }
     }
 
     private fun recording(interception: Interception) = MessageInterceptor<Update> { update ->
@@ -168,27 +171,34 @@ class TelegramChatConsumerTest {
             .plus(CoroutineExceptionHandler { _, t -> failures += t })
             .let(::CoroutineScope)
         val authorMapper = TelegramAuthorMapper(translationKrate = translationKrate)
+        val commandHandler = TelegramCommandHandler(
+            messageSender = messageSender,
+            platformServer = EmptyPlatformServer,
+            translationKrate = translationKrate
+        )
         return TelegramChatConsumer(
             ioScope = ioScope,
             dispatchers = TestDispatchers(StandardTestDispatcher(testScheduler)),
-            translationKrate = translationKrate,
             relevanceChecker = TelegramMessageRelevanceMapper(configKrate = configKrate, clock = FixedClock(NOW)),
             validator = TelegramMessageValidatorMapper(configKrate = configKrate, authorMapper = authorMapper),
-            replyMapper = TelegramReplyMapper(
-                configKrate = configKrate,
-                translationKrate = translationKrate,
-                authorMapper = authorMapper,
-                relayedMessageCache = TelegramRelayedMessageCache(configKrate = configKrate)
-            ),
-            commandParser = TelegramCommandMapper(),
-            commandHandler = TelegramCommandHandler(
+            commandHandler = commandHandler,
+            messageRelay = TelegramMessageRelay(
+                commandParser = TelegramCommandMapper(),
+                commandHandler = commandHandler,
+                replyMapper = TelegramReplyMapper(
+                    configKrate = configKrate,
+                    translationKrate = translationKrate,
+                    authorMapper = authorMapper,
+                    relayedMessageCache = TelegramRelayedMessageCache(configKrate = configKrate)
+                ),
                 messageSender = messageSender,
-                platformServer = EmptyPlatformServer,
-                translationKrate = translationKrate
+                bEventConsumer = published,
+                messageInterceptors = interceptors.toList()
             ),
-            messageSender = messageSender,
-            bEventConsumer = published,
-            messageInterceptors = interceptors.toList()
+            messageRejector = TelegramMessageRejector(
+                translationKrate = translationKrate,
+                messageSender = messageSender
+            )
         )
     }
 
@@ -212,53 +222,57 @@ class TelegramChatConsumerTest {
     }
 
     @Test
-    fun GIVEN_interceptor_that_passes_WHEN_message_arrives_THEN_it_is_relayed_with_author_and_reply() = runTest {
-        val alex = User(ALEX_ID, "Alex", false).apply { userName = "alex_tg" }
-        val alexMessage = Message().apply {
-            messageId = 10
-            chat = Chat(CHAT_ID, "supergroup")
-            from = alex
-            text = "hi"
+    fun GIVEN_interceptor_that_passes_WHEN_message_arrives_THEN_it_is_relayed_with_author_and_reply(): TestResult {
+        return runTest {
+            val alex = User(ALEX_ID, "Alex", false).apply { userName = "alex_tg" }
+            val alexMessage = Message().apply {
+                messageId = 10
+                chat = Chat(CHAT_ID, "supergroup")
+                from = alex
+                text = "hi"
+            }
+            chatConsumer(recording(Interception.Pass)).use { consumer ->
+                consumer.consume(update(text = "hello", replyTo = alexMessage))
+                runCurrent()
+            }
+
+            val relayed = Text.Telegram(
+                author = "steve_tg",
+                text = "hello",
+                authorId = STEVE_ID,
+                reply = Text.Reply(
+                    author = "alex_tg",
+                    authorId = ALEX_ID,
+                    text = "hi",
+                    target = MessageRef.Telegram(chatId = CHAT_ID, messageId = 10)
+                ),
+                ref = MessageRef.Telegram(chatId = CHAT_ID, messageId = MESSAGE_ID)
+            )
+            assertEquals(listOf<BEvent>(relayed), published.sent)
+            assertEquals(listOf<String?>("hello"), interceptedTexts)
         }
-        val consumer = chatConsumer(recording(Interception.Pass))
-
-        consumer.consume(update(text = "hello", replyTo = alexMessage))
-        runCurrent()
-
-        val relayed = Text.Telegram(
-            author = "steve_tg",
-            text = "hello",
-            authorId = STEVE_ID,
-            reply = Text.Reply(
-                author = "alex_tg",
-                authorId = ALEX_ID,
-                text = "hi",
-                target = MessageRef.Telegram(chatId = CHAT_ID, messageId = 10)
-            ),
-            ref = MessageRef.Telegram(chatId = CHAT_ID, messageId = MESSAGE_ID)
-        )
-        assertEquals(listOf<BEvent>(relayed), published.sent)
-        assertEquals(listOf<String?>("hello"), interceptedTexts)
     }
 
     @Test
-    fun GIVEN_interceptor_that_consumes_WHEN_message_arrives_THEN_nothing_is_relayed_or_sent() = runTest {
-        val consumer = chatConsumer(recording(Interception.Consumed))
+    fun GIVEN_interceptor_that_consumes_WHEN_message_arrives_THEN_nothing_is_relayed_or_sent(): TestResult {
+        return runTest {
+            chatConsumer(recording(Interception.Consumed)).use { consumer ->
+                consumer.consume(update(text = "/link 1234"))
+                runCurrent()
+            }
 
-        consumer.consume(update(text = "/link 1234"))
-        runCurrent()
-
-        assertEquals(emptyList(), published.sent)
-        assertEquals(emptyList(), sentRequests)
+            assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), sentRequests)
+        }
     }
 
     @Test
-    fun GIVEN_interceptor_that_replies_WHEN_message_arrives_THEN_reply_goes_to_its_topic_and_nothing_is_relayed() =
-        runTest {
-            val consumer = chatConsumer(recording(Interception.Reply("Your account is linked")))
-
-            consumer.consume(update(text = "/link 1234"))
-            runCurrent()
+    fun GIVEN_interceptor_that_replies_WHEN_message_arrives_THEN_reply_goes_to_its_topic_nothing_relayed(): TestResult {
+        return runTest {
+            chatConsumer(recording(Interception.Reply("Your account is linked"))).use { consumer ->
+                consumer.consume(update(text = "/link 1234"))
+                runCurrent()
+            }
 
             val answer = TelegramRequest(
                 method = "sendmessage",
@@ -269,78 +283,89 @@ class TelegramChatConsumerTest {
             assertEquals(listOf(answer), sentRequests)
             assertEquals(emptyList(), published.sent)
         }
-
-    @Test
-    fun GIVEN_message_from_another_chat_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        val consumer = chatConsumer(recording(Interception.Pass))
-
-        consumer.consume(update(text = "/link 1234", chatId = OTHER_CHAT_ID))
-        runCurrent()
-
-        assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.sent)
     }
 
     @Test
-    fun GIVEN_message_older_than_ten_seconds_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        val consumer = chatConsumer(recording(Interception.Pass))
+    fun GIVEN_message_from_another_chat_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            chatConsumer(recording(Interception.Pass)).use { consumer ->
+                consumer.consume(update(text = "/link 1234", chatId = OTHER_CHAT_ID))
+                runCurrent()
+            }
 
-        consumer.consume(update(text = "/link 1234", sentAt = NOW - 11.seconds))
-        runCurrent()
-
-        assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), interceptedTexts)
+            assertEquals(emptyList(), published.sent)
+        }
     }
 
     @Test
-    fun GIVEN_message_from_another_topic_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        val consumer = chatConsumer(recording(Interception.Pass))
+    fun GIVEN_message_older_than_ten_seconds_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            chatConsumer(recording(Interception.Pass)).use { consumer ->
+                consumer.consume(update(text = "/link 1234", sentAt = NOW - 11.seconds))
+                runCurrent()
+            }
 
-        consumer.consume(update(text = "/link 1234", threadId = OTHER_TOPIC_ID))
-        runCurrent()
-
-        assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), interceptedTexts)
+            assertEquals(emptyList(), published.sent)
+        }
     }
 
     @Test
-    fun GIVEN_author_name_the_regex_rejects_WHEN_message_arrives_THEN_interceptors_never_see_it_and_author_is_told() =
-        runTest {
-            val consumer = chatConsumer(recording(Interception.Pass))
+    fun GIVEN_message_from_another_topic_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            chatConsumer(recording(Interception.Pass)).use { consumer ->
+                consumer.consume(update(text = "/link 1234", threadId = OTHER_TOPIC_ID))
+                runCurrent()
+            }
+
+            assertEquals(emptyList(), interceptedTexts)
+            assertEquals(emptyList(), published.sent)
+        }
+    }
+
+    @Test
+    fun GIVEN_author_name_rejected_by_regex_WHEN_message_arrives_THEN_author_is_told_and_nobody_sees_it(): TestResult {
+        return runTest {
             val stranger = User(STRANGER_ID, "Стив", false)
-
-            consumer.consume(update(text = "/link 1234", from = stranger))
-            runCurrent()
+            chatConsumer(recording(Interception.Pass)).use { consumer ->
+                consumer.consume(update(text = "/link 1234", from = stranger))
+                runCurrent()
+            }
 
             assertEquals(emptyList(), interceptedTexts)
             assertEquals(listOf("sendmessage", "deletemessage"), sentRequests.map(TelegramRequest::method))
             assertEquals(translation.chat.illegalDisplayName.toMessengerText(), sentRequests.first().text)
         }
-
-    @Test
-    fun GIVEN_vanilla_command_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        val consumer = chatConsumer(recording(Interception.Pass))
-
-        consumer.consume(update(text = "/vanilla"))
-        runCurrent()
-
-        assertEquals(emptyList(), interceptedTexts)
-        assertEquals(emptyList(), published.sent)
-        assertEquals(listOf("sendmessage"), sentRequests.map(TelegramRequest::method))
     }
 
     @Test
-    fun GIVEN_interceptor_that_throws_WHEN_message_arrives_THEN_nothing_is_relayed_and_scope_gets_the_failure() =
-        runTest {
-            val consumer = chatConsumer(MessageInterceptor { _ -> error("Database is locked") })
+    fun GIVEN_vanilla_command_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            chatConsumer(recording(Interception.Pass)).use { consumer ->
+                consumer.consume(update(text = "/vanilla"))
+                runCurrent()
+            }
 
-            consumer.consume(update(text = "/link 1234"))
-            runCurrent()
+            assertEquals(emptyList(), interceptedTexts)
+            assertEquals(emptyList(), published.sent)
+            assertEquals(listOf("sendmessage"), sentRequests.map(TelegramRequest::method))
+        }
+    }
+
+    @Test
+    fun GIVEN_interceptor_that_throws_WHEN_message_arrives_THEN_nothing_relayed_and_scope_gets_failure(): TestResult {
+        return runTest {
+            chatConsumer(MessageInterceptor { _ -> error("Database is locked") }).use { consumer ->
+                consumer.consume(update(text = "/link 1234"))
+                runCurrent()
+            }
 
             assertEquals(emptyList(), published.sent)
             assertEquals(emptyList(), sentRequests)
             assertEquals(listOf<String?>("Database is locked"), failures.map(Throwable::message))
         }
+    }
 
     private companion object {
         const val CHAT_ID = -1001L
