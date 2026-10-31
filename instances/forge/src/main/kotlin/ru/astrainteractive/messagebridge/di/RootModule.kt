@@ -2,6 +2,8 @@
 
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -22,6 +24,7 @@ import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.integration.luckperms.di.LuckPermsModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordMemberLeave
 import ru.astrainteractive.messagebridge.messenger.api.memory.InMemoryBEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
@@ -31,7 +34,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessenger
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
-class RootModule(
+internal class RootModule(
     forgeLifecycleServer: ForgeLifecycleServer
 ) : Logger by JUtiltLogger("MessageBridge-RootModule") {
     val coreModule = CoreModule(
@@ -47,6 +50,8 @@ class RootModule(
     )
 
     private val bEventChannel: BEventChannel = InMemoryBEventChannel()
+
+    private val discordMemberLeaves = Channel<DiscordMemberLeave>(Channel.UNLIMITED)
 
     val commandModule by lazy {
         CommandModule(
@@ -64,7 +69,8 @@ class RootModule(
         LinkModule(
             coreModule = coreModule,
             addLinkRole = luckPermsModule.linkRoleRepository::addLinkRole,
-            removeLinkedRole = luckPermsModule.linkRoleRepository::removeLinkedRole
+            removeLinkedRole = luckPermsModule.linkRoleRepository::removeLinkedRole,
+            memberLeaves = discordMemberLeaves.receiveAsFlow()
         )
     }
 
@@ -81,7 +87,7 @@ class RootModule(
             bEventChannel = bEventChannel,
             messageInterceptors = listOf(linkModule.discordLinkInterceptor),
             authorResolver = linkModule.discordAuthorResolver,
-            memberLeaveListeners = listOf(linkModule.discordMemberLeaveListener),
+            memberLeaves = discordMemberLeaves,
             roleChanges = linkModule.discordRoleChanges
         )
     }
@@ -115,6 +121,7 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
+            @Suppress("RunBlockingOutsideBoundary")
             runBlocking {
                 withTimeoutOrNull(SERVER_CLOSED_TIMEOUT) {
                     listOf(tgEventModule.bEventConsumer, jdaEventModule.bEventConsumer)

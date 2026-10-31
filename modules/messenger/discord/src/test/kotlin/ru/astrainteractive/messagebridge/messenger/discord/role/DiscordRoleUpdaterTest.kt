@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -52,11 +53,13 @@ class DiscordRoleUpdaterTest {
         )
     )
 
+    private val webhookClient = FakeWebhookClient()
     private val ready = DiscordChannel.Ready(
         textChannel = jdaFake<TextChannel>(mapOf("getGuild" to guild)),
-        webhookClient = FakeWebhookClient()
+        webhookClient = webhookClient
     )
 
+    @Suppress("ForbiddenVoid")
     private fun roleRequest(change: String, args: List<Any?>): AuditableRestAction<Void> {
         val userId = args.first()
             ?.tryCast<UserSnowflake>()
@@ -91,86 +94,102 @@ class DiscordRoleUpdaterTest {
     }
 
     @Test
-    fun GIVEN_ready_discord_WHEN_grant_is_updated_THEN_the_user_gets_the_role() = runTest {
-        updater(MutableStateFlow(ready)).update(steveGrant)
+    fun GIVEN_ready_discord_WHEN_grant_is_updated_THEN_the_user_gets_the_role(): TestResult {
+        return runTest {
+            updater(MutableStateFlow(ready)).update(steveGrant)
 
-        assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+            assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+        }
     }
 
     @Test
-    fun GIVEN_ready_discord_WHEN_revoke_is_updated_THEN_the_role_is_removed_from_the_user() = runTest {
-        val steveRevoke = DiscordRoleChange.Revoke(discordUserId = STEVE_ID, roleId = ROLE_ID)
+    fun GIVEN_ready_discord_WHEN_revoke_is_updated_THEN_the_role_is_removed_from_the_user(): TestResult {
+        return runTest {
+            val steveRevoke = DiscordRoleChange.Revoke(discordUserId = STEVE_ID, roleId = ROLE_ID)
 
-        updater(MutableStateFlow(ready)).update(steveRevoke)
+            updater(MutableStateFlow(ready)).update(steveRevoke)
 
-        assertEquals(listOf("revoke:$STEVE_ID:$ROLE_ID"), appliedChanges)
+            assertEquals(listOf("revoke:$STEVE_ID:$ROLE_ID"), appliedChanges)
+        }
     }
 
     @Test
-    fun GIVEN_role_missing_on_the_server_WHEN_grant_is_updated_THEN_no_role_is_changed() = runTest {
-        val unknownRoleGrant = DiscordRoleChange.Grant(discordUserId = STEVE_ID, roleId = UNKNOWN_ROLE_ID)
+    fun GIVEN_role_missing_on_the_server_WHEN_grant_is_updated_THEN_no_role_is_changed(): TestResult {
+        return runTest {
+            val unknownRoleGrant = DiscordRoleChange.Grant(discordUserId = STEVE_ID, roleId = UNKNOWN_ROLE_ID)
 
-        updater(MutableStateFlow(ready)).update(unknownRoleGrant)
+            updater(MutableStateFlow(ready)).update(unknownRoleGrant)
 
-        assertTrue(appliedChanges.isEmpty())
+            assertTrue(appliedChanges.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_bot_that_can_not_manage_the_role_WHEN_grant_is_updated_THEN_the_failure_does_not_escape() = runTest {
-        botCanManageRoles = false
+    fun GIVEN_bot_that_can_not_manage_the_role_WHEN_grant_is_updated_THEN_the_failure_does_not_escape(): TestResult {
+        return runTest {
+            botCanManageRoles = false
 
-        updater(MutableStateFlow(ready)).update(steveGrant)
+            updater(MutableStateFlow(ready)).update(steveGrant)
 
-        assertTrue(appliedChanges.isEmpty())
+            assertTrue(appliedChanges.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_discord_failed_WHEN_it_reconnects_ten_minutes_later_THEN_the_change_is_applied() = runTest {
-        val state = MutableStateFlow<DiscordChannel>(DiscordChannel.Failed)
-        val update = launch { updater(state).update(steveGrant) }
-        advanceTimeBy(5.minutes)
-        state.value = DiscordChannel.Connecting
-        advanceTimeBy(5.minutes)
+    fun GIVEN_discord_failed_WHEN_it_reconnects_ten_minutes_later_THEN_the_change_is_applied(): TestResult {
+        return runTest {
+            val state = MutableStateFlow<DiscordChannel>(DiscordChannel.Failed)
+            val update = launch { updater(state).update(steveGrant) }
+            advanceTimeBy(5.minutes)
+            state.value = DiscordChannel.Connecting
+            advanceTimeBy(5.minutes)
 
-        state.value = ready
-        runCurrent()
+            state.value = ready
+            runCurrent()
 
-        assertTrue(update.isCompleted)
-        assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+            assertTrue(update.isCompleted)
+            assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+        }
     }
 
     @Test
-    fun GIVEN_discord_not_configured_WHEN_grant_is_updated_THEN_it_is_skipped() = runTest {
-        updater(MutableStateFlow(DiscordChannel.Disabled)).update(steveGrant)
+    fun GIVEN_discord_not_configured_WHEN_grant_is_updated_THEN_it_is_skipped(): TestResult {
+        return runTest {
+            updater(MutableStateFlow(DiscordChannel.Disabled)).update(steveGrant)
 
-        assertTrue(appliedChanges.isEmpty())
+            assertTrue(appliedChanges.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_discord_connecting_WHEN_it_becomes_not_configured_THEN_the_change_is_skipped() = runTest {
-        val state = MutableStateFlow<DiscordChannel>(DiscordChannel.Connecting)
-        val update = launch { updater(state).update(steveGrant) }
-        runCurrent()
+    fun GIVEN_discord_connecting_WHEN_it_becomes_not_configured_THEN_the_change_is_skipped(): TestResult {
+        return runTest {
+            val state = MutableStateFlow<DiscordChannel>(DiscordChannel.Connecting)
+            val update = launch { updater(state).update(steveGrant) }
+            runCurrent()
 
-        state.value = DiscordChannel.Disabled
-        runCurrent()
+            state.value = DiscordChannel.Disabled
+            runCurrent()
 
-        assertTrue(update.isCompleted)
-        assertTrue(appliedChanges.isEmpty())
+            assertTrue(update.isCompleted)
+            assertTrue(appliedChanges.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_discord_cancels_a_sent_change_WHEN_the_next_change_arrives_THEN_it_is_applied() = runTest {
-        usersWhoseRequestJdaCancels += ALEX_ID
-        val alexGrant = DiscordRoleChange.Grant(discordUserId = ALEX_ID, roleId = ROLE_ID)
-        val updater = updater(
-            discordChannel = MutableStateFlow(ready),
-            roleChanges = flowOf(alexGrant, steveGrant)
-        )
+    fun GIVEN_discord_cancels_a_sent_change_WHEN_the_next_change_arrives_THEN_it_is_applied(): TestResult {
+        return runTest {
+            usersWhoseRequestJdaCancels += ALEX_ID
+            val alexGrant = DiscordRoleChange.Grant(discordUserId = ALEX_ID, roleId = ROLE_ID)
+            val updater = updater(
+                discordChannel = MutableStateFlow(ready),
+                roleChanges = flowOf(alexGrant, steveGrant)
+            )
 
-        updater.coroutineContext.job.children.toList().joinAll()
+            updater.coroutineContext.job.children.toList().joinAll()
 
-        assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+            assertEquals(listOf("grant:$STEVE_ID:$ROLE_ID"), appliedChanges)
+        }
     }
 
     private companion object {

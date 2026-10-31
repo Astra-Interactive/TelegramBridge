@@ -3,6 +3,7 @@
 package ru.astrainteractive.messagebridge.link.usecase
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
@@ -24,31 +25,37 @@ class GrantLinkedDiscordRoleUseCaseTest {
     }
 
     @Test
-    fun GIVEN_config_without_link_block_WHEN_role_is_granted_THEN_no_role_change_is_sent() = runTest {
-        useCase(link = null).invoke(DISCORD_ID)
+    fun GIVEN_config_without_link_block_WHEN_role_is_granted_THEN_no_role_change_is_sent(): TestResult {
+        return runTest {
+            useCase(link = null).invoke(DISCORD_ID)
 
-        assertTrue(roleChanges.tryReceive().isFailure)
+            assertTrue(roleChanges.tryReceive().isFailure)
+        }
     }
 
     @Test
-    fun GIVEN_link_role_that_is_not_a_snowflake_WHEN_role_is_granted_THEN_no_role_change_is_sent() = runTest {
-        val link = PluginConfiguration.Link(linkDiscordRole = "verified", linkLuckPermsRole = "verified")
+    fun GIVEN_link_role_that_is_not_a_snowflake_WHEN_role_is_granted_THEN_no_role_change_is_sent(): TestResult {
+        return runTest {
+            val link = PluginConfiguration.Link(linkDiscordRole = "verified", linkLuckPermsRole = "verified")
 
-        useCase(link = link).invoke(DISCORD_ID)
+            useCase(link = link).invoke(DISCORD_ID)
 
-        assertTrue(roleChanges.tryReceive().isFailure)
+            assertTrue(roleChanges.tryReceive().isFailure)
+        }
     }
 
     @Test
-    fun GIVEN_link_role_snowflake_WHEN_role_is_granted_THEN_grant_is_sent_for_that_role() = runTest {
-        val link = PluginConfiguration.Link(linkDiscordRole = ROLE_ID.toString(), linkLuckPermsRole = "verified")
+    fun GIVEN_link_role_snowflake_WHEN_role_is_granted_THEN_grant_is_sent_for_that_role(): TestResult {
+        return runTest {
+            val link = PluginConfiguration.Link(linkDiscordRole = ROLE_ID.toString(), linkLuckPermsRole = "verified")
 
-        useCase(link = link).invoke(DISCORD_ID)
+            useCase(link = link).invoke(DISCORD_ID)
 
-        assertEquals(
-            DiscordRoleChange.Grant(discordUserId = DISCORD_ID, roleId = ROLE_ID),
-            roleChanges.tryReceive().getOrNull()
-        )
+            assertEquals(
+                DiscordRoleChange.Grant(discordUserId = DISCORD_ID, roleId = ROLE_ID),
+                roleChanges.tryReceive().getOrNull()
+            )
+        }
     }
 
     private companion object {

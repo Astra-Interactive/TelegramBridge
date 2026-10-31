@@ -5,6 +5,7 @@ package ru.astrainteractive.messagebridge.messenger.discord.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,7 +21,7 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
-import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordMemberLeave
 import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelConnector
 import ru.astrainteractive.messagebridge.messenger.discord.connection.DiscordChannelProvider
@@ -38,6 +39,7 @@ import ru.astrainteractive.messagebridge.messenger.discord.message.mapping.Disco
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordMemberResolver
 import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.discord.relay.DiscordTextRelay
 import ru.astrainteractive.messagebridge.messenger.discord.role.DiscordRoleUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.topic.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.util.openOkHttpClient
@@ -47,7 +49,7 @@ class JdaMessengerModule(
     bEventChannel: BEventChannel,
     messageInterceptors: List<MessageInterceptor<MessageReceivedEvent>>,
     authorResolver: DiscordAuthorResolver,
-    memberLeaveListeners: List<DiscordMemberLeaveListener>,
+    memberLeaves: SendChannel<DiscordMemberLeave>,
     roleChanges: Flow<DiscordRoleChange>
 ) {
     private val relevanceMapper = DiscordMessageRelevanceMapper(
@@ -88,13 +90,6 @@ class JdaMessengerModule(
 
     private val jdaEventManager = InterfacedEventManager()
 
-    private val discordEvents = DiscordEvents(
-        eventManager = jdaEventManager,
-        messageEventListener = messageEventListener,
-        memberLeaveListeners = memberLeaveListeners,
-        ioScope = moduleIoScope,
-    )
-
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
         .map { pluginConfiguration -> pluginConfiguration.jdaConfig.proxy }
         .distinctUntilChanged()
@@ -132,9 +127,11 @@ class JdaMessengerModule(
             translationKrate = coreModule.translationKrate,
         ),
         embedMapper = DiscordEmbedMapper(coreModule.translationKrate),
-        memberResolver = DiscordMemberResolver(authorResolver),
-        webhookMessageMapper = DiscordWebhookMessageMapper(coreModule.configKrate, coreModule.translationKrate),
-        relayedMessageCache = relayedMessageCache,
+        textRelay = DiscordTextRelay(
+            memberResolver = DiscordMemberResolver(authorResolver),
+            webhookMessageMapper = DiscordWebhookMessageMapper(coreModule.configKrate, coreModule.translationKrate),
+            relayedMessageCache = relayedMessageCache,
+        ),
         translationKrate = coreModule.translationKrate,
         bEventReceiver = bEventChannel,
     )
@@ -154,4 +151,13 @@ class JdaMessengerModule(
             roleUpdater.cancel()
         }
     )
+
+    init {
+        DiscordEvents(
+            eventManager = jdaEventManager,
+            messageEventListener = messageEventListener,
+            memberLeaves = memberLeaves,
+            ioScope = moduleIoScope,
+        )
+    }
 }

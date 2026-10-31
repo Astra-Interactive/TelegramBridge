@@ -39,9 +39,7 @@ internal class DiscordChannelProvider(
     }
 
     private fun channelOf(config: PluginConfiguration.JdaConfig): Flow<DiscordChannel> {
-        if (config.token.isBlank() || config.channelId.isBlank()) {
-            return flowOf(DiscordChannel.Disabled)
-        }
+        if (config.token.isBlank() || config.channelId.isBlank()) return flowOf(DiscordChannel.Disabled)
         var failures = 0
         return connect.invoke(config)
             .onEach { channel -> if (channel is DiscordChannel.Ready) failures = 0 }

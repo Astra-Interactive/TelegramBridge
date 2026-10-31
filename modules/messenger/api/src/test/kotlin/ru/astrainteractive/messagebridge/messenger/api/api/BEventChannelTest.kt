@@ -7,6 +7,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
@@ -45,71 +46,81 @@ class BEventChannelTest {
     }
 
     @Test
-    fun GIVEN_event_consumed_before_any_receiver_WHEN_receiver_subscribes_THEN_it_gets_that_event() = runTest {
-        val channel = InMemoryBEventChannel()
-        channel.consume(ServerOpenBEvent)
+    fun GIVEN_event_consumed_before_any_receiver_WHEN_receiver_subscribes_THEN_it_gets_that_event(): TestResult {
+        return runTest {
+            val channel = InMemoryBEventChannel()
+            channel.consume(ServerOpenBEvent)
 
-        val received = receive(channel)
-        runCurrent()
+            val received = receive(channel)
+            runCurrent()
 
-        assertEquals(listOf<BEvent>(ServerOpenBEvent), received)
-    }
-
-    @Test
-    fun GIVEN_subscribed_receiver_WHEN_events_are_consumed_THEN_it_gets_them_in_order() = runTest {
-        val channel = InMemoryBEventChannel()
-        val received = receive(channel)
-
-        channel.consume(ServerOpenBEvent)
-        channel.consume(chatMessage)
-        runCurrent()
-
-        assertEquals(listOf(ServerOpenBEvent, chatMessage), received)
-    }
-
-    @Test
-    fun GIVEN_burst_of_events_WHEN_consumed_THEN_receiver_gets_them_all_at_once() = runTest {
-        val channel = InMemoryBEventChannel()
-        val arrivals = mutableListOf<Duration>()
-        backgroundScope.launch {
-            channel.receiveAsFlow().collect { _ -> arrivals += currentTime.milliseconds }
+            assertEquals(listOf<BEvent>(ServerOpenBEvent), received)
         }
-        runCurrent()
-
-        chatMessages().forEach { event -> channel.consume(event) }
-        runCurrent()
-
-        assertEquals(List(EVENT_COUNT) { _ -> Duration.ZERO }, arrivals)
     }
 
     @Test
-    fun GIVEN_two_receivers_WHEN_event_is_consumed_THEN_each_gets_it() = runTest {
-        val channel = InMemoryBEventChannel()
-        val first = receive(channel)
-        val second = receive(channel)
+    fun GIVEN_subscribed_receiver_WHEN_events_are_consumed_THEN_it_gets_them_in_order(): TestResult {
+        return runTest {
+            val channel = InMemoryBEventChannel()
+            val received = receive(channel)
 
-        channel.consume(ServerClosedBEvent)
-        runCurrent()
+            channel.consume(ServerOpenBEvent)
+            channel.consume(chatMessage)
+            runCurrent()
 
-        assertEquals(listOf<BEvent>(ServerClosedBEvent), first)
-        assertEquals(listOf<BEvent>(ServerClosedBEvent), second)
+            assertEquals(listOf(ServerOpenBEvent, chatMessage), received)
+        }
     }
 
     @Test
-    fun GIVEN_two_channels_WHEN_event_is_consumed_by_one_THEN_the_other_gets_nothing() = runTest {
-        val busy = InMemoryBEventChannel()
-        val idle = InMemoryBEventChannel()
-        val received = receive(idle)
+    fun GIVEN_burst_of_events_WHEN_consumed_THEN_receiver_gets_them_all_at_once(): TestResult {
+        return runTest {
+            val channel = InMemoryBEventChannel()
+            val arrivals = mutableListOf<Duration>()
+            backgroundScope.launch {
+                channel.receiveAsFlow().collect { _ -> arrivals += currentTime.milliseconds }
+            }
+            runCurrent()
 
-        busy.consume(ServerOpenBEvent)
-        runCurrent()
+            chatMessages().forEach { event -> channel.consume(event) }
+            runCurrent()
 
-        assertTrue(received.isEmpty())
+            assertEquals(List(EVENT_COUNT) { _ -> Duration.ZERO }, arrivals)
+        }
     }
 
     @Test
-    fun GIVEN_receiver_stuck_on_an_event_WHEN_more_events_than_it_buffers_are_consumed_THEN_others_still_get_them() =
-        runTest {
+    fun GIVEN_two_receivers_WHEN_event_is_consumed_THEN_each_gets_it(): TestResult {
+        return runTest {
+            val channel = InMemoryBEventChannel()
+            val first = receive(channel)
+            val second = receive(channel)
+
+            channel.consume(ServerClosedBEvent)
+            runCurrent()
+
+            assertEquals(listOf<BEvent>(ServerClosedBEvent), first)
+            assertEquals(listOf<BEvent>(ServerClosedBEvent), second)
+        }
+    }
+
+    @Test
+    fun GIVEN_two_channels_WHEN_event_is_consumed_by_one_THEN_the_other_gets_nothing(): TestResult {
+        return runTest {
+            val busy = InMemoryBEventChannel()
+            val idle = InMemoryBEventChannel()
+            val received = receive(idle)
+
+            busy.consume(ServerOpenBEvent)
+            runCurrent()
+
+            assertTrue(received.isEmpty())
+        }
+    }
+
+    @Test
+    fun GIVEN_receiver_stuck_on_an_event_WHEN_more_events_than_buffer_are_consumed_THEN_others_get_them(): TestResult {
+        return runTest {
             val channel = InMemoryBEventChannel()
             backgroundScope.launch {
                 channel.receiveAsFlow().collect { _ -> awaitCancellation() }
@@ -123,27 +134,30 @@ class BEventChannelTest {
             assertTrue(producer.isCompleted)
             assertEquals(events, received)
         }
+    }
 
     @Test
-    fun GIVEN_receiver_stuck_on_an_event_WHEN_it_resumes_THEN_it_gets_only_the_newest_buffered_events() = runTest {
-        val channel = InMemoryBEventChannel()
-        val gate = CompletableDeferred<Unit>()
-        val received = mutableListOf<BEvent>()
-        backgroundScope.launch {
-            channel.receiveAsFlow().collect { bEvent ->
-                gate.await()
-                received += bEvent
+    fun GIVEN_receiver_stuck_on_an_event_WHEN_it_resumes_THEN_it_gets_only_the_newest_buffered_events(): TestResult {
+        return runTest {
+            val channel = InMemoryBEventChannel()
+            val gate = CompletableDeferred<Unit>()
+            val received = mutableListOf<BEvent>()
+            backgroundScope.launch {
+                channel.receiveAsFlow().collect { bEvent ->
+                    gate.await()
+                    received += bEvent
+                }
             }
+            runCurrent()
+            val events = chatMessages()
+
+            launch { events.forEach { event -> channel.consume(event) } }
+            runCurrent()
+            gate.complete(Unit)
+            runCurrent()
+
+            assertEquals(listOf(events.first()) + events.takeLast(RECEIVER_BUFFER_CAPACITY), received)
         }
-        runCurrent()
-        val events = chatMessages()
-
-        launch { events.forEach { event -> channel.consume(event) } }
-        runCurrent()
-        gate.complete(Unit)
-        runCurrent()
-
-        assertEquals(listOf(events.first()) + events.takeLast(RECEIVER_BUFFER_CAPACITY), received)
     }
 
     private companion object {

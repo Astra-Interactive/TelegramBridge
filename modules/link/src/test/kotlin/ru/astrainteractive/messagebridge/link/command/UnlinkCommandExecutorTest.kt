@@ -3,6 +3,7 @@
 package ru.astrainteractive.messagebridge.link.command
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
@@ -63,139 +64,169 @@ class UnlinkCommandExecutorTest {
     }
 
     @Test
-    fun GIVEN_linked_player_WHEN_unlinks_THEN_link_is_removed_and_player_reads_success() = runTest {
-        linkSteve()
+    fun GIVEN_linked_player_WHEN_unlinks_THEN_link_is_removed_and_player_reads_success(): TestResult {
+        return runTest {
+            linkSteve()
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
-        assertReadOnly(steve, translation.unlink.success)
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertReadOnly(steve, translation.unlink.success)
+        }
     }
 
     @Test
-    fun GIVEN_linked_player_WHEN_unlinks_THEN_luckperms_role_is_revoked() = runTest {
-        linkSteve()
+    fun GIVEN_linked_player_WHEN_unlinks_THEN_luckperms_role_is_revoked(): TestResult {
+        return runTest {
+            linkSteve()
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
+            assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
+        }
     }
 
     @Test
-    fun GIVEN_player_without_link_WHEN_unlinks_THEN_player_reads_not_linked() = runTest {
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+    fun GIVEN_player_without_link_WHEN_unlinks_THEN_player_reads_not_linked(): TestResult {
+        return runTest {
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertReadOnly(steve, translation.unlink.notLinked)
+            assertReadOnly(steve, translation.unlink.notLinked)
+        }
     }
 
     @Test
-    fun GIVEN_unreadable_database_WHEN_player_unlinks_THEN_link_stays_and_player_reads_unknown_error() = runTest {
-        linkSteve()
-        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is locked")
+    fun GIVEN_unreadable_database_WHEN_player_unlinks_THEN_link_stays_and_player_reads_unknown_error(): TestResult {
+        return runTest {
+            linkSteve()
+            linkedPlayerRepository.deleteFailure = IllegalStateException("Database is locked")
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(setOf(steve.uuid), linkedPlayerRepository.linkedPlayers.keys)
-        assertReadOnly(steve, translation.commandError.unknownError)
+            assertEquals(setOf(steve.uuid), linkedPlayerRepository.linkedPlayers.keys)
+            assertReadOnly(steve, translation.commandError.unknownError)
+        }
     }
 
     @Test
-    fun GIVEN_database_that_can_not_delete_WHEN_player_unlinks_THEN_player_reads_unknown_error() = runTest {
-        linkSteve()
-        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is read-only")
+    fun GIVEN_database_that_can_not_delete_WHEN_player_unlinks_THEN_player_reads_unknown_error(): TestResult {
+        return runTest {
+            linkSteve()
+            linkedPlayerRepository.deleteFailure = IllegalStateException("Database is read-only")
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertReadOnly(steve, translation.commandError.unknownError)
-        assertTrue(linkRoleRepository.removed.isEmpty())
+            assertReadOnly(steve, translation.commandError.unknownError)
+            assertTrue(linkRoleRepository.removed.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_linked_player_WHEN_admin_unlinks_them_THEN_link_is_removed_and_admin_reads_player_success() = runTest {
-        linkSteve()
+    fun GIVEN_linked_player_WHEN_admin_unlinks_them_THEN_link_is_removed_and_admin_reads_player_success(): TestResult {
+        return runTest {
+            linkSteve()
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+            executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
-        assertReadOnly(admin, translation.unlink.playerSuccess)
-        assertTrue(steve.messages.isEmpty())
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertReadOnly(admin, translation.unlink.playerSuccess)
+            assertTrue(steve.messages.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_player_without_link_WHEN_unlinks_THEN_their_luckperms_group_is_still_revoked() = runTest {
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+    fun GIVEN_player_without_link_WHEN_unlinks_THEN_their_luckperms_group_is_still_revoked(): TestResult {
+        return runTest {
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
+            assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
+        }
     }
 
     @Test
-    fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_their_luckperms_group_is_still_revoked() = runTest {
-        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+    fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_their_luckperms_group_is_still_revoked(): TestResult {
+        return runTest {
+            executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
+            assertEquals(listOf(steve.uuid), linkRoleRepository.removed)
+        }
     }
 
     @Test
-    fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_admin_reads_player_not_linked() = runTest {
-        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+    fun GIVEN_player_without_link_WHEN_admin_unlinks_them_THEN_admin_reads_player_not_linked(): TestResult {
+        return runTest {
+            executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertReadOnly(admin, translation.unlink.playerNotLinked)
+            assertReadOnly(admin, translation.unlink.playerNotLinked)
+        }
     }
 
     @Test
-    fun GIVEN_unreadable_database_WHEN_admin_unlinks_a_player_THEN_admin_reads_unknown_error() = runTest {
-        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is locked")
+    fun GIVEN_unreadable_database_WHEN_admin_unlinks_a_player_THEN_admin_reads_unknown_error(): TestResult {
+        return runTest {
+            linkedPlayerRepository.deleteFailure = IllegalStateException("Database is locked")
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+            executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertReadOnly(admin, translation.commandError.unknownError)
+            assertReadOnly(admin, translation.commandError.unknownError)
+        }
     }
 
     @Test
-    fun GIVEN_player_linked_to_discord_WHEN_unlinks_THEN_their_discord_role_is_revoked() = runTest {
-        linkSteve()
+    fun GIVEN_player_linked_to_discord_WHEN_unlinks_THEN_their_discord_role_is_revoked(): TestResult {
+        return runTest {
+            linkSteve()
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertEquals(stevieRevoke, roleChanges.tryReceive().getOrNull())
+            assertEquals(stevieRevoke, roleChanges.tryReceive().getOrNull())
+        }
     }
 
     @Test
-    fun GIVEN_player_linked_to_discord_WHEN_admin_unlinks_them_THEN_their_discord_role_is_revoked() = runTest {
-        linkSteve()
+    fun GIVEN_player_linked_to_discord_WHEN_admin_unlinks_them_THEN_their_discord_role_is_revoked(): TestResult {
+        return runTest {
+            linkSteve()
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
+            executor.onIntent(UnlinkCommandExecutor.Intent.AdminUnlink(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertEquals(stevieRevoke, roleChanges.tryReceive().getOrNull())
+            assertEquals(stevieRevoke, roleChanges.tryReceive().getOrNull())
+        }
     }
 
     @Test
-    fun GIVEN_player_linked_only_to_telegram_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
-        linkedPlayerRepository.link(
-            uuid = steve.uuid,
-            minecraftName = "Steve",
-            account = MessengerAccount.Telegram(id = 77, username = "steve_tg")
-        )
+    fun GIVEN_player_linked_only_to_telegram_WHEN_unlinks_THEN_no_discord_role_change_is_sent(): TestResult {
+        return runTest {
+            linkedPlayerRepository.link(
+                uuid = steve.uuid,
+                minecraftName = "Steve",
+                account = MessengerAccount.Telegram(id = 77, username = "steve_tg")
+            )
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertTrue(roleChanges.tryReceive().isFailure)
+            assertTrue(roleChanges.tryReceive().isFailure)
+        }
     }
 
     @Test
-    fun GIVEN_player_without_link_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+    fun GIVEN_player_without_link_WHEN_unlinks_THEN_no_discord_role_change_is_sent(): TestResult {
+        return runTest {
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertTrue(roleChanges.tryReceive().isFailure)
+            assertTrue(roleChanges.tryReceive().isFailure)
+        }
     }
 
     @Test
-    fun GIVEN_database_that_can_not_delete_WHEN_unlinks_THEN_no_discord_role_change_is_sent() = runTest {
-        linkSteve()
-        linkedPlayerRepository.deleteFailure = IllegalStateException("Database is read-only")
+    fun GIVEN_database_that_can_not_delete_WHEN_unlinks_THEN_no_discord_role_change_is_sent(): TestResult {
+        return runTest {
+            linkSteve()
+            linkedPlayerRepository.deleteFailure = IllegalStateException("Database is read-only")
 
-        executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
+            executor.onIntent(UnlinkCommandExecutor.Intent.Unlink(steve))
 
-        assertTrue(roleChanges.tryReceive().isFailure)
+            assertTrue(roleChanges.tryReceive().isFailure)
+        }
     }
 }

@@ -2,12 +2,10 @@
 
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 
-import club.minnced.discord.webhook.WebhookClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withTimeoutOrNull
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import ru.astrainteractive.astralibs.coroutines.withTimings
@@ -24,7 +22,6 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventReceiver
 import ru.astrainteractive.messagebridge.messenger.api.model.BEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageFrom
-import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerDeathBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerJoinedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.PlayerLeaveBEvent
@@ -32,7 +29,6 @@ import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordEmbedMapper
-import ru.astrainteractive.messagebridge.messenger.discord.mapping.DiscordWebhookMessageMapper
 import ru.astrainteractive.messagebridge.messenger.discord.model.DiscordChannel
 import ru.astrainteractive.messagebridge.messenger.discord.topic.DiscordTopicUpdater
 import ru.astrainteractive.messagebridge.messenger.discord.util.await
@@ -42,33 +38,13 @@ internal class DiscordBEventConsumer(
     private val discordChannel: Flow<DiscordChannel>,
     private val topicUpdater: DiscordTopicUpdater,
     private val embedMapper: DiscordEmbedMapper,
-    private val memberResolver: DiscordMemberResolver,
-    private val webhookMessageMapper: DiscordWebhookMessageMapper,
-    private val relayedMessageCache: DiscordRelayedMessageCache,
+    private val textRelay: DiscordTextRelay,
     translationKrate: CachedKrate<PluginTranslation>,
     private val bEventReceiver: BEventReceiver,
 ) : BEventConsumer,
     CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-DiscordBEventConsumer") {
     private val translation by translationKrate
-
-    private suspend fun replyJumpUrl(reply: Text.Reply, channel: TextChannel): String? {
-        val target = reply.target ?: return null
-        val messageId = if (target is MessageRef.Discord) {
-            target.messageId
-        } else {
-            relayedMessageCache.copyOf(target) ?: return null
-        }
-        return "${channel.jumpUrl}/$messageId"
-    }
-
-    private suspend fun sendText(event: Text, channel: TextChannel, webhookClient: WebhookClient) {
-        val member = memberResolver.resolve(channel, event)
-        val replyJumpUrl = event.reply?.let { reply -> replyJumpUrl(reply, channel) }
-        val message = webhookMessageMapper.toWebhookMessage(event, member, replyJumpUrl)
-        val sentMessage = webhookClient.send(message).await()
-        relayedMessageCache.remember(sentMessage.id, event)
-    }
 
     private suspend fun sendServerStatus(channel: TextChannel, text: String) {
         topicUpdater.setStarting(channel)
@@ -89,7 +65,7 @@ internal class DiscordBEventConsumer(
                 channel.sendMessageEmbeds(embedMapper.toEmbed(bEvent)).await()
             }
 
-            is Text -> sendText(bEvent, channel, ready.webhookClient)
+            is Text -> textRelay.relay(bEvent, channel, ready.webhookClient)
             ServerClosedBEvent -> channel.sendMessage(translation.server.discordStopped.toMessengerText()).await()
             ServerOpenBEvent -> sendServerStatus(channel, translation.server.discordStarted.toMessengerText())
         }

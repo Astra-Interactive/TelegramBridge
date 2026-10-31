@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.link.command
 
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
@@ -51,76 +52,88 @@ class LinkCommandExecutorTest {
     }
 
     @Test
-    fun GIVEN_player_WHEN_links_THEN_code_is_bound_to_them_and_they_read_it() = runTest {
-        executor.onIntent(LinkCommandExecutor.Intent.Link(steve))
+    fun GIVEN_player_WHEN_links_THEN_code_is_bound_to_them_and_they_read_it(): TestResult {
+        return runTest {
+            executor.onIntent(LinkCommandExecutor.Intent.Link(steve))
 
-        assertEquals(listOf(CodeUser(name = "Steve", uuid = steve.uuid)), linkCodeRepository.codeUsers)
-        assertEquals(listOf(plainTextOf(translation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
+            assertEquals(listOf(CodeUser(name = "Steve", uuid = steve.uuid)), linkCodeRepository.codeUsers)
+            assertEquals(listOf(plainTextOf(translation.link.codeCreated(4821))), steve.messages.map(::plainTextOf))
+        }
     }
 
     @Test
-    fun GIVEN_linked_player_WHEN_admin_asks_for_their_links_THEN_admin_reads_them() = runTest {
-        linkedPlayerRepository.link(
-            uuid = steve.uuid,
-            minecraftName = "Steve",
-            account = MessengerAccount.Discord(id = 42, name = "steve")
-        )
-        linkedPlayerRepository.link(
-            uuid = steve.uuid,
-            minecraftName = "Steve",
-            account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
-        )
-
-        executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
-
-        assertEquals(
-            listOf("DiscordID: 42; telegramUsername: steve_tg; minecraftUUID: ${steve.uuid}"),
-            admin.messages.map(::plainTextOf)
-        )
-    }
-
-    @Test
-    fun GIVEN_translated_user_info_WHEN_admin_asks_for_links_THEN_admin_reads_the_translated_line() = runTest {
-        val userInfoTranslation = PluginTranslation(
-            link = PluginTranslation.Link(
-                userInfo = LocalizedText.shared("%minecraft_uuid% is %discord_id% and %telegram_username%")
+    fun GIVEN_linked_player_WHEN_admin_asks_for_their_links_THEN_admin_reads_them(): TestResult {
+        return runTest {
+            linkedPlayerRepository.link(
+                uuid = steve.uuid,
+                minecraftName = "Steve",
+                account = MessengerAccount.Discord(id = 42, name = "steve")
             )
-        )
-        val translatedExecutor = LinkCommandExecutor(
-            linkCodeRepository = linkCodeRepository,
-            linkedPlayerRepository = linkedPlayerRepository,
-            translationKrate = DefaultMutableKrate(factory = { userInfoTranslation }, loader = { null }).asCachedKrate()
-        )
-        linkedPlayerRepository.link(
-            uuid = steve.uuid,
-            minecraftName = "Steve",
-            account = MessengerAccount.Discord(id = 42, name = "steve")
-        )
-        linkedPlayerRepository.link(
-            uuid = steve.uuid,
-            minecraftName = "Steve",
-            account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
-        )
+            linkedPlayerRepository.link(
+                uuid = steve.uuid,
+                minecraftName = "Steve",
+                account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
+            )
 
-        translatedExecutor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
+            executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
 
-        assertEquals(listOf("${steve.uuid} is 42 and steve_tg"), admin.messages.map(::plainTextOf))
+            assertEquals(
+                listOf("DiscordID: 42; telegramUsername: steve_tg; minecraftUUID: ${steve.uuid}"),
+                admin.messages.map(::plainTextOf)
+            )
+        }
     }
 
     @Test
-    fun GIVEN_player_without_links_WHEN_admin_asks_for_their_links_THEN_admin_reads_player_not_linked() = runTest {
-        executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
+    fun GIVEN_translated_user_info_WHEN_admin_asks_for_links_THEN_admin_reads_the_translated_line(): TestResult {
+        return runTest {
+            val userInfoTranslation = PluginTranslation(
+                link = PluginTranslation.Link(
+                    userInfo = LocalizedText.shared("%minecraft_uuid% is %discord_id% and %telegram_username%")
+                )
+            )
+            val translatedExecutor = LinkCommandExecutor(
+                linkCodeRepository = linkCodeRepository,
+                linkedPlayerRepository = linkedPlayerRepository,
+                translationKrate = DefaultMutableKrate(factory = { userInfoTranslation }, loader = { null })
+                    .asCachedKrate()
+            )
+            linkedPlayerRepository.link(
+                uuid = steve.uuid,
+                minecraftName = "Steve",
+                account = MessengerAccount.Discord(id = 42, name = "steve")
+            )
+            linkedPlayerRepository.link(
+                uuid = steve.uuid,
+                minecraftName = "Steve",
+                account = MessengerAccount.Telegram(id = 7, username = "steve_tg")
+            )
 
-        assertReadOnly(admin, translation.unlink.playerNotLinked)
+            translatedExecutor.onIntent(
+                LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin)
+            )
+
+            assertEquals(listOf("${steve.uuid} is 42 and steve_tg"), admin.messages.map(::plainTextOf))
+        }
     }
 
     @Test
-    fun GIVEN_unreadable_database_WHEN_admin_asks_for_links_THEN_admin_reads_unknown_error_not_player_not_linked() =
-        runTest {
+    fun GIVEN_player_without_links_WHEN_admin_asks_for_their_links_THEN_admin_reads_player_not_linked(): TestResult {
+        return runTest {
+            executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
+
+            assertReadOnly(admin, translation.unlink.playerNotLinked)
+        }
+    }
+
+    @Test
+    fun GIVEN_unreadable_database_WHEN_admin_asks_for_links_THEN_unknown_error_not_player_not_linked(): TestResult {
+        return runTest {
             linkedPlayerRepository.findFailure = IllegalStateException("Database is locked")
 
             executor.onIntent(LinkCommandExecutor.Intent.UserInfo(targetPlayerUuid = steve.uuid, sender = admin))
 
             assertReadOnly(admin, translation.commandError.unknownError)
         }
+    }
 }

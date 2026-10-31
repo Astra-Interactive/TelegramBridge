@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.astralibs.command.api.brigadier.command.MultiplatformCommand
 import ru.astrainteractive.astralibs.localization.component.LocalizableComponent
@@ -77,22 +78,26 @@ class UnlinkLiteralArgumentBuilderTest {
     }
 
     @Test
-    fun GIVEN_linked_player_WHEN_runs_unlink_THEN_link_is_removed_and_reads_success() = runTest {
-        linkSteve()
+    fun GIVEN_linked_player_WHEN_runs_unlink_THEN_link_is_removed_and_reads_success(): TestResult {
+        return runTest {
+            linkSteve()
 
-        execute(input = "unlink", sender = steve)
+            execute(input = "unlink", sender = steve)
 
-        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
-        assertEquals(listOf<LocalizableComponent>(translation.unlink.success), steve.messages)
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(listOf<LocalizableComponent>(translation.unlink.success), steve.messages)
+        }
     }
 
     @Test
-    fun GIVEN_admin_WHEN_unlinks_a_linked_player_THEN_link_is_removed_and_admin_reads_player_success() = runTest {
-        linkSteve()
+    fun GIVEN_admin_WHEN_unlinks_a_linked_player_THEN_link_is_removed_and_admin_reads_player_success(): TestResult {
+        return runTest {
+            linkSteve()
 
-        execute(input = "unlink Steve", sender = admin)
+            execute(input = "unlink Steve", sender = admin)
 
-        assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
-        assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
+            assertTrue(linkedPlayerRepository.linkedPlayers.isEmpty())
+            assertEquals(listOf<LocalizableComponent>(translation.unlink.playerSuccess), admin.messages)
+        }
     }
 }

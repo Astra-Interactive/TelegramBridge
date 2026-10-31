@@ -4,6 +4,7 @@ package ru.astrainteractive.messagebridge.messenger.discord.message
 
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Member
@@ -132,104 +133,126 @@ class MessageEventListenerTest {
     }
 
     @Test
-    fun GIVEN_interceptor_that_passes_WHEN_bridge_message_arrives_THEN_it_is_relayed() = runTest {
-        receive(listener(recording(Interception.Pass)), message(content = "hello"))
+    fun GIVEN_interceptor_that_passes_WHEN_bridge_message_arrives_THEN_it_is_relayed(): TestResult {
+        return runTest {
+            receive(listener(recording(Interception.Pass)), message(content = "hello"))
 
-        val relayed = Text.Discord(
-            author = "Stevie",
-            text = "hello",
-            authorId = STEVE_ID,
-            reply = null,
-            ref = MessageRef.Discord(messageId = MESSAGE_ID)
-        )
-        assertEquals(listOf<BEvent>(relayed), published.sent)
-        assertEquals(listOf("hello"), interceptedContents)
-        assertEquals(emptyList(), replies)
+            val relayed = Text.Discord(
+                author = "Stevie",
+                text = "hello",
+                authorId = STEVE_ID,
+                reply = null,
+                ref = MessageRef.Discord(messageId = MESSAGE_ID)
+            )
+            assertEquals(listOf<BEvent>(relayed), published.sent)
+            assertEquals(listOf("hello"), interceptedContents)
+            assertEquals(emptyList(), replies)
+        }
     }
 
     @Test
-    fun GIVEN_interceptor_that_consumes_WHEN_bridge_message_arrives_THEN_nothing_is_relayed_or_answered() = runTest {
-        receive(listener(recording(Interception.Consumed)), message(content = "/link 1234"))
+    fun GIVEN_interceptor_that_consumes_WHEN_bridge_message_arrives_THEN_nothing_is_relayed_or_answered(): TestResult {
+        return runTest {
+            receive(listener(recording(Interception.Consumed)), message(content = "/link 1234"))
 
-        assertEquals(emptyList(), published.sent)
-        assertEquals(emptyList(), replies)
+            assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), replies)
+        }
     }
 
     @Test
-    fun GIVEN_interceptor_that_replies_WHEN_bridge_message_arrives_THEN_message_is_answered_and_not_relayed() =
-        runTest {
+    fun GIVEN_interceptor_that_replies_WHEN_bridge_message_arrives_THEN_it_is_answered_not_relayed(): TestResult {
+        return runTest {
             receive(listener(recording(Interception.Reply("Your account is linked"))), message(content = "/link 1234"))
 
             assertEquals(listOf("Your account is linked"), replies)
             assertEquals(emptyList(), published.sent)
         }
-
-    @Test
-    fun GIVEN_interceptor_that_passes_WHEN_direct_message_arrives_THEN_it_is_never_relayed() = runTest {
-        receive(
-            listener(recording(Interception.Pass)),
-            message(content = "1234", channelType = ChannelType.PRIVATE, member = null)
-        )
-
-        assertEquals(listOf("1234"), interceptedContents)
-        assertEquals(emptyList(), published.sent)
-        assertEquals(emptyList(), replies)
     }
 
     @Test
-    fun GIVEN_interceptor_that_replies_WHEN_direct_message_arrives_THEN_answer_goes_to_that_message() = runTest {
-        receive(
-            listener(recording(Interception.Reply("Code not found"))),
-            message(content = "1234", channelType = ChannelType.PRIVATE, member = null)
-        )
+    fun GIVEN_interceptor_that_passes_WHEN_direct_message_arrives_THEN_it_is_never_relayed(): TestResult {
+        return runTest {
+            receive(
+                listener(recording(Interception.Pass)),
+                message(content = "1234", channelType = ChannelType.PRIVATE, member = null)
+            )
 
-        assertEquals(listOf("Code not found"), replies)
-        assertEquals(emptyList(), published.sent)
+            assertEquals(listOf("1234"), interceptedContents)
+            assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), replies)
+        }
     }
 
     @Test
-    fun GIVEN_webhook_message_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        receive(listener(recording(Interception.Pass)), message(content = "/link 1234", isWebhook = true))
+    fun GIVEN_interceptor_that_replies_WHEN_direct_message_arrives_THEN_answer_goes_to_that_message(): TestResult {
+        return runTest {
+            receive(
+                listener(recording(Interception.Reply("Code not found"))),
+                message(content = "1234", channelType = ChannelType.PRIVATE, member = null)
+            )
 
-        assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.sent)
+            assertEquals(listOf("Code not found"), replies)
+            assertEquals(emptyList(), published.sent)
+        }
     }
 
     @Test
-    fun GIVEN_message_of_another_bot_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        receive(listener(recording(Interception.Pass)), message(content = "/link 1234", author = bot))
+    fun GIVEN_webhook_message_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            receive(listener(recording(Interception.Pass)), message(content = "/link 1234", isWebhook = true))
 
-        assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), interceptedContents)
+            assertEquals(emptyList(), published.sent)
+        }
     }
 
     @Test
-    fun GIVEN_message_in_another_channel_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        receive(listener(recording(Interception.Pass)), message(content = "/link 1234", channelId = OTHER_CHANNEL_ID))
+    fun GIVEN_message_of_another_bot_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            receive(listener(recording(Interception.Pass)), message(content = "/link 1234", author = bot))
 
-        assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), interceptedContents)
+            assertEquals(emptyList(), published.sent)
+        }
     }
 
     @Test
-    fun GIVEN_vanilla_command_WHEN_it_arrives_THEN_interceptors_never_see_it() = runTest {
-        receive(listener(recording(Interception.Pass)), message(content = "!vanilla"))
+    fun GIVEN_message_in_another_channel_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            receive(
+                listener(recording(Interception.Pass)),
+                message(content = "/link 1234", channelId = OTHER_CHANNEL_ID)
+            )
 
-        assertEquals(emptyList(), interceptedContents)
-        assertEquals(emptyList(), published.sent)
-        assertEquals(1, replies.size)
+            assertEquals(emptyList(), interceptedContents)
+            assertEquals(emptyList(), published.sent)
+        }
+    }
+
+    @Test
+    fun GIVEN_vanilla_command_WHEN_it_arrives_THEN_interceptors_never_see_it(): TestResult {
+        return runTest {
+            receive(listener(recording(Interception.Pass)), message(content = "!vanilla"))
+
+            assertEquals(emptyList(), interceptedContents)
+            assertEquals(emptyList(), published.sent)
+            assertEquals(1, replies.size)
+        }
+    }
+
+    private fun relayWithThrowingInterceptor(): TestResult {
+        return runTest {
+            receive(listener(MessageInterceptor { _ -> error("Database is locked") }), message(content = "/link 1"))
+
+            assertEquals(emptyList(), published.sent)
+            assertEquals(emptyList(), replies)
+        }
     }
 
     @Test
     fun GIVEN_interceptor_that_throws_WHEN_bridge_message_arrives_THEN_nothing_is_relayed_and_failure_is_uncaught() {
-        val t = assertFailsWith<IllegalStateException> {
-            runTest {
-                receive(listener(MessageInterceptor { _ -> error("Database is locked") }), message(content = "/link 1"))
-
-                assertEquals(emptyList(), published.sent)
-                assertEquals(emptyList(), replies)
-            }
-        }
+        val t = assertFailsWith<IllegalStateException> { relayWithThrowingInterceptor() }
 
         assertEquals("Database is locked", t.message)
     }

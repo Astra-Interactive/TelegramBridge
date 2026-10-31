@@ -111,7 +111,7 @@ internal class JdaSessionConnector(
             config = config,
             intents = MESSAGE_INTENTS + GatewayIntent.GUILD_MEMBERS
         ).fallbackOnDisallowedIntents(
-            onFallback = { warn { "#connect Server Members Intent is off: member leaves are not tracked" } },
+            notifyFallback = { warn { "#connect Server Members Intent is off: member leaves are not tracked" } },
             fallback = {
                 jdaSession(
                     okHttpClient = okHttpClient,

@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.link.di
 
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
@@ -50,56 +51,64 @@ class LinkDatabaseModuleTest {
     }
 
     @Test
-    fun GIVEN_folder_that_can_not_hold_the_database_WHEN_player_is_looked_up_THEN_fails_without_waiting() = runTest {
-        val module = startModule(blockedFolder())
+    fun GIVEN_folder_that_can_not_hold_the_database_WHEN_player_is_looked_up_THEN_fails_without_waiting(): TestResult {
+        return runTest {
+            val module = startModule(blockedFolder())
 
-        val result = module.linkedPlayerRepository.findByUuid(steveUuid)
+            val result = module.linkedPlayerRepository.findByUuid(steveUuid)
 
-        assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
-        assertEquals(0L, currentTime)
+            assertIs<LinkedPlayerStorageError>(result.exceptionOrNull())
+            assertEquals(0L, currentTime)
+        }
     }
 
     @Test
-    fun GIVEN_blocked_folder_WHEN_freed_THEN_database_opens_one_second_after_the_first_failure() = runTest {
-        val blocked = blockedFolder()
-        val module = startModule(blocked)
-        blocked.free()
+    fun GIVEN_blocked_folder_WHEN_freed_THEN_database_opens_one_second_after_the_first_failure(): TestResult {
+        return runTest {
+            val blocked = blockedFolder()
+            val module = startModule(blocked)
+            blocked.free()
 
-        advanceTimeBy(1.seconds)
-        assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
-        runCurrent()
+            advanceTimeBy(1.seconds)
+            assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
+            runCurrent()
 
-        assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
+            assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
+        }
     }
 
     @Test
-    fun GIVEN_three_failed_attempts_WHEN_folder_is_freed_THEN_fourth_attempt_comes_four_seconds_later() = runTest {
-        val blocked = blockedFolder()
-        val module = startModule(blocked)
-        failNextAttemptAfter(1.seconds)
-        failNextAttemptAfter(2.seconds)
-        blocked.free()
+    fun GIVEN_three_failed_attempts_WHEN_folder_is_freed_THEN_fourth_attempt_comes_four_seconds_later(): TestResult {
+        return runTest {
+            val blocked = blockedFolder()
+            val module = startModule(blocked)
+            failNextAttemptAfter(1.seconds)
+            failNextAttemptAfter(2.seconds)
+            blocked.free()
 
-        advanceTimeBy(4.seconds)
-        assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
-        runCurrent()
+            advanceTimeBy(4.seconds)
+            assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
+            runCurrent()
 
-        assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
-        assertEquals(7.seconds, currentTime.milliseconds)
+            assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
+            assertEquals(7.seconds, currentTime.milliseconds)
+        }
     }
 
     @Test
-    fun GIVEN_seven_failed_attempts_WHEN_folder_is_freed_THEN_next_attempt_waits_a_minute_not_longer() = runTest {
-        val blocked = blockedFolder()
-        val module = startModule(blocked)
-        listOf(1, 2, 4, 8, 16, 32).forEach { seconds -> failNextAttemptAfter(seconds.seconds) }
-        blocked.free()
+    fun GIVEN_seven_failed_attempts_WHEN_folder_is_freed_THEN_next_attempt_waits_a_minute_not_longer(): TestResult {
+        return runTest {
+            val blocked = blockedFolder()
+            val module = startModule(blocked)
+            listOf(1, 2, 4, 8, 16, 32).forEach { seconds -> failNextAttemptAfter(seconds.seconds) }
+            blocked.free()
 
-        advanceTimeBy(60.seconds)
-        assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
-        runCurrent()
+            advanceTimeBy(60.seconds)
+            assertIs<LinkedPlayerStorageError>(module.linkedPlayerRepository.findByUuid(steveUuid).exceptionOrNull())
+            runCurrent()
 
-        assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
-        assertEquals(123.seconds, currentTime.milliseconds)
+            assertNull(module.linkedPlayerRepository.findByUuid(steveUuid).getOrThrow())
+            assertEquals(123.seconds, currentTime.milliseconds)
+        }
     }
 }
