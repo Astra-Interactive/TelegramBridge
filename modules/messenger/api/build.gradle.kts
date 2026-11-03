@@ -7,7 +7,7 @@ plugins {
 }
 
 linter {
-    unitKind.set("api")
+    unit(ru.astrainteractive.klibs.rules.core.unit.model.UnitRole.Api())
     rootPackage.set("ru.astrainteractive.messagebridge.messenger.api")
 }
 

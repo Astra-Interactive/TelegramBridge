@@ -6,7 +6,7 @@ plugins {
 }
 
 linter {
-    unitKind.set("context")
+    unit(ru.astrainteractive.klibs.rules.core.unit.model.UnitRole.CorePlatform())
     rootPackage.set("ru.astrainteractive.messagebridge.core.bukkit")
 }
 
