@@ -31,6 +31,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
 import kotlin.test.assertEquals

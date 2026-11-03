@@ -13,11 +13,11 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.PaperMultipla
 import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.lifecycle.LifecyclePlugin
 import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
@@ -34,7 +34,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessenger
 import kotlin.time.Duration.Companion.seconds
 
 internal class RootModule(
-    plugin: MessageBridge
+    plugin: LifecyclePlugin
 ) : Logger by JUtiltLogger("MessageBridge-RootModule") {
 
     val bukkitCoreModule = BukkitCoreModule(plugin)

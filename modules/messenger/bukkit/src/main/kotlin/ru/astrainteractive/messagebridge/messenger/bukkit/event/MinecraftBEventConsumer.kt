@@ -82,7 +82,7 @@ internal class MinecraftBEventConsumer(
     init {
         bEventReceiver
             .receiveAsFlow()
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach(::consume)
             .launchIn(this)
     }
 }

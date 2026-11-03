@@ -10,7 +10,7 @@ import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.core.api.util.toMessengerText
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 
 internal class TelegramReplyMapper(
     configKrate: CachedKrate<PluginConfiguration>,

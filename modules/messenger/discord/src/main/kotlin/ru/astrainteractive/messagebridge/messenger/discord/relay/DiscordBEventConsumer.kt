@@ -89,7 +89,7 @@ internal class DiscordBEventConsumer(
         bEventReceiver
             .receiveAsFlow()
             .onEach { bEvent -> verbose { "#init receive event $bEvent" } }
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach(::consume)
             .launchIn(this)
     }
 

@@ -28,6 +28,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 
 internal class TelegramBEventConsumer(
     configKrate: CachedKrate<PluginConfiguration>,
@@ -150,7 +151,7 @@ internal class TelegramBEventConsumer(
     init {
         bEventReceiver
             .receiveAsFlow()
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach(::consume)
             .launchIn(this)
     }
 

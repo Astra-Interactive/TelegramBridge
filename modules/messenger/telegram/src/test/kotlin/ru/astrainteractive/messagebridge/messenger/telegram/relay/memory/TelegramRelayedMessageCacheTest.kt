@@ -1,6 +1,6 @@
 @file:Suppress("FunctionNaming", "ArgumentPerLine", "ExpressionBodyOnOneLine")
 
-package ru.astrainteractive.messagebridge.messenger.telegram.relay
+package ru.astrainteractive.messagebridge.messenger.telegram.relay.memory
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

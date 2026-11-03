@@ -1,6 +1,6 @@
 @file:Suppress("BareIdentifier", "RememberInName")
 
-package ru.astrainteractive.messagebridge.messenger.telegram.relay
+package ru.astrainteractive.messagebridge.messenger.telegram.relay.memory
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

@@ -81,7 +81,7 @@ internal class NeoForgeBEventConsumer(
     init {
         bEventReceiver
             .receiveAsFlow()
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach(::consume)
             .launchIn(this)
     }
 }

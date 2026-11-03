@@ -81,7 +81,7 @@ internal class ForgeBEventConsumer(
     init {
         bEventReceiver
             .receiveAsFlow()
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach(::consume)
             .launchIn(this)
     }
 }

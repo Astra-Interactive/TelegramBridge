@@ -45,7 +45,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.Tele
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.polling.CappedBackOff
 import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramBEventConsumer
-import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.Proxy

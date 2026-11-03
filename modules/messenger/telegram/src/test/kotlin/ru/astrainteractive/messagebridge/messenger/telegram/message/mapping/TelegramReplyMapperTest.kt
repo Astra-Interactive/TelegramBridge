@@ -15,7 +15,7 @@ import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfigurati
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
-import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

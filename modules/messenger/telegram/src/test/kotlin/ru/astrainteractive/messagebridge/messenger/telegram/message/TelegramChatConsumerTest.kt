@@ -59,7 +59,7 @@ import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.Tele
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageRelevanceMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramMessageValidatorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramReplyMapper
-import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
