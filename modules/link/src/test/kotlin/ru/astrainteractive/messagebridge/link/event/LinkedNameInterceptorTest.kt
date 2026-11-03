@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.link.event
 
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.messagebridge.link.fake.FakeLinkedPlayerRepository
 import ru.astrainteractive.messagebridge.link.model.MessengerAccount
@@ -44,95 +45,113 @@ class LinkedNameInterceptorTest {
     }
 
     @Test
-    fun GIVEN_linked_telegram_author_WHEN_intercepted_THEN_author_is_their_minecraft_name() = runTest {
-        linkSteveAndAlex()
+    fun GIVEN_linked_telegram_author_WHEN_intercepted_THEN_author_is_their_minecraft_name(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
 
-        val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = null))
+            val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = null))
 
-        assertEquals(telegram(author = "Steve", authorId = STEVE_TG, reply = null), text)
+            assertEquals(telegram(author = "Steve", authorId = STEVE_TG, reply = null), text)
+        }
     }
 
     @Test
-    fun GIVEN_linked_discord_author_WHEN_intercepted_THEN_author_is_their_minecraft_name() = runTest {
-        linkSteveAndAlex()
+    fun GIVEN_linked_discord_author_WHEN_intercepted_THEN_author_is_their_minecraft_name(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
 
-        val text = interceptor.intercept(discord(author = "Stevie", authorId = STEVE_DS, reply = null))
+            val text = interceptor.intercept(discord(author = "Stevie", authorId = STEVE_DS, reply = null))
 
-        assertEquals(discord(author = "Steve", authorId = STEVE_DS, reply = null), text)
+            assertEquals(discord(author = "Steve", authorId = STEVE_DS, reply = null), text)
+        }
     }
 
     @Test
-    fun GIVEN_author_who_never_linked_WHEN_intercepted_THEN_text_keeps_their_name() = runTest {
-        linkSteveAndAlex()
-        val original = telegram(author = "bob_tg", authorId = BOB_TG, reply = null)
+    fun GIVEN_author_who_never_linked_WHEN_intercepted_THEN_text_keeps_their_name(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            val original = telegram(author = "bob_tg", authorId = BOB_TG, reply = null)
 
-        assertEquals(original, interceptor.intercept(original))
+            assertEquals(original, interceptor.intercept(original))
+        }
     }
 
     @Test
-    fun GIVEN_telegram_reply_to_linked_author_WHEN_intercepted_THEN_reply_names_their_minecraft_name() = runTest {
-        linkSteveAndAlex()
-        val reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello", target = null)
+    fun GIVEN_telegram_reply_to_linked_author_WHEN_intercepted_THEN_reply_names_their_minecraft_name(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            val reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello", target = null)
 
-        val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
+            val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
 
-        assertEquals(reply.copy(author = "Alex"), text.reply)
+            assertEquals(reply.copy(author = "Alex"), text.reply)
+        }
     }
 
     @Test
-    fun GIVEN_discord_reply_to_linked_author_WHEN_intercepted_THEN_reply_names_their_minecraft_name() = runTest {
-        linkSteveAndAlex()
-        val reply = Text.Reply(author = "Alexa", authorId = ALEX_DS, text = "hello", target = null)
+    fun GIVEN_discord_reply_to_linked_author_WHEN_intercepted_THEN_reply_names_their_minecraft_name(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            val reply = Text.Reply(author = "Alexa", authorId = ALEX_DS, text = "hello", target = null)
 
-        val text = interceptor.intercept(discord(author = "Stevie", authorId = STEVE_DS, reply = reply))
+            val text = interceptor.intercept(discord(author = "Stevie", authorId = STEVE_DS, reply = reply))
 
-        assertEquals(reply.copy(author = "Alex"), text.reply)
+            assertEquals(reply.copy(author = "Alex"), text.reply)
+        }
     }
 
     @Test
-    fun GIVEN_reply_without_author_id_WHEN_intercepted_THEN_reply_is_unchanged() = runTest {
-        linkSteveAndAlex()
-        val reply = Text.Reply(author = "Alex", authorId = null, text = "relayed from the game", target = null)
+    fun GIVEN_reply_without_author_id_WHEN_intercepted_THEN_reply_is_unchanged(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            val reply = Text.Reply(author = "Alex", authorId = null, text = "relayed from the game", target = null)
 
-        val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
+            val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
 
-        assertEquals(reply, text.reply)
+            assertEquals(reply, text.reply)
+        }
     }
 
     @Test
-    fun GIVEN_reply_to_author_who_never_linked_WHEN_intercepted_THEN_reply_is_unchanged() = runTest {
-        linkSteveAndAlex()
-        val reply = Text.Reply(author = "bob_tg", authorId = BOB_TG, text = "hello", target = null)
+    fun GIVEN_reply_to_author_who_never_linked_WHEN_intercepted_THEN_reply_is_unchanged(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            val reply = Text.Reply(author = "bob_tg", authorId = BOB_TG, text = "hello", target = null)
 
-        val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
+            val text = interceptor.intercept(telegram(author = "s_tg", authorId = STEVE_TG, reply = reply))
 
-        assertEquals(reply, text.reply)
+            assertEquals(reply, text.reply)
+        }
     }
 
     @Test
-    fun GIVEN_unreadable_database_WHEN_intercepted_THEN_names_are_unchanged() = runTest {
-        linkSteveAndAlex()
-        linkedPlayerRepository.findFailure = IllegalStateException("Database is locked")
-        val original = telegram(
-            author = "s_tg",
-            authorId = STEVE_TG,
-            reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello", target = null)
-        )
+    fun GIVEN_unreadable_database_WHEN_intercepted_THEN_names_are_unchanged(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            linkedPlayerRepository.findFailure = IllegalStateException("Database is locked")
+            val original = telegram(
+                author = "s_tg",
+                authorId = STEVE_TG,
+                reply = Text.Reply(author = "a_tg", authorId = ALEX_TG, text = "hello", target = null)
+            )
 
-        assertEquals(original, interceptor.intercept(original))
+            assertEquals(original, interceptor.intercept(original))
+        }
     }
 
     @Test
-    fun GIVEN_message_from_the_game_WHEN_intercepted_THEN_same_text_is_returned() = runTest {
-        linkSteveAndAlex()
-        val original = Text.Minecraft(
-            author = "Steve",
-            uuid = "5e4a7f7a-0000-4000-8000-000000000002",
-            text = "hi",
-            ref = MC_REF
-        )
+    fun GIVEN_message_from_the_game_WHEN_intercepted_THEN_same_text_is_returned(): TestResult {
+        return runTest {
+            linkSteveAndAlex()
+            val original = Text.Minecraft(
+                author = "Steve",
+                uuid = "5e4a7f7a-0000-4000-8000-000000000002",
+                text = "hi",
+                ref = MC_REF
+            )
 
-        assertSame(original, interceptor.intercept(original))
+            assertSame(original, interceptor.intercept(original))
+        }
     }
 
     private companion object {

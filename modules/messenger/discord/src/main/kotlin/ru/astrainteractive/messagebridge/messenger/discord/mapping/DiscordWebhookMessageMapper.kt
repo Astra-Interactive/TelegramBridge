@@ -1,4 +1,4 @@
-@file:Suppress("ExpressionBodyOnOneLine", "FunctionVerb", "TrivialLambdaReference")
+@file:Suppress("TrivialLambdaReference")
 
 package ru.astrainteractive.messagebridge.messenger.discord.mapping
 
@@ -22,10 +22,12 @@ internal class DiscordWebhookMessageMapper(
 
     private fun String.escapeMarkdown(): String = replace(MARKDOWN_REGEX) { match -> "\\" + match.value }
 
-    private fun String.toSingleLine(): String = lineSequence()
-        .map { line -> line.trim() }
-        .filter { line -> line.isNotEmpty() }
-        .joinToString(" ")
+    private fun String.toSingleLine(): String {
+        return lineSequence()
+            .map { line -> line.trim() }
+            .filter { line -> line.isNotEmpty() }
+            .joinToString(" ")
+    }
 
     private fun content(event: Text, replyJumpUrl: String?): String {
         val reply = event.reply ?: return event.text.replace("@", "")
@@ -41,21 +43,27 @@ internal class DiscordWebhookMessageMapper(
             .replace("@", "")
     }
 
-    private fun username(event: Text, member: Member?): String = translation.chat
-        .toDiscordUsername(playerName = member?.effectiveName ?: event.author, from = event.from.short)
-        .toMessengerText()
-
-    private fun avatarUrl(event: Text, member: Member?): String = when (event) {
-        is Text.Discord -> error("Can't send discord to discord")
-        is Text.Minecraft -> member?.effectiveAvatarUrl ?: "$MC_HEADS_AVATAR_URL${event.uuid}"
-        is Text.Telegram -> member?.effectiveAvatarUrl ?: TELEGRAM_AVATAR_URL
+    private fun username(event: Text, member: Member?): String {
+        return translation.chat
+            .toDiscordUsername(playerName = member?.effectiveName ?: event.author, from = event.from.short)
+            .toMessengerText()
     }
 
-    fun map(event: Text, member: Member?, replyJumpUrl: String?): WebhookMessage = WebhookMessageBuilder()
-        .setUsername(username(event, member))
-        .setAvatarUrl(avatarUrl(event, member))
-        .setContent(content(event, replyJumpUrl))
-        .build()
+    private fun avatarUrl(event: Text, member: Member?): String {
+        return when (event) {
+            is Text.Discord -> error("Can't send discord to discord")
+            is Text.Minecraft -> member?.effectiveAvatarUrl ?: "$MC_HEADS_AVATAR_URL${event.uuid}"
+            is Text.Telegram -> member?.effectiveAvatarUrl ?: TELEGRAM_AVATAR_URL
+        }
+    }
+
+    fun toWebhookMessage(event: Text, member: Member?, replyJumpUrl: String?): WebhookMessage {
+        return WebhookMessageBuilder()
+            .setUsername(username(event, member))
+            .setAvatarUrl(avatarUrl(event, member))
+            .setContent(content(event, replyJumpUrl))
+            .build()
+    }
 
     private companion object {
         val MARKDOWN_REGEX = Regex("""[\\*_~`|\[\]]""")

@@ -5,10 +5,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import ru.astrainteractive.messagebridge.messenger.discord.model.DisallowedIntentsError
 
-internal fun <T> Flow<T>.fallbackOnDisallowedIntents(onFallback: () -> Unit, fallback: () -> Flow<T>): Flow<T> {
+internal fun <T> Flow<T>.fallbackOnDisallowedIntents(notifyFallback: () -> Unit, fallback: () -> Flow<T>): Flow<T> {
     return catch { t ->
         if (t !is DisallowedIntentsError) throw t
-        onFallback.invoke()
+        notifyFallback.invoke()
         emitAll(fallback.invoke())
     }
 }

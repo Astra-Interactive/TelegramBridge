@@ -1,4 +1,4 @@
-@file:Suppress("DataClassContainsFunctions", "ExpressionBodyOnOneLine")
+@file:Suppress("DataClassContainsFunctions", "ExpressionBodyOnOneLine", "FileLength")
 
 package ru.astrainteractive.messagebridge.core.api.config.model
 
@@ -12,10 +12,6 @@ import ru.astrainteractive.astralibs.localization.locale.MinecraftLocales
 import ru.astrainteractive.astralibs.localization.text.LocalizedText
 import ru.astrainteractive.messagebridge.core.api.text.model.TextPreview
 
-/**
- * Texts of the plugin, grouped by the feature that sends them. Every text has a default, so the plugin works
- * without `translations.yml` and a missing key keeps its default.
- */
 @Serializable
 data class PluginTranslation(
     @SerialName("command_error")
@@ -83,7 +79,6 @@ data class PluginTranslation(
         }
     )
 
-    /** Messages relayed between Minecraft and the Telegram or Discord chat. */
     @Serializable
     data class Chat(
         @SerialName("to_minecraft")
@@ -140,10 +135,6 @@ data class PluginTranslation(
             translation(MinecraftLocales.RU_RU, "Анонимус")
         }
     ) {
-        /**
-         * [playerName] and [message] come from Telegram or Discord users, so they are inserted as plain text:
-         * otherwise anyone in the chat could broadcast a `<click:run_command:…>` to every dao.
-         */
         fun toMinecraft(
             playerName: String,
             message: String,
@@ -236,7 +227,6 @@ data class PluginTranslation(
         }
     }
 
-    /** Announcements of players joining, leaving and dying, for the Telegram chat. */
     @Serializable
     data class Player(
         @SerialName("joined")
@@ -301,7 +291,6 @@ data class PluginTranslation(
             return discordDiedOfUnknownCause.replace("%dao%", name)
         }
 
-        /** A death without a known [cause] reads [unknownDeathCause] in the same language. */
         fun died(name: String, cause: String?): LocalizableComponent {
             val causeReplacement = if (cause == null) {
                 PlaceholderReplacement(placeholder = "%cause%", value = unknownDeathCause)
@@ -312,7 +301,6 @@ data class PluginTranslation(
         }
     }
 
-    /** Announcements of the server starting and stopping, for the Telegram chat. */
     @Serializable
     data class Server(
         @SerialName("started")
@@ -342,7 +330,6 @@ data class PluginTranslation(
         }
     )
 
-    /** Reply to the online-players command in Telegram and Discord. */
     @Serializable
     data class OnlinePlayers(
         @SerialName("message")

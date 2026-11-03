@@ -28,6 +28,7 @@ import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageSender
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 
 internal class TelegramBEventConsumer(
     configKrate: CachedKrate<PluginConfiguration>,
@@ -46,9 +47,7 @@ internal class TelegramBEventConsumer(
     private suspend fun replyTargetOf(reply: Text.Reply): Int? {
         val target = reply.target ?: return null
         val chatId = tgConfig.chatID.toLongOrNull() ?: return null
-        if (target is MessageRef.Telegram) {
-            return target.messageId.takeIf { target.chatId == chatId }
-        }
+        if (target is MessageRef.Telegram) return target.messageId.takeIf { target.chatId == chatId }
         return relayedMessageCache.copyOf(target, chatId)
     }
 
@@ -152,7 +151,7 @@ internal class TelegramBEventConsumer(
     init {
         bEventReceiver
             .receiveAsFlow()
-            .onEach { bEvent -> consume(bEvent) }
+            .onEach(::consume)
             .launchIn(this)
     }
 

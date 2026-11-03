@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
@@ -135,89 +136,106 @@ class DiscordBEventConsumerTest {
                 translationKrate = translationKrate
             ),
             embedMapper = DiscordEmbedMapper(translationKrate),
-            memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
-            webhookMessageMapper = DiscordWebhookMessageMapper(configKrate, translationKrate),
-            relayedMessageCache = relayedMessageCache,
+            textRelay = DiscordTextRelay(
+                memberResolver = DiscordMemberResolver(DiscordAuthorResolver { _ -> null }),
+                webhookMessageMapper = DiscordWebhookMessageMapper(configKrate, translationKrate),
+                relayedMessageCache = relayedMessageCache
+            ),
             translationKrate = translationKrate,
             bEventReceiver = FakeBEventReceiver(emptyFlow())
         )
     }
 
     @Test
-    fun GIVEN_discord_not_configured_WHEN_server_closed_is_consumed_THEN_it_returns_at_once() = runTest {
-        consumer(DiscordChannel.Disabled).consume(ServerClosedBEvent)
+    fun GIVEN_discord_not_configured_WHEN_server_closed_is_consumed_THEN_it_returns_at_once(): TestResult {
+        return runTest {
+            consumer(DiscordChannel.Disabled).consume(ServerClosedBEvent)
 
-        assertEquals(Duration.ZERO, currentTime.milliseconds)
-        assertTrue(sentMessages.isEmpty())
+            assertEquals(Duration.ZERO, currentTime.milliseconds)
+            assertTrue(sentMessages.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_discord_failed_WHEN_chat_message_is_consumed_THEN_it_is_skipped_at_once() = runTest {
-        consumer(DiscordChannel.Failed).consume(steveMessage)
+    fun GIVEN_discord_failed_WHEN_chat_message_is_consumed_THEN_it_is_skipped_at_once(): TestResult {
+        return runTest {
+            consumer(DiscordChannel.Failed).consume(steveMessage)
 
-        assertEquals(Duration.ZERO, currentTime.milliseconds)
-        assertTrue(webhookClient.sent.isEmpty())
+            assertEquals(Duration.ZERO, currentTime.milliseconds)
+            assertTrue(webhookClient.sent.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_discord_connecting_WHEN_event_is_consumed_THEN_it_is_skipped_after_thirty_seconds() = runTest {
-        consumer(DiscordChannel.Connecting).consume(ServerClosedBEvent)
+    fun GIVEN_discord_connecting_WHEN_event_is_consumed_THEN_it_is_skipped_after_thirty_seconds(): TestResult {
+        return runTest {
+            consumer(DiscordChannel.Connecting).consume(ServerClosedBEvent)
 
-        assertEquals(CONNECTING_TIMEOUT, currentTime.milliseconds)
-        assertTrue(sentMessages.isEmpty())
+            assertEquals(CONNECTING_TIMEOUT, currentTime.milliseconds)
+            assertTrue(sentMessages.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_discord_connecting_WHEN_it_gets_ready_within_the_wait_THEN_the_event_is_sent() = runTest {
-        val state = MutableStateFlow<DiscordChannel>(DiscordChannel.Connecting)
-        val delivery = launch { consumer(state).consume(ServerClosedBEvent) }
-        advanceTimeBy(CONNECTING_TIMEOUT / 2)
+    fun GIVEN_discord_connecting_WHEN_it_gets_ready_within_the_wait_THEN_the_event_is_sent(): TestResult {
+        return runTest {
+            val state = MutableStateFlow<DiscordChannel>(DiscordChannel.Connecting)
+            val delivery = launch { consumer(state).consume(ServerClosedBEvent) }
+            advanceTimeBy(CONNECTING_TIMEOUT / 2)
 
-        state.value = ready
-        runCurrent()
+            state.value = ready
+            runCurrent()
 
-        assertTrue(delivery.isCompleted)
-        assertEquals(listOf(SERVER_CLOSED_MESSAGE), sentMessages)
+            assertTrue(delivery.isCompleted)
+            assertEquals(listOf(SERVER_CLOSED_MESSAGE), sentMessages)
+        }
     }
 
     @Test
-    fun GIVEN_ready_discord_WHEN_server_closed_is_consumed_THEN_stop_message_is_sent_without_touching_the_topic() =
-        runTest {
+    fun GIVEN_ready_discord_WHEN_server_closed_is_consumed_THEN_stop_message_is_sent_topic_untouched(): TestResult {
+        return runTest {
             consumer(ready).consume(ServerClosedBEvent)
 
             assertEquals(listOf(SERVER_CLOSED_MESSAGE), sentMessages)
             assertEquals(0, topicEdits)
         }
-
-    @Test
-    fun GIVEN_ready_discord_WHEN_minecraft_chat_message_is_consumed_THEN_webhook_sends_it_as_the_player() = runTest {
-        consumer(ready).consume(steveMessage)
-
-        val message = webhookClient.sent.single()
-        assertEquals("[MC] Steve", message.username)
-        assertEquals("hello", message.content)
-        assertTrue(sentMessages.isEmpty())
     }
 
     @Test
-    fun GIVEN_ready_discord_WHEN_chat_message_is_sent_THEN_it_is_remembered_under_the_webhook_message_id() = runTest {
-        consumer(ready).consume(steveMessage)
+    fun GIVEN_ready_discord_WHEN_minecraft_chat_message_is_consumed_THEN_webhook_sends_it_as_the_player(): TestResult {
+        return runTest {
+            consumer(ready).consume(steveMessage)
 
-        assertEquals<Text?>(steveMessage, relayedMessageCache.find(messageId = 1L))
+            val message = webhookClient.sent.single()
+            assertEquals("[MC] Steve", message.username)
+            assertEquals("hello", message.content)
+            assertTrue(sentMessages.isEmpty())
+        }
     }
 
     @Test
-    fun GIVEN_telegram_reply_to_a_discord_message_WHEN_consumed_THEN_the_subtext_links_to_that_message() = runTest {
-        consumer(ready).consume(alexReply)
+    fun GIVEN_ready_discord_WHEN_chat_message_is_sent_THEN_it_is_remembered_under_the_webhook_message_id(): TestResult {
+        return runTest {
+            consumer(ready).consume(steveMessage)
 
-        val message = webhookClient.sent.single()
-        assertEquals("[TG] steve_tg", message.username)
-        assertEquals("-# ↪ [Alex]($CHANNEL_JUMP_URL/$DISCORD_MESSAGE_ID): hi\nyes", message.content)
+            assertEquals<Text?>(steveMessage, relayedMessageCache.find(messageId = 1L))
+        }
     }
 
     @Test
-    fun GIVEN_telegram_reply_to_a_relayed_minecraft_message_WHEN_consumed_THEN_the_subtext_links_to_the_copy() =
-        runTest {
+    fun GIVEN_telegram_reply_to_a_discord_message_WHEN_consumed_THEN_the_subtext_links_to_that_message(): TestResult {
+        return runTest {
+            consumer(ready).consume(alexReply)
+
+            val message = webhookClient.sent.single()
+            assertEquals("[TG] steve_tg", message.username)
+            assertEquals("-# ↪ [Alex]($CHANNEL_JUMP_URL/$DISCORD_MESSAGE_ID): hi\nyes", message.content)
+        }
+    }
+
+    @Test
+    fun GIVEN_telegram_reply_to_relayed_minecraft_message_WHEN_consumed_THEN_subtext_links_to_the_copy(): TestResult {
+        return runTest {
             val consumer = consumer(ready)
             consumer.consume(steveMessage)
 
@@ -225,28 +243,33 @@ class DiscordBEventConsumerTest {
 
             assertEquals("-# ↪ [Alex]($CHANNEL_JUMP_URL/1): hi\nyes", webhookClient.sent.last().content)
         }
-
-    @Test
-    fun GIVEN_telegram_reply_to_a_message_discord_never_saw_WHEN_consumed_THEN_the_subtext_has_no_link() = runTest {
-        val unknown = MessageRef.Minecraft(messageId = "relayed-before-restart")
-
-        consumer(ready).consume(alexReply.copy(reply = alexReply.reply?.copy(target = unknown)))
-
-        assertEquals("-# ↪ Alex: hi\nyes", webhookClient.sent.single().content)
     }
 
     @Test
-    fun GIVEN_webhook_that_fails_WHEN_chat_message_is_consumed_THEN_consume_returns() = runTest {
-        webhookClient.failure = IllegalStateException("429: You are being rate limited")
+    fun GIVEN_telegram_reply_to_a_message_discord_never_saw_WHEN_consumed_THEN_the_subtext_has_no_link(): TestResult {
+        return runTest {
+            val unknown = MessageRef.Minecraft(messageId = "relayed-before-restart")
 
-        consumer(ready).consume(steveMessage)
+            consumer(ready).consume(alexReply.copy(reply = alexReply.reply?.copy(target = unknown)))
 
-        assertEquals(1, webhookClient.sent.size)
+            assertEquals("-# ↪ Alex: hi\nyes", webhookClient.sent.single().content)
+        }
     }
 
     @Test
-    fun GIVEN_jda_cancels_the_send_WHEN_server_closed_is_consumed_THEN_consume_returns_and_the_caller_stays_active() =
-        runTest {
+    fun GIVEN_webhook_that_fails_WHEN_chat_message_is_consumed_THEN_consume_returns(): TestResult {
+        return runTest {
+            webhookClient.failure = IllegalStateException("429: You are being rate limited")
+
+            consumer(ready).consume(steveMessage)
+
+            assertEquals(1, webhookClient.sent.size)
+        }
+    }
+
+    @Test
+    fun GIVEN_jda_cancels_send_WHEN_server_closed_is_consumed_THEN_consume_returns_caller_stays_active(): TestResult {
+        return runTest {
             sendAnswer = JdaAnswer { args ->
                 args[1]
                     ?.tryCast<Consumer<Throwable>>()
@@ -257,17 +280,20 @@ class DiscordBEventConsumerTest {
 
             assertTrue(isActive)
         }
-
-    @Test
-    fun GIVEN_chat_message_of_only_at_signs_WHEN_consumed_THEN_consume_returns_and_nothing_is_sent() = runTest {
-        consumer(ready).consume(steveMessage.copy(text = "@@"))
-
-        assertTrue(webhookClient.sent.isEmpty())
     }
 
     @Test
-    fun GIVEN_discord_connecting_WHEN_consumed_within_the_shutdown_timeout_THEN_it_gives_up_at_that_timeout() =
-        runTest {
+    fun GIVEN_chat_message_of_only_at_signs_WHEN_consumed_THEN_consume_returns_and_nothing_is_sent(): TestResult {
+        return runTest {
+            consumer(ready).consume(steveMessage.copy(text = "@@"))
+
+            assertTrue(webhookClient.sent.isEmpty())
+        }
+    }
+
+    @Test
+    fun GIVEN_discord_connecting_WHEN_consumed_within_shutdown_timeout_THEN_it_gives_up(): TestResult {
+        return runTest {
             val consumed = withTimeoutOrNull(SHUTDOWN_TIMEOUT) {
                 consumer(DiscordChannel.Connecting).consume(ServerClosedBEvent)
             }
@@ -275,10 +301,11 @@ class DiscordBEventConsumerTest {
             assertNull(consumed)
             assertEquals(SHUTDOWN_TIMEOUT, currentTime.milliseconds)
         }
+    }
 
     @Test
-    fun GIVEN_discord_that_never_answers_WHEN_consumed_within_the_shutdown_timeout_THEN_it_gives_up_at_that_timeout() =
-        runTest {
+    fun GIVEN_discord_never_answering_WHEN_consumed_within_shutdown_timeout_THEN_it_gives_up(): TestResult {
+        return runTest {
             sendAnswer = JdaAnswer { _ -> null }
 
             val consumed = withTimeoutOrNull(SHUTDOWN_TIMEOUT) { consumer(ready).consume(ServerClosedBEvent) }
@@ -286,34 +313,38 @@ class DiscordBEventConsumerTest {
             assertNull(consumed)
             assertEquals(SHUTDOWN_TIMEOUT, currentTime.milliseconds)
         }
-
-    @Test
-    fun GIVEN_ready_discord_WHEN_message_from_discord_is_consumed_THEN_it_is_not_sent_back() = runTest {
-        val discordMessage = Text.Discord(
-            author = "Stevie",
-            text = "hi",
-            authorId = 1L,
-            reply = null,
-            ref = MessageRef.Discord(messageId = 1L)
-        )
-
-        consumer(ready).consume(discordMessage)
-
-        assertTrue(sentMessages.isEmpty())
-        assertTrue(webhookClient.sent.isEmpty())
     }
 
     @Test
-    fun GIVEN_bot_that_cannot_edit_the_topic_WHEN_server_open_is_consumed_THEN_the_start_message_is_still_sent() =
-        runTest {
+    fun GIVEN_ready_discord_WHEN_message_from_discord_is_consumed_THEN_it_is_not_sent_back(): TestResult {
+        return runTest {
+            val discordMessage = Text.Discord(
+                author = "Stevie",
+                text = "hi",
+                authorId = 1L,
+                reply = null,
+                ref = MessageRef.Discord(messageId = 1L)
+            )
+
+            consumer(ready).consume(discordMessage)
+
+            assertTrue(sentMessages.isEmpty())
+            assertTrue(webhookClient.sent.isEmpty())
+        }
+    }
+
+    @Test
+    fun GIVEN_bot_that_cannot_edit_topic_WHEN_server_open_is_consumed_THEN_start_message_is_still_sent(): TestResult {
+        return runTest {
             consumer(ready).consume(ServerOpenBEvent)
 
             assertEquals(listOf(SERVER_OPEN_MESSAGE), sentMessages)
         }
+    }
 
     @Test
-    fun GIVEN_topic_edit_held_by_a_rate_limit_WHEN_server_open_is_consumed_THEN_the_start_message_is_sent_at_once() =
-        runTest {
+    fun GIVEN_topic_edit_held_by_rate_limit_WHEN_server_open_is_consumed_THEN_start_message_is_sent(): TestResult {
+        return runTest {
             val manager = topicManagerHeldByRateLimit()
             topicManager = JdaAnswer { _ -> manager }
 
@@ -322,22 +353,25 @@ class DiscordBEventConsumerTest {
             assertEquals(listOf(SERVER_OPEN_MESSAGE), sentMessages)
             assertEquals(Duration.ZERO, currentTime.milliseconds)
         }
+    }
 
     @Test
-    fun GIVEN_translated_server_texts_WHEN_server_open_is_consumed_THEN_the_translated_start_message_is_sent() =
-        runTest {
+    fun GIVEN_translated_server_texts_WHEN_server_open_is_consumed_THEN_translated_start_message_is_sent(): TestResult {
+        return runTest {
             consumer(MutableStateFlow(ready), translatedServerTexts).consume(ServerOpenBEvent)
 
             assertEquals(listOf("Server is up"), sentMessages)
         }
+    }
 
     @Test
-    fun GIVEN_translated_server_texts_WHEN_server_closed_is_consumed_THEN_the_translated_stop_message_is_sent() =
-        runTest {
+    fun GIVEN_translated_server_texts_WHEN_server_closed_is_consumed_THEN_translated_stop_is_sent(): TestResult {
+        return runTest {
             consumer(MutableStateFlow(ready), translatedServerTexts).consume(ServerClosedBEvent)
 
             assertEquals(listOf("Server is down"), sentMessages)
         }
+    }
 
     private companion object {
         const val ALEX_ID = 43L

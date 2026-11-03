@@ -2,6 +2,7 @@
 
 package ru.astrainteractive.messagebridge.messenger.discord.message
 
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
@@ -34,9 +35,11 @@ class DiscordMessageSenderTest {
     )
 
     @Test
-    fun GIVEN_discord_rejects_the_reply_WHEN_replied_THEN_it_is_requested_once_and_reply_returns() = runTest {
-        DiscordMessageSender().reply(message, "hello")
+    fun GIVEN_discord_rejects_the_reply_WHEN_replied_THEN_it_is_requested_once_and_reply_returns(): TestResult {
+        return runTest {
+            DiscordMessageSender().reply(message, "hello")
 
-        assertEquals(1, replyRequests)
+            assertEquals(1, replyRequests)
+        }
     }
 }

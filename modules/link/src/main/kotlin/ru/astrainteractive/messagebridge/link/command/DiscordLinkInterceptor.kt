@@ -27,6 +27,7 @@ import ru.astrainteractive.messagebridge.link.util.toLinkCode
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.discord.util.await
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
+import kotlin.Result.Companion.success
 
 internal class DiscordLinkInterceptor(
     private val linkAccountUseCase: LinkAccountUseCase,
@@ -39,9 +40,7 @@ internal class DiscordLinkInterceptor(
 
     private fun linkCode(event: MessageReceivedEvent): Int? {
         val contentRaw = event.message.contentRaw
-        if (event.channelType == ChannelType.PRIVATE) {
-            return contentRaw.toIntOrNull() ?: INVALID_LINK_CODE
-        }
+        if (event.channelType == ChannelType.PRIVATE) return contentRaw.toIntOrNull() ?: INVALID_LINK_CODE
         return contentRaw.toLinkCode()
     }
 
@@ -55,7 +54,7 @@ internal class DiscordLinkInterceptor(
         return runCatching { guild.retrieveMemberById(event.author.idLong).await() }
             .propagateCancellationException()
             .fold(
-                onSuccess = { member -> Result.success(member) },
+                onSuccess = ::success,
                 onFailure = { t ->
                     if (t.tryCast<ErrorResponseException>()?.errorResponse == ErrorResponse.UNKNOWN_MEMBER) {
                         info { "#bridgeMemberOf ${event.author.idLong} is not on the server: ${t.message}" }

@@ -5,6 +5,7 @@ package ru.astrainteractive.messagebridge.messenger.forge.event
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import ru.astrainteractive.klibs.kstorage.api.asCachedKrate
 import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
@@ -46,8 +47,10 @@ class ForgeBEventConsumerTest {
     }
 
     @Test
-    fun GIVEN_main_thread_unavailable_WHEN_chat_message_is_consumed_THEN_consume_returns() = runTest {
-        consumer().consume(telegramText)
+    fun GIVEN_main_thread_unavailable_WHEN_chat_message_is_consumed_THEN_consume_returns(): TestResult {
+        return runTest {
+            consumer().consume(telegramText)
+        }
     }
 
     private companion object {

@@ -2,6 +2,8 @@
 
 package ru.astrainteractive.messagebridge.di
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -11,17 +13,18 @@ import ru.astrainteractive.astralibs.command.api.brigadier.command.PaperMultipla
 import ru.astrainteractive.astralibs.command.api.registrar.PaperCommandRegistrarContext
 import ru.astrainteractive.astralibs.coroutines.DefaultBukkitDispatchers
 import ru.astrainteractive.astralibs.lifecycle.Lifecycle
+import ru.astrainteractive.astralibs.lifecycle.LifecyclePlugin
 import ru.astrainteractive.astralibs.server.bridge.BukkitPlatformServer
 import ru.astrainteractive.astralibs.server.permission.LuckPermsProvider
 import ru.astrainteractive.klibs.mikro.core.logging.JUtiltLogger
 import ru.astrainteractive.klibs.mikro.core.logging.Logger
-import ru.astrainteractive.messagebridge.MessageBridge
 import ru.astrainteractive.messagebridge.command.di.CommandModule
 import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 import ru.astrainteractive.messagebridge.core.bukkit.di.BukkitCoreModule
 import ru.astrainteractive.messagebridge.integration.luckperms.di.LuckPermsModule
 import ru.astrainteractive.messagebridge.link.di.LinkModule
 import ru.astrainteractive.messagebridge.messenger.api.api.BEventChannel
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordMemberLeave
 import ru.astrainteractive.messagebridge.messenger.api.memory.InMemoryBEventChannel
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerClosedBEvent
 import ru.astrainteractive.messagebridge.messenger.api.model.ServerOpenBEvent
@@ -30,8 +33,8 @@ import ru.astrainteractive.messagebridge.messenger.discord.di.JdaMessengerModule
 import ru.astrainteractive.messagebridge.messenger.telegram.di.TelegramMessengerModule
 import kotlin.time.Duration.Companion.seconds
 
-class RootModule(
-    plugin: MessageBridge
+internal class RootModule(
+    plugin: LifecyclePlugin
 ) : Logger by JUtiltLogger("MessageBridge-RootModule") {
 
     val bukkitCoreModule = BukkitCoreModule(plugin)
@@ -51,12 +54,15 @@ class RootModule(
 
     private val bEventChannel: BEventChannel = InMemoryBEventChannel()
 
+    private val discordMemberLeaves = Channel<DiscordMemberLeave>(Channel.UNLIMITED)
+
     private val luckPermsModule = LuckPermsModule(coreModule, LuckPermsProvider.Default)
 
     val linkModule = LinkModule(
         coreModule = coreModule,
         addLinkRole = luckPermsModule.linkRoleRepository::addLinkRole,
-        removeLinkedRole = luckPermsModule.linkRoleRepository::removeLinkedRole
+        removeLinkedRole = luckPermsModule.linkRoleRepository::removeLinkedRole,
+        memberLeaves = discordMemberLeaves.receiveAsFlow()
     )
 
     val bukkitMessengerModule = BukkitMessengerModule(
@@ -71,7 +77,7 @@ class RootModule(
         bEventChannel = bEventChannel,
         messageInterceptors = listOf(linkModule.discordLinkInterceptor),
         authorResolver = linkModule.discordAuthorResolver,
-        memberLeaveListeners = listOf(linkModule.discordMemberLeaveListener),
+        memberLeaves = discordMemberLeaves,
         roleChanges = linkModule.discordRoleChanges
     )
 
@@ -110,6 +116,7 @@ class RootModule(
             lifecycles.forEach(Lifecycle::onReload)
         },
         onDisable = {
+            @Suppress("RunBlockingOutsideBoundary")
             runBlocking {
                 withTimeoutOrNull(SERVER_CLOSED_TIMEOUT) {
                     listOf(telegramMessengerModule.bEventConsumer, jdaMessengerModule.bEventConsumer)

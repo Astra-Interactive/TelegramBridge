@@ -8,8 +8,8 @@ import ru.astrainteractive.messagebridge.core.api.di.CoreModule
 
 class CommandModule(
     lifecyclePlugin: Lifecycle,
-    private val coreModule: CoreModule,
-    private val commandRegistrarContext: CommandRegistrarContext
+    coreModule: CoreModule,
+    commandRegistrarContext: CommandRegistrarContext
 ) {
     private val nodes = listOf(
         ReloadLiteralArgumentBuilder(

@@ -5,6 +5,12 @@ plugins {
     id("ru.astrainteractive.gradleplugin.java.version")
 }
 
+linter {
+    unit(ru.astrainteractive.klibs.rules.core.unit.model.UnitRole.Context())
+    rootPackage.set("ru.astrainteractive.messagebridge.link")
+    technologyWords.add("lambda")
+}
+
 dependencies {
     compileOnly(libs.minecraft.brigadier)
     compileOnly(libs.minecraft.kyori.api)

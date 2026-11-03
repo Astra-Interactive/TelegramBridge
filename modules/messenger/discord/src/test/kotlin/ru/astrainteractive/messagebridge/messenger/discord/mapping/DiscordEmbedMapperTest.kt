@@ -35,38 +35,38 @@ class DiscordEmbedMapperTest {
 
     @Test
     fun GIVEN_translated_texts_WHEN_returning_player_joins_THEN_embed_reads_the_join_text() {
-        assertEquals("Steve is back", translatedMapper.map(returningSteve).author?.name)
+        assertEquals("Steve is back", translatedMapper.toEmbed(returningSteve).author?.name)
     }
 
     @Test
     fun GIVEN_translated_texts_WHEN_new_player_joins_THEN_embed_reads_the_first_join_text() {
-        assertEquals("Steve is new here", translatedMapper.map(newSteve).author?.name)
+        assertEquals("Steve is new here", translatedMapper.toEmbed(newSteve).author?.name)
     }
 
     @Test
     fun GIVEN_translated_texts_WHEN_player_leaves_THEN_embed_reads_the_leave_text() {
-        assertEquals("Steve is gone", translatedMapper.map(leavingSteve).author?.name)
+        assertEquals("Steve is gone", translatedMapper.toEmbed(leavingSteve).author?.name)
     }
 
     @Test
     fun GIVEN_translated_texts_WHEN_player_dies_of_unknown_cause_THEN_embed_reads_the_death_text() {
-        assertEquals("Steve just died", translatedMapper.map(deadSteve).author?.name)
+        assertEquals("Steve just died", translatedMapper.toEmbed(deadSteve).author?.name)
     }
 
     @Test
     fun GIVEN_translated_texts_WHEN_player_dies_of_known_cause_THEN_embed_reads_the_game_death_message() {
         val death = deadSteve.copy(cause = "Steve tried to swim in lava")
 
-        assertEquals("Steve tried to swim in lava", translatedMapper.map(death).author?.name)
+        assertEquals("Steve tried to swim in lava", translatedMapper.toEmbed(death).author?.name)
     }
 
     @Test
     fun GIVEN_default_translation_WHEN_player_events_are_mapped_THEN_embeds_read_the_english_texts() {
         val authorNames = listOf(
-            defaultMapper.map(returningSteve),
-            defaultMapper.map(newSteve),
-            defaultMapper.map(leavingSteve),
-            defaultMapper.map(deadSteve)
+            defaultMapper.toEmbed(returningSteve),
+            defaultMapper.toEmbed(newSteve),
+            defaultMapper.toEmbed(leavingSteve),
+            defaultMapper.toEmbed(deadSteve)
         ).map { embed -> embed.author?.name }
 
         assertEquals(

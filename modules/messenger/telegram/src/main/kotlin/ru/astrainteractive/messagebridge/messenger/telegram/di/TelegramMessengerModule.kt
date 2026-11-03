@@ -1,17 +1,19 @@
-@file:Suppress("ArgumentPerLine", "GetOrThrowInMain", "TrivialLambdaReference")
+@file:Suppress("ArgumentPerLine", "GetOrThrowInMain", "TrivialLambdaReference", "ForbiddenImport/executor")
 
 package ru.astrainteractive.messagebridge.messenger.telegram.di
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.shareIn
@@ -33,6 +35,8 @@ import ru.astrainteractive.messagebridge.messenger.api.api.BEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramChatConsumer
 import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramCommandHandler
+import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageRejector
+import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageRelay
 import ru.astrainteractive.messagebridge.messenger.telegram.message.TelegramMessageSender
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramAuthorMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramCommandMapper
@@ -41,9 +45,8 @@ import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.Tele
 import ru.astrainteractive.messagebridge.messenger.telegram.message.mapping.TelegramReplyMapper
 import ru.astrainteractive.messagebridge.messenger.telegram.polling.CappedBackOff
 import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramBEventConsumer
-import ru.astrainteractive.messagebridge.messenger.telegram.relay.TelegramRelayedMessageCache
+import ru.astrainteractive.messagebridge.messenger.telegram.relay.memory.TelegramRelayedMessageCache
 import java.net.Inet4Address
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.Executors
@@ -58,11 +61,9 @@ class TelegramMessengerModule(
     messageInterceptors: List<MessageInterceptor<Update>>,
 ) : Logger by JUtiltLogger("MessageBridge-TelegramMessengerModule") {
 
-    private val ipv4FirstDns = object : Dns {
-        override fun lookup(hostname: String): List<InetAddress> {
-            val resolved = Dns.SYSTEM.lookup(hostname)
-            return resolved.filterIsInstance<Inet4Address>().ifEmpty { resolved }
-        }
+    private val ipv4FirstDns = Dns { hostname ->
+        val resolved = Dns.SYSTEM.lookup(hostname)
+        resolved.filterIsInstance<Inet4Address>().ifEmpty { resolved }
     }
 
     private val okHttpClientFlow = coreModule.configKrate.cachedStateFlow
@@ -147,54 +148,22 @@ class TelegramMessengerModule(
     private val consumer = TelegramChatConsumer(
         ioScope = coreModule.ioScope,
         dispatchers = coreModule.dispatchers,
-        translationKrate = coreModule.translationKrate,
         relevanceChecker = relevanceChecker,
         validator = messageValidator,
-        replyMapper = replyMapper,
-        commandParser = commandParser,
         commandHandler = commandHandler,
-        messageSender = messageSender,
-        bEventConsumer = bEventChannel,
-        messageInterceptors = messageInterceptors,
+        messageRelay = TelegramMessageRelay(
+            commandParser = commandParser,
+            commandHandler = commandHandler,
+            replyMapper = replyMapper,
+            messageSender = messageSender,
+            bEventConsumer = bEventChannel,
+            messageInterceptors = messageInterceptors,
+        ),
+        messageRejector = TelegramMessageRejector(
+            translationKrate = coreModule.translationKrate,
+            messageSender = messageSender,
+        ),
     )
-
-    private val bridgeBotFlow = coreModule.configKrate
-        .cachedStateFlow
-        .map { tgConfig -> tgConfig.tgConfig }
-        .distinctUntilChanged()
-        .combine(okHttpClientFlow) { tgConfig, okHttpClient ->
-            val registrationBackOff = CappedBackOff()
-            channelFlow {
-                val pollerExecutor = Executors.newSingleThreadScheduledExecutor()
-                val tgLpApplication = TelegramBotsLongPollingApplication(
-                    Supplier(::ObjectMapper),
-                    Supplier { okHttpClient },
-                    Supplier { pollerExecutor },
-                    Supplier { CappedBackOff() }
-                )
-                runCatching { runInterruptible { tgLpApplication.registerBot(tgConfig.token, consumer) } }
-                    .onFailure { pollerExecutor.shutdownNow() }
-                    .getOrThrow()
-                info { "#bridgeBotFlow loaded!" }
-                send(tgLpApplication)
-                awaitClose {
-                    info { "#bridgeBotFlow closing TelegramBotsLongPollingApplication..." }
-                    okHttpClient.dispatcher.cancelAll()
-                    tgLpApplication.unregisterBot(tgConfig.token)
-                    tgLpApplication.stop()
-                    tgLpApplication.close()
-                    pollerExecutor.shutdownNow()
-                }
-            }.retryWhen { throwable, _ ->
-                if (throwable !is TelegramApiException) return@retryWhen false
-                val retryDelay = registrationBackOff.nextBackOffMillis().milliseconds
-                warn { "#bridgeBotFlow could not register bot, retrying in $retryDelay: ${throwable.message}" }
-                delay(retryDelay)
-                true
-            }
-        }
-        .flatMapLatest { tgLpApplicationFlow -> tgLpApplicationFlow }
-        .shareIn(coreModule.ioScope, SharingStarted.Eagerly, 1)
 
     val lifecycle = Lifecycle.Lambda(
         onDisable = {
@@ -225,13 +194,56 @@ class TelegramMessengerModule(
         return builder.build()
     }
 
+    init {
+        coreModule.configKrate
+            .cachedStateFlow
+            .map { tgConfig -> tgConfig.tgConfig }
+            .distinctUntilChanged()
+            .combine(okHttpClientFlow) { tgConfig, okHttpClient ->
+                val registrationBackOff = CappedBackOff()
+                flow {
+                    val pollerExecutor = Executors.newSingleThreadScheduledExecutor()
+                    try {
+                        TelegramBotsLongPollingApplication(
+                            Supplier(::ObjectMapper),
+                            Supplier { okHttpClient },
+                            Supplier { pollerExecutor },
+                            Supplier { CappedBackOff() }
+                        ).use { tgLpApplication ->
+                            runInterruptible { tgLpApplication.registerBot(tgConfig.token, consumer) }
+                            info { "#bridgeBotFlow loaded!" }
+                            emit(tgLpApplication)
+                            try {
+                                awaitCancellation()
+                            } finally {
+                                info { "#bridgeBotFlow closing TelegramBotsLongPollingApplication..." }
+                                okHttpClient.dispatcher.cancelAll()
+                                tgLpApplication.unregisterBot(tgConfig.token)
+                                tgLpApplication.stop()
+                            }
+                        }
+                    } finally {
+                        pollerExecutor.shutdownNow()
+                    }
+                }.retryWhen { throwable, _ ->
+                    if (throwable !is TelegramApiException) return@retryWhen false
+                    val retryDelay = registrationBackOff.nextBackOffMillis().milliseconds
+                    warn { "#bridgeBotFlow could not register bot, retrying in $retryDelay: ${throwable.message}" }
+                    delay(retryDelay)
+                    true
+                }
+            }
+            .flatMapLatest { tgLpApplicationFlow -> tgLpApplicationFlow }
+            .launchIn(coreModule.ioScope)
+    }
+
     private companion object {
-        /** Spent on every unreachable address before the next one is tried. */
+        // Spent on every unreachable address before the next one is tried.
         val CONNECT_TIMEOUT = 10.seconds
 
         val WRITE_TIMEOUT = 70.seconds
 
-        /** Must exceed the getUpdates timeout, which holds the connection open. */
+        // Must exceed the getUpdates timeout, which holds the connection open.
         val READ_TIMEOUT = 100.seconds
 
         val PING_INTERVAL = 15.seconds

@@ -5,6 +5,11 @@ plugins {
     id("ru.astrainteractive.gradleplugin.java.version")
 }
 
+linter {
+    unit(ru.astrainteractive.klibs.rules.core.unit.model.UnitRole.CorePlatform())
+    rootPackage.set("ru.astrainteractive.messagebridge.core.bukkit")
+}
+
 dependencies {
     compileOnly(libs.minecraft.paper.api)
 

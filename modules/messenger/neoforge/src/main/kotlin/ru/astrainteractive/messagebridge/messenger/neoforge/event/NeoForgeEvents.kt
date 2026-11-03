@@ -25,7 +25,7 @@ import java.util.UUID
 internal class NeoForgeEvents(
     configKrate: CachedKrate<PluginConfiguration>,
     private val ioScope: CoroutineScope,
-    private val bEventConsumer: BEventConsumer
+    bEventConsumer: BEventConsumer
 ) : Logger by JUtiltLogger("MessageBridge-NeoForgeEvents") {
     private val config by configKrate
 

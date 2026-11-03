@@ -3,19 +3,19 @@
 package ru.astrainteractive.messagebridge.messenger.discord.relay
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import net.dv8tion.jda.api.requests.ErrorResponse
-import net.dv8tion.jda.api.requests.Response
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction
 import ru.astrainteractive.klibs.mikro.core.util.tryCast
 import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
 import ru.astrainteractive.messagebridge.messenger.api.model.MessageRef
 import ru.astrainteractive.messagebridge.messenger.api.model.Text
 import ru.astrainteractive.messagebridge.messenger.discord.fake.JdaAnswer
+import ru.astrainteractive.messagebridge.messenger.discord.fake.errorResponseExceptionFake
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
 import java.net.SocketTimeoutException
 import java.util.function.Consumer
@@ -54,7 +54,7 @@ class DiscordMemberResolverTest {
     )
 
     private val failedRetrieval: CacheRestAction<Member> = failingRetrieval(
-        ErrorResponseException.create(ErrorResponse.UNKNOWN_MEMBER, Response(null, 404, "Not Found", -1, emptySet()))
+        errorResponseExceptionFake(ErrorResponse.UNKNOWN_MEMBER, 404, "Not Found")
     )
 
     private val cancelledRetrieval: CacheRestAction<Member> = jdaFake(
@@ -124,84 +124,96 @@ class DiscordMemberResolverTest {
     }
 
     @Test
-    fun GIVEN_author_without_discord_id_WHEN_resolved_THEN_no_member_and_guild_is_never_asked() = runTest {
-        val member = resolver(discordId = null).resolve(jdaFake(emptyMap()), steveText)
+    fun GIVEN_author_without_discord_id_WHEN_resolved_THEN_no_member_and_guild_is_never_asked(): TestResult {
+        return runTest {
+            val member = resolver(discordId = null).resolve(jdaFake(emptyMap()), steveText)
 
-        assertNull(member)
-        assertEquals(listOf<Text>(steveText), resolvedTexts)
+            assertNull(member)
+            assertEquals(listOf<Text>(steveText), resolvedTexts)
+        }
     }
 
     @Test
-    fun GIVEN_author_whose_member_is_cached_WHEN_resolved_THEN_cached_member_is_used() = runTest {
-        val member = resolver(discordId = DISCORD_ID).resolve(channel(cached = cachedMember), steveText)
+    fun GIVEN_author_whose_member_is_cached_WHEN_resolved_THEN_cached_member_is_used(): TestResult {
+        return runTest {
+            val member = resolver(discordId = DISCORD_ID).resolve(channel(cached = cachedMember), steveText)
 
-        assertSame(cachedMember, member)
-        assertEquals(listOf("getMemberById:$DISCORD_ID"), guildCalls)
+            assertSame(cachedMember, member)
+            assertEquals(listOf("getMemberById:$DISCORD_ID"), guildCalls)
+        }
     }
 
     @Test
-    fun GIVEN_author_whose_member_is_not_cached_WHEN_resolved_THEN_member_is_fetched_from_discord() = runTest {
-        val member = resolver(discordId = DISCORD_ID).resolve(channel(cached = null), steveText)
+    fun GIVEN_author_whose_member_is_not_cached_WHEN_resolved_THEN_member_is_fetched_from_discord(): TestResult {
+        return runTest {
+            val member = resolver(discordId = DISCORD_ID).resolve(channel(cached = null), steveText)
 
-        assertSame(fetchedMember, member)
-        assertEquals(listOf("getMemberById:$DISCORD_ID", "retrieveMemberById:$DISCORD_ID"), guildCalls)
+            assertSame(fetchedMember, member)
+            assertEquals(listOf("getMemberById:$DISCORD_ID", "retrieveMemberById:$DISCORD_ID"), guildCalls)
+        }
     }
 
     @Test
-    fun GIVEN_linked_author_who_left_the_server_WHEN_resolved_THEN_no_member_instead_of_a_failure() = runTest {
-        val channel = channel(cached = null, retrieval = failedRetrieval)
+    fun GIVEN_linked_author_who_left_the_server_WHEN_resolved_THEN_no_member_instead_of_a_failure(): TestResult {
+        return runTest {
+            val channel = channel(cached = null, retrieval = failedRetrieval)
 
-        val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+            val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
 
-        assertNull(member)
+            assertNull(member)
+        }
     }
 
     @Test
-    fun GIVEN_linked_author_who_left_the_server_WHEN_resolved_THEN_it_is_logged_as_not_on_the_server() = runTest {
-        val channel = channel(cached = null, retrieval = failedRetrieval)
+    fun GIVEN_linked_author_who_left_the_server_WHEN_resolved_THEN_it_is_logged_as_not_on_the_server(): TestResult {
+        return runTest {
+            val channel = channel(cached = null, retrieval = failedRetrieval)
 
-        resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+            resolver(discordId = DISCORD_ID).resolve(channel, steveText)
 
-        assertEquals(listOf(Level.INFO), logRecords.map { record -> record.level })
-        assertTrue("not on the server" in logRecords.single().message)
+            assertEquals(listOf(Level.INFO), logRecords.map(LogRecord::getLevel))
+            assertTrue("not on the server" in logRecords.single().message)
+        }
     }
 
     @Test
-    fun GIVEN_member_request_that_jda_cancels_WHEN_resolved_THEN_no_member_and_a_warning_not_a_missing_member() =
-        runTest {
+    fun GIVEN_member_request_jda_cancels_WHEN_resolved_THEN_no_member_and_a_warning_not_missing_member(): TestResult {
+        return runTest {
             val channel = channel(cached = null, retrieval = cancelledRetrieval)
 
             val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
 
             assertNull(member)
-            assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
+            assertEquals(listOf(Level.WARNING), logRecords.map(LogRecord::getLevel))
             assertFalse("not on the server" in logRecords.single().message)
         }
-
-    @Test
-    fun GIVEN_member_request_that_times_out_WHEN_resolved_THEN_no_member_and_a_warning_with_the_reason() = runTest {
-        val channel = channel(cached = null, retrieval = failingRetrieval(SocketTimeoutException("Read timed out")))
-
-        val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
-
-        assertNull(member)
-        assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
-        assertTrue("Read timed out" in logRecords.single().message)
     }
 
     @Test
-    fun GIVEN_discord_server_error_WHEN_resolved_THEN_no_member_and_a_warning_not_a_missing_member() = runTest {
-        val serverError = ErrorResponseException.create(
-            ErrorResponse.SERVER_ERROR,
-            Response(null, 500, "Internal Server Error", -1, emptySet())
-        )
-        val channel = channel(cached = null, retrieval = failingRetrieval(serverError))
+    fun GIVEN_member_request_that_times_out_WHEN_resolved_THEN_no_member_and_a_warning_with_the_reason(): TestResult {
+        return runTest {
+            val channel = channel(cached = null, retrieval = failingRetrieval(SocketTimeoutException("Read timed out")))
 
-        val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+            val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
 
-        assertNull(member)
-        assertEquals(listOf(Level.WARNING), logRecords.map { record -> record.level })
-        assertFalse("not on the server" in logRecords.single().message)
+            assertNull(member)
+            assertEquals(listOf(Level.WARNING), logRecords.map(LogRecord::getLevel))
+            assertTrue("Read timed out" in logRecords.single().message)
+        }
+    }
+
+    @Test
+    fun GIVEN_discord_server_error_WHEN_resolved_THEN_no_member_and_a_warning_not_a_missing_member(): TestResult {
+        return runTest {
+            val serverError = errorResponseExceptionFake(ErrorResponse.SERVER_ERROR, 500, "Internal Server Error")
+            val channel = channel(cached = null, retrieval = failingRetrieval(serverError))
+
+            val member = resolver(discordId = DISCORD_ID).resolve(channel, steveText)
+
+            assertNull(member)
+            assertEquals(listOf(Level.WARNING), logRecords.map(LogRecord::getLevel))
+            assertFalse("not on the server" in logRecords.single().message)
+        }
     }
 
     private companion object {

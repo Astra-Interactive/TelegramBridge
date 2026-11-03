@@ -3,13 +3,14 @@
 
 package ru.astrainteractive.messagebridge.messenger.discord.listener
 
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -27,7 +28,8 @@ import ru.astrainteractive.klibs.kstorage.api.impl.DefaultMutableKrate
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginConfiguration
 import ru.astrainteractive.messagebridge.core.api.config.model.PluginTranslation
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
-import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordMemberLeave
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordUserId
 import ru.astrainteractive.messagebridge.messenger.api.fake.FakeBEventConsumer
 import ru.astrainteractive.messagebridge.messenger.api.model.Interception
 import ru.astrainteractive.messagebridge.messenger.discord.fake.jdaFake
@@ -45,8 +47,7 @@ import kotlin.test.assertTrue
 class DiscordEventsTest {
     private val eventManager = InterfacedEventManager()
     private val interceptedContents = mutableListOf<String>()
-    private val heardLeaves = mutableListOf<String>()
-    private val uncaught = mutableListOf<Throwable>()
+    private val memberLeaves = Channel<DiscordMemberLeave>(Channel.UNLIMITED)
     private val messageEventListener = MessageEventListener(
         relevanceMapper = DiscordMessageRelevanceMapper(
             configKrate = DefaultMutableKrate(factory = { PluginConfiguration() }, loader = { null }).asCachedKrate()
@@ -78,24 +79,20 @@ class DiscordEventsTest {
     private fun TestScope.eventsScope(): CoroutineScope = backgroundScope.coroutineContext.job
         .let(::SupervisorJob)
         .let(backgroundScope.coroutineContext::plus)
-        .plus(CoroutineExceptionHandler { _, t -> uncaught += t })
         .let(::CoroutineScope)
 
-    private fun TestScope.startEvents(
-        ioScope: CoroutineScope,
-        vararg memberLeaveListeners: DiscordMemberLeaveListener
-    ) {
+    private fun TestScope.startEvents(ioScope: CoroutineScope) {
         DiscordEvents(
             eventManager = eventManager,
             messageEventListener = messageEventListener,
-            memberLeaveListeners = memberLeaveListeners.toList(),
+            memberLeaves = memberLeaves,
             ioScope = ioScope
         )
         runCurrent()
     }
 
-    private fun recordingLeaves(name: String) = DiscordMemberLeaveListener { discordUserId ->
-        heardLeaves += "$name:$discordUserId"
+    private fun sentLeaves(): List<DiscordMemberLeave> {
+        return generateSequence { memberLeaves.tryReceive().getOrNull() }.toList()
     }
 
     private fun memberLeft(jda: JDA, discordUserId: Long): GuildMemberRemoveEvent {
@@ -122,66 +119,60 @@ class DiscordEventsTest {
     }
 
     @Test
-    fun GIVEN_running_events_WHEN_jda_dispatches_a_direct_message_THEN_interceptors_get_it() = runTest {
-        startEvents(eventsScope())
+    fun GIVEN_running_events_WHEN_jda_dispatches_a_direct_message_THEN_interceptors_get_it(): TestResult {
+        return runTest {
+            startEvents(eventsScope())
 
-        eventManager.handle(directMessage("1234"))
-        runCurrent()
-        messageEventListener.coroutineContext.job.children.toList().joinAll()
+            eventManager.handle(directMessage("1234"))
+            runCurrent()
+            messageEventListener.coroutineContext.job.children.toList().joinAll()
 
-        assertEquals(listOf("1234"), interceptedContents)
-    }
-
-    @Test
-    fun GIVEN_two_leave_listeners_WHEN_jda_dispatches_a_member_leave_THEN_both_hear_the_discord_id() = runTest {
-        startEvents(eventsScope(), recordingLeaves("first"), recordingLeaves("second"))
-
-        eventManager.handle(memberLeft(jdaFake(emptyMap()), STEVE_ID))
-        runCurrent()
-
-        assertEquals(listOf("first:$STEVE_ID", "second:$STEVE_ID"), heardLeaves)
-    }
-
-    @Test
-    fun GIVEN_leave_listener_that_throws_WHEN_two_members_leave_THEN_the_second_leave_is_still_heard() = runTest {
-        val failingOnSteve = DiscordMemberLeaveListener { discordUserId ->
-            check(discordUserId != STEVE_ID) { "Database is locked" }
-            heardLeaves += "$discordUserId"
+            assertEquals(listOf("1234"), interceptedContents)
         }
-        startEvents(eventsScope(), failingOnSteve)
-        val jda: JDA = jdaFake(emptyMap())
-
-        eventManager.handle(memberLeft(jda, STEVE_ID))
-        eventManager.handle(memberLeft(jda, ALEX_ID))
-        runCurrent()
-
-        assertEquals(listOf("$ALEX_ID"), heardLeaves)
-        assertEquals(listOf("Database is locked"), uncaught.map { t -> t.message })
     }
 
     @Test
-    fun GIVEN_session_that_was_replaced_WHEN_the_new_jda_dispatches_a_member_leave_THEN_it_is_heard() = runTest {
-        startEvents(eventsScope(), recordingLeaves("listener"))
+    fun GIVEN_running_events_WHEN_jda_dispatches_a_member_leave_THEN_the_discord_id_is_sent(): TestResult {
+        return runTest {
+            startEvents(eventsScope())
 
-        eventManager.handle(memberLeft(jdaFake(emptyMap()), STEVE_ID))
-        eventManager.handle(memberLeft(jdaFake(emptyMap()), ALEX_ID))
-        runCurrent()
+            eventManager.handle(memberLeft(jdaFake(emptyMap()), STEVE_ID))
+            runCurrent()
 
-        assertEquals(listOf("listener:$STEVE_ID", "listener:$ALEX_ID"), heardLeaves)
+            assertEquals(listOf(DiscordMemberLeave(DiscordUserId(STEVE_ID))), sentLeaves())
+        }
     }
 
     @Test
-    fun GIVEN_events_scope_cancelled_WHEN_a_member_leaves_THEN_nobody_hears_it() = runTest {
-        val ioScope = eventsScope()
-        startEvents(ioScope, recordingLeaves("listener"))
+    fun GIVEN_replaced_session_WHEN_new_jda_dispatches_a_member_leave_THEN_both_leaves_are_sent(): TestResult {
+        return runTest {
+            startEvents(eventsScope())
 
-        ioScope.cancel()
-        runCurrent()
-        eventManager.handle(memberLeft(jdaFake(emptyMap()), STEVE_ID))
-        runCurrent()
+            eventManager.handle(memberLeft(jdaFake(emptyMap()), STEVE_ID))
+            eventManager.handle(memberLeft(jdaFake(emptyMap()), ALEX_ID))
+            runCurrent()
 
-        assertTrue(eventManager.registeredListeners.isEmpty())
-        assertTrue(heardLeaves.isEmpty())
+            assertEquals(
+                listOf(DiscordMemberLeave(DiscordUserId(STEVE_ID)), DiscordMemberLeave(DiscordUserId(ALEX_ID))),
+                sentLeaves()
+            )
+        }
+    }
+
+    @Test
+    fun GIVEN_events_scope_cancelled_WHEN_a_member_leaves_THEN_nothing_is_sent(): TestResult {
+        return runTest {
+            val ioScope = eventsScope()
+            startEvents(ioScope)
+
+            ioScope.cancel()
+            runCurrent()
+            eventManager.handle(memberLeft(jdaFake(emptyMap()), STEVE_ID))
+            runCurrent()
+
+            assertTrue(eventManager.registeredListeners.isEmpty())
+            assertTrue(sentLeaves().isEmpty())
+        }
     }
 
     private companion object {

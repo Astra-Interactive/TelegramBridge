@@ -1,5 +1,3 @@
-@file:Suppress("FunctionVerb")
-
 package ru.astrainteractive.messagebridge.messenger.discord.message
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -32,7 +30,7 @@ internal class DiscordCommandHandler(
         messageSender.reply(event.message, text)
     }
 
-    suspend fun handle(command: DiscordCommand, event: MessageReceivedEvent) {
+    suspend fun replyToCommand(command: DiscordCommand, event: MessageReceivedEvent) {
         when (command) {
             DiscordCommand.Vanilla -> sendVanilla(event)
         }

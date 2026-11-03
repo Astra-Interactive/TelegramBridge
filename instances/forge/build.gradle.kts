@@ -14,6 +14,11 @@ plugins {
     alias(libs.plugins.gradle.forge.jarjar)
 }
 
+linter {
+    unit(ru.astrainteractive.klibs.rules.core.unit.model.UnitRole.EntryPoint())
+    rootPackage.set("ru.astrainteractive.messagebridge")
+}
+
 repositories {
     minecraft.mavenizer(this)
     mavenCentral()

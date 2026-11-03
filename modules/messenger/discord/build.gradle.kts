@@ -7,7 +7,8 @@ plugins {
 }
 
 linter {
-    unitKind.set("technology")
+    unit(ru.astrainteractive.klibs.rules.core.unit.model.UnitRole.Platform())
+    rootPackage.set("ru.astrainteractive.messagebridge.messenger.discord")
 }
 
 dependencies {
@@ -22,6 +23,8 @@ dependencies {
 
     implementation(projects.modules.core.api)
     implementation(projects.modules.messenger.api)
+
+    testFixturesImplementation(libs.jda)
 
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.minecraft.kyori.api)

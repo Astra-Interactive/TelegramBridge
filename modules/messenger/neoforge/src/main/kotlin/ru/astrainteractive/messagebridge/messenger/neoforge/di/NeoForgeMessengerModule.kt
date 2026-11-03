@@ -14,11 +14,6 @@ class NeoForgeMessengerModule(
     bEventChannel: BEventChannel,
 ) {
 
-    private val neoForgeEvents = NeoForgeEvents(
-        configKrate = coreModule.configKrate,
-        ioScope = coreModule.ioScope,
-        bEventConsumer = bEventChannel
-    )
     private val minecraftMessageController = NeoForgeBEventConsumer(
         translationKrate = coreModule.translationKrate,
         dispatchers = coreModule.dispatchers,
@@ -30,4 +25,12 @@ class NeoForgeMessengerModule(
             minecraftMessageController.cancel()
         }
     )
+
+    init {
+        NeoForgeEvents(
+            configKrate = coreModule.configKrate,
+            ioScope = coreModule.ioScope,
+            bEventConsumer = bEventChannel
+        )
+    }
 }

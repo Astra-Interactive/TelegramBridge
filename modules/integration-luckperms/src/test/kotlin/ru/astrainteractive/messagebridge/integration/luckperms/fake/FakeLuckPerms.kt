@@ -25,7 +25,7 @@ internal class FakeLuckPerms(
 
     private val userManager: UserManager = proxy { method, args ->
         when (method.name) {
-            "modifyUser" -> modifyUser(args[0] as UUID, args[1])
+            "modifyUser" -> modifyUser((args[0] ?: error("modifyUser needs the user id")) as UUID, args[1])
             else -> unsupported(method)
         }
     }
@@ -76,7 +76,7 @@ internal class FakeLuckPerms(
         lateinit var builder: InheritanceNode.Builder
         builder = proxy { method, args ->
             when (method.name) {
-                "group" -> builder.also { group = args.single() as String }
+                "group" -> builder.also { group = (args.single() ?: error("group needs a name")) as String }
                 "build" -> groupNode(group)
                 else -> unsupported(method)
             }
@@ -85,7 +85,7 @@ internal class FakeLuckPerms(
     }
 
     private fun mutate(uuid: UUID, node: Any?, change: (MutableSet<String>, String) -> Unit): DataMutateResult {
-        val inheritanceNode = node as InheritanceNode
+        val inheritanceNode = (node ?: error("The node is missing")) as InheritanceNode
         mutationCount++
         change.invoke(groupsByUser.getOrPut(uuid) { mutableSetOf() }, inheritanceNode.groupName)
         return DataMutateResult.SUCCESS
@@ -111,11 +111,9 @@ internal class FakeLuckPerms(
         }
     }
 
-    private fun modifyUser(uuid: UUID, action: Any?): CompletableFuture<Void> {
+    private fun modifyUser(uuid: UUID, action: Any?): CompletableFuture<Nothing?> {
         Consumer::class.java.getMethod("accept", Any::class.java).invoke(action, user(uuid))
-        if (saveFailure != null) {
-            return CompletableFuture.failedFuture(saveFailure)
-        }
+        if (saveFailure != null) return CompletableFuture.failedFuture(saveFailure)
         return CompletableFuture.completedFuture(null)
     }
 

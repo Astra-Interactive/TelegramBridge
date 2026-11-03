@@ -1,5 +1,3 @@
-@file:Suppress("FunctionVerb")
-
 package ru.astrainteractive.messagebridge.messenger.discord.message
 
 import kotlinx.coroutines.launch
@@ -43,16 +41,16 @@ internal class MessageEventListener(
                 author = event.member?.nickname ?: event.author.name,
                 text = event.message.contentRaw,
                 authorId = event.author.idLong,
-                reply = replyMapper.map(event.message),
+                reply = replyMapper.toReply(event.message),
                 ref = MessageRef.Discord(messageId = event.message.idLong),
             )
         )
     }
 
-    private suspend fun process(event: MessageReceivedEvent) {
-        val command = commandMapper.map(event.message.contentRaw)
+    private suspend fun dispatchMessage(event: MessageReceivedEvent) {
+        val command = commandMapper.toCommand(event.message.contentRaw)
         if (command != null) {
-            commandHandler.handle(command, event)
+            commandHandler.replyToCommand(command, event)
             return
         }
         if (runInterceptors(event) != Interception.Pass) return
@@ -60,8 +58,8 @@ internal class MessageEventListener(
     }
 
     fun onMessageReceived(event: MessageReceivedEvent) {
-        when (relevanceMapper.map(event)) {
-            DiscordMessageRelevance.Relevant -> launch { process(event) }
+        when (relevanceMapper.toRelevance(event)) {
+            DiscordMessageRelevance.Relevant -> launch { dispatchMessage(event) }
             DiscordMessageRelevance.PrivateMessage -> launch { runInterceptors(event) }
             DiscordMessageRelevance.WebhookMessage,
             DiscordMessageRelevance.BotAuthor,

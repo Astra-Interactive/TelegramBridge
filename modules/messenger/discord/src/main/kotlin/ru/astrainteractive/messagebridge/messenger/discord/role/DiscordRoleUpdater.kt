@@ -26,6 +26,7 @@ internal class DiscordRoleUpdater(
 ) : CoroutineFeature by CoroutineFeature.IO.withTimings(),
     Logger by JUtiltLogger("MessageBridge-DiscordRoleUpdater") {
 
+    @Suppress("ForbiddenVoid")
     private fun DiscordRoleChange.restAction(guild: Guild, role: Role): AuditableRestAction<Void> {
         val user = UserSnowflake.fromId(discordUserId)
         return when (this) {

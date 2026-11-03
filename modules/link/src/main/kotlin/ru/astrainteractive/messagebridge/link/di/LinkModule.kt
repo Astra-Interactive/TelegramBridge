@@ -2,7 +2,10 @@ package ru.astrainteractive.messagebridge.link.di
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.astrainteractive.astralibs.command.api.registrar.registerWhenReady
@@ -18,28 +21,29 @@ import ru.astrainteractive.messagebridge.link.command.TelegramLinkInterceptor
 import ru.astrainteractive.messagebridge.link.command.UnlinkCommandExecutor
 import ru.astrainteractive.messagebridge.link.command.UnlinkLiteralArgumentBuilder
 import ru.astrainteractive.messagebridge.link.event.LinkedDiscordAuthorResolver
-import ru.astrainteractive.messagebridge.link.event.LinkedMemberLeaveListener
 import ru.astrainteractive.messagebridge.link.event.LinkedNameInterceptor
+import ru.astrainteractive.messagebridge.link.lambda.LambdaLinkRoleRepository
 import ru.astrainteractive.messagebridge.link.usecase.GrantLinkedDiscordRoleUseCase
 import ru.astrainteractive.messagebridge.link.usecase.LinkAccountUseCase
 import ru.astrainteractive.messagebridge.link.usecase.RevokeLinkedDiscordRoleUseCase
+import ru.astrainteractive.messagebridge.link.usecase.UnlinkLeftDiscordMemberUseCase
 import ru.astrainteractive.messagebridge.messenger.api.api.MessageInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.api.TextInterceptor
 import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordAuthorResolver
-import ru.astrainteractive.messagebridge.messenger.api.discord.api.DiscordMemberLeaveListener
+import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordMemberLeave
 import ru.astrainteractive.messagebridge.messenger.api.discord.model.DiscordRoleChange
 import java.util.UUID
 
 class LinkModule(
     coreModule: CoreModule,
     addLinkRole: (UUID) -> Unit,
-    removeLinkedRole: (UUID) -> Unit
+    removeLinkedRole: (UUID) -> Unit,
+    memberLeaves: Flow<DiscordMemberLeave>
 ) {
-    private val linkRoleRepository = object : LinkRoleRepository {
-        override fun addLinkRole(uuid: UUID) = addLinkRole.invoke(uuid)
-
-        override fun removeLinkedRole(uuid: UUID) = removeLinkedRole.invoke(uuid)
-    }
+    private val linkRoleRepository: LinkRoleRepository = LambdaLinkRoleRepository(
+        addLinkRole = addLinkRole,
+        removeLinkedRole = removeLinkedRole
+    )
 
     private val linkDatabaseModule = LinkDatabaseModule(
         ioScope = coreModule.ioScope,
@@ -82,7 +86,7 @@ class LinkModule(
         translationKrate = coreModule.translationKrate
     )
 
-    val discordMemberLeaveListener: DiscordMemberLeaveListener = LinkedMemberLeaveListener(
+    private val unlinkLeftDiscordMemberUseCase = UnlinkLeftDiscordMemberUseCase(
         linkedPlayerRepository = linkedPlayerRepository,
         linkRoleRepository = linkRoleRepository
     )
@@ -122,6 +126,11 @@ class LinkModule(
     val lifecycle: Lifecycle = Lifecycle.Lambda(
         onEnable = {
             coreModule.commandRegistrarContext.registerWhenReady(commandNodes, coreModule.unconfinedScope)
+            memberLeaves
+                .onEach { leave ->
+                    coreModule.ioScope.launch { unlinkLeftDiscordMemberUseCase.invoke(leave.discordUserId.value) }
+                }
+                .launchIn(coreModule.ioScope)
         }
     )
 }

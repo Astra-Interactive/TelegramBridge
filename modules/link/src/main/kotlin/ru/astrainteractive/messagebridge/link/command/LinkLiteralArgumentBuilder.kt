@@ -28,7 +28,10 @@ internal class LinkLiteralArgumentBuilder(
     fun create(): LiteralArgumentBuilder<Any> {
         return with(multiplatformCommand) {
             command("link") {
-                argument("user", StringArgumentType.string()) { userArg ->
+                argument(
+                    "user",
+                    StringArgumentType.string()
+                ) { userArg ->
                     hints { platformServer.getOnlinePlayers().map(OnlineKPlayer::name) }
                     runs(commandExceptionHandler::handle) { ctx ->
                         val offlinePlayer = ctx.requireArgument(userArg, KPlayerArgumentConverter(platformServer))
