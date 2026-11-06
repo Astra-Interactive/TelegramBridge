@@ -62,8 +62,11 @@ class DiscordLinkInterceptorTest {
     ).asCachedKrate()
     private val roleChanges = Channel<DiscordRoleChange>(Channel.UNLIMITED)
     private var memberOnServer: Member? = null
-    private var memberRequestFailure: Throwable =
-        errorResponseExceptionFake(ErrorResponse.UNKNOWN_MEMBER, 404, "Not Found")
+    private var memberRequestFailure: Throwable = errorResponseExceptionFake(
+        ErrorResponse.UNKNOWN_MEMBER,
+        404,
+        "Not Found"
+    )
     private val memberRequest: CacheRestAction<Member> = jdaFake(
         mapOf(
             "queue" to JdaAnswer { args ->

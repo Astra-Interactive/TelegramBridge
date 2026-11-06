@@ -68,7 +68,6 @@ internal class DiscordWebhookMessageMapper(
     private companion object {
         val MARKDOWN_REGEX = Regex("""[\\*_~`|\[\]]""")
         const val MC_HEADS_AVATAR_URL = "https://mc-heads.net/avatar/"
-        const val TELEGRAM_AVATAR_URL =
-            "https://upload.wikimedia.org/wikipedia/commons/5/5c/Telegram_Messenger.png"
+        const val TELEGRAM_AVATAR_URL = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Telegram_Messenger.png"
     }
 }

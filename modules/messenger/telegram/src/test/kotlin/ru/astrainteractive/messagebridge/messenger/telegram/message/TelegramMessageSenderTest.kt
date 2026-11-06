@@ -170,8 +170,8 @@ class TelegramMessageSenderTest {
         const val TOKEN = "123:token"
         const val CHAT_ID = "-1001"
         const val FORBIDDEN_JSON = """{"ok":false,"error_code":403,"description":"Forbidden: bot was kicked"}"""
-        const val SENT_JSON =
-            """{"ok":true,"result":{"message_id":101,"date":1700000000,"chat":{"id":-1001,"type":"supergroup"}}}"""
+        const val SENT_JSON = """{"ok":true,"result":{"message_id":101,"date":1700000000,""" +
+            """"chat":{"id":-1001,"type":"supergroup"}}}"""
 
         fun floodWaitJson(seconds: Int): String {
             return """{"ok":false,"error_code":429,"description":"Too Many Requests: retry after $seconds",""" +
